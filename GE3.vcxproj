@@ -44,10 +44,12 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(ProjectDir)lib\DirectXTex\include;$(ProjectDir)lib\imgui\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)lib\DirectXTex\include;$(ProjectDir)lib\Imgui\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(ProjectDir)lib\DirectXTex\lib\$(Configuration);$(ProjectDir)lib\imgui\lib\$(Configuration);$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(ProjectDir)lib\DirectXTex\include;$(ProjectDir)lib\imgui\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)lib\DirectXTex\include;$(ProjectDir)lib\Imgui\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(ProjectDir)lib\DirectXTex\lib\$(Configuration);$(ProjectDir)lib\imgui\lib\$(Configuration);$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -58,12 +60,13 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
       <TreatWarningAsError>true</TreatWarningAsError>
       <AdditionalOptions>/uft-8 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalIncludeDirectories>$(ProjectDir)Externals\DirectXTex;$(ProjectDir)Externals\Imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
-      <AdditionalDependencies>DirectXTex.lib;imgui.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -77,6 +80,7 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
       <TreatWarningAsError>true</TreatWarningAsError>
       <AdditionalOptions>/uft-8 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalIncludeDirectories>$(ProjectDir)Externals\DirectXTex;$(ProjectDir)Externals\Imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -84,20 +88,41 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
-      <AdditionalDependencies>DirectXTex.lib;imgui.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Game\Engine\ConvertString\ConvertString.cpp" />
     <ClCompile Include="Game\Engine\DirectXCommon\DirectXCommon.cpp" />
+    <ClCompile Include="Game\Engine\Graphics\CommandQueue.cpp" />
+    <ClCompile Include="Game\Engine\Graphics\DescriptorHeap.cpp" />
+    <ClCompile Include="Game\Engine\Graphics\GraphicsCore.cpp" />
     <ClCompile Include="Game\Engine\ImGui\ImGuiManager.cpp" />
+    <ClCompile Include="Game\Engine\Input\Input.cpp" />
+    <ClCompile Include="Game\Engine\Math\Matrix4x4.cpp" />
+    <ClCompile Include="Game\Engine\Math\MyMath.cpp" />
+    <ClCompile Include="Game\Engine\Math\ViewProjection.cpp" />
+    <ClCompile Include="Game\Engine\Math\WorldTransform.cpp" />
     <ClCompile Include="Game\Engine\WinApp\WinApp.cpp" />
     <ClCompile Include="Game\main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game\Engine\ConvertString\ConvertString.h" />
     <ClInclude Include="Game\Engine\DirectXCommon\DirectXCommon.h" />
+    <ClInclude Include="Game\Engine\Graphics\CommandQueue.h" />
+    <ClInclude Include="Game\Engine\Graphics\DescriptorHeap.h" />
+    <ClInclude Include="Game\Engine\Graphics\GraphicsCore.h" />
     <ClInclude Include="Game\Engine\ImGui\ImGuiManager.h" />
+    <ClInclude Include="Game\Engine\Input\Input.h" />
+    <ClInclude Include="Game\Engine\Math\AABB.h" />
+    <ClInclude Include="Game\Engine\Math\Matrix4x4.h" />
+    <ClInclude Include="Game\Engine\Math\MyMath.h" />
+    <ClInclude Include="Game\Engine\Math\OBB.h" />
+    <ClInclude Include="Game\Engine\Math\Vector2.h" />
+    <ClInclude Include="Game\Engine\Math\Vector3.h" />
+    <ClInclude Include="Game\Engine\Math\Vector4.h" />
+    <ClInclude Include="Game\Engine\Math\ViewProjection.h" />
+    <ClInclude Include="Game\Engine\Math\WorldTransform.h" />
     <ClInclude Include="Game\Engine\WinApp\WinApp.h" />
   </ItemGroup>
   <ItemGroup>

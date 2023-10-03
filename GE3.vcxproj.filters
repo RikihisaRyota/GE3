@@ -1,78 +1,121 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="ソース ファイル">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
-    </Filter>
-    <Filter Include="ヘッダー ファイル">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
-    </Filter>
-    <Filter Include="リソース ファイル">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
-    </Filter>
-    <Filter Include="ヘッダー ファイル\Engine">
+    <Filter Include="Engine">
       <UniqueIdentifier>{944bf8aa-1b3e-4114-a230-ce1ad4890f0f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ヘッダー ファイル\Engine\WinApp">
+    <Filter Include="Engine\WinApp">
       <UniqueIdentifier>{6c90fb82-6550-4e5c-b081-06156ad9e489}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ヘッダー ファイル\Engine\ImGui">
+    <Filter Include="Engine\ImGui">
       <UniqueIdentifier>{b18b82c8-98da-4545-8479-c61f74d7771e}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ヘッダー ファイル\Engine\ConvertString">
+    <Filter Include="Engine\ConvertString">
       <UniqueIdentifier>{12bdc4ba-ff86-4019-a42e-bd488330f3cb}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ソース ファイル\Engine">
-      <UniqueIdentifier>{123d4347-df43-48d0-85c2-40655e7e042c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ソース ファイル\Engine\WinApp">
-      <UniqueIdentifier>{1c198403-b998-4f47-a7f1-4ac2e4b9d2f3}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ソース ファイル\Engine\ImGui">
-      <UniqueIdentifier>{b2a82b7c-398d-45c2-9a2e-74a48b3d1294}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ソース ファイル\Engine\ConvertString">
-      <UniqueIdentifier>{a575ba86-3dd0-4bb3-94f8-335292ab9982}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ソース ファイル\Engine\DirectXCommon">
-      <UniqueIdentifier>{f3e71fba-517e-4776-903f-94062ba7486c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ヘッダー ファイル\Engine\DirectXCommon">
+    <Filter Include="Engine\DirectXCommon">
       <UniqueIdentifier>{7b5cc5cf-6b81-46a4-80b5-d0f36db2ea9a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Input">
+      <UniqueIdentifier>{1e417f2e-51b3-4617-987c-0a7e595205cc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Math">
+      <UniqueIdentifier>{4a5a378f-f1a8-4496-b68b-d3bb86a79f59}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Graphics">
+      <UniqueIdentifier>{9a471d0f-6cf1-4364-a640-b513f2c97a18}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Game\main.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Game\Engine\WinApp\WinApp.cpp">
-      <Filter>ソース ファイル\Engine\WinApp</Filter>
-    </ClCompile>
-    <ClCompile Include="Game\Engine\ImGui\ImGuiManager.cpp">
-      <Filter>ソース ファイル\Engine\ImGui</Filter>
+    <ClCompile Include="Game\Engine\Math\MyMath.cpp">
+      <Filter>Engine\Math</Filter>
     </ClCompile>
     <ClCompile Include="Game\Engine\ConvertString\ConvertString.cpp">
-      <Filter>ソース ファイル\Engine\ConvertString</Filter>
+      <Filter>Engine\ConvertString</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Engine\ImGui\ImGuiManager.cpp">
+      <Filter>Engine\ImGui</Filter>
     </ClCompile>
     <ClCompile Include="Game\Engine\DirectXCommon\DirectXCommon.cpp">
-      <Filter>ソース ファイル\Engine\DirectXCommon</Filter>
+      <Filter>Engine\DirectXCommon</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Engine\Input\Input.cpp">
+      <Filter>Engine\Input</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Engine\WinApp\WinApp.cpp">
+      <Filter>Engine\WinApp</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Engine\Math\Matrix4x4.cpp">
+      <Filter>Engine\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Engine\Math\ViewProjection.cpp">
+      <Filter>Engine\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Engine\Math\WorldTransform.cpp">
+      <Filter>Engine\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\main.cpp" />
+    <ClCompile Include="Game\Engine\Graphics\CommandQueue.cpp">
+      <Filter>Engine\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Engine\Graphics\GraphicsCore.cpp">
+      <Filter>Engine\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Engine\Graphics\DescriptorHeap.cpp">
+      <Filter>Engine\Graphics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game\Engine\WinApp\WinApp.h">
-      <Filter>ヘッダー ファイル\Engine\WinApp</Filter>
+      <Filter>Engine\WinApp</Filter>
     </ClInclude>
     <ClInclude Include="Game\Engine\ImGui\ImGuiManager.h">
-      <Filter>ヘッダー ファイル\Engine\ImGui</Filter>
+      <Filter>Engine\ImGui</Filter>
     </ClInclude>
     <ClInclude Include="Game\Engine\ConvertString\ConvertString.h">
-      <Filter>ヘッダー ファイル\Engine\ConvertString</Filter>
+      <Filter>Engine\ConvertString</Filter>
     </ClInclude>
     <ClInclude Include="Game\Engine\DirectXCommon\DirectXCommon.h">
-      <Filter>ヘッダー ファイル\Engine\DirectXCommon</Filter>
+      <Filter>Engine\DirectXCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Engine\Input\Input.h">
+      <Filter>Engine\Input</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Engine\Math\Matrix4x4.h">
+      <Filter>Engine\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Engine\Math\MyMath.h">
+      <Filter>Engine\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Engine\Math\Vector2.h">
+      <Filter>Engine\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Engine\Math\Vector4.h">
+      <Filter>Engine\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Engine\Math\Vector3.h">
+      <Filter>Engine\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Engine\Math\AABB.h">
+      <Filter>Engine\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Engine\Math\OBB.h">
+      <Filter>Engine\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Engine\Math\ViewProjection.h">
+      <Filter>Engine\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Engine\Math\WorldTransform.h">
+      <Filter>Engine\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Engine\Graphics\CommandQueue.h">
+      <Filter>Engine\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Engine\Graphics\GraphicsCore.h">
+      <Filter>Engine\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Engine\Graphics\DescriptorHeap.h">
+      <Filter>Engine\Graphics</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

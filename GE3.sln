@@ -10,6 +10,28 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ソリューション項目
 		.editorconfig = .editorconfig
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ImGui", "ImGui", "{528199C8-FA01-4E69-A54F-59A6F8361D04}"
+	ProjectSection(SolutionItems) = preProject
+		Externals\ImGui\imconfig.h = Externals\ImGui\imconfig.h
+		Externals\ImGui\imgui.cpp = Externals\ImGui\imgui.cpp
+		Externals\ImGui\imgui.h = Externals\ImGui\imgui.h
+		Externals\ImGui\imgui_demo.cpp = Externals\ImGui\imgui_demo.cpp
+		Externals\ImGui\imgui_draw.cpp = Externals\ImGui\imgui_draw.cpp
+		Externals\ImGui\imgui_impl_dx12.cpp = Externals\ImGui\imgui_impl_dx12.cpp
+		Externals\ImGui\imgui_impl_dx12.h = Externals\ImGui\imgui_impl_dx12.h
+		Externals\ImGui\imgui_impl_win32.cpp = Externals\ImGui\imgui_impl_win32.cpp
+		Externals\ImGui\imgui_impl_win32.h = Externals\ImGui\imgui_impl_win32.h
+		Externals\ImGui\imgui_internal.h = Externals\ImGui\imgui_internal.h
+		Externals\ImGui\imgui_tables.cpp = Externals\ImGui\imgui_tables.cpp
+		Externals\ImGui\imgui_widgets.cpp = Externals\ImGui\imgui_widgets.cpp
+		Externals\ImGui\imstb_rectpack.h = Externals\ImGui\imstb_rectpack.h
+		Externals\ImGui\imstb_textedit.h = Externals\ImGui\imstb_textedit.h
+		Externals\ImGui\imstb_truetype.h = Externals\ImGui\imstb_truetype.h
+		Externals\ImGui\LICENSE.txt = Externals\ImGui\LICENSE.txt
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DirectXTex", "Externals\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj", "{371B9FA9-4C90-4AC6-A123-ACED756D6C77}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -20,6 +42,10 @@ Global
 		{438768FB-7A1A-40B7-AEFD-3FC048E22DC4}.Debug|x64.Build.0 = Debug|x64
 		{438768FB-7A1A-40B7-AEFD-3FC048E22DC4}.Release|x64.ActiveCfg = Release|x64
 		{438768FB-7A1A-40B7-AEFD-3FC048E22DC4}.Release|x64.Build.0 = Release|x64
+		{371B9FA9-4C90-4AC6-A123-ACED756D6C77}.Debug|x64.ActiveCfg = Debug|x64
+		{371B9FA9-4C90-4AC6-A123-ACED756D6C77}.Debug|x64.Build.0 = Debug|x64
+		{371B9FA9-4C90-4AC6-A123-ACED756D6C77}.Release|x64.ActiveCfg = Release|x64
+		{371B9FA9-4C90-4AC6-A123-ACED756D6C77}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

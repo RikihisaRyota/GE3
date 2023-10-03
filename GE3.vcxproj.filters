@@ -13,10 +13,66 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="ヘッダー ファイル\Engine">
+      <UniqueIdentifier>{944bf8aa-1b3e-4114-a230-ce1ad4890f0f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Engine\WinApp">
+      <UniqueIdentifier>{6c90fb82-6550-4e5c-b081-06156ad9e489}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Engine\ImGui">
+      <UniqueIdentifier>{b18b82c8-98da-4545-8479-c61f74d7771e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Engine\ConvertString">
+      <UniqueIdentifier>{12bdc4ba-ff86-4019-a42e-bd488330f3cb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Engine">
+      <UniqueIdentifier>{123d4347-df43-48d0-85c2-40655e7e042c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Engine\WinApp">
+      <UniqueIdentifier>{1c198403-b998-4f47-a7f1-4ac2e4b9d2f3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Engine\ImGui">
+      <UniqueIdentifier>{b2a82b7c-398d-45c2-9a2e-74a48b3d1294}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Engine\ConvertString">
+      <UniqueIdentifier>{a575ba86-3dd0-4bb3-94f8-335292ab9982}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Engine\DirectXCommon">
+      <UniqueIdentifier>{f3e71fba-517e-4776-903f-94062ba7486c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Engine\DirectXCommon">
+      <UniqueIdentifier>{7b5cc5cf-6b81-46a4-80b5-d0f36db2ea9a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp">
+    <ClCompile Include="Game\main.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
+    <ClCompile Include="Game\Engine\WinApp\WinApp.cpp">
+      <Filter>ソース ファイル\Engine\WinApp</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Engine\ImGui\ImGuiManager.cpp">
+      <Filter>ソース ファイル\Engine\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Engine\ConvertString\ConvertString.cpp">
+      <Filter>ソース ファイル\Engine\ConvertString</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Engine\DirectXCommon\DirectXCommon.cpp">
+      <Filter>ソース ファイル\Engine\DirectXCommon</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Game\Engine\WinApp\WinApp.h">
+      <Filter>ヘッダー ファイル\Engine\WinApp</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Engine\ImGui\ImGuiManager.h">
+      <Filter>ヘッダー ファイル\Engine\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Engine\ConvertString\ConvertString.h">
+      <Filter>ヘッダー ファイル\Engine\ConvertString</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Engine\DirectXCommon\DirectXCommon.h">
+      <Filter>ヘッダー ファイル\Engine\DirectXCommon</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

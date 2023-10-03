@@ -17,6 +17,16 @@ void GraphicsCore::Initialize() {
 	CreateDevice();
 
 	commandQueue_.Create();
+
+	int32_t numDescriptorsTable[D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES];
+	numDescriptorsTable[D3D12_DESCRIPTOR_HEAP_TYPE_RTV] = kNumRTVs;
+	numDescriptorsTable[D3D12_DESCRIPTOR_HEAP_TYPE_DSV] = kNumDSVs;
+	numDescriptorsTable[D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV] = kNumSRVs;
+	numDescriptorsTable[D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER] = kNumSamplers;
+
+	for (int i = 0; i < D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES; ++i) {
+		descriptorHeaps_[i].Create(D3D12_DESCRIPTOR_HEAP_TYPE(i), numDescriptorsTable[i]);
+	}
 }
 
 void GraphicsCore::Shutdown() {}

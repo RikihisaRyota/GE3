@@ -110,6 +110,7 @@
     <ClInclude Include="Game\Engine\ConvertString\ConvertString.h" />
     <ClInclude Include="Game\Engine\DirectXCommon\DirectXCommon.h" />
     <ClInclude Include="Game\Engine\Graphics\CommandQueue.h" />
+    <ClInclude Include="Game\Engine\Graphics\DescriptorHandle.h" />
     <ClInclude Include="Game\Engine\Graphics\DescriptorHeap.h" />
     <ClInclude Include="Game\Engine\Graphics\GraphicsCore.h" />
     <ClInclude Include="Game\Engine\ImGui\ImGuiManager.h" />

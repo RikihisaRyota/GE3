@@ -117,5 +117,8 @@
     <ClInclude Include="Game\Engine\Graphics\DescriptorHeap.h">
       <Filter>Engine\Graphics</Filter>
     </ClInclude>
+    <ClInclude Include="Game\Engine\Graphics\DescriptorHandle.h">
+      <Filter>Engine\Graphics</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

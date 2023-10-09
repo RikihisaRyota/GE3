@@ -7,6 +7,8 @@
 #include <format>
 #include <vector>
 
+#include "SamplerManager.h"
+
 using namespace Microsoft::WRL;
 
 GraphicsCore* GraphicsCore::GetInstance() {
@@ -27,9 +29,18 @@ void GraphicsCore::Initialize() {
 	for (int i = 0; i < D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES; ++i) {
 		descriptorHeaps_[i].Create(D3D12_DESCRIPTOR_HEAP_TYPE(i), numDescriptorsTable[i]);
 	}
+
+	SamplerManager::Initialize();
 }
 
-void GraphicsCore::Shutdown() {}
+void GraphicsCore::Shutdown() {
+	commandQueue_.Signal();
+	commandQueue_.WaitForGPU();
+}
+
+DescriptorHandle GraphicsCore::AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE type) {
+	return descriptorHeaps_[type].Allocate();
+}
 
 void GraphicsCore::CreateDevice() {
 	HRESULT hr = S_FALSE;

@@ -11,13 +11,14 @@
 class GraphicsCore {
 public: 
 	static GraphicsCore* GetInstance();
-public:
+
 	void Initialize();
 	void Shutdown();
-public:
+
+	DescriptorHandle AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE type);
+
 	ID3D12Device* GetDevice() const { return device_.Get(); }
-private:
-	void CreateDevice();
+	DescriptorHeap& GetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE type) {return descriptorHeaps_[type];}
 private:
 	static const uint32_t kNumRTVs = 16;
 	static const uint32_t kNumDSVs = 2;
@@ -27,6 +28,8 @@ private:
 	GraphicsCore() = default;
 	GraphicsCore(const GraphicsCore&) = delete;
 	GraphicsCore& operator=(const GraphicsCore&) = delete;
+
+	void CreateDevice();
 
 	Microsoft::WRL::ComPtr<ID3D12Device> device_;
 	CommandQueue commandQueue_;

@@ -94,9 +94,11 @@
   <ItemGroup>
     <ClCompile Include="Game\Engine\ConvertString\ConvertString.cpp" />
     <ClCompile Include="Game\Engine\DirectXCommon\DirectXCommon.cpp" />
+    <ClCompile Include="Game\Engine\Graphics\Color.cpp" />
     <ClCompile Include="Game\Engine\Graphics\CommandQueue.cpp" />
     <ClCompile Include="Game\Engine\Graphics\DescriptorHeap.cpp" />
     <ClCompile Include="Game\Engine\Graphics\GraphicsCore.cpp" />
+    <ClCompile Include="Game\Engine\Graphics\SamplerManager.cpp" />
     <ClCompile Include="Game\Engine\ImGui\ImGuiManager.cpp" />
     <ClCompile Include="Game\Engine\Input\Input.cpp" />
     <ClCompile Include="Game\Engine\Math\Matrix4x4.cpp" />
@@ -109,10 +111,12 @@
   <ItemGroup>
     <ClInclude Include="Game\Engine\ConvertString\ConvertString.h" />
     <ClInclude Include="Game\Engine\DirectXCommon\DirectXCommon.h" />
+    <ClInclude Include="Game\Engine\Graphics\Color.h" />
     <ClInclude Include="Game\Engine\Graphics\CommandQueue.h" />
     <ClInclude Include="Game\Engine\Graphics\DescriptorHandle.h" />
     <ClInclude Include="Game\Engine\Graphics\DescriptorHeap.h" />
     <ClInclude Include="Game\Engine\Graphics\GraphicsCore.h" />
+    <ClInclude Include="Game\Engine\Graphics\SamplerManager.h" />
     <ClInclude Include="Game\Engine\ImGui\ImGuiManager.h" />
     <ClInclude Include="Game\Engine\Input\Input.h" />
     <ClInclude Include="Game\Engine\Math\AABB.h" />

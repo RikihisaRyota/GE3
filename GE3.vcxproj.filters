@@ -64,6 +64,12 @@
     <ClCompile Include="Game\Engine\Graphics\DescriptorHeap.cpp">
       <Filter>Engine\Graphics</Filter>
     </ClCompile>
+    <ClCompile Include="Game\Engine\Graphics\SamplerManager.cpp">
+      <Filter>Engine\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Engine\Graphics\Color.cpp">
+      <Filter>Engine\Graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game\Engine\WinApp\WinApp.h">
@@ -118,6 +124,12 @@
       <Filter>Engine\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Game\Engine\Graphics\DescriptorHandle.h">
+      <Filter>Engine\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Engine\Graphics\SamplerManager.h">
+      <Filter>Engine\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Engine\Graphics\Color.h">
       <Filter>Engine\Graphics</Filter>
     </ClInclude>
   </ItemGroup>

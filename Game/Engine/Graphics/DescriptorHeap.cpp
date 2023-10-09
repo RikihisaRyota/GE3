@@ -24,10 +24,23 @@ void DescriptorHeap::Create(D3D12_DESCRIPTOR_HEAP_TYPE type, uint32_t numDescrip
 	assert(SUCCEEDED(hr));
 
 	descriptorSize_ = device->GetDescriptorHandleIncrementSize(desc.Type);
+	numDescriptors_ = desc.NumDescriptors;
 	firstDescriptors_.cpuHandle_ = descriptorHeap_->GetCPUDescriptorHandleForHeapStart();
 	if (desc.Flags == D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE) {
 		firstDescriptors_.gpuHandle_ = descriptorHeap_->GetGPUDescriptorHandleForHeapStart();
 	}
-	numDescriptors_ = numDescriptors;
 	numFreeDescriptors_ = 0;
+}
+
+DescriptorHandle DescriptorHeap::Allocate() {
+	assert(numFreeDescriptors_ <= numDescriptors_);
+	DescriptorHandle allocationHandle{};
+	allocationHandle.cpuHandle_ = firstDescriptors_;
+	allocationHandle.cpuHandle_.ptr += uint64_t(numFreeDescriptors_) * descriptorSize_;
+	if (firstDescriptors_.IsShaderVisible()) {
+		allocationHandle.gpuHandle_ = firstDescriptors_;
+		allocationHandle.gpuHandle_.ptr += uint64_t(numFreeDescriptors_) * descriptorSize_;
+	}
+	++numFreeDescriptors_;
+	return allocationHandle;
 }

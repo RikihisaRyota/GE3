@@ -4,12 +4,15 @@
 #include <wrl/client.h>
 
 #include <cstdint>
+
+class CommandContext;
+
 class CommandQueue {
 public:
 	~CommandQueue();
 
 	void Create();
-	void Excute();
+	void Execute(const CommandContext& commandContext);
 	void Signal();
 	void WaitForGPU();
 private:

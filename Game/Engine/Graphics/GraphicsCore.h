@@ -17,6 +17,7 @@ public:
 
 	DescriptorHandle AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE type);
 
+	CommandQueue& GetCommandQueue() {return commandQueue_;}
 	ID3D12Device* GetDevice() const { return device_.Get(); }
 	DescriptorHeap& GetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE type) {return descriptorHeaps_[type];}
 private:

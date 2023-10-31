@@ -39,6 +39,7 @@ public:
     float GetB() const { return rgba_.z; }
     float GetA() const { return rgba_.w; }
 
+    float* GetPtr(void) { return reinterpret_cast<float*>(this); }
 private:
     Vector4 rgba_;
 };

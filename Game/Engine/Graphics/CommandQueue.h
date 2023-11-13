@@ -15,9 +15,12 @@ public:
 	void Execute(const CommandContext& commandContext);
 	void Signal();
 	void WaitForGPU();
+
+	operator ID3D12CommandQueue* () const { return commandQueue_.Get(); }
+
 private:
 	void Shutdown();
-private:
+
 	Microsoft::WRL::ComPtr<ID3D12CommandQueue> commandQueue_;
 	Microsoft::WRL::ComPtr<ID3D12Fence> fence_;
 	HANDLE fenceEvent_;

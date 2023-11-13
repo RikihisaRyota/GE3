@@ -115,6 +115,9 @@
     <ClCompile Include="Externals\Imgui\imgui_widgets.cpp">
       <Filter>Externals\imgui</Filter>
     </ClCompile>
+    <ClCompile Include="Game\Engine\GameCore.cpp">
+      <Filter>Engine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game\Engine\WinApp\WinApp.h">
@@ -221,6 +224,9 @@
     </ClInclude>
     <ClInclude Include="Externals\Imgui\imstb_rectpack.h">
       <Filter>Externals\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Engine\GameCore.h">
+      <Filter>Engine</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

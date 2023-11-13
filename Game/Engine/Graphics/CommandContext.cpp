@@ -11,7 +11,7 @@ void CommandContext::Create() {
 		D3D12_COMMAND_LIST_TYPE_DIRECT,
 		IID_PPV_ARGS(commandAllocator_.ReleaseAndGetAddressOf())
 	);
-	assert(hr);
+	assert(SUCCEEDED(hr));
 	hr = device->CreateCommandList(
 		0,
 		D3D12_COMMAND_LIST_TYPE_DIRECT,
@@ -19,20 +19,20 @@ void CommandContext::Create() {
 		nullptr,
 		IID_PPV_ARGS(commandList_.ReleaseAndGetAddressOf())
 	);
-	assert(hr);
+	assert(SUCCEEDED(hr));
 }
 
 void CommandContext::Close() {
 	FlushResourceBarriers();
 	auto hr = commandList_->Close();
-	assert(hr);
+	assert(SUCCEEDED(hr));
 }
 
 void CommandContext::Reset() {
 	auto hr = commandAllocator_->Reset();
-	assert(hr);
+	assert(SUCCEEDED(hr));
 	hr = commandList_->Reset(commandAllocator_.Get(), nullptr);
-	assert(hr);
+	assert(SUCCEEDED(hr));
 
 	auto graphics = GraphicsCore::GetInstance();
 	ID3D12DescriptorHeap* ppHeaps[] = {
@@ -49,7 +49,7 @@ void CommandContext::TransitionResourse(GpuResource& resource, D3D12_RESOURCE_ST
 
 	if (newState != oldState) {
 		assert(numResourceBarriers_ < kMaxNumResourceBarriers_);
-		D3D12_RESOURCE_BARRIER& barrierDesc = resourceBarriers_[numResourceBarriers_];
+		D3D12_RESOURCE_BARRIER& barrierDesc = resourceBarriers_[numResourceBarriers_++];
 
 		barrierDesc.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
 		barrierDesc.Transition.pResource = resource.GetResource();
@@ -57,6 +57,7 @@ void CommandContext::TransitionResourse(GpuResource& resource, D3D12_RESOURCE_ST
 		barrierDesc.Transition.StateBefore = oldState;
 		barrierDesc.Transition.StateAfter = newState;
 		resource.state_ = newState;
+
 	}
 	if (numResourceBarriers_ >= kMaxNumResourceBarriers_) {
 		FlushResourceBarriers();

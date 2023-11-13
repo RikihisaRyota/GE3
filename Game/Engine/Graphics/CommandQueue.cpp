@@ -42,7 +42,7 @@ void CommandQueue::Signal() {
 }
 
 void CommandQueue::WaitForGPU() {
-	if (fence_->GetCompletedValue() != fenceValue_) {
+	if (fence_->GetCompletedValue() < fenceValue_) {
 		fence_->SetEventOnCompletion(fenceValue_, fenceEvent_);
 		WaitForSingleObject(fenceEvent_, INFINITE);
 	}

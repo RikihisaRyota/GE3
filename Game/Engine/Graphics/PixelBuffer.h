@@ -9,7 +9,7 @@ class PixelBuffer :public GpuResource {
 public:
     uint32_t GetWidth(void) const { return width_; }
     uint32_t GetHeight(void) const { return height_; }
-    uint32_t GetDepth(void) const { return arraySize_; }
+    uint32_t GetArraySize(void) const { return arraySize_; }
     const DXGI_FORMAT& GetFormat(void) const { return format_; }
 protected:
     void CreateTextureResource(const std::wstring& name, const D3D12_RESOURCE_DESC& desc, D3D12_CLEAR_VALUE clearValue);

@@ -46,7 +46,7 @@ void ColorBuffer::CreateViews() {
 		srvDesc.Texture2DArray.ArraySize = UINT(arraySize_);
 	}
 	else {
-		rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2DARRAY;
+		rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
 		rtvDesc.Texture2D.MipSlice = 0;
 
 		srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
@@ -63,5 +63,5 @@ void ColorBuffer::CreateViews() {
 	}
 	auto device = graphics->GetDevice();
 	device->CreateRenderTargetView(resource_.Get(),&rtvDesc,rtvHandle_);
-	device->CreateShaderResourceView(resource_.Get(),&srvDesc,rtvHandle_);
+	device->CreateShaderResourceView(resource_.Get(),&srvDesc,srvHandle_);
 }

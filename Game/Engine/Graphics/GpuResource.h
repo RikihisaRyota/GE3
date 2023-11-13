@@ -6,6 +6,8 @@
 class GpuResource {
 	friend class CommandContext;
 public:
+	operator ID3D12Resource* () const { return resource_.Get(); }
+
 	ID3D12Resource* operator->() { return resource_.Get(); }
 	const ID3D12Resource* operator->() const { return resource_.Get(); }
 

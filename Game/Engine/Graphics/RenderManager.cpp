@@ -17,16 +17,17 @@ void RenderManager::Initialize() {
 	// スワップチェーンを初期化
 	auto window = WinApp::GetInstance();
 	swapChain_.Create(window->GetHwnd());
-
+	
 	// コマンドリストの初期化
 	for (auto& commandContext : commandContexts_) {
 		commandContext.Create();
-		commandContext.FlushResourceBarriers();
+		commandContext.Close();
 	}
 
 	// メインとなるバッファを初期化
 	auto& swapChainBuffer = swapChain_.GetColorBuffer();
 	Color clearColor = { 0.3f,0.1f,0.3f,0.0f };
+	swapChain_.GetColorBuffer().SetClearColor(clearColor);
 	mainColorBuffer_.SetClearColor(clearColor);
 	mainColorBuffer_.Create(L"mainColorBuffer", swapChainBuffer.GetWidth(), swapChainBuffer.GetHeight(), DXGI_FORMAT_R32G32B32A32_FLOAT);
 
@@ -47,30 +48,25 @@ void RenderManager::Reset() {
 
 void RenderManager::BeginRender() {
 	auto& commandContext = commandContexts_[swapChain_.GetBufferIndex()];
+	auto& swapChainColorBuffer = swapChain_.GetColorBuffer();
 
-	// メインバッファーをレンダーターゲットに
-	commandContext.TransitionResourse(mainColorBuffer_,D3D12_RESOURCE_STATE_RENDER_TARGET);
-	commandContext.TransitionResourse(mainDepthBuffer_,D3D12_RESOURCE_STATE_DEPTH_WRITE);
-	commandContext.SetRenderTarget(mainColorBuffer_.GetRTV(), mainDepthBuffer_.GetDSV());
-	commandContext.ClearColor(mainColorBuffer_);
+	commandContext.TransitionResourse(swapChainColorBuffer, D3D12_RESOURCE_STATE_RENDER_TARGET);
+	commandContext.TransitionResourse(mainDepthBuffer_, D3D12_RESOURCE_STATE_DEPTH_WRITE);
+	commandContext.SetRenderTarget(swapChainColorBuffer.GetRTV(), mainDepthBuffer_.GetDSV());
+	Color clearColor = { 0.1f,0.25f,0.5f,1.0f };
+	swapChainColorBuffer.SetClearColor(clearColor);
+	commandContext.ClearColor(swapChainColorBuffer);
 	commandContext.ClearDepth(mainDepthBuffer_);
-	commandContext.SetViewportAndScissorRect(0, 0, mainColorBuffer_.GetWidth(), mainColorBuffer_.GetHeight());
+	commandContext.SetViewportAndScissorRect(0, 0, swapChainColorBuffer.GetWidth(), swapChainColorBuffer.GetHeight());
 }
 
 void RenderManager::EndRender() {
 	auto& commandContext = commandContexts_[swapChain_.GetBufferIndex()];
-
-	// スワップチェーンをレンダーターゲットへ
-	auto& swapChainBuffer = swapChain_.GetColorBuffer();
-	commandContext.TransitionResourse(swapChainBuffer,D3D12_RESOURCE_STATE_RENDER_TARGET);
-	commandContext.SetRenderTarget(swapChainBuffer.GetRTV());
-	commandContext.ClearColor(swapChainBuffer);
-	commandContext.SetViewportAndScissorRect(0,0,swapChainBuffer.GetWidth(), swapChainBuffer.GetHeight());
 	// ImGuiを描画
 	auto imguiManager = ImGuiManager::GetInstance();
 	imguiManager->Render(commandContext);
 
-	commandContext.TransitionResourse(swapChainBuffer, D3D12_RESOURCE_STATE_PRESENT);
+	commandContext.TransitionResourse(swapChain_.GetColorBuffer(), D3D12_RESOURCE_STATE_PRESENT);
 	commandContext.Close();
 	CommandQueue& commandQueue = graphicsCore_->GetCommandQueue();
 	commandQueue.WaitForGPU();

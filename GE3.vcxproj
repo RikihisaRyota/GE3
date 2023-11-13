@@ -59,7 +59,7 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <TreatWarningAsError>true</TreatWarningAsError>
-      <AdditionalOptions>/uft-8 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/source-charset:utf-8 %(AdditionalOptions)</AdditionalOptions>
       <AdditionalIncludeDirectories>$(ProjectDir)Externals\DirectXTex;$(ProjectDir)Externals\Imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
@@ -79,7 +79,7 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <TreatWarningAsError>true</TreatWarningAsError>
-      <AdditionalOptions>/uft-8 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/source-charset:utf-8 %(AdditionalOptions)</AdditionalOptions>
       <AdditionalIncludeDirectories>$(ProjectDir)Externals\DirectXTex;$(ProjectDir)Externals\Imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
@@ -101,6 +101,7 @@
     <ClCompile Include="Externals\Imgui\imgui_widgets.cpp" />
     <ClCompile Include="Game\Engine\ConvertString\ConvertString.cpp" />
     <ClCompile Include="Game\Engine\DirectXCommon\DirectXCommon.cpp" />
+    <ClCompile Include="Game\Engine\GameCore.cpp" />
     <ClCompile Include="Game\Engine\Graphics\Color.cpp" />
     <ClCompile Include="Game\Engine\Graphics\ColorBuffer.cpp" />
     <ClCompile Include="Game\Engine\Graphics\CommandContext.cpp" />
@@ -132,6 +133,7 @@
     <ClInclude Include="Externals\Imgui\imstb_truetype.h" />
     <ClInclude Include="Game\Engine\ConvertString\ConvertString.h" />
     <ClInclude Include="Game\Engine\DirectXCommon\DirectXCommon.h" />
+    <ClInclude Include="Game\Engine\GameCore.h" />
     <ClInclude Include="Game\Engine\Graphics\Color.h" />
     <ClInclude Include="Game\Engine\Graphics\ColorBuffer.h" />
     <ClInclude Include="Game\Engine\Graphics\CommandContext.h" />

@@ -1,7 +1,9 @@
 #pragma once
-#include <d3d12.h>
-#include <wrl.h>
-#include <DirectXMath.h>
+
+#include <memory>
+
+#include "../Graphics/UploadBuffer.h"
+
 #include "Matrix4x4.h"
 #include "Vector3.h"
 
@@ -14,7 +16,7 @@ struct ConstBufferDataViewProjection {
 struct ViewProjection
 {
 	// 定数バッファ
-	Microsoft::WRL::ComPtr<ID3D12Resource> constBuff_;
+	std::unique_ptr<UploadBuffer> constBuff_;
 	// マッピング済みアドレス
 	ConstBufferDataViewProjection* constMap_ = nullptr;
 #pragma region ビュー行列の設定

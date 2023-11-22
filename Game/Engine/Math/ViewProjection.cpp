@@ -2,7 +2,6 @@
 #include "../WinApp/WinApp.h"
 #include <cassert>
 #include <d3dx12.h>
-#include "../DirectXCommon/DirectXCommon.h"
 #include "MyMath.h"
 
 void ViewProjection::Initialize() {
@@ -17,26 +16,13 @@ void ViewProjection::Initialize() {
 }
 
 void ViewProjection::CreateConstBuffer() {
-	HRESULT result;
-
-	// ヒーププロパティ
-	CD3DX12_HEAP_PROPERTIES heapProps = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
-	// リソース設定
-	CD3DX12_RESOURCE_DESC resourceDesc =
-		CD3DX12_RESOURCE_DESC::Buffer((sizeof(ConstBufferDataViewProjection) + 0xff) & ~0xff);
-
-	// 定数バッファの生成
-	result = DirectXCommon::GetInstance()->DirectXCommon::GetDevice()->CreateCommittedResource(
-		&heapProps, // アップロード可能
-		D3D12_HEAP_FLAG_NONE, &resourceDesc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
-		IID_PPV_ARGS(&constBuff_));
-	assert(SUCCEEDED(result));
+	constBuff_ = std::make_unique<UploadBuffer>();
+	constBuff_->Create(L"ViewProjection", sizeof(ConstBufferDataViewProjection));
 }
 
 void ViewProjection::Map() {
 	// 定数バッファとのデータリンク
-	HRESULT result = constBuff_->Map(0, nullptr, (void**)&constMap_);
-	assert(SUCCEEDED(result));
+	constBuff_->Copy(constMap_, sizeof(ConstBufferDataViewProjection));
 }
 
 void ViewProjection::UpdateMatrix() {

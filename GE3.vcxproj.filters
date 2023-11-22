@@ -13,9 +13,6 @@
     <Filter Include="Engine\ConvertString">
       <UniqueIdentifier>{12bdc4ba-ff86-4019-a42e-bd488330f3cb}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Engine\DirectXCommon">
-      <UniqueIdentifier>{7b5cc5cf-6b81-46a4-80b5-d0f36db2ea9a}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Engine\Input">
       <UniqueIdentifier>{1e417f2e-51b3-4617-987c-0a7e595205cc}</UniqueIdentifier>
     </Filter>
@@ -31,6 +28,9 @@
     <Filter Include="Externals\imgui">
       <UniqueIdentifier>{2d96a4bd-ec4f-4ec4-9447-f8b9ca567b76}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Game">
+      <UniqueIdentifier>{55e31ea7-1e4a-41bd-bc9a-c3ec1d0a38fc}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Game\Engine\Math\MyMath.cpp">
@@ -41,9 +41,6 @@
     </ClCompile>
     <ClCompile Include="Game\Engine\ImGui\ImGuiManager.cpp">
       <Filter>Engine\ImGui</Filter>
-    </ClCompile>
-    <ClCompile Include="Game\Engine\DirectXCommon\DirectXCommon.cpp">
-      <Filter>Engine\DirectXCommon</Filter>
     </ClCompile>
     <ClCompile Include="Game\Engine\Input\Input.cpp">
       <Filter>Engine\Input</Filter>
@@ -118,6 +115,21 @@
     <ClCompile Include="Game\Engine\GameCore.cpp">
       <Filter>Engine</Filter>
     </ClCompile>
+    <ClCompile Include="Game\Engine\Graphics\LinerAllocator.cpp">
+      <Filter>Engine\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Engine\Graphics\UploadBuffer.cpp">
+      <Filter>Engine\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Engine\Graphics\RootSignature.cpp">
+      <Filter>Engine\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Engine\Graphics\PipelineState.cpp">
+      <Filter>Engine\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="GPUParticle.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game\Engine\WinApp\WinApp.h">
@@ -128,9 +140,6 @@
     </ClInclude>
     <ClInclude Include="Game\Engine\ConvertString\ConvertString.h">
       <Filter>Engine\ConvertString</Filter>
-    </ClInclude>
-    <ClInclude Include="Game\Engine\DirectXCommon\DirectXCommon.h">
-      <Filter>Engine\DirectXCommon</Filter>
     </ClInclude>
     <ClInclude Include="Game\Engine\Input\Input.h">
       <Filter>Engine\Input</Filter>
@@ -227,6 +236,21 @@
     </ClInclude>
     <ClInclude Include="Game\Engine\GameCore.h">
       <Filter>Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Engine\Graphics\LinerAllocator.h">
+      <Filter>Engine\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Engine\Graphics\UploadBuffer.h">
+      <Filter>Engine\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Engine\Graphics\PipelineState.h">
+      <Filter>Engine\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Engine\Graphics\RootSignature.h">
+      <Filter>Engine\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="GPUParticle.h">
+      <Filter>Game</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

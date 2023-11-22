@@ -1,8 +1,10 @@
 #pragma once
+#include <memory>
+
 #include "Matrix4x4.h"
 #include "Vector3.h"
-#include <d3d12.h>
-#include <wrl.h>
+
+#include "../Graphics/UploadBuffer.h"
 
 // 定数バッファ用データ構造体
 struct ConstBufferDataWorldTransform {
@@ -11,7 +13,7 @@ struct ConstBufferDataWorldTransform {
 
 struct WorldTransform {
 	// 定数バッファ
-	Microsoft::WRL::ComPtr<ID3D12Resource> constBuff_;
+	std::unique_ptr<UploadBuffer> constBuff_;
 	// マッピング済みアドレス
 	ConstBufferDataWorldTransform* constMap_ = nullptr;
 	// scale

@@ -100,7 +100,6 @@
     <ClCompile Include="Externals\Imgui\imgui_tables.cpp" />
     <ClCompile Include="Externals\Imgui\imgui_widgets.cpp" />
     <ClCompile Include="Game\Engine\ConvertString\ConvertString.cpp" />
-    <ClCompile Include="Game\Engine\DirectXCommon\DirectXCommon.cpp" />
     <ClCompile Include="Game\Engine\GameCore.cpp" />
     <ClCompile Include="Game\Engine\Graphics\Color.cpp" />
     <ClCompile Include="Game\Engine\Graphics\ColorBuffer.cpp" />
@@ -109,10 +108,14 @@
     <ClCompile Include="Game\Engine\Graphics\DepthBuffer.cpp" />
     <ClCompile Include="Game\Engine\Graphics\DescriptorHeap.cpp" />
     <ClCompile Include="Game\Engine\Graphics\GraphicsCore.cpp" />
+    <ClCompile Include="Game\Engine\Graphics\LinerAllocator.cpp" />
+    <ClCompile Include="Game\Engine\Graphics\PipelineState.cpp" />
     <ClCompile Include="Game\Engine\Graphics\PixelBuffer.cpp" />
     <ClCompile Include="Game\Engine\Graphics\RenderManager.cpp" />
+    <ClCompile Include="Game\Engine\Graphics\RootSignature.cpp" />
     <ClCompile Include="Game\Engine\Graphics\SamplerManager.cpp" />
     <ClCompile Include="Game\Engine\Graphics\SwapChain.cpp" />
+    <ClCompile Include="Game\Engine\Graphics\UploadBuffer.cpp" />
     <ClCompile Include="Game\Engine\ImGui\ImGuiManager.cpp" />
     <ClCompile Include="Game\Engine\Input\Input.cpp" />
     <ClCompile Include="Game\Engine\Math\Matrix4x4.cpp" />
@@ -121,6 +124,7 @@
     <ClCompile Include="Game\Engine\Math\WorldTransform.cpp" />
     <ClCompile Include="Game\Engine\WinApp\WinApp.cpp" />
     <ClCompile Include="Game\main.cpp" />
+    <ClCompile Include="GPUParticle.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Externals\Imgui\imconfig.h" />
@@ -132,7 +136,6 @@
     <ClInclude Include="Externals\Imgui\imstb_textedit.h" />
     <ClInclude Include="Externals\Imgui\imstb_truetype.h" />
     <ClInclude Include="Game\Engine\ConvertString\ConvertString.h" />
-    <ClInclude Include="Game\Engine\DirectXCommon\DirectXCommon.h" />
     <ClInclude Include="Game\Engine\GameCore.h" />
     <ClInclude Include="Game\Engine\Graphics\Color.h" />
     <ClInclude Include="Game\Engine\Graphics\ColorBuffer.h" />
@@ -143,10 +146,14 @@
     <ClInclude Include="Game\Engine\Graphics\DescriptorHeap.h" />
     <ClInclude Include="Game\Engine\Graphics\GpuResource.h" />
     <ClInclude Include="Game\Engine\Graphics\GraphicsCore.h" />
+    <ClInclude Include="Game\Engine\Graphics\LinerAllocator.h" />
+    <ClInclude Include="Game\Engine\Graphics\PipelineState.h" />
     <ClInclude Include="Game\Engine\Graphics\PixelBuffer.h" />
     <ClInclude Include="Game\Engine\Graphics\RenderManager.h" />
+    <ClInclude Include="Game\Engine\Graphics\RootSignature.h" />
     <ClInclude Include="Game\Engine\Graphics\SamplerManager.h" />
     <ClInclude Include="Game\Engine\Graphics\SwapChain.h" />
+    <ClInclude Include="Game\Engine\Graphics\UploadBuffer.h" />
     <ClInclude Include="Game\Engine\ImGui\ImGuiManager.h" />
     <ClInclude Include="Game\Engine\Input\Input.h" />
     <ClInclude Include="Game\Engine\Math\AABB.h" />
@@ -159,6 +166,7 @@
     <ClInclude Include="Game\Engine\Math\ViewProjection.h" />
     <ClInclude Include="Game\Engine\Math\WorldTransform.h" />
     <ClInclude Include="Game\Engine\WinApp\WinApp.h" />
+    <ClInclude Include="GPUParticle.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="Externals\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj">

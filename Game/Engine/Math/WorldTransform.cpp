@@ -1,7 +1,6 @@
 #include "WorldTransform.h"
 #include <cassert>
 #include <d3dx12.h>
-#include "../DirectXCommon/DirectXCommon.h"
 #include "MyMath.h"
 
 void WorldTransform::Initialize()
@@ -14,24 +13,14 @@ void WorldTransform::Initialize()
 
 void WorldTransform::CreateConstBuffer()
 {
-	HRESULT result = S_FALSE;
-	CD3DX12_HEAP_PROPERTIES heapProps = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
-	// リソース設定
-	CD3DX12_RESOURCE_DESC resourceDesc =
-		CD3DX12_RESOURCE_DESC::Buffer((sizeof(ConstBufferDataWorldTransform) + 0xff) & ~0xff);
-
-	// 定数バッファの生成
-	result = DirectXCommon::GetInstance()->GetDevice()->CreateCommittedResource(
-		&heapProps, D3D12_HEAP_FLAG_NONE, &resourceDesc, D3D12_RESOURCE_STATE_GENERIC_READ,
-		nullptr, IID_PPV_ARGS(&constBuff_));
-	assert(SUCCEEDED(result));
+	constBuff_ = std::make_unique<UploadBuffer>();
+	constBuff_->Create(L"WorldTransform", sizeof(ConstBufferDataWorldTransform));
 }
 
 void WorldTransform::Map()
 {
 	// 定数バッファとのデータリンク
-	HRESULT result = constBuff_->Map(0, nullptr, (void**)&constMap_);
-	assert(SUCCEEDED(result));
+	constBuff_->Copy(constMap_, sizeof(ConstBufferDataWorldTransform));
 }
 
 void WorldTransform::TransferMatrix()

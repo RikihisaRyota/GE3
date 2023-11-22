@@ -22,6 +22,7 @@ namespace GameCore {
 			return false;
 		}
 		input->Update();
+
 		renderManager->BeginRender();
 
 		renderManager->EndRender();

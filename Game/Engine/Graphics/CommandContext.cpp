@@ -40,7 +40,8 @@ void CommandContext::Reset() {
 		static_cast<ID3D12DescriptorHeap*>(graphics->GetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER)),
 	};
 	commandList_->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
-	rootSignature_ = nullptr;
+	computeRootSignature_ = nullptr;
+	graphicsRootSignature_ = nullptr;
 	pipelineState_ = nullptr;
 }
 
@@ -88,12 +89,40 @@ void CommandContext::ClearDepth(DepthBuffer& target) {
 
 void CommandContext::ClearDepth(DepthBuffer& target, float clearValue) {}
 
+void CommandContext::SetPipelineState(const PipelineState& pipelineState) {
+	ID3D12PipelineState* ps = pipelineState;
+	if (pipelineState_ != ps) {
+		pipelineState_ = ps;
+		commandList_->SetPipelineState(pipelineState_);
+	}
+}
+
+void CommandContext::SetGraphicsRootSignature(const RootSignature& rootSignature) {
+	ID3D12RootSignature* rs = rootSignature;
+	if (graphicsRootSignature_ != rs) {
+		graphicsRootSignature_ = rs;
+		commandList_->SetGraphicsRootSignature(graphicsRootSignature_);
+	}
+}
+
+void CommandContext::SetComputeRootSignature(const RootSignature& rootSignature) {
+	ID3D12RootSignature* rs = rootSignature;
+	if (computeRootSignature_ != rs) {
+		computeRootSignature_ = rs;
+		commandList_->SetComputeRootSignature(computeRootSignature_);
+	}
+}
+
 void CommandContext::SetRenderTargets(UINT numRTVs, const D3D12_CPU_DESCRIPTOR_HANDLE RTVs[]) {
 	commandList_->OMSetRenderTargets(numRTVs, RTVs, FALSE, nullptr);
 }
 
 void CommandContext::SetRenderTargets(UINT numRTVs, const D3D12_CPU_DESCRIPTOR_HANDLE RTVs[], D3D12_CPU_DESCRIPTOR_HANDLE DSV) {
 	commandList_->OMSetRenderTargets(numRTVs, RTVs, FALSE, &DSV);
+}
+
+void CommandContext::SetComputeUAV(uint32_t rootParameterIndex, D3D12_GPU_VIRTUAL_ADDRESS bufferLocation) {
+	commandList_->SetComputeRootUnorderedAccessView(rootParameterIndex, bufferLocation);
 }
 
 void CommandContext::SetViewport(const D3D12_VIEWPORT& viewport) {
@@ -133,4 +162,27 @@ void CommandContext::SetViewportAndScissorRect(const D3D12_VIEWPORT& viewport, c
 void CommandContext::SetViewportAndScissorRect(UINT x, UINT y, UINT w, UINT h) {
 	SetViewport(static_cast<float>(x), static_cast<float>(y), static_cast<float>(w), static_cast<float>(h));
 	SetScissorRect(x, y, x + w, y + h);
+}
+
+void CommandContext::Draw(UINT vertexCount, UINT vertexStartOffset) {
+	DrawInstanced(vertexCount, 1, vertexStartOffset, 0);
+}
+
+void CommandContext::DrawIndexed(UINT indexCount, UINT startIndexLocation, INT baseVertexLocation) {
+	DrawIndexedInstanced(indexCount, 1, startIndexLocation, baseVertexLocation, 0);
+}
+
+void CommandContext::DrawInstanced(UINT vertexCountPerInstance, UINT instanceCount, UINT startVertexLocation, UINT startInstanceLocation) {
+	FlushResourceBarriers();
+	commandList_->DrawInstanced(vertexCountPerInstance, instanceCount, startVertexLocation, startInstanceLocation);
+}
+
+void CommandContext::DrawIndexedInstanced(UINT indexCountPerInstance, UINT instanceCount, UINT startIndexLocation, INT baseVertexLocation, UINT startInstanceLocation) {
+	FlushResourceBarriers();
+	commandList_->DrawIndexedInstanced(indexCountPerInstance, instanceCount, startIndexLocation, baseVertexLocation, startInstanceLocation);
+}
+
+void CommandContext::Dispatch(uint32_t x, uint32_t y, uint32_t z) {
+	FlushResourceBarriers();
+	commandList_->Dispatch(x, y, z);
 }

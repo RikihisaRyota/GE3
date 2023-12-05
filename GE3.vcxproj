@@ -108,6 +108,7 @@
     <ClCompile Include="Game\Engine\Graphics\DepthBuffer.cpp" />
     <ClCompile Include="Game\Engine\Graphics\DescriptorHeap.cpp" />
     <ClCompile Include="Game\Engine\Graphics\GraphicsCore.cpp" />
+    <ClCompile Include="Game\Engine\Graphics\Helper.cpp" />
     <ClCompile Include="Game\Engine\Graphics\LinerAllocator.cpp" />
     <ClCompile Include="Game\Engine\Graphics\PipelineState.cpp" />
     <ClCompile Include="Game\Engine\Graphics\PixelBuffer.cpp" />
@@ -122,9 +123,11 @@
     <ClCompile Include="Game\Engine\Math\MyMath.cpp" />
     <ClCompile Include="Game\Engine\Math\ViewProjection.cpp" />
     <ClCompile Include="Game\Engine\Math\WorldTransform.cpp" />
+    <ClCompile Include="Game\Engine\ShderCompiler\ShaderCompiler.cpp" />
     <ClCompile Include="Game\Engine\WinApp\WinApp.cpp" />
+    <ClCompile Include="Game\GameScene.cpp" />
+    <ClCompile Include="Game\GPUParticle.cpp" />
     <ClCompile Include="Game\main.cpp" />
-    <ClCompile Include="GPUParticle.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Externals\Imgui\imconfig.h" />
@@ -146,6 +149,7 @@
     <ClInclude Include="Game\Engine\Graphics\DescriptorHeap.h" />
     <ClInclude Include="Game\Engine\Graphics\GpuResource.h" />
     <ClInclude Include="Game\Engine\Graphics\GraphicsCore.h" />
+    <ClInclude Include="Game\Engine\Graphics\Helper.h" />
     <ClInclude Include="Game\Engine\Graphics\LinerAllocator.h" />
     <ClInclude Include="Game\Engine\Graphics\PipelineState.h" />
     <ClInclude Include="Game\Engine\Graphics\PixelBuffer.h" />
@@ -165,8 +169,10 @@
     <ClInclude Include="Game\Engine\Math\Vector4.h" />
     <ClInclude Include="Game\Engine\Math\ViewProjection.h" />
     <ClInclude Include="Game\Engine\Math\WorldTransform.h" />
+    <ClInclude Include="Game\Engine\ShderCompiler\ShaderCompiler.h" />
     <ClInclude Include="Game\Engine\WinApp\WinApp.h" />
-    <ClInclude Include="GPUParticle.h" />
+    <ClInclude Include="Game\GameScene.h" />
+    <ClInclude Include="Game\GPUParticle.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="Externals\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj">
@@ -175,6 +181,16 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="Externals\Imgui\LICENSE.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Game\Resources\Shaders\TestCS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">4.0</ShaderModel>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </FxCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

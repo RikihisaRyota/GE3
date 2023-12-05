@@ -31,6 +31,9 @@
     <Filter Include="Game">
       <UniqueIdentifier>{55e31ea7-1e4a-41bd-bc9a-c3ec1d0a38fc}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\ShaderCompiler">
+      <UniqueIdentifier>{c5317b6b-e9bf-48ba-af51-9684cd9ff38b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Game\Engine\Math\MyMath.cpp">
@@ -127,7 +130,16 @@
     <ClCompile Include="Game\Engine\Graphics\PipelineState.cpp">
       <Filter>Engine\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="GPUParticle.cpp">
+    <ClCompile Include="Game\Engine\ShderCompiler\ShaderCompiler.cpp">
+      <Filter>Engine\ShaderCompiler</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\GPUParticle.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Engine\Graphics\Helper.cpp">
+      <Filter>Engine\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\GameScene.cpp">
       <Filter>Game</Filter>
     </ClCompile>
   </ItemGroup>
@@ -249,7 +261,16 @@
     <ClInclude Include="Game\Engine\Graphics\RootSignature.h">
       <Filter>Engine\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="GPUParticle.h">
+    <ClInclude Include="Game\Engine\ShderCompiler\ShaderCompiler.h">
+      <Filter>Engine\ShaderCompiler</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\GPUParticle.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Engine\Graphics\Helper.h">
+      <Filter>Engine\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\GameScene.h">
       <Filter>Game</Filter>
     </ClInclude>
   </ItemGroup>
@@ -257,5 +278,8 @@
     <Text Include="Externals\Imgui\LICENSE.txt">
       <Filter>Externals\imgui</Filter>
     </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Game\Resources\Shaders\TestCS.hlsl" />
   </ItemGroup>
 </Project>

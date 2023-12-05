@@ -14,7 +14,7 @@ void RootSignature::Create(const std::wstring& name, const D3D12_ROOT_SIGNATURE_
 		blob.GetAddressOf(),
 		errorBlob.GetAddressOf()
 	);
-	assert(result);
+	assert(SUCCEEDED(result));
 
 	GraphicsCore::GetInstance()->GetDevice()->CreateRootSignature(
 		0,

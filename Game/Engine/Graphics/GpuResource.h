@@ -15,6 +15,8 @@ public:
 	const ID3D12Resource* GetResource() const { return resource_.Get(); }
 
 	ID3D12Resource** GetAddressOf() { return resource_.GetAddressOf(); }
+
+	D3D12_GPU_VIRTUAL_ADDRESS GetGPUVirtualAddress() const { return resource_->GetGPUVirtualAddress(); }
 protected:
 	Microsoft::WRL::ComPtr<ID3D12Resource> resource_;
 	D3D12_RESOURCE_STATES state_;

@@ -4,15 +4,22 @@ namespace GameCore {
 	Input* input=nullptr;
 	RenderManager* renderManager = nullptr;
 	WinApp* winApp = nullptr;
+	ShaderCompiler* shaderCompiler = nullptr;
+	GameScene* gameScene = nullptr;
 	void Initialize() {
 		winApp = WinApp::GetInstance();
 		winApp->CreateGameWindow(L"GE3");
+
+		shaderCompiler->Initialize();
 
 		input = Input::GetInstance();
 		input->Initialize();
 
 		renderManager = RenderManager::GetInstance();
 		renderManager->Initialize();
+
+		gameScene = new GameScene();
+		gameScene->Initialize();
 
 		renderManager->Reset();
 	}
@@ -22,6 +29,8 @@ namespace GameCore {
 			return false;
 		}
 		input->Update();
+
+		gameScene->Update();
 
 		renderManager->BeginRender();
 

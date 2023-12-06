@@ -16,4 +16,5 @@ void GameScene::Update() {
 }
 
 void GameScene::Draw(const CommandContext& commandContext) {
+	gpuParticle_->Render();
 }

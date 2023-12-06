@@ -8,7 +8,14 @@ void ColorBuffer::CreateFromSwapChain(const std::wstring& Name, ID3D12Resource* 
 	if (rtvHandle_.IsNull()) {
 		rtvHandle_ = graphics->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 	}
-	graphics->GetDevice()->CreateRenderTargetView(resource_.Get(), nullptr, rtvHandle_);
+	
+
+	// RTVの設定SRGBにするため
+	D3D12_RENDER_TARGET_VIEW_DESC rtvDesc{};
+	rtvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;//出力結果をSRGBに変換して書き込む
+	rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;//2DTextureとして書き込む
+
+	graphics->GetDevice()->CreateRenderTargetView(resource_.Get(), &rtvDesc, rtvHandle_);
 }
 
 void ColorBuffer::Create(const std::wstring& name, uint32_t width, uint32_t height, DXGI_FORMAT format) {

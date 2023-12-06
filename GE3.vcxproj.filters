@@ -289,5 +289,16 @@
     <FxCompile Include="Game\Resources\Shaders\Spawn.CS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
+    <FxCompile Include="GPUParticle.VS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="GPUParticle.PS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Game\Resources\Shaders\GPUParticle.hlsli">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

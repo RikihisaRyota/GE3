@@ -2,6 +2,7 @@
 
 #include <d3dx12.h>
 
+#include "Engine/Graphics/CommandContext.h"
 #include "Engine/Graphics/Helper.h"
 #include "Engine/Graphics/GraphicsCore.h"
 #include "Engine/ShderCompiler/ShaderCompiler.h"
@@ -20,67 +21,12 @@ GPUParticle::GPUParticle() {
 	InitializeSpawnParticle();
 
 	InitializeUpdateParticle();
+
+	InitializeGraphics();
 }
 
 void GPUParticle::Initialize() {
-	
 
-	// グラフィックスルートシグネイチャ
-	{
-		//CD3DX12_DESCRIPTOR_RANGE ranges[1]{};
-		//ranges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);
-		//CD3DX12_DESCRIPTOR_RANGE samplerRanges[1]{};
-		//samplerRanges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER, 1, 0);
-		//
-		//CD3DX12_ROOT_PARAMETER rootParameters[4]{};
-		//rootParameters[0].InitAsConstantBufferView(0);
-		//rootParameters[1].InitAsConstantBufferView(1);
-		//rootParameters[2].InitAsDescriptorTable(_countof(ranges), ranges);
-		//rootParameters[3].InitAsDescriptorTable(_countof(samplerRanges), samplerRanges);
-		//
-		//D3D12_ROOT_SIGNATURE_DESC desc{};
-		//desc.pParameters = rootParameters;
-		//desc.NumParameters = _countof(rootParameters);
-		//desc.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
-		//
-		//graphicsRootSignature_->Create(L"GPUParticle RootSignature", desc);
-	}
-	// グラフィックスパイプライン
-	{
-		//D3D12_GRAPHICS_PIPELINE_STATE_DESC desc{};
-		//
-		//desc.pRootSignature = *graphicsRootSignature_;
-		//
-		//D3D12_INPUT_ELEMENT_DESC inputElements[] = {
-		//	{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-		//	{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-		//	{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-		//};
-		//D3D12_INPUT_LAYOUT_DESC inputLayoutDesc{};
-		//inputLayoutDesc.pInputElementDescs = inputElements;
-		//inputLayoutDesc.NumElements = _countof(inputElements);
-		//desc.InputLayout = inputLayoutDesc;
-		//
-		//auto vs = ShaderCompiler::Compile(L"Resources/Shader/GPUParticle.VS.hlsl", L"vs_6_0");
-		//auto ps = ShaderCompiler::Compile(L"Resources/Shader/GPUParticle.PS.hlsl", L"ps_6_0");
-		//desc.VS = CD3DX12_SHADER_BYTECODE(vs->GetBufferPointer(), vs->GetBufferSize());
-		//desc.PS = CD3DX12_SHADER_BYTECODE(ps->GetBufferPointer(), ps->GetBufferSize());
-		//desc.BlendState = Helper::BlendDisable;
-		//desc.DepthStencilState = Helper::DepthStateReadWrite;
-		//desc.RasterizerState = Helper::RasterizerDefault;
-		//desc.NumRenderTargets = 1;
-		//desc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
-		//desc.DSVFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
-		//desc.SampleMask = D3D12_DEFAULT_SAMPLE_MASK;
-		//desc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-		//desc.SampleDesc.Count = 1;
-		//graphicsPipelineState_->Create(L"GPUParticle PSO", desc);
-	}
-	
-	{
-
-	}
-	
 }
 
 void GPUParticle::Update() {
@@ -90,12 +36,22 @@ void GPUParticle::Update() {
 	commandContext.SetPipelineState(*updateComputePipelineState_);
 	commandContext.SetComputeRootSignature(*updateComputeRootSignature_);
 	commandContext.SetComputeUAV(0, rwStructuredBuffer_->GetGPUVirtualAddress());
-	commandContext.SetComputeConstantBuffer(1,updateConstantBuffer_->GetGPUVirtualAddress());
-	commandContext.Dispatch(kNumThread,1,1);
+	commandContext.SetComputeConstantBuffer(1, updateConstantBuffer_->GetGPUVirtualAddress());
+	commandContext.Dispatch(kNumThread, 1, 1);
 
 }
 
-void GPUParticle::Render(CommandContext& commandContext) {
+void GPUParticle::Render() {
+	auto commandContext = RenderManager::GetInstance()->GetCommandContext();
+	commandContext.SetPipelineState(*graphicsPipelineState_);
+	commandContext.SetGraphicsRootSignature(*graphicsRootSignature_);
+	commandContext.SetVertexBuffer(0,ibView_);
+	commandContext.SetIndexBuffer(idxView_);
+	commandContext.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	commandContext.TransitionResourse(rwStructuredBuffer_, D3D12_RESOURCE_STATE_GENERIC_READ);
+	commandContext.SetGraphicsDescriptorTable(0, rwStructuredBufferHandle_);
+	commandContext.DrawIndexedInstanced(static_cast<UINT>(indices_.size()),kNumThread);
 
 }
 
@@ -146,7 +102,7 @@ void GPUParticle::InitializeSpawnParticle() {
 
 		commandContext.TransitionResourse(rwStructuredBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 		commandContext.SetComputeUAV(0, rwStructuredBuffer_->GetGPUVirtualAddress());
-		
+
 		commandContext.Dispatch(kNumThread, 1, 1);
 		commandContext.Close();
 
@@ -197,7 +153,7 @@ void GPUParticle::InitializeUpdateParticle() {
 	}
 	// 定数バッファ
 	{
-		updateConstantBuffer_.Create(L"GPUParticle UpdateConstantBuffer",sizeof(ParticleInfo));
+		updateConstantBuffer_.Create(L"GPUParticle UpdateConstantBuffer", sizeof(particleInfo_));
 		particleInfo_ = new ParticleInfo();
 		particleInfo_->speed = 1.0f;
 		updateConstantBuffer_.Copy(particleInfo_, sizeof(particleInfo_));
@@ -206,5 +162,164 @@ void GPUParticle::InitializeUpdateParticle() {
 	{
 		/*rwStructuredBuffer_->Map(0, 0, reinterpret_cast<void**>(&updateParticle_));
 		memset(updateParticle_, 0, sizeof(uint32_t) * kNumThread);*/
+	}
+}
+
+void GPUParticle::InitializeGraphics() {
+	auto graphics = GraphicsCore::GetInstance();
+	auto device = graphics->GetDevice();
+	// グラフィックスルートシグネイチャ
+	{
+		CD3DX12_DESCRIPTOR_RANGE range{};
+		range.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);
+
+		CD3DX12_ROOT_PARAMETER rootParameters[1]{};
+		rootParameters[0].InitAsDescriptorTable(1, &range);
+
+		D3D12_ROOT_SIGNATURE_DESC desc{};
+		desc.pParameters = rootParameters;
+		desc.NumParameters = _countof(rootParameters);
+		desc.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
+
+		graphicsRootSignature_->Create(L"GPUParticle RootSignature", desc);
+	}
+	// グラフィックスパイプライン
+	{
+		D3D12_GRAPHICS_PIPELINE_STATE_DESC desc{};
+
+		desc.pRootSignature = *graphicsRootSignature_;
+
+		D3D12_INPUT_ELEMENT_DESC inputElements[] = {
+			{ "POSITION", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+		};
+		D3D12_INPUT_LAYOUT_DESC inputLayoutDesc{};
+		inputLayoutDesc.pInputElementDescs = inputElements;
+		inputLayoutDesc.NumElements = _countof(inputElements);
+		desc.InputLayout = inputLayoutDesc;
+
+		auto vs = ShaderCompiler::Compile(L"Game/Resources/Shaders/GPUParticle.VS.hlsl", L"vs_6_0");
+		auto ps = ShaderCompiler::Compile(L"Game/Resources/Shaders/GPUParticle.PS.hlsl", L"ps_6_0");
+		desc.VS = CD3DX12_SHADER_BYTECODE(vs->GetBufferPointer(), vs->GetBufferSize());
+		desc.PS = CD3DX12_SHADER_BYTECODE(ps->GetBufferPointer(), ps->GetBufferSize());
+		desc.BlendState = Helper::BlendDisable;
+		desc.DepthStencilState = Helper::DepthStateReadWrite;
+		desc.RasterizerState = Helper::RasterizerDefault;
+		desc.NumRenderTargets = 1;
+		desc.RTVFormats[0] = RenderManager::GetInstance()->GetRenderTargetFormat();
+		desc.DSVFormat = DXGI_FORMAT_D32_FLOAT;
+		desc.SampleMask = D3D12_DEFAULT_SAMPLE_MASK;
+		desc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+		desc.SampleDesc.Count = 1;
+		graphicsPipelineState_->Create(L"GPUParticle PSO", desc);
+	}
+	// シェーダーリソース用
+	{
+		rwStructuredBufferHandle_ = graphics->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+		D3D12_CONSTANT_BUFFER_VIEW_DESC desc{};
+		desc.BufferLocation = rwStructuredBuffer_.GetGPUVirtualAddress();
+		desc.SizeInBytes = (sizeof(Particle) + 255) & ~255;
+		device->CreateConstantBufferView(&desc, rwStructuredBufferHandle_);
+	}
+	// 頂点バッファ
+	{
+		struct Vertex {
+			Vector4 position;
+		};
+		Vertex vertex[] = {
+			// 前
+		{-1.0f, -1.0f, -1.0f, 1.0f}, // 左下
+		{-1.0f, +1.0f, -1.0f, 1.0f}, // 左上
+		{+1.0f, -1.0f, -1.0f, 1.0f}, // 右下
+		{+1.0f, +1.0f, -1.0f, 1.0f}, // 右上
+		// 後(前面とZ座標の符号が逆)
+		{+1.0f, -1.0f, +1.0f, 1.0f}, // 左下
+		{+1.0f, +1.0f, +1.0f, 1.0f}, // 左上
+		{-1.0f, -1.0f, +1.0f, 1.0f}, // 右下
+		{-1.0f, +1.0f, +1.0f, 1.0f}, // 右上
+		// 左
+		{-1.0f, -1.0f, +1.0f, 1.0f}, // 左下
+		{-1.0f, +1.0f, +1.0f, 1.0f}, // 左上
+		{-1.0f, -1.0f, -1.0f, 1.0f}, // 右下
+		{-1.0f, +1.0f, -1.0f, 1.0f}, // 右上
+		// 右（左面とX座標の符号が逆）
+		{+1.0f, -1.0f, -1.0f, 1.0f}, // 左下
+		{+1.0f, +1.0f, -1.0f, 1.0f}, // 左上
+		{+1.0f, -1.0f, +1.0f, 1.0f}, // 右下
+		{+1.0f, +1.0f, +1.0f, 1.0f}, // 右上
+		// 下
+		{+1.0f, -1.0f, -1.0f, 1.0f}, // 左下
+		{+1.0f, -1.0f, +1.0f, 1.0f}, // 左上
+		{-1.0f, -1.0f, -1.0f, 1.0f}, // 右下
+		{-1.0f, -1.0f, +1.0f, 1.0f}, // 右上
+		// 上（下面とY座標の符号が逆）
+		{-1.0f, +1.0f, -1.0f, 1.0f}, // 左下
+		{-1.0f, +1.0f, +1.0f, 1.0f}, // 左上
+		{+1.0f, +1.0f, -1.0f, 1.0f}, // 右下
+		{+1.0f, +1.0f, +1.0f, 1.0f}, // 右上
+		};
+		auto desc = CD3DX12_RESOURCE_DESC::Buffer(
+			UINT64(sizeof(Vertex) * _countof(vertex)),
+			D3D12_RESOURCE_FLAG_NONE);
+		CD3DX12_HEAP_PROPERTIES heapProps(D3D12_HEAP_TYPE_UPLOAD);
+		device->CreateCommittedResource(
+			&heapProps,
+			D3D12_HEAP_FLAG_NONE,
+			&desc,
+			D3D12_RESOURCE_STATE_COMMON,
+			nullptr,
+			IID_PPV_ARGS(vertexBuffer_.GetAddressOf())
+		);
+		// 頂点バッファへのデータ転送
+		{
+			Vertex* vertMap = nullptr;
+			auto result = vertexBuffer_->Map(0, nullptr, reinterpret_cast<void**>(&vertMap));
+			if (SUCCEEDED(result)) {
+				std::copy(std::begin(vertex), std::end(vertex), vertMap);
+				vertexBuffer_->Unmap(0, nullptr);
+			}
+		}
+		ibView_.BufferLocation = vertexBuffer_->GetGPUVirtualAddress();
+		ibView_.SizeInBytes = UINT64(sizeof(Vertex) * _countof(vertex));
+		ibView_.SizeInBytes = sizeof(Vertex);
+	}
+	// インデックスバッファ
+	{
+		indices_ = {
+			0,  1,  3,
+			3,  2,  0,
+			4,  5,  7,
+			7,  6,  4,
+			8,  9,  11,
+			11, 10, 8,
+			12, 13, 15,
+			15, 14, 12,
+			16, 17, 19,
+			19, 18, 16,
+			20, 21, 23,
+			23, 22, 20
+		};
+		auto desc = CD3DX12_RESOURCE_DESC::Buffer(
+			UINT64(sizeof(uint32_t) * indices_.size()),
+			D3D12_RESOURCE_FLAG_NONE);
+		CD3DX12_HEAP_PROPERTIES heapProps(D3D12_HEAP_TYPE_UPLOAD);
+		device->CreateCommittedResource(
+			&heapProps,
+			D3D12_HEAP_FLAG_NONE,
+			&desc,
+			D3D12_RESOURCE_STATE_COMMON,
+			nullptr,
+			IID_PPV_ARGS(indexBuffer_.GetAddressOf())
+		);
+		// インデックスバッファへのデータ転送
+		uint16_t* indexMap = nullptr;
+		auto result = indexBuffer_->Map(0, nullptr, reinterpret_cast<void**>(&indexMap));
+		if (SUCCEEDED(result)) {
+			std::copy(indices_.begin(), indices_.end(), indexMap);
+			indexBuffer_->Unmap(0, nullptr);
+		}
+		// インデックスバッファビューの作成
+		idxView_.BufferLocation = indexBuffer_->GetGPUVirtualAddress();
+		idxView_.Format = DXGI_FORMAT_R16_UINT;
+		idxView_.SizeInBytes = static_cast<UINT>(sizeof(uint16_t) * indices_.size()); // 修正: インデックスバッファのバイトサイズを代入
 	}
 }

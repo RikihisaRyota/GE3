@@ -35,13 +35,19 @@ public:
 	void SetRenderTarget(D3D12_CPU_DESCRIPTOR_HANDLE RTV, D3D12_CPU_DESCRIPTOR_HANDLE DSV) { SetRenderTargets(1, &RTV, DSV); }
 	void SetDepthStencilTarget(D3D12_CPU_DESCRIPTOR_HANDLE DSV) { SetRenderTargets(0, nullptr, DSV); }
 
+	void SetPrimitiveTopology(D3D12_PRIMITIVE_TOPOLOGY topology);
+
 	void SetGraphicsConstantBuffer(UINT rootIndex,D3D12_GPU_VIRTUAL_ADDRESS address);
 	void SetComputeConstantBuffer(UINT rootIndex,D3D12_GPU_VIRTUAL_ADDRESS address);
 	void SetGraphicsDescriptorTable(UINT rootIndex, D3D12_GPU_DESCRIPTOR_HANDLE address);
 	void SetComputeDescriptorTable(UINT rootIndex, D3D12_GPU_DESCRIPTOR_HANDLE address);
 
 	void SetComputeUAV(uint32_t rootParameterIndex, D3D12_GPU_VIRTUAL_ADDRESS bufferLocation);
-	
+
+	void SetVertexBuffer(UINT slot, const D3D12_VERTEX_BUFFER_VIEW& vbv);
+	void SetVertexBuffer(UINT slot, UINT numViews, const D3D12_VERTEX_BUFFER_VIEW vbvs[]);
+	void SetIndexBuffer(const D3D12_INDEX_BUFFER_VIEW& ibv);
+
 	void SetViewport(const D3D12_VIEWPORT& viewport);
 	void SetViewport(FLOAT x, FLOAT y, FLOAT w, FLOAT h, FLOAT minDepth = 0.0f, FLOAT maxDepth = 1.0f);
 	void SetScissorRect(const D3D12_RECT& rect);

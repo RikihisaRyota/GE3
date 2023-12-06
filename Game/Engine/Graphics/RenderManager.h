@@ -7,6 +7,7 @@
 #include "SwapChain.h"
 
 class RenderManager {
+
 public:
 	static RenderManager* GetInstance();
 	
@@ -18,6 +19,8 @@ public:
 
 	CommandContext& GetCommandContext() { return commandContexts_[swapChain_.GetBufferIndex()]; }
 	SwapChain& GetSwapChain() { return swapChain_; }
+	DXGI_FORMAT GetRenderTargetFormat() { return mainColorBufferFormat_; }
+	DXGI_FORMAT GetDepthFormat() { return mainDepthBufferFormat_; }
 private:
 	RenderManager() = default;
 	RenderManager(const RenderManager&) = delete;
@@ -29,4 +32,7 @@ private:
 
 	ColorBuffer mainColorBuffer_;
 	DepthBuffer mainDepthBuffer_;
+
+	DXGI_FORMAT mainColorBufferFormat_;
+	DXGI_FORMAT mainDepthBufferFormat_;
 };

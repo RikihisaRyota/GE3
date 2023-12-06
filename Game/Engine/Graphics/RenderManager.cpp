@@ -25,14 +25,16 @@ void RenderManager::Initialize() {
 	}
 
 	// メインとなるバッファを初期化
+	mainColorBufferFormat_ = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+	mainDepthBufferFormat_ = DXGI_FORMAT_D32_FLOAT;
 	auto& swapChainBuffer = swapChain_.GetColorBuffer();
 	Color clearColor = { 0.3f,0.1f,0.3f,0.0f };
 	swapChain_.GetColorBuffer().SetClearColor(clearColor);
 	mainColorBuffer_.SetClearColor(clearColor);
-	mainColorBuffer_.Create(L"mainColorBuffer", swapChainBuffer.GetWidth(), swapChainBuffer.GetHeight(), DXGI_FORMAT_R32G32B32A32_FLOAT);
+	mainColorBuffer_.Create(L"mainColorBuffer", swapChainBuffer.GetWidth(), swapChainBuffer.GetHeight(), mainColorBufferFormat_);
 
 
-	mainDepthBuffer_.Create(L"mainDepthBuffer", swapChainBuffer.GetWidth(), swapChainBuffer.GetHeight(), DXGI_FORMAT_D32_FLOAT);
+	mainDepthBuffer_.Create(L"mainDepthBuffer", swapChainBuffer.GetWidth(), swapChainBuffer.GetHeight(), mainDepthBufferFormat_);
 	
 	// ImGUi初期化
 	ImGuiManager::GetInstance()->Initialize(window->GetHwnd(),swapChain_.GetColorBuffer().GetFormat());

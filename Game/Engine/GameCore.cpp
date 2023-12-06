@@ -45,6 +45,8 @@ namespace GameCore {
 
 		renderManager->BeginRender();
 
+		gameScene->Draw(renderManager->GetCommandContext());
+
 		renderManager->EndRender();
 
 		renderManager->Reset();

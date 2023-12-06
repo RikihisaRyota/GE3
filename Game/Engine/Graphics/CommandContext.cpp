@@ -121,6 +121,10 @@ void CommandContext::SetRenderTargets(UINT numRTVs, const D3D12_CPU_DESCRIPTOR_H
 	commandList_->OMSetRenderTargets(numRTVs, RTVs, FALSE, &DSV);
 }
 
+void CommandContext::SetPrimitiveTopology(D3D12_PRIMITIVE_TOPOLOGY topology) {
+	commandList_->IASetPrimitiveTopology(topology);
+}
+
 void CommandContext::SetGraphicsConstantBuffer(UINT rootIndex, D3D12_GPU_VIRTUAL_ADDRESS address) {
 	commandList_->SetGraphicsRootConstantBufferView(rootIndex,address);
 }
@@ -141,6 +145,17 @@ void CommandContext::SetComputeUAV(uint32_t rootParameterIndex, D3D12_GPU_VIRTUA
 	commandList_->SetComputeRootUnorderedAccessView(rootParameterIndex, bufferLocation);
 }
 
+void CommandContext::SetVertexBuffer(UINT slot, const D3D12_VERTEX_BUFFER_VIEW& vbv) {
+	commandList_->IASetVertexBuffers(slot, 1, &vbv);
+}
+
+void CommandContext::SetVertexBuffer(UINT slot, UINT numViews, const D3D12_VERTEX_BUFFER_VIEW vbvs[]) {
+	commandList_->IASetVertexBuffers(slot, numViews, vbvs);
+}
+
+void CommandContext::SetIndexBuffer(const D3D12_INDEX_BUFFER_VIEW& ibv) {
+	commandList_->IASetIndexBuffer(&ibv);
+}
 void CommandContext::SetViewport(const D3D12_VIEWPORT& viewport) {
 	commandList_->RSSetViewports(1, &viewport);
 }

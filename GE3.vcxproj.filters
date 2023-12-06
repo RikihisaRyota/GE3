@@ -34,6 +34,9 @@
     <Filter Include="Engine\ShaderCompiler">
       <UniqueIdentifier>{c5317b6b-e9bf-48ba-af51-9684cd9ff38b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shaders">
+      <UniqueIdentifier>{fa9f0d52-2c0d-4e3d-9599-041b3f66ff56}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Game\Engine\Math\MyMath.cpp">
@@ -280,6 +283,11 @@
     </Text>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="Game\Resources\Shaders\TestCS.hlsl" />
+    <FxCompile Include="Game\Resources\Shaders\Update.CS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Game\Resources\Shaders\Spawn.CS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

@@ -12,5 +12,5 @@ public:
 	void Update();
 	void Draw(const CommandContext& commandContext);
 private:
-	GPUParticle gpuParticle_;
+	std::unique_ptr<GPUParticle> gpuParticle_;
 };

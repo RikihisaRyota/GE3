@@ -69,10 +69,10 @@ void RenderManager::EndRender() {
 	commandContext.TransitionResourse(swapChain_.GetColorBuffer(), D3D12_RESOURCE_STATE_PRESENT);
 	commandContext.Close();
 	CommandQueue& commandQueue = graphicsCore_->GetCommandQueue();
-	commandQueue.WaitForGPU();
 	commandQueue.Execute(commandContext);
-	swapChain_.Present();
 	commandQueue.Signal();
+	commandQueue.WaitForGPU();
+	swapChain_.Present();
 }
 
 void RenderManager::Shutdown() {

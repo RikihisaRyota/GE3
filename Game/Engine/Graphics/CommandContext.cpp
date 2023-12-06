@@ -121,6 +121,22 @@ void CommandContext::SetRenderTargets(UINT numRTVs, const D3D12_CPU_DESCRIPTOR_H
 	commandList_->OMSetRenderTargets(numRTVs, RTVs, FALSE, &DSV);
 }
 
+void CommandContext::SetGraphicsConstantBuffer(UINT rootIndex, D3D12_GPU_VIRTUAL_ADDRESS address) {
+	commandList_->SetGraphicsRootConstantBufferView(rootIndex,address);
+}
+
+void CommandContext::SetComputeConstantBuffer(UINT rootIndex, D3D12_GPU_VIRTUAL_ADDRESS address) {
+	commandList_->SetComputeRootConstantBufferView(rootIndex, address);
+}
+
+void CommandContext::SetGraphicsDescriptorTable(UINT rootIndex, D3D12_GPU_DESCRIPTOR_HANDLE address) {
+	commandList_->SetGraphicsRootDescriptorTable(rootIndex, address);
+}
+
+void CommandContext::SetComputeDescriptorTable(UINT rootIndex, D3D12_GPU_DESCRIPTOR_HANDLE address) {
+	commandList_->SetComputeRootDescriptorTable(rootIndex, address);
+}
+
 void CommandContext::SetComputeUAV(uint32_t rootParameterIndex, D3D12_GPU_VIRTUAL_ADDRESS bufferLocation) {
 	commandList_->SetComputeRootUnorderedAccessView(rootParameterIndex, bufferLocation);
 }

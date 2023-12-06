@@ -1,6 +1,9 @@
-#include <cassert>
+#include <d3d12.h>
 #include <dxgidebug.h>
+#include <dxgi1_3.h>
+#include <cassert>
 #include <Windows.h>
+#include <wrl.h>
 
 #include "Engine/GameCore.h"
 
@@ -21,7 +24,7 @@ static ResourceLeackChecker leakCheck;
 
 
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
-	
+
 	GameCore::Initialize();
 
 	// メインループ

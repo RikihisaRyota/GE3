@@ -5,20 +5,25 @@
 #include "Engine/Graphics/Helper.h"
 #include "Engine/Graphics/GraphicsCore.h"
 #include "Engine/ShderCompiler/ShaderCompiler.h"
+#include "Engine/Graphics/RenderManager.h"
 
-std::vector<uint32_t> test;
+GPUParticle::GPUParticle() {
+	graphicsPipelineState_ = std::make_unique<PipelineState>();
+	graphicsRootSignature_ = std::make_unique<RootSignature>();
+
+	spawnComputePipelineState_ = std::make_unique<PipelineState>();
+	spawnComputeRootSignature_ = std::make_unique<RootSignature>();
+
+	updateComputePipelineState_ = std::make_unique<PipelineState>();
+	updateComputeRootSignature_ = std::make_unique<RootSignature>();
+
+	InitializeSpawnParticle();
+
+	InitializeUpdateParticle();
+}
 
 void GPUParticle::Initialize() {
-	auto graphics = GraphicsCore::GetInstance();
-	auto device = GraphicsCore::GetInstance()->GetDevice();
-	graphicsPipelineState_ = std::make_unique<PipelineState>();
-	computePipelineState_ = std::make_unique<PipelineState>();
-	graphicsRootSignature_ = std::make_unique<RootSignature>();
-	computeRootSignature_ = std::make_unique<RootSignature>();
-	for (size_t i = 0; i < kNumThread; i++) {
-		test.emplace_back(uint32_t());
-		test.back() = 0;
-	}
+	
 
 	// グラフィックスルートシグネイチャ
 	{
@@ -71,29 +76,37 @@ void GPUParticle::Initialize() {
 		//desc.SampleDesc.Count = 1;
 		//graphicsPipelineState_->Create(L"GPUParticle PSO", desc);
 	}
-	// コンピュートシグネイチャ
+	
 	{
-		CD3DX12_ROOT_PARAMETER rootParameters[1]{};
-		rootParameters[0].InitAsUnorderedAccessView(0);
 
-		D3D12_ROOT_SIGNATURE_DESC desc{};
-		desc.pParameters = rootParameters;
-		desc.NumParameters = _countof(rootParameters);
+	}
+	
+}
 
-		computeRootSignature_->Create(L"GPUParticle RootSignature", desc);
-	}
-	// コンピュートパイプライン
-	{
-		D3D12_COMPUTE_PIPELINE_STATE_DESC desc{};
-		desc.pRootSignature = *computeRootSignature_;
-		auto cs = ShaderCompiler::Compile(L"Game/Resources/Shaders/TestCS.hlsl", L"cs_6_0");
-		desc.CS = CD3DX12_SHADER_BYTECODE(cs->GetBufferPointer(), cs->GetBufferSize());
-		computePipelineState_->Create(L"GPUParticle CPSO", desc);
-	}
+void GPUParticle::Update() {
+
+	auto commandContext = RenderManager::GetInstance()->GetCommandContext();
+	commandContext.TransitionResourse(rwStructuredBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+	commandContext.SetPipelineState(*updateComputePipelineState_);
+	commandContext.SetComputeRootSignature(*updateComputeRootSignature_);
+	commandContext.SetComputeUAV(0, rwStructuredBuffer_->GetGPUVirtualAddress());
+	commandContext.SetComputeConstantBuffer(1,updateConstantBuffer_->GetGPUVirtualAddress());
+	commandContext.Dispatch(kNumThread,1,1);
+
+}
+
+void GPUParticle::Render(CommandContext& commandContext) {
+
+}
+
+void GPUParticle::InitializeSpawnParticle() {
+	auto graphics = GraphicsCore::GetInstance();
+	auto device = GraphicsCore::GetInstance()->GetDevice();
+
 	// RWStructuredBuffer
 	{
 		auto desc = CD3DX12_RESOURCE_DESC::Buffer(
-			UINT64(sizeof(uint32_t) * kNumThread),
+			UINT64(sizeof(Particle) * kNumThread),
 			D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
 		CD3DX12_HEAP_PROPERTIES heapProps(D3D12_HEAP_TYPE_DEFAULT);
 		device->CreateCommittedResource(
@@ -105,13 +118,76 @@ void GPUParticle::Initialize() {
 			IID_PPV_ARGS(rwStructuredBuffer_.GetAddressOf())
 		);
 	}
+	// 初期化用コンピュートルートシグネイチャ
+	{
+		CD3DX12_ROOT_PARAMETER rootParameters[1]{};
+		rootParameters[0].InitAsUnorderedAccessView(0);
+
+		D3D12_ROOT_SIGNATURE_DESC desc{};
+		desc.pParameters = rootParameters;
+		desc.NumParameters = _countof(rootParameters);
+
+		spawnComputeRootSignature_->Create(L"GPUParticle SpawnRootSignature", desc);
+
+	}
+	// 初期化用コンピュートパイプライン
+	{
+		D3D12_COMPUTE_PIPELINE_STATE_DESC desc{};
+		desc.pRootSignature = *spawnComputeRootSignature_;
+		auto cs = ShaderCompiler::Compile(L"Game/Resources/Shaders/Spawn.CS.hlsl", L"cs_6_0");
+		desc.CS = CD3DX12_SHADER_BYTECODE(cs->GetBufferPointer(), cs->GetBufferSize());
+		spawnComputePipelineState_->Create(L"GPUParticle SpawnCPSO", desc);
+	}
+	// 初期化
+	{
+		auto commandContext = RenderManager::GetInstance()->GetCommandContext();
+		commandContext.SetPipelineState(*spawnComputePipelineState_);
+		commandContext.SetComputeRootSignature(*spawnComputeRootSignature_);
+
+		commandContext.TransitionResourse(rwStructuredBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+		commandContext.SetComputeUAV(0, rwStructuredBuffer_->GetGPUVirtualAddress());
+		
+		commandContext.Dispatch(kNumThread, 1, 1);
+		commandContext.Close();
+
+		CommandQueue& commandQueue = GraphicsCore::GetInstance()->GetCommandQueue();
+		commandQueue.Execute(commandContext);
+		commandQueue.Signal();
+		commandQueue.WaitForGPU();
+		commandContext.Reset();
+	}
+}
+
+void GPUParticle::InitializeUpdateParticle() {
+	auto graphics = GraphicsCore::GetInstance();
+	auto device = GraphicsCore::GetInstance()->GetDevice();
+	// アップデート用コンピュートシグネイチャ
+	{
+		CD3DX12_ROOT_PARAMETER rootParameters[2]{};
+		rootParameters[0].InitAsUnorderedAccessView(0);
+		rootParameters[1].InitAsConstantBufferView(0);
+
+		D3D12_ROOT_SIGNATURE_DESC desc{};
+		desc.pParameters = rootParameters;
+		desc.NumParameters = _countof(rootParameters);
+
+		updateComputeRootSignature_->Create(L"GPUParticle UpdateRootSignature", desc);
+	}
+	// アップデート用コンピュートパイプライン
+	{
+		D3D12_COMPUTE_PIPELINE_STATE_DESC desc{};
+		desc.pRootSignature = *updateComputeRootSignature_;
+		auto cs = ShaderCompiler::Compile(L"Game/Resources/Shaders/Update.CS.hlsl", L"cs_6_0");
+		desc.CS = CD3DX12_SHADER_BYTECODE(cs->GetBufferPointer(), cs->GetBufferSize());
+		updateComputePipelineState_->Create(L"GPUParticle UpdateCPSO", desc);
+	}
 	// UAVの生成
 	{
 		uavHandle_ = graphics->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 		D3D12_UNORDERED_ACCESS_VIEW_DESC desc{};
 		desc.ViewDimension = D3D12_UAV_DIMENSION_BUFFER;
 		desc.Buffer.NumElements = kNumThread;
-		desc.Buffer.StructureByteStride = sizeof(uint32_t);
+		desc.Buffer.StructureByteStride = sizeof(Particle);
 		device->CreateUnorderedAccessView(
 			rwStructuredBuffer_,
 			nullptr,
@@ -119,24 +195,16 @@ void GPUParticle::Initialize() {
 			uavHandle_
 		);
 	}
+	// 定数バッファ
+	{
+		updateConstantBuffer_.Create(L"GPUParticle UpdateConstantBuffer",sizeof(ParticleInfo));
+		particleInfo_ = new ParticleInfo();
+		particleInfo_->speed = 1.0f;
+		updateConstantBuffer_.Copy(particleInfo_, sizeof(particleInfo_));
+	}
 	// マップ
 	{
 		/*rwStructuredBuffer_->Map(0, 0, reinterpret_cast<void**>(&updateParticle_));
 		memset(updateParticle_, 0, sizeof(uint32_t) * kNumThread);*/
 	}
-}
-
-void GPUParticle::Update(CommandContext& commandContext) {
-	/*commandContext.operator ID3D12GraphicsCommandList* ()->ClearUnorderedAccessViewUint(
-		uavHandle_,uavHandle_,rwStructuredBuffer_,);*/
-	commandContext.TransitionResourse(rwStructuredBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-	commandContext.SetPipelineState(*computePipelineState_);
-	commandContext.SetComputeRootSignature(*computeRootSignature_);
-	commandContext.SetComputeUAV(0, rwStructuredBuffer_->GetGPUVirtualAddress());
-	commandContext.Dispatch(16,1,1);
-
-}
-
-void GPUParticle::Render(CommandContext& commandContext) {
-
 }

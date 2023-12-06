@@ -35,6 +35,11 @@ public:
 	void SetRenderTarget(D3D12_CPU_DESCRIPTOR_HANDLE RTV, D3D12_CPU_DESCRIPTOR_HANDLE DSV) { SetRenderTargets(1, &RTV, DSV); }
 	void SetDepthStencilTarget(D3D12_CPU_DESCRIPTOR_HANDLE DSV) { SetRenderTargets(0, nullptr, DSV); }
 
+	void SetGraphicsConstantBuffer(UINT rootIndex,D3D12_GPU_VIRTUAL_ADDRESS address);
+	void SetComputeConstantBuffer(UINT rootIndex,D3D12_GPU_VIRTUAL_ADDRESS address);
+	void SetGraphicsDescriptorTable(UINT rootIndex, D3D12_GPU_DESCRIPTOR_HANDLE address);
+	void SetComputeDescriptorTable(UINT rootIndex, D3D12_GPU_DESCRIPTOR_HANDLE address);
+
 	void SetComputeUAV(uint32_t rootParameterIndex, D3D12_GPU_VIRTUAL_ADDRESS bufferLocation);
 	
 	void SetViewport(const D3D12_VIEWPORT& viewport);

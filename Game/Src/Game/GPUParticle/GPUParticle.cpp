@@ -2,11 +2,12 @@
 
 #include <d3dx12.h>
 
-#include "Engine/Graphics/CommandContext.h"
-#include "Engine/Graphics/Helper.h"
-#include "Engine/Graphics/GraphicsCore.h"
-#include "Engine/ShderCompiler/ShaderCompiler.h"
-#include "Engine/Graphics/RenderManager.h"
+#include "../../Game/Engine/Graphics/CommandContext.h"
+#include "../../Game/Engine/Graphics/Helper.h"
+#include "../../Game/Engine/Graphics/GraphicsCore.h"
+#include "../../Game/Engine/ShderCompiler/ShaderCompiler.h"
+#include "../../Game/Engine/Graphics/RenderManager.h"
+#include "../../Game/Engine/Math/ViewProjection.h"
 
 GPUParticle::GPUParticle() {
 	graphicsPipelineState_ = std::make_unique<PipelineState>();
@@ -41,17 +42,18 @@ void GPUParticle::Update() {
 
 }
 
-void GPUParticle::Render() {
+void GPUParticle::Render(const ViewProjection& viewProjection) {
 	auto commandContext = RenderManager::GetInstance()->GetCommandContext();
 	commandContext.SetPipelineState(*graphicsPipelineState_);
 	commandContext.SetGraphicsRootSignature(*graphicsRootSignature_);
-	commandContext.SetVertexBuffer(0,ibView_);
+	commandContext.SetVertexBuffer(0, ibView_);
 	commandContext.SetIndexBuffer(idxView_);
 	commandContext.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	commandContext.TransitionResourse(rwStructuredBuffer_, D3D12_RESOURCE_STATE_GENERIC_READ);
 	commandContext.SetGraphicsDescriptorTable(0, rwStructuredBufferHandle_);
-	commandContext.DrawIndexedInstanced(static_cast<UINT>(indices_.size()),kNumThread);
+	commandContext.SetGraphicsConstantBuffer(1, viewProjection.constBuff_->GetGPUVirtualAddress());
+	commandContext.DrawIndexedInstanced(static_cast<UINT>(indices_.size()), kNumThread);
 
 }
 
@@ -173,8 +175,9 @@ void GPUParticle::InitializeGraphics() {
 		CD3DX12_DESCRIPTOR_RANGE range{};
 		range.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);
 
-		CD3DX12_ROOT_PARAMETER rootParameters[1]{};
+		CD3DX12_ROOT_PARAMETER rootParameters[2]{};
 		rootParameters[0].InitAsDescriptorTable(1, &range);
+		rootParameters[1].InitAsConstantBufferView(0);
 
 		D3D12_ROOT_SIGNATURE_DESC desc{};
 		desc.pParameters = rootParameters;
@@ -206,7 +209,7 @@ void GPUParticle::InitializeGraphics() {
 		desc.RasterizerState = Helper::RasterizerDefault;
 		desc.NumRenderTargets = 1;
 		desc.RTVFormats[0] = RenderManager::GetInstance()->GetRenderTargetFormat();
-		desc.DSVFormat = DXGI_FORMAT_D32_FLOAT;
+		desc.DSVFormat = RenderManager::GetInstance()->GetDepthFormat();
 		desc.SampleMask = D3D12_DEFAULT_SAMPLE_MASK;
 		desc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 		desc.SampleDesc.Count = 1;
@@ -215,57 +218,60 @@ void GPUParticle::InitializeGraphics() {
 	// シェーダーリソース用
 	{
 		rwStructuredBufferHandle_ = graphics->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-		D3D12_CONSTANT_BUFFER_VIEW_DESC desc{};
-		desc.BufferLocation = rwStructuredBuffer_.GetGPUVirtualAddress();
-		desc.SizeInBytes = (sizeof(Particle) + 255) & ~255;
-		device->CreateConstantBufferView(&desc, rwStructuredBufferHandle_);
+		D3D12_SHADER_RESOURCE_VIEW_DESC desc{};
+		desc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+		desc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
+		desc.Buffer.NumElements = kNumThread;
+		desc.Buffer.StructureByteStride = sizeof(Particle);
+		device->CreateShaderResourceView(rwStructuredBuffer_, &desc, rwStructuredBufferHandle_);
 	}
 	// 頂点バッファ
 	{
 		struct Vertex {
 			Vector4 position;
 		};
-		Vertex vertex[] = {
-			// 前
-		{-1.0f, -1.0f, -1.0f, 1.0f}, // 左下
-		{-1.0f, +1.0f, -1.0f, 1.0f}, // 左上
-		{+1.0f, -1.0f, -1.0f, 1.0f}, // 右下
-		{+1.0f, +1.0f, -1.0f, 1.0f}, // 右上
+		std::vector<Vertex>vertex = {
+		// 前
+		{-0.5f, -0.5f, -0.5f, 1.0f}, // 左下
+		{-0.5f, +0.5f, -0.5f, 1.0f}, // 左上
+		{+0.5f, -0.5f, -0.5f, 1.0f}, // 右下
+		{+0.5f, +0.5f, -0.5f, 1.0f}, // 右上
 		// 後(前面とZ座標の符号が逆)
-		{+1.0f, -1.0f, +1.0f, 1.0f}, // 左下
-		{+1.0f, +1.0f, +1.0f, 1.0f}, // 左上
-		{-1.0f, -1.0f, +1.0f, 1.0f}, // 右下
-		{-1.0f, +1.0f, +1.0f, 1.0f}, // 右上
+		{+0.5f, -0.5f, +0.5f, 1.0f}, // 左下
+		{+0.5f, +0.5f, +0.5f, 1.0f}, // 左上
+		{-0.5f, -0.5f, +0.5f, 1.0f}, // 右下
+		{-0.5f, +0.5f, +0.5f, 1.0f}, // 右上
 		// 左
-		{-1.0f, -1.0f, +1.0f, 1.0f}, // 左下
-		{-1.0f, +1.0f, +1.0f, 1.0f}, // 左上
-		{-1.0f, -1.0f, -1.0f, 1.0f}, // 右下
-		{-1.0f, +1.0f, -1.0f, 1.0f}, // 右上
+		{-0.5f, -0.5f, +0.5f, 1.0f}, // 左下
+		{-0.5f, +0.5f, +0.5f, 1.0f}, // 左上
+		{-0.5f, -0.5f, -0.5f, 1.0f}, // 右下
+		{-0.5f, +0.5f, -0.5f, 1.0f}, // 右上
 		// 右（左面とX座標の符号が逆）
-		{+1.0f, -1.0f, -1.0f, 1.0f}, // 左下
-		{+1.0f, +1.0f, -1.0f, 1.0f}, // 左上
-		{+1.0f, -1.0f, +1.0f, 1.0f}, // 右下
-		{+1.0f, +1.0f, +1.0f, 1.0f}, // 右上
+		{+0.5f, -0.5f, -0.5f, 1.0f}, // 左下
+		{+0.5f, +0.5f, -0.5f, 1.0f}, // 左上
+		{+0.5f, -0.5f, +0.5f, 1.0f}, // 右下
+		{+0.5f, +0.5f, +0.5f, 1.0f}, // 右上
 		// 下
-		{+1.0f, -1.0f, -1.0f, 1.0f}, // 左下
-		{+1.0f, -1.0f, +1.0f, 1.0f}, // 左上
-		{-1.0f, -1.0f, -1.0f, 1.0f}, // 右下
-		{-1.0f, -1.0f, +1.0f, 1.0f}, // 右上
+		{+0.5f, -0.5f, -0.5f, 1.0f}, // 左下
+		{+0.5f, -0.5f, +0.5f, 1.0f}, // 左上
+		{-0.5f, -0.5f, -0.5f, 1.0f}, // 右下
+		{-0.5f, -0.5f, +0.5f, 1.0f}, // 右上
 		// 上（下面とY座標の符号が逆）
-		{-1.0f, +1.0f, -1.0f, 1.0f}, // 左下
-		{-1.0f, +1.0f, +1.0f, 1.0f}, // 左上
-		{+1.0f, +1.0f, -1.0f, 1.0f}, // 右下
-		{+1.0f, +1.0f, +1.0f, 1.0f}, // 右上
+		{-0.5f, +0.5f, -0.5f, 1.0f}, // 左下
+		{-0.5f, +0.5f, +0.5f, 1.0f}, // 左上
+		{+0.5f, +0.5f, -0.5f, 1.0f}, // 右下
+		{+0.5f, +0.5f, +0.5f, 1.0f}, // 右上
 		};
+		
 		auto desc = CD3DX12_RESOURCE_DESC::Buffer(
-			UINT64(sizeof(Vertex) * _countof(vertex)),
+			UINT64(sizeof(Vertex) * vertex.size()),
 			D3D12_RESOURCE_FLAG_NONE);
 		CD3DX12_HEAP_PROPERTIES heapProps(D3D12_HEAP_TYPE_UPLOAD);
 		device->CreateCommittedResource(
 			&heapProps,
 			D3D12_HEAP_FLAG_NONE,
 			&desc,
-			D3D12_RESOURCE_STATE_COMMON,
+			D3D12_RESOURCE_STATE_GENERIC_READ,
 			nullptr,
 			IID_PPV_ARGS(vertexBuffer_.GetAddressOf())
 		);
@@ -274,13 +280,13 @@ void GPUParticle::InitializeGraphics() {
 			Vertex* vertMap = nullptr;
 			auto result = vertexBuffer_->Map(0, nullptr, reinterpret_cast<void**>(&vertMap));
 			if (SUCCEEDED(result)) {
-				std::copy(std::begin(vertex), std::end(vertex), vertMap);
+				std::copy(vertex.begin(), vertex.end(), vertMap);
 				vertexBuffer_->Unmap(0, nullptr);
 			}
 		}
 		ibView_.BufferLocation = vertexBuffer_->GetGPUVirtualAddress();
-		ibView_.SizeInBytes = UINT64(sizeof(Vertex) * _countof(vertex));
-		ibView_.SizeInBytes = sizeof(Vertex);
+		ibView_.SizeInBytes = UINT(sizeof(Vertex) * vertex.size());
+		ibView_.StrideInBytes = sizeof(Vertex);
 	}
 	// インデックスバッファ
 	{
@@ -298,6 +304,7 @@ void GPUParticle::InitializeGraphics() {
 			20, 21, 23,
 			23, 22, 20
 		};
+
 		auto desc = CD3DX12_RESOURCE_DESC::Buffer(
 			UINT64(sizeof(uint32_t) * indices_.size()),
 			D3D12_RESOURCE_FLAG_NONE);
@@ -306,7 +313,7 @@ void GPUParticle::InitializeGraphics() {
 			&heapProps,
 			D3D12_HEAP_FLAG_NONE,
 			&desc,
-			D3D12_RESOURCE_STATE_COMMON,
+			D3D12_RESOURCE_STATE_GENERIC_READ,
 			nullptr,
 			IID_PPV_ARGS(indexBuffer_.GetAddressOf())
 		);

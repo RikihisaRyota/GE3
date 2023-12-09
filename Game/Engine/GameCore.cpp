@@ -6,7 +6,7 @@
 #include "WinApp/WinApp.h"
 #include "Input/Input.h"
 #include "ShderCompiler/ShaderCompiler.h"
-#include "../GameScene.h"
+#include "../Src/Scenes/GameScene.h"
 
 namespace GameCore {
 	Input* input=nullptr;

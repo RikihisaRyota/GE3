@@ -7,10 +7,8 @@
 void ViewProjection::Initialize() {
 	// 定数バッファの生成
 	CreateConstBuffer();
-
 	// マッピング
 	Map();
-
 	//　行列の生成
 	UpdateMatrix();
 }
@@ -18,6 +16,7 @@ void ViewProjection::Initialize() {
 void ViewProjection::CreateConstBuffer() {
 	constBuff_ = std::make_unique<UploadBuffer>();
 	constBuff_->Create(L"ViewProjection", sizeof(ConstBufferDataViewProjection));
+	constMap_ = new ConstBufferDataViewProjection();
 }
 
 void ViewProjection::Map() {
@@ -42,6 +41,8 @@ void ViewProjection::UpdateMatrix() {
 	constMap_->view = matView_;
 	constMap_->projection = matProjection_;
 	constMap_->cameraPos = translation_;
+	// マップ
+	Map();
 }
 
 void ViewProjection::TransferMatrix() {
@@ -57,6 +58,9 @@ void ViewProjection::TransferMatrix() {
 	constMap_->view = matView_;
 	constMap_->projection = matProjection_;
 	constMap_->cameraPos = translation_;
+
+	// マップ
+	Map();
 }
 
 void ViewProjection::SetViewProjection(const ViewProjection* viewProjection) {

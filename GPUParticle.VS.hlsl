@@ -12,9 +12,10 @@ struct VertexShaderInput
     float4 position : POSITION0;
 };
 
-VertexShaderOutput main(VertexShaderInput input,uint instanceID:SV_InstanceID)
+VertexShaderOutput main(VertexShaderInput input/*,uint instanceID:SV_InstanceID*/)
 {
     VertexShaderInput output;
-    output.position = float4(gParticle[instanceID].position,0.0f);
+    output.position = input.position;
+    //float4(gParticle[instanceID].position, 0.0f);
     return output;
 }

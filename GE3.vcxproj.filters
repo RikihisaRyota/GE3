@@ -37,6 +37,15 @@
     <Filter Include="Shaders">
       <UniqueIdentifier>{fa9f0d52-2c0d-4e3d-9599-041b3f66ff56}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Game\DebugCamera">
+      <UniqueIdentifier>{2759c711-4795-4143-894d-4f9fbb7d2ddc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\GPUParticle">
+      <UniqueIdentifier>{61d4c636-7a83-4f32-8586-1c9ce12ff31b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scenes">
+      <UniqueIdentifier>{841401a7-620d-4e94-9ea6-a1cfbf7b61e8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Game\Engine\Math\MyMath.cpp">
@@ -63,7 +72,6 @@
     <ClCompile Include="Game\Engine\Math\WorldTransform.cpp">
       <Filter>Engine\Math</Filter>
     </ClCompile>
-    <ClCompile Include="Game\main.cpp" />
     <ClCompile Include="Game\Engine\Graphics\CommandQueue.cpp">
       <Filter>Engine\Graphics</Filter>
     </ClCompile>
@@ -136,14 +144,18 @@
     <ClCompile Include="Game\Engine\ShderCompiler\ShaderCompiler.cpp">
       <Filter>Engine\ShaderCompiler</Filter>
     </ClCompile>
-    <ClCompile Include="Game\GPUParticle.cpp">
-      <Filter>Game</Filter>
-    </ClCompile>
     <ClCompile Include="Game\Engine\Graphics\Helper.cpp">
       <Filter>Engine\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Game\GameScene.cpp">
-      <Filter>Game</Filter>
+    <ClCompile Include="Game\Src\main.cpp" />
+    <ClCompile Include="Game\Src\Scenes\GameScene.cpp">
+      <Filter>Scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Src\Game\GPUParticle\GPUParticle.cpp">
+      <Filter>Game\GPUParticle</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Src\Game\DebugCamera\DebugCamera.cpp">
+      <Filter>Game\DebugCamera</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -267,14 +279,17 @@
     <ClInclude Include="Game\Engine\ShderCompiler\ShaderCompiler.h">
       <Filter>Engine\ShaderCompiler</Filter>
     </ClInclude>
-    <ClInclude Include="Game\GPUParticle.h">
-      <Filter>Game</Filter>
-    </ClInclude>
     <ClInclude Include="Game\Engine\Graphics\Helper.h">
       <Filter>Engine\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Game\GameScene.h">
-      <Filter>Game</Filter>
+    <ClInclude Include="Game\Src\Scenes\GameScene.h">
+      <Filter>Scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Src\Game\GPUParticle\GPUParticle.h">
+      <Filter>Game\GPUParticle</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Src\Game\DebugCamera\DebugCamera.h">
+      <Filter>Game\DebugCamera</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -289,10 +304,10 @@
     <FxCompile Include="Game\Resources\Shaders\Spawn.CS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="GPUParticle.VS.hlsl">
+    <FxCompile Include="Game\Resources\Shaders\GPUParticle.PS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="GPUParticle.PS.hlsl">
+    <FxCompile Include="Game\Resources\Shaders\GPUParticle.VS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>

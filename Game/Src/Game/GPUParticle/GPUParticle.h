@@ -6,20 +6,26 @@
 
 #include <wrl.h>
 
-#include "Engine/Graphics/GpuResource.h"
-#include "Engine/Graphics/UploadBuffer.h"
-#include "Engine/Graphics/PipelineState.h"
-#include "Engine/Graphics/RootSignature.h"
-#include "Engine/Graphics/DescriptorHandle.h"
+#include "../../Game/Engine/Graphics/GpuResource.h"
+#include "../../Game/Engine/Graphics/GpuResource.h"
+#include "../../Game/Engine/Graphics/UploadBuffer.h"
+#include "../../Game/Engine/Graphics/PipelineState.h"
+#include "../../Game/Engine/Graphics/RootSignature.h"
+#include "../../Game/Engine/Graphics/DescriptorHandle.h"
 
-#include "Engine/Math/Vector2.h"
-#include "Engine/Math/Vector3.h"
+#include "../../Game/Engine/Math/Vector2.h"
+#include "../../Game/Engine/Math/Vector3.h"
+#include "../../Game/Engine/Math/Matrix4x4.h"
 
+struct ViewProjection;
 class GPUParticle {
 private:
 	struct Particle {
-		Vector3 position;
 		Vector3 velocity;
+		Vector3 scale;
+		Vector3 rotate;
+		Vector3 translate;
+		Matrix4x4 matWorld;
 	};
 	struct ParticleInfo {
 		float speed;
@@ -28,7 +34,7 @@ public:
 	GPUParticle();
 	void Initialize();
 	void Update();
-	void Render();
+	void Render(const ViewProjection& viewProjection);
 
 private:
 	void InitializeSpawnParticle();
@@ -58,5 +64,5 @@ private:
 	ParticleInfo* particleInfo_;
 	Particle* particle_;
 	UploadBuffer updateConstantBuffer_;
-	static const uint32_t kNumThread = 256;
+	static const uint32_t kNumThread = 100000;
 };

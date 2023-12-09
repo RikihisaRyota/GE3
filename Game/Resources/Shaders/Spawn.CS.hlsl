@@ -1,16 +1,18 @@
-struct Particle
-{
-    float3 position;
-    float3 velocity;
-};
+#include "GPUParticle.hlsli"
 
 RWStructuredBuffer<Particle> Output : register(u0);
 
 [numthreads(1, 1, 1)]
 void main(uint3 DTid : SV_DispatchThreadID)
 {
-    Output[DTid.x].position.x = cos(radians(DTid.x)) * DTid.x * 0.05f;
-    Output[DTid.x].position.y = sin(radians(DTid.x)) * DTid.x * 0.05f;
-    Output[DTid.x].velocity = -Output[DTid.x].position;
-    Output[DTid.x].velocity = normalize(Output[DTid.x].velocity);
+    float angle = radians(float(DTid.x) * 1.0f);
+    float radius = float(DTid.x) * 0.02f;
+    
+    Output[DTid.x].scale = float3(1.0f, 1.0f, 1.0f);
+    Output[DTid.x].rotate = float3(0.0f, 0.0f, 0.0f);
+    Output[DTid.x].tarnslate = float3(cos(angle) * radius, sin(angle) * radius, 0.0f);
+    
+    Output[DTid.x].matWorld = MakeAffine(Output[DTid.x].scale, Output[DTid.x].rotate, Output[DTid.x].tarnslate);
+    
+    Output[DTid.x].velocity = -Output[DTid.x].tarnslate;
 }

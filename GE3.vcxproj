@@ -125,9 +125,10 @@
     <ClCompile Include="Game\Engine\Math\WorldTransform.cpp" />
     <ClCompile Include="Game\Engine\ShderCompiler\ShaderCompiler.cpp" />
     <ClCompile Include="Game\Engine\WinApp\WinApp.cpp" />
-    <ClCompile Include="Game\GameScene.cpp" />
-    <ClCompile Include="Game\GPUParticle.cpp" />
-    <ClCompile Include="Game\main.cpp" />
+    <ClCompile Include="Game\Src\Game\DebugCamera\DebugCamera.cpp" />
+    <ClCompile Include="Game\Src\Game\GPUParticle\GPUParticle.cpp" />
+    <ClCompile Include="Game\Src\main.cpp" />
+    <ClCompile Include="Game\Src\Scenes\GameScene.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Externals\Imgui\imconfig.h" />
@@ -171,8 +172,9 @@
     <ClInclude Include="Game\Engine\Math\WorldTransform.h" />
     <ClInclude Include="Game\Engine\ShderCompiler\ShaderCompiler.h" />
     <ClInclude Include="Game\Engine\WinApp\WinApp.h" />
-    <ClInclude Include="Game\GameScene.h" />
-    <ClInclude Include="Game\GPUParticle.h" />
+    <ClInclude Include="Game\Src\Game\DebugCamera\DebugCamera.h" />
+    <ClInclude Include="Game\Src\Game\GPUParticle\GPUParticle.h" />
+    <ClInclude Include="Game\Src\Scenes\GameScene.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="Externals\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj">
@@ -183,6 +185,14 @@
     <Text Include="Externals\Imgui\LICENSE.txt" />
   </ItemGroup>
   <ItemGroup>
+    <FxCompile Include="Game\Resources\Shaders\GPUParticle.PS.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="Game\Resources\Shaders\GPUParticle.VS.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </FxCompile>
     <FxCompile Include="Game\Resources\Shaders\Spawn.CS.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
@@ -192,18 +202,6 @@
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compute</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">4.0</ShaderModel>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </FxCompile>
-    <FxCompile Include="GPUParticle.PS.hlsl">
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </FxCompile>
-    <FxCompile Include="GPUParticle.VS.hlsl">
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </FxCompile>

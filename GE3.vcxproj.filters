@@ -46,6 +46,9 @@
     <Filter Include="Scenes">
       <UniqueIdentifier>{841401a7-620d-4e94-9ea6-a1cfbf7b61e8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\Model">
+      <UniqueIdentifier>{86444217-c6c3-45f6-a45b-6e1e9f887a2d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Game\Engine\Math\MyMath.cpp">
@@ -290,6 +293,15 @@
     </ClInclude>
     <ClInclude Include="Game\Src\Game\DebugCamera\DebugCamera.h">
       <Filter>Game\DebugCamera</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Engine\Model\Model.h">
+      <Filter>Engine\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Engine\Model\Mesh.h">
+      <Filter>Engine\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Engine\Model\Material.h">
+      <Filter>Engine\Model</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

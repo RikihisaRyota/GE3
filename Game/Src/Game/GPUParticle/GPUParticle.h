@@ -6,8 +6,6 @@
 
 #include <wrl.h>
 
-#include "../../Game/Engine/Graphics/GpuResource.h"
-#include "../../Game/Engine/Graphics/GpuResource.h"
 #include "../../Game/Engine/Graphics/UploadBuffer.h"
 #include "../../Game/Engine/Graphics/PipelineState.h"
 #include "../../Game/Engine/Graphics/RootSignature.h"
@@ -22,10 +20,9 @@ class GPUParticle {
 private:
 	struct Particle {
 		Vector3 velocity;
-		Vector3 scale;
+		float scale;
 		Vector3 rotate;
 		Vector3 translate;
-		Matrix4x4 matWorld;
 	};
 	struct ParticleInfo {
 		float speed;
@@ -48,12 +45,12 @@ private:
 	std::unique_ptr<RootSignature> updateComputeRootSignature_;
 	std::unique_ptr<PipelineState> updateComputePipelineState_;
 
-	GpuResource vertexBuffer_;
-	D3D12_VERTEX_BUFFER_VIEW ibView_{};
+	UploadBuffer vertexBuffer_;
+	D3D12_VERTEX_BUFFER_VIEW vbView_{};
 
-	GpuResource indexBuffer_;
-	D3D12_INDEX_BUFFER_VIEW idxView_{};
-	std::vector<uint32_t> indices_;
+	UploadBuffer indexBuffer_;
+	D3D12_INDEX_BUFFER_VIEW ibView_{};
+	std::vector<uint16_t> indices_;
 
 	GpuResource rwStructuredBuffer_;
 	// UAVハンドル

@@ -46,15 +46,14 @@ void GPUParticle::Render(const ViewProjection& viewProjection) {
 	auto commandContext = RenderManager::GetInstance()->GetCommandContext();
 	commandContext.SetPipelineState(*graphicsPipelineState_);
 	commandContext.SetGraphicsRootSignature(*graphicsRootSignature_);
-	commandContext.SetVertexBuffer(0, ibView_);
-	commandContext.SetIndexBuffer(idxView_);
+	commandContext.SetVertexBuffer(0, vbView_);
+	commandContext.SetIndexBuffer(ibView_);
 	commandContext.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	commandContext.TransitionResourse(rwStructuredBuffer_, D3D12_RESOURCE_STATE_GENERIC_READ);
 	commandContext.SetGraphicsDescriptorTable(0, rwStructuredBufferHandle_);
 	commandContext.SetGraphicsConstantBuffer(1, viewProjection.constBuff_->GetGPUVirtualAddress());
 	commandContext.DrawIndexedInstanced(static_cast<UINT>(indices_.size()), kNumThread);
-
 }
 
 void GPUParticle::InitializeSpawnParticle() {
@@ -157,7 +156,7 @@ void GPUParticle::InitializeUpdateParticle() {
 	{
 		updateConstantBuffer_.Create(L"GPUParticle UpdateConstantBuffer", sizeof(particleInfo_));
 		particleInfo_ = new ParticleInfo();
-		particleInfo_->speed = 1.0f;
+		particleInfo_->speed = 0.5f;
 		updateConstantBuffer_.Copy(particleInfo_, sizeof(particleInfo_));
 	}
 	// マップ
@@ -263,30 +262,15 @@ void GPUParticle::InitializeGraphics() {
 		{+0.5f, +0.5f, +0.5f, 1.0f}, // 右上
 		};
 		
-		auto desc = CD3DX12_RESOURCE_DESC::Buffer(
-			UINT64(sizeof(Vertex) * vertex.size()),
-			D3D12_RESOURCE_FLAG_NONE);
-		CD3DX12_HEAP_PROPERTIES heapProps(D3D12_HEAP_TYPE_UPLOAD);
-		device->CreateCommittedResource(
-			&heapProps,
-			D3D12_HEAP_FLAG_NONE,
-			&desc,
-			D3D12_RESOURCE_STATE_GENERIC_READ,
-			nullptr,
-			IID_PPV_ARGS(vertexBuffer_.GetAddressOf())
-		);
-		// 頂点バッファへのデータ転送
-		{
-			Vertex* vertMap = nullptr;
-			auto result = vertexBuffer_->Map(0, nullptr, reinterpret_cast<void**>(&vertMap));
-			if (SUCCEEDED(result)) {
-				std::copy(vertex.begin(), vertex.end(), vertMap);
-				vertexBuffer_->Unmap(0, nullptr);
-			}
-		}
-		ibView_.BufferLocation = vertexBuffer_->GetGPUVirtualAddress();
-		ibView_.SizeInBytes = UINT(sizeof(Vertex) * vertex.size());
-		ibView_.StrideInBytes = sizeof(Vertex);
+		size_t sizeIB = sizeof(vertex.at(0)) * vertex.size();
+
+		vertexBuffer_.Create(L"vertexBuffer", sizeIB);
+
+		vertexBuffer_.Copy(vertex.data(), sizeIB);
+
+		vbView_.BufferLocation = vertexBuffer_.GetGPUVirtualAddress();
+		vbView_.SizeInBytes = UINT(vertexBuffer_.GetBufferSize());
+		vbView_.StrideInBytes = sizeof(vertex.at(0));
 	}
 	// インデックスバッファ
 	{
@@ -305,28 +289,15 @@ void GPUParticle::InitializeGraphics() {
 			23, 22, 20
 		};
 
-		auto desc = CD3DX12_RESOURCE_DESC::Buffer(
-			UINT64(sizeof(uint32_t) * indices_.size()),
-			D3D12_RESOURCE_FLAG_NONE);
-		CD3DX12_HEAP_PROPERTIES heapProps(D3D12_HEAP_TYPE_UPLOAD);
-		device->CreateCommittedResource(
-			&heapProps,
-			D3D12_HEAP_FLAG_NONE,
-			&desc,
-			D3D12_RESOURCE_STATE_GENERIC_READ,
-			nullptr,
-			IID_PPV_ARGS(indexBuffer_.GetAddressOf())
-		);
-		// インデックスバッファへのデータ転送
-		uint16_t* indexMap = nullptr;
-		auto result = indexBuffer_->Map(0, nullptr, reinterpret_cast<void**>(&indexMap));
-		if (SUCCEEDED(result)) {
-			std::copy(indices_.begin(), indices_.end(), indexMap);
-			indexBuffer_->Unmap(0, nullptr);
-		}
+		size_t sizeIB = sizeof(uint16_t) * indices_.size();
+
+		indexBuffer_.Create(L"indexBuffer", sizeIB);
+
+		indexBuffer_.Copy(indices_.data(), sizeIB);
+
 		// インデックスバッファビューの作成
-		idxView_.BufferLocation = indexBuffer_->GetGPUVirtualAddress();
-		idxView_.Format = DXGI_FORMAT_R16_UINT;
-		idxView_.SizeInBytes = static_cast<UINT>(sizeof(uint16_t) * indices_.size()); // 修正: インデックスバッファのバイトサイズを代入
+		ibView_.BufferLocation = indexBuffer_.GetGPUVirtualAddress();
+		ibView_.Format = DXGI_FORMAT_R16_UINT;
+		ibView_.SizeInBytes = UINT(indexBuffer_.GetBufferSize());
 	}
 }

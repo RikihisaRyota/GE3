@@ -38,11 +38,13 @@ void ViewProjection::UpdateMatrix() {
 	matProjection_ = MakePerspectiveFovMatrix(fovAngleY_, aspectRatio_, nearZ_, farZ_);
 
 	// 定数バッファに書き込み
-	constMap_->view = matView_;
-	constMap_->projection = matProjection_;
-	constMap_->cameraPos = translation_;
-	// マップ
-	Map();
+	ConstBufferDataViewProjection constBufferDate{};
+
+	constBufferDate.view = matView_;
+	constBufferDate.projection = matProjection_;
+	constBufferDate.cameraPos = translation_;
+
+	constBuff_->Copy(constBufferDate);
 }
 
 void ViewProjection::TransferMatrix() {

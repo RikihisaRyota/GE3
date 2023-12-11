@@ -18,7 +18,7 @@ struct VertexShaderInput
 VertexShaderOutput main(VertexShaderInput input, uint instanceID : SV_InstanceID)
 {
     VertexShaderInput output;
-    output.position = mul(mul(input.position, gParticle[instanceID].matWorld),
+    output.position = mul(mul(input.position, MakeAffine(gParticle[instanceID].scale, gParticle[instanceID].rotate, gParticle[instanceID].translate)),
     mul(gViewProjection.view, gViewProjection.projection));
     //float4(gParticle[instanceID].position,0.0f);
     return output;

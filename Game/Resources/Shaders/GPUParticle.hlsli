@@ -6,10 +6,9 @@ struct VertexShaderOutput
 struct Particle
 {
     float3 velocity;
-    float3 scale;
+    float scale;
     float3 rotate;
-    float3 tarnslate;
-    matrix matWorld;
+    float3 translate;
     //WorldTransform worldTransform;
 };
 
@@ -19,6 +18,16 @@ matrix MakeScaleMatrix(float3 scale)
     scale.x, 0.0f, 0.0f, 0.0f,
     0.0f, scale.y, 0.0f, 0.0f,
     0.0f, 0.0f, scale.z, 0.0f,
+    0.0f, 0.0f, 0.0f, 1.0f
+);
+}
+
+matrix MakeScaleMatrix(float scale)
+{
+    return matrix(
+    scale, 0.0f, 0.0f, 0.0f,
+    0.0f, scale, 0.0f, 0.0f,
+    0.0f, 0.0f, scale, 0.0f,
     0.0f, 0.0f, 0.0f, 1.0f
 );
 }
@@ -77,6 +86,12 @@ matrix MakeTranslationMatrix(float3 translate)
 
 
 matrix MakeAffine(float3 scale, float3 rotate, float3 translate)
+{
+    return matrix(mul(mul(MakeScaleMatrix(scale), MakeRotationMatrix(rotate)), MakeTranslationMatrix(translate)));
+
+}
+
+matrix MakeAffine(float scale, float3 rotate, float3 translate)
 {
     return matrix(mul(mul(MakeScaleMatrix(scale), MakeRotationMatrix(rotate)), MakeTranslationMatrix(translate)));
 

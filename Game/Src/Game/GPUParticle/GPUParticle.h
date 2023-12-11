@@ -6,14 +6,14 @@
 
 #include <wrl.h>
 
-#include "../../Game/Engine/Graphics/UploadBuffer.h"
-#include "../../Game/Engine/Graphics/PipelineState.h"
-#include "../../Game/Engine/Graphics/RootSignature.h"
-#include "../../Game/Engine/Graphics/DescriptorHandle.h"
+#include "Engine/Graphics/UploadBuffer.h"
+#include "Engine/Graphics/PipelineState.h"
+#include "Engine/Graphics/RootSignature.h"
+#include "Engine/Graphics/DescriptorHandle.h"
 
-#include "../../Game/Engine/Math/Vector2.h"
-#include "../../Game/Engine/Math/Vector3.h"
-#include "../../Game/Engine/Math/Matrix4x4.h"
+#include "Engine/Math/Vector2.h"
+#include "Engine/Math/Vector3.h"
+#include "Engine/Math/Matrix4x4.h"
 
 struct ViewProjection;
 class GPUParticle {

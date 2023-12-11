@@ -1,7 +1,7 @@
 #include "GameScene.h"
 
-#include "../../Engine/Graphics/CommandContext.h"
-#include "../../Engine/Graphics/RenderManager.h"
+#include "Engine/Graphics/CommandContext.h"
+#include "Engine/Graphics/RenderManager.h"
 
 GameScene::GameScene() {
 	viewProjection_.Initialize();

@@ -1,5 +1,5 @@
 #pragma once
-#include "../../Game/Engine/Math/ViewProjection.h"
+#include "Engine/Math/ViewProjection.h"
 
 
 class DebugCamera {

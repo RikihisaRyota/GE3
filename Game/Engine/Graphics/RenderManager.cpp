@@ -52,8 +52,8 @@ void RenderManager::BeginRender() {
 	auto& commandContext = commandContexts_[swapChain_.GetBufferIndex()];
 	auto& swapChainColorBuffer = swapChain_.GetColorBuffer();
 
-	commandContext.TransitionResourse(swapChainColorBuffer, D3D12_RESOURCE_STATE_RENDER_TARGET);
-	commandContext.TransitionResourse(mainDepthBuffer_, D3D12_RESOURCE_STATE_DEPTH_WRITE);
+	commandContext.TransitionResource(swapChainColorBuffer, D3D12_RESOURCE_STATE_RENDER_TARGET);
+	commandContext.TransitionResource(mainDepthBuffer_, D3D12_RESOURCE_STATE_DEPTH_WRITE);
 	commandContext.SetRenderTarget(swapChainColorBuffer.GetRTV(), mainDepthBuffer_.GetDSV());
 	Color clearColor = { 0.1f,0.25f,0.5f,1.0f };
 	swapChainColorBuffer.SetClearColor(clearColor);
@@ -68,7 +68,7 @@ void RenderManager::EndRender() {
 	auto imguiManager = ImGuiManager::GetInstance();
 	imguiManager->Render(commandContext);
 
-	commandContext.TransitionResourse(swapChain_.GetColorBuffer(), D3D12_RESOURCE_STATE_PRESENT);
+	commandContext.TransitionResource(swapChain_.GetColorBuffer(), D3D12_RESOURCE_STATE_PRESENT);
 	commandContext.Close();
 	CommandQueue& commandQueue = graphicsCore_->GetCommandQueue();
 	commandQueue.Execute(commandContext);

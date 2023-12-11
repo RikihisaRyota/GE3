@@ -17,7 +17,7 @@ public:
 	void Close();
 	void Reset();
 
-	void TransitionResourse(GpuResource& resource, D3D12_RESOURCE_STATES newState);
+	void TransitionResource(GpuResource& resource, D3D12_RESOURCE_STATES newState);
 	void FlushResourceBarriers();
 
 	void ClearColor(ColorBuffer& target);

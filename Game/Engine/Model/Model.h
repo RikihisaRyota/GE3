@@ -4,7 +4,7 @@
 
 #include <d3d12.h>
 
-#include "../../Engine/Graphics/UploadBuffer.h"
+#include "Engine/Graphics/UploadBuffer.h"
 
 class Model {
 public:

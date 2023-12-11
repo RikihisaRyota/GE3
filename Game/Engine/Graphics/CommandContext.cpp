@@ -45,7 +45,7 @@ void CommandContext::Reset() {
 	pipelineState_ = nullptr;
 }
 
-void CommandContext::TransitionResourse(GpuResource& resource, D3D12_RESOURCE_STATES newState) {
+void CommandContext::TransitionResource(GpuResource& resource, D3D12_RESOURCE_STATES newState) {
 	auto oldState = resource.state_;
 
 	if (newState != oldState) {

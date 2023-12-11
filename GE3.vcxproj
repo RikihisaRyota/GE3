@@ -60,7 +60,7 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
       <TreatWarningAsError>true</TreatWarningAsError>
       <AdditionalOptions>/source-charset:utf-8 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalIncludeDirectories>$(ProjectDir)Externals\assimp\include;$(ProjectDir)Externals\DirectXTex;$(ProjectDir)Externals\Imgui;$(ProjectDir)Externals\nlohmann;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)Externals\assimp\include;$(ProjectDir)Externals\DirectXTex;$(ProjectDir)Externals\Imgui;$(ProjectDir)Externals\nlohmann;$(ProjectDir)Game;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
@@ -128,6 +128,8 @@
     <ClCompile Include="Game\Engine\Math\ViewProjection.cpp" />
     <ClCompile Include="Game\Engine\Math\WorldTransform.cpp" />
     <ClCompile Include="Game\Engine\ShderCompiler\ShaderCompiler.cpp" />
+    <ClCompile Include="Game\Engine\Texture\Texture.cpp" />
+    <ClCompile Include="Game\Engine\Texture\TextureManager.cpp" />
     <ClCompile Include="Game\Engine\WinApp\WinApp.cpp" />
     <ClCompile Include="Game\Src\Game\DebugCamera\DebugCamera.cpp" />
     <ClCompile Include="Game\Src\Game\GPUParticle\GPUParticle.cpp" />
@@ -174,10 +176,11 @@
     <ClInclude Include="Game\Engine\Math\Vector4.h" />
     <ClInclude Include="Game\Engine\Math\ViewProjection.h" />
     <ClInclude Include="Game\Engine\Math\WorldTransform.h" />
-    <ClInclude Include="Game\Engine\Model\Material.h" />
-    <ClInclude Include="Game\Engine\Model\Mesh.h" />
     <ClInclude Include="Game\Engine\Model\Model.h" />
     <ClInclude Include="Game\Engine\ShderCompiler\ShaderCompiler.h" />
+    <ClInclude Include="Game\Engine\Texture\Texture.h" />
+    <ClInclude Include="Game\Engine\Texture\TextureHandle.h" />
+    <ClInclude Include="Game\Engine\Texture\TextureManager.h" />
     <ClInclude Include="Game\Engine\WinApp\WinApp.h" />
     <ClInclude Include="Game\Src\Game\DebugCamera\DebugCamera.h" />
     <ClInclude Include="Game\Src\Game\GPUParticle\GPUParticle.h" />

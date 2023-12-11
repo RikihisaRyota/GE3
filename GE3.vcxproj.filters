@@ -49,6 +49,9 @@
     <Filter Include="Engine\Model">
       <UniqueIdentifier>{86444217-c6c3-45f6-a45b-6e1e9f887a2d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\Texture">
+      <UniqueIdentifier>{5cb82fb5-08f0-414a-a9d2-8a4811139f40}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Game\Engine\Math\MyMath.cpp">
@@ -160,6 +163,8 @@
     <ClCompile Include="Game\Src\Game\DebugCamera\DebugCamera.cpp">
       <Filter>Game\DebugCamera</Filter>
     </ClCompile>
+    <ClCompile Include="Game\Engine\Texture\Texture.cpp" />
+    <ClCompile Include="Game\Engine\Texture\TextureManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game\Engine\WinApp\WinApp.h">
@@ -297,11 +302,14 @@
     <ClInclude Include="Game\Engine\Model\Model.h">
       <Filter>Engine\Model</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Engine\Model\Mesh.h">
-      <Filter>Engine\Model</Filter>
+    <ClInclude Include="Game\Engine\Texture\Texture.h">
+      <Filter>Engine\Texture</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Engine\Model\Material.h">
-      <Filter>Engine\Model</Filter>
+    <ClInclude Include="Game\Engine\Texture\TextureHandle.h">
+      <Filter>Engine\Texture</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Engine\Texture\TextureManager.h">
+      <Filter>Engine\Texture</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -2,12 +2,12 @@
 
 #include <d3dx12.h>
 
-#include "../../Game/Engine/Graphics/CommandContext.h"
-#include "../../Game/Engine/Graphics/Helper.h"
-#include "../../Game/Engine/Graphics/GraphicsCore.h"
-#include "../../Game/Engine/ShderCompiler/ShaderCompiler.h"
-#include "../../Game/Engine/Graphics/RenderManager.h"
-#include "../../Game/Engine/Math/ViewProjection.h"
+#include "Engine/Graphics/CommandContext.h"
+#include "Engine/Graphics/Helper.h"
+#include "Engine/Graphics/GraphicsCore.h"
+#include "Engine/ShderCompiler/ShaderCompiler.h"
+#include "Engine/Graphics/RenderManager.h"
+#include "Engine/Math/ViewProjection.h"
 
 GPUParticle::GPUParticle() {
 	graphicsPipelineState_ = std::make_unique<PipelineState>();
@@ -33,7 +33,7 @@ void GPUParticle::Initialize() {
 void GPUParticle::Update() {
 
 	auto commandContext = RenderManager::GetInstance()->GetCommandContext();
-	commandContext.TransitionResourse(rwStructuredBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+	commandContext.TransitionResource(rwStructuredBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 	commandContext.SetPipelineState(*updateComputePipelineState_);
 	commandContext.SetComputeRootSignature(*updateComputeRootSignature_);
 	commandContext.SetComputeUAV(0, rwStructuredBuffer_->GetGPUVirtualAddress());
@@ -50,7 +50,7 @@ void GPUParticle::Render(const ViewProjection& viewProjection) {
 	commandContext.SetIndexBuffer(ibView_);
 	commandContext.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	commandContext.TransitionResourse(rwStructuredBuffer_, D3D12_RESOURCE_STATE_GENERIC_READ);
+	commandContext.TransitionResource(rwStructuredBuffer_, D3D12_RESOURCE_STATE_GENERIC_READ);
 	commandContext.SetGraphicsDescriptorTable(0, rwStructuredBufferHandle_);
 	commandContext.SetGraphicsConstantBuffer(1, viewProjection.constBuff_->GetGPUVirtualAddress());
 	commandContext.DrawIndexedInstanced(static_cast<UINT>(indices_.size()), kNumThread);
@@ -101,7 +101,7 @@ void GPUParticle::InitializeSpawnParticle() {
 		commandContext.SetPipelineState(*spawnComputePipelineState_);
 		commandContext.SetComputeRootSignature(*spawnComputeRootSignature_);
 
-		commandContext.TransitionResourse(rwStructuredBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+		commandContext.TransitionResource(rwStructuredBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 		commandContext.SetComputeUAV(0, rwStructuredBuffer_->GetGPUVirtualAddress());
 
 		commandContext.Dispatch(kNumThread, 1, 1);

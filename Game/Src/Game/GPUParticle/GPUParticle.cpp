@@ -8,6 +8,7 @@
 #include "Engine/ShderCompiler/ShaderCompiler.h"
 #include "Engine/Graphics/RenderManager.h"
 #include "Engine/Math/ViewProjection.h"
+#include "Engine/Math/WorldTransform.h"
 #include "Engine/Model/ModelManager.h"
 
 GPUParticle::GPUParticle() {
@@ -27,6 +28,7 @@ GPUParticle::GPUParticle() {
 	InitializeGraphics();
 
 	modelHandle_ = ModelManager::GetInstance()->Load("Game/Resources/Models/teapot");
+	worldTransform_.Initialize();
 }
 
 void GPUParticle::Initialize() {
@@ -47,6 +49,9 @@ void GPUParticle::Update() {
 
 void GPUParticle::Render(const ViewProjection& viewProjection) {
 	auto commandContext = RenderManager::GetInstance()->GetCommandContext();
+	
+	ModelManager::GetInstance()->Draw(worldTransform_, viewProjection, modelHandle_, commandContext);
+
 	commandContext.SetPipelineState(*graphicsPipelineState_);
 	commandContext.SetGraphicsRootSignature(*graphicsRootSignature_);
 	commandContext.SetVertexBuffer(0, vbView_);

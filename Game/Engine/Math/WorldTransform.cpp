@@ -15,6 +15,7 @@ void WorldTransform::CreateConstBuffer()
 {
 	constBuff_ = std::make_unique<UploadBuffer>();
 	constBuff_->Create(L"WorldTransform", sizeof(ConstBufferDataWorldTransform));
+	constMap_ = new ConstBufferDataWorldTransform();
 }
 
 void WorldTransform::Map()
@@ -27,6 +28,7 @@ void WorldTransform::TransferMatrix()
 {
 	// 定数バッファに書き込み
 	constMap_->matWorld = matWorld_;
+	Map();
 }
 
 void WorldTransform::UpdateMatrix()

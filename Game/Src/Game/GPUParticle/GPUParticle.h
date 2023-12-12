@@ -14,6 +14,7 @@
 #include "Engine/Math/Vector2.h"
 #include "Engine/Math/Vector3.h"
 #include "Engine/Math/Matrix4x4.h"
+#include "Engine/Math/WorldTransform.h"
 #include "Engine/Model/ModelHandle.h"
 
 struct ViewProjection;
@@ -61,6 +62,7 @@ private:
 
 	// モデル
 	ModelHandle modelHandle_;
+	WorldTransform worldTransform_;
 
 	ParticleInfo* particleInfo_;
 	Particle* particle_;

@@ -27,9 +27,9 @@ private:
 	};
 
 	struct Vertex {
-		Vector3 positions;
-		Vector3 normals;
-		Vector2 texcoords;
+		Vector3 position;
+		Vector3 normal;
+		Vector2 texcoord;
 	};
 public:
 	void Create(const std::filesystem::path& modelPath);
@@ -39,13 +39,12 @@ public:
 	const std::vector<Mesh> GetMesh()const { return meshes_; }
 	const Material GetMaterial() const { return material_; }
 private:
-	void LoadOBJFile(const std::filesystem::path& modelPath);
-	void LoadMTLFile(const std::filesystem::path& modelPath);
+	void LoadFile(const std::filesystem::path& modelPath);
 	UploadBuffer vertexBuffer_;
 	D3D12_VERTEX_BUFFER_VIEW vbView_{};
 	UploadBuffer indexBuffer_;
 	D3D12_INDEX_BUFFER_VIEW ibView_{};
-	std::vector<Mesh>meshes_;
+	std::vector<Mesh> meshes_;
 	Material material_;
 	std::filesystem::path name_;
 };

@@ -52,6 +52,12 @@
     <Filter Include="Engine\Texture">
       <UniqueIdentifier>{5cb82fb5-08f0-414a-a9d2-8a4811139f40}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shaders\GPUParticle">
+      <UniqueIdentifier>{ee9a95a6-75c2-4d57-930b-2cb70de99711}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\Model">
+      <UniqueIdentifier>{e798e65e-572e-4230-a498-4abace6ab381}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Game\Engine\Math\MyMath.cpp">
@@ -163,8 +169,18 @@
     <ClCompile Include="Game\Src\Game\DebugCamera\DebugCamera.cpp">
       <Filter>Game\DebugCamera</Filter>
     </ClCompile>
-    <ClCompile Include="Game\Engine\Texture\Texture.cpp" />
-    <ClCompile Include="Game\Engine\Texture\TextureManager.cpp" />
+    <ClCompile Include="Game\Engine\Model\Model.cpp">
+      <Filter>Engine\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Engine\Texture\Texture.cpp">
+      <Filter>Engine\Texture</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Engine\Texture\TextureManager.cpp">
+      <Filter>Engine\Texture</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Engine\Model\ModelManager.cpp">
+      <Filter>Engine\Model</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game\Engine\WinApp\WinApp.h">
@@ -311,6 +327,12 @@
     <ClInclude Include="Game\Engine\Texture\TextureManager.h">
       <Filter>Engine\Texture</Filter>
     </ClInclude>
+    <ClInclude Include="Game\Engine\Model\ModelHandle.h">
+      <Filter>Engine\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Engine\Model\ModelManager.h">
+      <Filter>Engine\Model</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Externals\Imgui\LICENSE.txt">
@@ -318,22 +340,31 @@
     </Text>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="Game\Resources\Shaders\Update.CS.hlsl">
-      <Filter>Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="Game\Resources\Shaders\Spawn.CS.hlsl">
-      <Filter>Shaders</Filter>
+    <FxCompile Include="Game\Resources\Shaders\GPUParticle.VS.hlsl">
+      <Filter>Shaders\GPUParticle</Filter>
     </FxCompile>
     <FxCompile Include="Game\Resources\Shaders\GPUParticle.PS.hlsl">
-      <Filter>Shaders</Filter>
+      <Filter>Shaders\GPUParticle</Filter>
     </FxCompile>
-    <FxCompile Include="Game\Resources\Shaders\GPUParticle.VS.hlsl">
-      <Filter>Shaders</Filter>
+    <FxCompile Include="Game\Resources\Shaders\Update.CS.hlsl">
+      <Filter>Shaders\GPUParticle</Filter>
+    </FxCompile>
+    <FxCompile Include="Game\Resources\Shaders\Spawn.CS.hlsl">
+      <Filter>Shaders\GPUParticle</Filter>
+    </FxCompile>
+    <FxCompile Include="Game\Resources\Shaders\Model.VS.hlsl">
+      <Filter>Shaders\Model</Filter>
+    </FxCompile>
+    <FxCompile Include="Game\Resources\Shaders\Model.PS.hlsl">
+      <Filter>Shaders\Model</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Game\Resources\Shaders\GPUParticle.hlsli">
-      <Filter>Shaders</Filter>
+      <Filter>Shaders\GPUParticle</Filter>
+    </None>
+    <None Include="Game\Resources\Shaders\Model.hlsli">
+      <Filter>Shaders\Model</Filter>
     </None>
   </ItemGroup>
 </Project>

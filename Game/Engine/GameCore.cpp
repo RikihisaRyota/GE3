@@ -3,9 +3,10 @@
 #include <memory>
 
 #include "Graphics/RenderManager.h"
-#include "WinApp/WinApp.h"
 #include "Input/Input.h"
+#include "Model/ModelManager.h"
 #include "ShderCompiler/ShaderCompiler.h"
+#include "WinApp/WinApp.h"
 #include "../Src/Scenes/GameScene.h"
 
 namespace GameCore {
@@ -26,8 +27,9 @@ namespace GameCore {
 
 		renderManager = RenderManager::GetInstance();
 		renderManager->Initialize();
-
 		renderManager->Reset();
+
+		ModelManager::CreatePipeline(renderManager->GetRenderTargetFormat(),renderManager->GetDepthFormat());
 
 		//gameScene = std::make_unique<GameScene>();
 		gameScene = new GameScene();
@@ -56,6 +58,7 @@ namespace GameCore {
 
 	void Shutdown() {
 		renderManager->Shutdown();
+		ModelManager::DestroyPipeline();
 		winApp->TerminateGameWindow();
 		delete gameScene;
 	}

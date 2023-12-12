@@ -12,5 +12,6 @@ ConstantBuffer<ParticleInfo> Info : register(b0);
 void main(uint3 DTid : SV_DispatchThreadID)
 {
     Output[DTid.x].velocity = normalize(-Output[DTid.x].translate);
+    Output[DTid.x].translate.z -= 0.5f;
     //Output[DTid.x].velocity * Info.speed
 }

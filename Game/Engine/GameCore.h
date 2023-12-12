@@ -1,6 +1,5 @@
 #pragma once
 
-
 namespace GameCore {
 	void Initialize();
 	bool BeginFrame();

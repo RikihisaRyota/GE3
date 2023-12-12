@@ -127,6 +127,8 @@
     <ClCompile Include="Game\Engine\Math\MyMath.cpp" />
     <ClCompile Include="Game\Engine\Math\ViewProjection.cpp" />
     <ClCompile Include="Game\Engine\Math\WorldTransform.cpp" />
+    <ClCompile Include="Game\Engine\Model\Model.cpp" />
+    <ClCompile Include="Game\Engine\Model\ModelManager.cpp" />
     <ClCompile Include="Game\Engine\ShderCompiler\ShaderCompiler.cpp" />
     <ClCompile Include="Game\Engine\Texture\Texture.cpp" />
     <ClCompile Include="Game\Engine\Texture\TextureManager.cpp" />
@@ -177,6 +179,8 @@
     <ClInclude Include="Game\Engine\Math\ViewProjection.h" />
     <ClInclude Include="Game\Engine\Math\WorldTransform.h" />
     <ClInclude Include="Game\Engine\Model\Model.h" />
+    <ClInclude Include="Game\Engine\Model\ModelHandle.h" />
+    <ClInclude Include="Game\Engine\Model\ModelManager.h" />
     <ClInclude Include="Game\Engine\ShderCompiler\ShaderCompiler.h" />
     <ClInclude Include="Game\Engine\Texture\Texture.h" />
     <ClInclude Include="Game\Engine\Texture\TextureHandle.h" />
@@ -198,6 +202,16 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </FxCompile>
+    <FxCompile Include="Game\Resources\Shaders\Model.PS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="Game\Resources\Shaders\Model.VS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </FxCompile>
     <FxCompile Include="Game\Resources\Shaders\Spawn.CS.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
@@ -215,6 +229,9 @@
     <None Include="Game\Resources\Shaders\GPUParticle.hlsli">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </None>
+    <None Include="Game\Resources\Shaders\Model.hlsli">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </None>
   </ItemGroup>
   <ItemGroup>

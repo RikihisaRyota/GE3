@@ -2,6 +2,7 @@
 
 #include <filesystem>
 
+#include <d3d12.h>
 #include "DirectXTex.h"
 
 #include "Engine/Graphics/GpuResource.h"

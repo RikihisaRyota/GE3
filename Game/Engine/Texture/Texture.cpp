@@ -4,6 +4,7 @@
 
 #include <d3dx12.h>
 
+
 #include "Engine/ConvertString/ConvertString.h"
 #include "Engine/Graphics/CommandContext.h"
 #include "Engine/Graphics/GraphicsCore.h"
@@ -69,7 +70,6 @@ void Texture::UploadTextureData(const DirectX::ScratchImage& mipImages) {
 	commandContext.Create();
 
 	std::vector<D3D12_SUBRESOURCE_DATA> subResources{};
-	
 	DirectX::PrepareUpload(device, mipImages.GetImages(), mipImages.GetImageCount(), mipImages.GetMetadata(), subResources);
 	uint64_t intermediateSize = GetRequiredIntermediateSize(resource_.Get(), 0, UINT(subResources.size()));
 	D3D12_RESOURCE_DESC intermediateDesc = CD3DX12_RESOURCE_DESC::Buffer(intermediateSize);

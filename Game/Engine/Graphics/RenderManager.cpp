@@ -25,7 +25,7 @@ void RenderManager::Initialize() {
 	}
 
 	// メインとなるバッファを初期化
-	mainColorBufferFormat_ = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+	mainColorBufferFormat_ = DXGI_FORMAT_R8G8B8A8_UNORM;
 	mainDepthBufferFormat_ = DXGI_FORMAT_D32_FLOAT;
 	auto& swapChainBuffer = swapChain_.GetColorBuffer();
 	Color clearColor = { 0.3f,0.1f,0.3f,0.0f };

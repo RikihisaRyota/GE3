@@ -16,9 +16,6 @@
 #include "Engine/Math/Vector2.h"
 
 class Model {
-public:
-	void Create(const std::filesystem::path& modelPath);
-	std::filesystem::path GetName() const { return name_.stem(); }
 private:
 	struct Mesh {
 		uint32_t indexCount;
@@ -34,7 +31,14 @@ private:
 		Vector3 normals;
 		Vector2 texcoords;
 	};
-	
+public:
+	void Create(const std::filesystem::path& modelPath);
+	std::filesystem::path GetName() const { return name_.stem(); }
+	const D3D12_VERTEX_BUFFER_VIEW GetVBView() const { return vbView_; }
+	const D3D12_INDEX_BUFFER_VIEW GetIBView() const { return ibView_; }
+	const std::vector<Mesh> GetMesh()const { return meshes_; }
+	const Material GetMaterial() const { return material_; }
+private:
 	void LoadOBJFile(const std::filesystem::path& modelPath);
 	void LoadMTLFile(const std::filesystem::path& modelPath);
 	UploadBuffer vertexBuffer_;
@@ -42,6 +46,6 @@ private:
 	UploadBuffer indexBuffer_;
 	D3D12_INDEX_BUFFER_VIEW ibView_{};
 	std::vector<Mesh>meshes_;
-	std::vector<Material>materials_;
+	Material material_;
 	std::filesystem::path name_;
 };

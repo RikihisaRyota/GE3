@@ -8,6 +8,7 @@
 #include "Engine/ShderCompiler/ShaderCompiler.h"
 #include "Engine/Graphics/RenderManager.h"
 #include "Engine/Math/ViewProjection.h"
+#include "Engine/Model/ModelManager.h"
 
 GPUParticle::GPUParticle() {
 	graphicsPipelineState_ = std::make_unique<PipelineState>();
@@ -24,6 +25,8 @@ GPUParticle::GPUParticle() {
 	InitializeUpdateParticle();
 
 	InitializeGraphics();
+
+	modelHandle_ = ModelManager::GetInstance()->Load("Game/Resources/Models/teapot");
 }
 
 void GPUParticle::Initialize() {

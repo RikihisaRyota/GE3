@@ -1,4 +1,42 @@
-float4 main() : SV_TARGET
+#include "Model.hlsli"
+
+Texture2D<float4> gTexture : register(t0);
+SamplerState gSampler : register(s0);
+
+struct ViewProjection
 {
-	return float4(1.0f, 1.0f, 1.0f, 1.0f);
+    matrix view; // ビュー変換行列
+    matrix projection; // プロジェクション変換行列
+    float3 cameraPos; // カメラのワールド座標
+};
+
+ConstantBuffer<ViewProjection> gViewProjection : register(b1);
+
+//struct Material
+//{
+//    float4 color;
+//};
+
+//ConstantBuffer<Material> gMaterial : register(b2);
+
+//struct DirectionLight
+//{
+//    float4 color;
+//    float3 direction;
+//    float intensity;
+//    float sharpness;
+//};
+
+//ConstantBuffer<DirectionLight> gDirectionLight : register(b3);
+
+struct PixelShaderOutput
+{
+    float4 color : SV_TARGET0;
+};
+
+PixelShaderOutput main(VertexShaderOutput input)
+{
+    PixelShaderOutput output;
+    output.color = float4(1.0f,1.0f,1.0f,1.0f);
+    return output;
 }

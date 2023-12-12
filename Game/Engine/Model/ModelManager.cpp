@@ -2,11 +2,21 @@
 
 #include <d3dx12.h>
 
-#include "Engine/ShderCompiler/ShaderCompiler.h"
+#include "Engine/Graphics/CommandContext.h"
 #include "Engine/Graphics/Helper.h"
+#include "Engine/Graphics/SamplerManager.h"
+#include "Engine/ShderCompiler/ShaderCompiler.h"
+#include "Engine/Math/ViewProjection.h"
+#include "Engine/Math/WorldTransform.h"
+#include "Engine/Texture/TextureManager.h"
 
 std::unique_ptr<RootSignature> ModelManager::rootSignature_;
 std::unique_ptr<PipelineState> ModelManager::pipelineState_;
+
+ModelManager* ModelManager::GetInstance() {
+	static ModelManager instance;
+	return &instance;
+}
 
 void ModelManager::CreatePipeline(DXGI_FORMAT rtvFormat, DXGI_FORMAT dsvFormat) {
 	pipelineState_ = std::make_unique<PipelineState>();
@@ -86,4 +96,20 @@ ModelHandle ModelManager::Load(const std::filesystem::path path) {
 
 	models_.emplace_back(std::move(model));
 	return handle;
+}
+
+void ModelManager::Draw(const WorldTransform& worldTransform, const ViewProjection& viewProjection, const ModelHandle& modelHandle, CommandContext& commandContext) {
+	commandContext.SetGraphicsRootSignature(*rootSignature_);
+	commandContext.SetPipelineState(*pipelineState_);
+	commandContext.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	commandContext.SetVertexBuffer(0, models_.at(modelHandle)->GetVBView());
+	commandContext.SetIndexBuffer(models_.at(modelHandle)->GetIBView());
+	commandContext.SetGraphicsConstantBuffer(0, worldTransform.constBuff_.get()->GetGPUVirtualAddress());
+	commandContext.SetGraphicsConstantBuffer(1, viewProjection.constBuff_.get()->GetGPUVirtualAddress());
+	commandContext.SetGraphicsDescriptorTable(2, TextureManager::GetInstance()->GetTexture(models_.at(modelHandle)->GetMaterial().textureHandle).GetSRV());
+	commandContext.SetGraphicsDescriptorTable(3, SamplerManager::LinearWrap);
+
+	for (auto& mesh: models_.at(modelHandle)->GetMesh()) {
+		commandContext.DrawIndexed(mesh.indexCount);
+	}
 }

@@ -15,6 +15,7 @@ void Model::Create(const std::filesystem::path& modelPath) {
 }
 
 void Model::LoadOBJFile(const std::filesystem::path& modelPath) {
+	std::wstring path = modelPath.wstring() + L"/"+ modelPath.stem().wstring() + L".obj";
 	
 	std::vector<Vertex> vertexPos; //!< 構築するModelData
 	std::vector<uint16_t> indices;
@@ -23,7 +24,7 @@ void Model::LoadOBJFile(const std::filesystem::path& modelPath) {
 	std::vector<Vector2> texcoords; //!< テクスチャ座標
 	std::string line; //!< ファイルから読み込んだ1行を格納するもの
 
-	std::ifstream file(modelPath); //!< ファイルを開く
+	std::ifstream file(path); //!< ファイルを開く
 	assert(file.is_open()); //!< とりあえず開けなかったら止める
 
 	while (std::getline(file, line)) {
@@ -121,11 +122,12 @@ void Model::LoadOBJFile(const std::filesystem::path& modelPath) {
 }
 
 void Model::LoadMTLFile(const std::filesystem::path& modelPath) {
+	std::wstring path = modelPath.wstring() + L"/" + modelPath.stem().wstring() + L".mtl";
 	// 1. 中で必要となる変数の宣言
 	std::filesystem::path materialPath; //!< 構築するMaterialData
 	std::string line; //!< ファイルから読み込んだ1行を格納するもの
 	// 2. ファイルを開く
-	std::ifstream file(modelPath);
+	std::ifstream file(path);
 	assert(file.is_open());
 	// 3. 実際にファイルを読み、MaterialDataを構築していく
 	while (std::getline(file, line)) {
@@ -134,21 +136,21 @@ void Model::LoadMTLFile(const std::filesystem::path& modelPath) {
 		s >> identifier;
 		// identifierに応じた処置
 		if (identifier == "newmtl") {
-			materials_.emplace_back(Material());
+			//materials_.emplace_back(Material());
 		}
 		else if (identifier == "map_Kd") {
 			std::string textureFilename;
 			s >> textureFilename;
 			// 連結してファイルパスにする
-			materialPath = modelPath.parent_path() / textureFilename;
-			materials_.back().textureHandle = (TextureManager::GetInstance()->Load(materialPath));
-			materials_.back().color = { 1.0f,1.0f,1.0f,1.0f };
+			materialPath = modelPath.wstring() + L"/" + modelPath.stem().wstring() + textureFilename;
+			material_.textureHandle = (TextureManager::GetInstance()->Load(materialPath));
+			material_.color = { 1.0f,1.0f,1.0f,1.0f };
 		}
 		else if (identifier == "Kd") {
 			Vector4 color{};
 			s >> color.x >> color.y >> color.z;
 			color.w = 1.0f;
-			materials_.back().color = color;
+			material_.color = color;
 		}
 	}
 }

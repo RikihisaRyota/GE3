@@ -45,5 +45,5 @@ D3D12_RESOURCE_DESC PixelBuffer::DescribeTex2D(uint32_t width, uint32_t height, 
 	arraySize_ = arraySize;
 	format_ = format;
 
-	return CD3DX12_RESOURCE_DESC::Tex2D(format, UINT64(width), height, UINT16(arraySize), 0, 1, 0, flags);
+	return CD3DX12_RESOURCE_DESC::Tex2D(format, UINT64(width), height, UINT16(arraySize), 1, 1, 0, flags);
 }

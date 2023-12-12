@@ -14,6 +14,7 @@
 #include "Engine/Math/Vector2.h"
 #include "Engine/Math/Vector3.h"
 #include "Engine/Math/Matrix4x4.h"
+#include "Engine/Model/ModelHandle.h"
 
 struct ViewProjection;
 class GPUParticle {
@@ -55,8 +56,11 @@ private:
 	GpuResource rwStructuredBuffer_;
 	// UAVハンドル
 	DescriptorHandle uavHandle_;
-
+	
 	DescriptorHandle rwStructuredBufferHandle_;
+
+	// モデル
+	ModelHandle modelHandle_;
 
 	ParticleInfo* particleInfo_;
 	Particle* particle_;

@@ -12,22 +12,12 @@ struct ViewProjection
 
 ConstantBuffer<ViewProjection> gViewProjection : register(b1);
 
-//struct Material
-//{
-//    float4 color;
-//};
+struct Material
+{
+    float4 color;
+};
 
-//ConstantBuffer<Material> gMaterial : register(b2);
-
-//struct DirectionLight
-//{
-//    float4 color;
-//    float3 direction;
-//    float intensity;
-//    float sharpness;
-//};
-
-//ConstantBuffer<DirectionLight> gDirectionLight : register(b3);
+ConstantBuffer<Material> gMaterial : register(b2);
 
 struct PixelShaderOutput
 {
@@ -37,6 +27,6 @@ struct PixelShaderOutput
 PixelShaderOutput main(VertexShaderOutput input)
 {
     PixelShaderOutput output;
-    output.color = float4(1.0f,1.0f,0.0f,1.0f);
+    output.color = gMaterial.color * gTexture.Sample(gSampler, input.texcoord);
     return output;
 }

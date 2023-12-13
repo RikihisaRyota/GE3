@@ -16,10 +16,10 @@ void GameScene::Initialize() {
 }
 
 void GameScene::Update() {
-	/*ImGui::Begin("fps");
+	ImGui::Begin("fps");
 	ImGui::Text("Frame rate: %3.0f fps", ImGui::GetIO().Framerate);
 	ImGui::Text("Delta Time: %.4f", ImGui::GetIO().DeltaTime);
-	ImGui::End();*/
+	ImGui::End();
 
 	gpuParticle_->Update();
 	debugCamera_->Update(&viewProjection_);

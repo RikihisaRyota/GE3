@@ -22,7 +22,6 @@ private:
 	};
 
 	struct Material {
-		TextureHandle textureHandle;
 		Vector4 color;
 	};
 
@@ -37,8 +36,10 @@ private:
 		D3D12_VERTEX_BUFFER_VIEW vbView_{};
 		UploadBuffer indexBuffer_;
 		D3D12_INDEX_BUFFER_VIEW ibView_{};
-		Mesh meshes_;
-		Material material_;
+		TextureHandle textureHandle;
+		Mesh* meshes_;
+		Material* material_;
+		UploadBuffer materialBuffer_;
 	};
 
 public:

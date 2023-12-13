@@ -27,11 +27,12 @@ void ModelManager::CreatePipeline(DXGI_FORMAT rtvFormat, DXGI_FORMAT dsvFormat) 
 		CD3DX12_DESCRIPTOR_RANGE samplerRanges[1]{};
 		samplerRanges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER, 1, 0);
 
-		CD3DX12_ROOT_PARAMETER rootParameters[4]{};
+		CD3DX12_ROOT_PARAMETER rootParameters[5]{};
 		rootParameters[0].InitAsConstantBufferView(0);
 		rootParameters[1].InitAsConstantBufferView(1);
-		rootParameters[2].InitAsDescriptorTable(_countof(range), range);
-		rootParameters[3].InitAsDescriptorTable(_countof(samplerRanges), samplerRanges);
+		rootParameters[2].InitAsConstantBufferView(2);
+		rootParameters[3].InitAsDescriptorTable(_countof(range), range);
+		rootParameters[4].InitAsDescriptorTable(_countof(samplerRanges), samplerRanges);
 
 		D3D12_ROOT_SIGNATURE_DESC desc{};
 		desc.pParameters = rootParameters;
@@ -107,8 +108,9 @@ void ModelManager::Draw(const WorldTransform& worldTransform, const ViewProjecti
 		commandContext.SetIndexBuffer(modelData->ibView_);
 		commandContext.SetGraphicsConstantBuffer(0, worldTransform.constBuff_.get()->GetGPUVirtualAddress());
 		commandContext.SetGraphicsConstantBuffer(1, viewProjection.constBuff_.get()->GetGPUVirtualAddress());
-		commandContext.SetGraphicsDescriptorTable(2, TextureManager::GetInstance()->GetTexture(modelData->material_.textureHandle).GetSRV());
-		commandContext.SetGraphicsDescriptorTable(3, SamplerManager::LinearWrap);
-		commandContext.DrawIndexed(modelData->meshes_.indexCount);
+		commandContext.SetGraphicsConstantBuffer(2, modelData->materialBuffer_.GetGPUVirtualAddress());
+		commandContext.SetGraphicsDescriptorTable(3, TextureManager::GetInstance()->GetTexture(modelData->textureHandle).GetSRV());
+		commandContext.SetGraphicsDescriptorTable(4, SamplerManager::LinearWrap);
+		commandContext.DrawIndexed(modelData->meshes_->indexCount);
 	}
 }

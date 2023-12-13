@@ -64,17 +64,18 @@ void RenderManager::BeginRender() {
 
 void RenderManager::EndRender() {
 	auto& commandContext = commandContexts_[swapChain_.GetBufferIndex()];
+	auto& swapChainColorBuffer = swapChain_.GetColorBuffer();
 	// ImGuiを描画
 	auto imguiManager = ImGuiManager::GetInstance();
 	imguiManager->Render(commandContext);
 
-	commandContext.TransitionResource(swapChain_.GetColorBuffer(), D3D12_RESOURCE_STATE_PRESENT);
+	commandContext.TransitionResource(swapChainColorBuffer, D3D12_RESOURCE_STATE_PRESENT);
 	commandContext.Close();
 	CommandQueue& commandQueue = graphicsCore_->GetCommandQueue();
-	commandQueue.Execute(commandContext);
-	commandQueue.Signal();
 	commandQueue.WaitForGPU();
+	commandQueue.Execute(commandContext);
 	swapChain_.Present();
+	commandQueue.Signal();
 }
 
 void RenderManager::Shutdown() {

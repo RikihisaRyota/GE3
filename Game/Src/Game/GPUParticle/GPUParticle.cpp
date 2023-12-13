@@ -27,7 +27,7 @@ GPUParticle::GPUParticle() {
 
 	InitializeGraphics();
 
-	modelHandle_ = ModelManager::GetInstance()->Load("Game/Resources/Models/bunny");
+	modelHandle_ = ModelManager::GetInstance()->Load("Game/Resources/Models/teapot");
 	worldTransform_.Initialize();
 }
 
@@ -52,16 +52,16 @@ void GPUParticle::Render(const ViewProjection& viewProjection) {
 	
 	ModelManager::GetInstance()->Draw(worldTransform_, viewProjection, modelHandle_, commandContext);
 
-	commandContext.SetPipelineState(*graphicsPipelineState_);
-	commandContext.SetGraphicsRootSignature(*graphicsRootSignature_);
-	commandContext.SetVertexBuffer(0, vbView_);
-	commandContext.SetIndexBuffer(ibView_);
-	commandContext.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	//commandContext.SetPipelineState(*graphicsPipelineState_);
+	//commandContext.SetGraphicsRootSignature(*graphicsRootSignature_);
+	//commandContext.SetVertexBuffer(0, vbView_);
+	//commandContext.SetIndexBuffer(ibView_);
+	//commandContext.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	commandContext.TransitionResource(rwStructuredBuffer_, D3D12_RESOURCE_STATE_GENERIC_READ);
-	commandContext.SetGraphicsDescriptorTable(0, rwStructuredBufferHandle_);
-	commandContext.SetGraphicsConstantBuffer(1, viewProjection.constBuff_->GetGPUVirtualAddress());
-	commandContext.DrawIndexedInstanced(static_cast<UINT>(indices_.size()), kNumThread);
+	//commandContext.TransitionResource(rwStructuredBuffer_, D3D12_RESOURCE_STATE_GENERIC_READ);
+	//commandContext.SetGraphicsDescriptorTable(0, rwStructuredBufferHandle_);
+	//commandContext.SetGraphicsConstantBuffer(1, viewProjection.constBuff_->GetGPUVirtualAddress());
+	//commandContext.DrawIndexedInstanced(static_cast<UINT>(indices_.size()), kNumThread);
 }
 
 void GPUParticle::InitializeSpawnParticle() {

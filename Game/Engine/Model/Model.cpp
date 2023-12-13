@@ -28,7 +28,9 @@ void Model::LoadFile(const std::filesystem::path& modelPath) {
 
 	Assimp::Importer importer{};
 
-	const aiScene* scene = importer.ReadFile(path.c_str(), aiProcess_FlipWindingOrder | aiProcess_FlipUVs);
+	const aiScene* scene = importer.ReadFile(path.c_str(), 
+		aiProcess_Triangulate |
+		aiProcess_FlipUVs);
 	assert(scene->HasMeshes()); // メッシュがないものは対応しない
 	// メッシュ解析
 	for (uint32_t meshIndex = 0; meshIndex < scene->mNumMeshes; ++meshIndex) {
@@ -39,8 +41,8 @@ void Model::LoadFile(const std::filesystem::path& modelPath) {
 		// 頂点データを解析
 		for (uint32_t vertexIndex = 0; vertexIndex < mesh->mNumVertices; ++vertexIndex) {
 			aiVector3D& position = mesh->mVertices[vertexIndex];
-			aiVector3D& normal = mesh->mNormals[vertexIndex];
 			aiVector3D& texcoord = mesh->mTextureCoords[0][vertexIndex];
+			aiVector3D& normal = mesh->mNormals[vertexIndex];
 			Vertex vertex{};
 			vertex.position = { position.x,position.y,position.z };
 			vertex.normal = { normal.x,normal.y,normal.z };
@@ -55,10 +57,11 @@ void Model::LoadFile(const std::filesystem::path& modelPath) {
 				indices.push_back(face.mIndices[element]);
 			}
 		}
+
 		modelDatas_.emplace_back(std::make_unique<ModelData>());
 		auto& currentModelData = modelDatas_.back();
-
-		currentModelData->meshes_.indexCount = uint32_t(indices.size());
+		currentModelData->meshes_ = new Mesh();
+		currentModelData->meshes_->indexCount = uint32_t(indices.size());
 
 		currentModelData->vertexBuffer_.Create(modelPath.stem().wstring() + L"VertexBuffer", vertexPos.size() * sizeof(vertexPos[0]));
 		currentModelData->vertexBuffer_.Copy(vertexPos.data(), vertexPos.size() * sizeof(vertexPos[0]));
@@ -76,13 +79,16 @@ void Model::LoadFile(const std::filesystem::path& modelPath) {
 	// Material解析
 	for (uint32_t materialIndex = 0; materialIndex < scene->mNumMaterials; ++materialIndex) {
 		aiMaterial* material = scene->mMaterials[materialIndex];
-		// 最後に見つかったmaterialデータを利用
+		// 最後に見つかったMaterialデータを利用
 		if (material->GetTextureCount(aiTextureType_DIFFUSE) != 0) {
 			aiString textureFilePath;
 			material->GetTexture(aiTextureType_DIFFUSE, 0, &textureFilePath);
 			for (auto& modelData : modelDatas_) {
-				modelData->material_.textureHandle = (TextureManager::GetInstance()->Load(modelPath / textureFilePath.C_Str()));
-				modelData->material_.color = { 1.0f,1.0f,1.0f,1.0f };
+				modelData->textureHandle = (TextureManager::GetInstance()->Load(modelPath / textureFilePath.C_Str()));
+				modelData->material_ = new Material();
+				modelData->material_->color = { 1.0f,1.0f,1.0f,1.0f };
+				modelData->materialBuffer_.Create(modelPath.stem().wstring() + L"materialBuffer", sizeof(Material));
+				modelData->materialBuffer_.Copy(modelData->material_, sizeof(Material));
 			}
 		}
 	}

@@ -27,7 +27,7 @@ GPUParticle::GPUParticle() {
 
 	InitializeGraphics();
 
-	modelHandle_ = ModelManager::GetInstance()->Load("Game/Resources/Models/teapot");
+	modelHandle_ = ModelManager::GetInstance()->Load("Game/Resources/Models/bunny");
 	worldTransform_.Initialize();
 }
 

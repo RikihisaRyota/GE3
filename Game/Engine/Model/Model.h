@@ -31,20 +31,22 @@ private:
 		Vector3 normal;
 		Vector2 texcoord;
 	};
+
+	struct ModelData {
+		UploadBuffer vertexBuffer_;
+		D3D12_VERTEX_BUFFER_VIEW vbView_{};
+		UploadBuffer indexBuffer_;
+		D3D12_INDEX_BUFFER_VIEW ibView_{};
+		Mesh meshes_;
+		Material material_;
+	};
+
 public:
 	void Create(const std::filesystem::path& modelPath);
-	std::filesystem::path GetName() const { return name_.stem(); }
-	const D3D12_VERTEX_BUFFER_VIEW GetVBView() const { return vbView_; }
-	const D3D12_INDEX_BUFFER_VIEW GetIBView() const { return ibView_; }
-	const std::vector<Mesh> GetMesh()const { return meshes_; }
-	const Material GetMaterial() const { return material_; }
+	const std::filesystem::path& GetName() const { return name_; }
+	const std::vector<std::unique_ptr<ModelData>>& GetModelData() const {return modelDatas_;}
 private:
 	void LoadFile(const std::filesystem::path& modelPath);
-	UploadBuffer vertexBuffer_;
-	D3D12_VERTEX_BUFFER_VIEW vbView_{};
-	UploadBuffer indexBuffer_;
-	D3D12_INDEX_BUFFER_VIEW ibView_{};
-	std::vector<Mesh> meshes_;
-	Material material_;
+	std::vector<std::unique_ptr<ModelData>> modelDatas_;
 	std::filesystem::path name_;
 };

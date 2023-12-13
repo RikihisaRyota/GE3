@@ -37,6 +37,6 @@ struct PixelShaderOutput
 PixelShaderOutput main(VertexShaderOutput input)
 {
     PixelShaderOutput output;
-    output.color = float4(1.0f,1.0f,1.0f,1.0f);
+    output.color = float4(1.0f,1.0f,0.0f,1.0f);
     return output;
 }

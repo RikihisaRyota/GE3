@@ -27,7 +27,7 @@ GPUParticle::GPUParticle() {
 
 	InitializeGraphics();
 
-	modelHandle_ = ModelManager::GetInstance()->Load("Game/Resources/Models/teapot");
+	modelHandle_ = ModelManager::GetInstance()->Load("Game/Resources/Models/bunny");
 	worldTransform_.Initialize();
 }
 
@@ -172,6 +172,48 @@ void GPUParticle::InitializeUpdateParticle() {
 		/*rwStructuredBuffer_->Map(0, 0, reinterpret_cast<void**>(&updateParticle_));
 		memset(updateParticle_, 0, sizeof(uint32_t) * kNumThread);*/
 	}
+	// コマンドシグネイチャー
+	//{
+	//	D3D12_INDIRECT_ARGUMENT_DESC argumentDesc[2] = {};
+	//	argumentDesc[0].Type = D3D12_INDIRECT_ARGUMENT_TYPE_CONSTANT_BUFFER_VIEW;
+	//	argumentDesc[0].ConstantBufferView.RootParameterIndex = 0;
+	//	argumentDesc[1].Type = D3D12_INDIRECT_ARGUMENT_TYPE_DRAW;
+
+	//	D3D12_COMMAND_SIGNATURE_DESC commandSignatureDesc{};
+	//	commandSignatureDesc.pArgumentDescs = argumentDesc;
+	//	commandSignatureDesc.NumArgumentDescs = _countof(argumentDesc);
+	//	commandSignatureDesc.ByteStride = sizeof(IndirectCommand);
+	//	auto result = device->CreateCommandSignature(&commandSignatureDesc, *updateComputeRootSignature_, IID_PPV_ARGS(&commandSignature_));
+	//	assert(SUCCEEDED(result));
+	//}
+	//// IndirectCommandBuffer
+	//{
+	//	std::vector<IndirectCommand> commands;
+	//	commands.resize(kNumThread);
+	//	const UINT commandBufferSize = kNumThread * sizeof(IndirectCommand);
+	//	// Default
+	//	D3D12_RESOURCE_DESC commandBufferDesc = CD3DX12_RESOURCE_DESC::Buffer(commandBufferSize);
+	//	D3D12_HEAP_PROPERTIES heapProp = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
+	//	device->CreateCommittedResource(
+	//		&heapProp,
+	//		D3D12_HEAP_FLAG_NONE,
+	//		&commandBufferDesc,
+	//		D3D12_RESOURCE_STATE_COPY_DEST,
+	//		nullptr,
+	//		IID_PPV_ARGS(commandBuffer_.GetAddressOf()));
+
+	//	// Upload
+	//	commandUploadBuffer_.Create(L"commandUploadBuffer",commandBufferSize);
+
+	//	D3D12_GPU_VIRTUAL_ADDRESS gpuAddress = updateConstantBuffer_.GetGPUVirtualAddress();
+	//	for (UINT commandIndex = 0; commandIndex < kNumThread; ++commandIndex) {
+	//		commands[commandIndex].drawArguments.VertexCountPerInstance = 36;
+	//		commands[commandIndex].drawArguments.InstanceCount = 1;
+	//		commands[commandIndex].drawArguments.StartInstanceLocation = 0;
+	//		commands[commandIndex].drawArguments.StartInstanceLocation = 0;
+	//		//gpuAddress += updateConstantBuffer_.GetBufferSize();
+	//	}
+	//}
 }
 
 void GPUParticle::InitializeGraphics() {

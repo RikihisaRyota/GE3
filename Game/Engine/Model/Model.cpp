@@ -24,11 +24,11 @@ void Model::LoadFile(const std::filesystem::path& modelPath) {
 	std::string path = modelPath.string() + "/" + modelPath.stem().string() + ".obj";
 
 	std::vector<Vertex> vertexPos; //!< 構築するModelData
-	std::vector<uint16_t> indices;
+	std::vector<Index> indices;
 
 	Assimp::Importer importer{};
 
-	const aiScene* scene = importer.ReadFile(path.c_str(), 
+	const aiScene* scene = importer.ReadFile(path.c_str(),
 		aiProcess_Triangulate |
 		aiProcess_FlipUVs);
 	assert(scene->HasMeshes()); // メッシュがないものは対応しない
@@ -47,35 +47,36 @@ void Model::LoadFile(const std::filesystem::path& modelPath) {
 			vertex.position = { position.x,position.y,position.z };
 			vertex.normal = { normal.x,normal.y,normal.z };
 			vertex.texcoord = { texcoord.x,texcoord.y };
+			vertex.position.x *= -1.0f;
+			vertex.normal.x *= -1.0f;
+
 			vertexPos.emplace_back(vertex);
 		}
 		// インデックスデータを解析
 		for (uint32_t faceIndex = 0; faceIndex < mesh->mNumFaces; ++faceIndex) {
 			aiFace& face = mesh->mFaces[faceIndex];
 			assert(face.mNumIndices == 3); // 三角形のみサポート(四角形以上も対応できるようになる,CG3 04_00 assimpの資料)
-			for (uint32_t element = 0; element < face.mNumIndices; ++element) {
-				indices.push_back(face.mIndices[element]);
-			}
+			indices.push_back(face.mIndices[0]);
+			indices.push_back(face.mIndices[2]);
+			indices.push_back(face.mIndices[1]);
 		}
 
-		modelDatas_.emplace_back(std::make_unique<ModelData>());
-		auto& currentModelData = modelDatas_.back();
+		meshDatas_.emplace_back(std::make_unique<MeshData>());
+		auto& currentModelData = meshDatas_.back();
 		currentModelData->meshes_ = new Mesh();
 		currentModelData->meshes_->indexCount = uint32_t(indices.size());
-
-		currentModelData->vertexBuffer_.Create(modelPath.stem().wstring() + L"VertexBuffer", vertexPos.size() * sizeof(vertexPos[0]));
-		currentModelData->vertexBuffer_.Copy(vertexPos.data(), vertexPos.size() * sizeof(vertexPos[0]));
-		currentModelData->vbView_.BufferLocation = currentModelData->vertexBuffer_.GetGPUVirtualAddress();
-		currentModelData->vbView_.SizeInBytes = UINT(currentModelData->vertexBuffer_.GetBufferSize());
-		currentModelData->vbView_.StrideInBytes = sizeof(vertexPos[0]);
 
 		currentModelData->indexBuffer_.Create(modelPath.stem().wstring() + L"IndexBuffer", indices.size() * sizeof(indices[0]));
 		currentModelData->indexBuffer_.Copy(indices.data(), indices.size() * sizeof(indices[0]));
 		currentModelData->ibView_.BufferLocation = currentModelData->indexBuffer_.GetGPUVirtualAddress();
 		currentModelData->ibView_.SizeInBytes = UINT(currentModelData->indexBuffer_.GetBufferSize());
-		currentModelData->ibView_.Format = DXGI_FORMAT_R16_UINT;
+		currentModelData->ibView_.Format = DXGI_FORMAT_R32_UINT;
 	}
-
+	vertexBuffer_.Create(modelPath.stem().wstring() + L"VertexBuffer", vertexPos.size() * sizeof(vertexPos[0]));
+	vertexBuffer_.Copy(vertexPos.data(), vertexPos.size() * sizeof(vertexPos[0]));
+	vbView_.BufferLocation = vertexBuffer_.GetGPUVirtualAddress();
+	vbView_.SizeInBytes = UINT(vertexBuffer_.GetBufferSize());
+	vbView_.StrideInBytes = sizeof(vertexPos[0]);
 	// Material解析
 	for (uint32_t materialIndex = 0; materialIndex < scene->mNumMaterials; ++materialIndex) {
 		aiMaterial* material = scene->mMaterials[materialIndex];
@@ -83,13 +84,11 @@ void Model::LoadFile(const std::filesystem::path& modelPath) {
 		if (material->GetTextureCount(aiTextureType_DIFFUSE) != 0) {
 			aiString textureFilePath;
 			material->GetTexture(aiTextureType_DIFFUSE, 0, &textureFilePath);
-			for (auto& modelData : modelDatas_) {
-				modelData->textureHandle = (TextureManager::GetInstance()->Load(modelPath / textureFilePath.C_Str()));
-				modelData->material_ = new Material();
-				modelData->material_->color = { 1.0f,1.0f,1.0f,1.0f };
-				modelData->materialBuffer_.Create(modelPath.stem().wstring() + L"materialBuffer", sizeof(Material));
-				modelData->materialBuffer_.Copy(modelData->material_, sizeof(Material));
-			}
+			textureHandle = (TextureManager::GetInstance()->Load(modelPath / textureFilePath.C_Str()));
+			material_ = new Material();
+			material_->color = { 1.0f,1.0f,1.0f,1.0f };
+			materialBuffer_.Create(modelPath.stem().wstring() + L"materialBuffer", sizeof(Material));
+			materialBuffer_.Copy(material_, sizeof(Material));
 		}
 	}
 }

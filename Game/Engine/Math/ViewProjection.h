@@ -32,7 +32,7 @@ struct ViewProjection
 	// ビューポートのアスペクト比
 	float aspectRatio_ = (float)16 / 9;
 	// 深度限界（手前側）
-	float nearZ_ = 0.0f;
+	float nearZ_ = 0.1f;
 	// 深度限界（奥側）
 	float farZ_ = 100.0f;
 #pragma endregion

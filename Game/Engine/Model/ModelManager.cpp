@@ -103,14 +103,14 @@ void ModelManager::Draw(const WorldTransform& worldTransform, const ViewProjecti
 	commandContext.SetGraphicsRootSignature(*rootSignature_);
 	commandContext.SetPipelineState(*pipelineState_);
 	commandContext.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	for (auto& modelData: models_.at(modelHandle)->GetModelData()) {
-		commandContext.SetVertexBuffer(0, modelData->vbView_);
+	commandContext.SetVertexBuffer(0, models_.at(modelHandle)->GetVBView());
+	for (auto& modelData : models_.at(modelHandle)->GetMeshData()) {
 		commandContext.SetIndexBuffer(modelData->ibView_);
 		commandContext.SetGraphicsConstantBuffer(0, worldTransform.constBuff_.get()->GetGPUVirtualAddress());
 		commandContext.SetGraphicsConstantBuffer(1, viewProjection.constBuff_.get()->GetGPUVirtualAddress());
-		commandContext.SetGraphicsConstantBuffer(2, modelData->materialBuffer_.GetGPUVirtualAddress());
-		commandContext.SetGraphicsDescriptorTable(3, TextureManager::GetInstance()->GetTexture(modelData->textureHandle).GetSRV());
-		commandContext.SetGraphicsDescriptorTable(4, SamplerManager::LinearWrap);
+		commandContext.SetGraphicsConstantBuffer(2, models_.at(modelHandle)->GetMaterialBuffer().GetGPUVirtualAddress());
+		commandContext.SetGraphicsDescriptorTable(3, TextureManager::GetInstance()->GetTexture(models_.at(modelHandle)->GetTextureHandle()).GetSRV());
+		commandContext.SetGraphicsDescriptorTable(4, SamplerManager::Anisotropic);
 		commandContext.DrawIndexed(modelData->meshes_->indexCount);
 	}
 }

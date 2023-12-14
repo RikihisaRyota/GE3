@@ -29,6 +29,10 @@ private:
 	struct ParticleInfo {
 		float speed;
 	};
+	struct IndirectCommand {
+		D3D12_DRAW_ARGUMENTS drawArguments;
+	};
+
 public:
 	GPUParticle();
 	void Initialize();
@@ -55,14 +59,18 @@ private:
 	std::vector<uint16_t> indices_;
 
 	GpuResource rwStructuredBuffer_;
+	DescriptorHandle rwStructuredBufferHandle_;
 	// UAVハンドル
 	DescriptorHandle uavHandle_;
 	
-	DescriptorHandle rwStructuredBufferHandle_;
-
 	// モデル
 	ModelHandle modelHandle_;
 	WorldTransform worldTransform_;
+
+	Microsoft::WRL::ComPtr<ID3D12CommandSignature> commandSignature_;
+	GpuResource commandBuffer_;
+	UploadBuffer commandUploadBuffer_;
+
 
 	ParticleInfo* particleInfo_;
 	Particle* particle_;

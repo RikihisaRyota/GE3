@@ -7,6 +7,8 @@ namespace SamplerManager {
     DescriptorHandle LinearClamp;
     DescriptorHandle LinearBorder;
 
+    DescriptorHandle Anisotropic;
+
     DescriptorHandle PointWrap;
     DescriptorHandle PointClamp;
     DescriptorHandle PointBorder;
@@ -43,6 +45,14 @@ namespace SamplerManager {
         samplerDesc.AddressW = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
         LinearBorder = graphics->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER);
         device->CreateSampler(&samplerDesc, LinearBorder);
+
+        samplerDesc.Filter = D3D12_FILTER_ANISOTROPIC;
+
+        samplerDesc.AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+        samplerDesc.AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+        samplerDesc.AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+        Anisotropic = graphics->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER);
+        device->CreateSampler(&samplerDesc, Anisotropic);
 
         samplerDesc.Filter = D3D12_FILTER_MIN_MAG_MIP_POINT;
 

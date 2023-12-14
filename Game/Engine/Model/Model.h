@@ -31,23 +31,29 @@ private:
 		Vector2 texcoord;
 	};
 
-	struct ModelData {
-		UploadBuffer vertexBuffer_;
-		D3D12_VERTEX_BUFFER_VIEW vbView_{};
+	using Index = uint32_t;
+
+	struct MeshData {
 		UploadBuffer indexBuffer_;
 		D3D12_INDEX_BUFFER_VIEW ibView_{};
-		TextureHandle textureHandle;
 		Mesh* meshes_;
-		Material* material_;
-		UploadBuffer materialBuffer_;
 	};
 
 public:
 	void Create(const std::filesystem::path& modelPath);
 	const std::filesystem::path& GetName() const { return name_; }
-	const std::vector<std::unique_ptr<ModelData>>& GetModelData() const {return modelDatas_;}
+	const std::vector<std::unique_ptr<MeshData>>& GetMeshData() const {return meshDatas_; }
+	const D3D12_VERTEX_BUFFER_VIEW GetVBView()const { return vbView_; }
+	const TextureHandle GetTextureHandle()const { return textureHandle; }
+	const UploadBuffer& GetMaterialBuffer()const { return materialBuffer_; }
 private:
 	void LoadFile(const std::filesystem::path& modelPath);
-	std::vector<std::unique_ptr<ModelData>> modelDatas_;
+	std::vector<std::unique_ptr<MeshData>> meshDatas_;
+
+	UploadBuffer vertexBuffer_;
+	D3D12_VERTEX_BUFFER_VIEW vbView_{};
+	TextureHandle textureHandle;
+	Material* material_;
+	UploadBuffer materialBuffer_;
 	std::filesystem::path name_;
 };

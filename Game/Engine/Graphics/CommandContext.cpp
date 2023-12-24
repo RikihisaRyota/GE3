@@ -72,6 +72,13 @@ void CommandContext::FlushResourceBarriers() {
 	}
 }
 
+void CommandContext::CopyBuffer(GpuResource& dest, GpuResource& src) {
+	TransitionResource(dest, D3D12_RESOURCE_STATE_COPY_DEST);
+	TransitionResource(src, D3D12_RESOURCE_STATE_COPY_SOURCE);
+	FlushResourceBarriers();
+	commandList_->CopyResource(dest, src);
+}
+
 void CommandContext::ClearColor(ColorBuffer& target) {
 	FlushResourceBarriers();
 	commandList_->ClearRenderTargetView(target.GetRTV(), target.GetClearColor().GetPtr(), 0, nullptr);
@@ -126,11 +133,19 @@ void CommandContext::SetPrimitiveTopology(D3D12_PRIMITIVE_TOPOLOGY topology) {
 }
 
 void CommandContext::SetGraphicsConstantBuffer(UINT rootIndex, D3D12_GPU_VIRTUAL_ADDRESS address) {
-	commandList_->SetGraphicsRootConstantBufferView(rootIndex,address);
+	commandList_->SetGraphicsRootConstantBufferView(rootIndex, address);
 }
 
 void CommandContext::SetComputeConstantBuffer(UINT rootIndex, D3D12_GPU_VIRTUAL_ADDRESS address) {
 	commandList_->SetComputeRootConstantBufferView(rootIndex, address);
+}
+
+void CommandContext::SetGraphicsShaderResource(UINT rootIndex, D3D12_GPU_VIRTUAL_ADDRESS address) {
+	commandList_->SetGraphicsRootShaderResourceView(rootIndex,address);
+}
+
+void CommandContext::SetComputeShaderResource(UINT rootIndex, D3D12_GPU_VIRTUAL_ADDRESS address) {
+	commandList_->SetComputeRootShaderResourceView(0, address);
 }
 
 void CommandContext::SetGraphicsDescriptorTable(UINT rootIndex, D3D12_GPU_DESCRIPTOR_HANDLE address) {
@@ -211,6 +226,10 @@ void CommandContext::DrawInstanced(UINT vertexCountPerInstance, UINT instanceCou
 void CommandContext::DrawIndexedInstanced(UINT indexCountPerInstance, UINT instanceCount, UINT startIndexLocation, INT baseVertexLocation, UINT startInstanceLocation) {
 	FlushResourceBarriers();
 	commandList_->DrawIndexedInstanced(indexCountPerInstance, instanceCount, startIndexLocation, baseVertexLocation, startInstanceLocation);
+}
+
+void CommandContext::ExecuteIndirect(ID3D12CommandSignature* commandSignature, UINT maxCommandCount, ID3D12Resource* argumentBuffer, UINT64 argumentBufferOffset, ID3D12Resource* countBuffer, UINT64 countBufferOffset) {
+	commandList_->ExecuteIndirect(commandSignature, maxCommandCount, argumentBuffer, argumentBufferOffset, countBuffer, countBufferOffset);
 }
 
 void CommandContext::Dispatch(uint32_t x, uint32_t y, uint32_t z) {

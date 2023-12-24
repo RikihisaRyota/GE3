@@ -30,6 +30,7 @@ private:
 		float speed;
 	};
 	struct IndirectCommand {
+		D3D12_GPU_VIRTUAL_ADDRESS cbv;
 		D3D12_DRAW_ARGUMENTS drawArguments;
 	};
 
@@ -70,10 +71,13 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12CommandSignature> commandSignature_;
 	GpuResource commandBuffer_;
 	UploadBuffer commandUploadBuffer_;
-
+	DescriptorHandle commandHandle_;
+	// 計算結果格納用
+	GpuResource processedCommandBuffers_;
+	DescriptorHandle processedCommandsHandle_;
 
 	ParticleInfo* particleInfo_;
 	Particle* particle_;
 	UploadBuffer updateConstantBuffer_;
-	static const uint32_t kNumThread = 100000;
+	static const uint32_t kNumThread = 1000;
 };

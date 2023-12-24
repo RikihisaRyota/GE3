@@ -20,6 +20,8 @@ public:
 	void TransitionResource(GpuResource& resource, D3D12_RESOURCE_STATES newState);
 	void FlushResourceBarriers();
 
+	void CopyBuffer(GpuResource& dest, GpuResource& src);
+
 	void ClearColor(ColorBuffer& target);
 	void ClearColor(ColorBuffer& target, float Colour[4]);
 	void ClearDepth(DepthBuffer& target);
@@ -39,6 +41,8 @@ public:
 
 	void SetGraphicsConstantBuffer(UINT rootIndex,D3D12_GPU_VIRTUAL_ADDRESS address);
 	void SetComputeConstantBuffer(UINT rootIndex,D3D12_GPU_VIRTUAL_ADDRESS address);
+	void SetGraphicsShaderResource(UINT rootIndex, D3D12_GPU_VIRTUAL_ADDRESS address);
+	void SetComputeShaderResource(UINT rootIndex, D3D12_GPU_VIRTUAL_ADDRESS address);
 	void SetGraphicsDescriptorTable(UINT rootIndex, D3D12_GPU_DESCRIPTOR_HANDLE handle);
 	void SetComputeDescriptorTable(UINT rootIndex, D3D12_GPU_DESCRIPTOR_HANDLE handle);
 
@@ -59,6 +63,7 @@ public:
 	void DrawIndexed(UINT indexCount, UINT startIndexLocation = 0, INT baseVertexLocation = 0);
 	void DrawInstanced(UINT vertexCountPerInstance, UINT instanceCount, UINT startVertexLocation = 0, UINT startInstanceLocation = 0);
 	void DrawIndexedInstanced(UINT indexCountPerInstance, UINT instanceCount, UINT startIndexLocation = 0, INT baseVertexLocation = 0, UINT startInstanceLocation = 0);
+	void ExecuteIndirect(ID3D12CommandSignature* commandSignature, UINT maxCommandCount,ID3D12Resource* argumentBuffer,UINT64 argumentBufferOffset, ID3D12Resource* countBuffer, UINT64 countBufferOffset);
 
 	void Dispatch(uint32_t x, uint32_t y, uint32_t z);
 

@@ -21,13 +21,13 @@ GPUParticle::GPUParticle() {
 	updateComputePipelineState_ = std::make_unique<PipelineState>();
 	updateComputeRootSignature_ = std::make_unique<RootSignature>();
 
+	InitializeGraphics();
+
 	InitializeSpawnParticle();
 
 	InitializeUpdateParticle();
 
-	InitializeGraphics();
-
-	modelHandle_ = ModelManager::GetInstance()->Load("Game/Resources/Models/bunny");
+	modelHandle_ = ModelManager::GetInstance()->Load("Game/Resources/Models/block");
 	worldTransform_.Initialize();
 }
 
@@ -39,29 +39,47 @@ void GPUParticle::Update() {
 
 	auto commandContext = RenderManager::GetInstance()->GetCommandContext();
 	commandContext.TransitionResource(rwStructuredBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+	commandContext.TransitionResource(processedCommandBuffers_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 	commandContext.SetPipelineState(*updateComputePipelineState_);
 	commandContext.SetComputeRootSignature(*updateComputeRootSignature_);
+
 	commandContext.SetComputeUAV(0, rwStructuredBuffer_->GetGPUVirtualAddress());
-	commandContext.SetComputeConstantBuffer(1, updateConstantBuffer_->GetGPUVirtualAddress());
+	commandContext.SetComputeDescriptorTable(1, commandHandle_);
+	commandContext.SetComputeDescriptorTable(2, processedCommandsHandle_);
+	commandContext.SetComputeConstantBuffer(3, updateConstantBuffer_->GetGPUVirtualAddress());
+
 	commandContext.Dispatch(kNumThread, 1, 1);
 
+	commandContext.Close();
+
+	CommandQueue& commandQueue = GraphicsCore::GetInstance()->GetCommandQueue();
+	commandQueue.Execute(commandContext);
+	commandQueue.Signal();
+	commandQueue.WaitForGPU();
+	commandContext.Reset();
 }
 
 void GPUParticle::Render(const ViewProjection& viewProjection) {
+	auto graphics = GraphicsCore::GetInstance();
 	auto commandContext = RenderManager::GetInstance()->GetCommandContext();
-	
+
 	ModelManager::GetInstance()->Draw(worldTransform_, viewProjection, modelHandle_, commandContext);
 
-	//commandContext.SetPipelineState(*graphicsPipelineState_);
-	//commandContext.SetGraphicsRootSignature(*graphicsRootSignature_);
-	//commandContext.SetVertexBuffer(0, vbView_);
-	//commandContext.SetIndexBuffer(ibView_);
-	//commandContext.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	commandContext.SetPipelineState(*graphicsPipelineState_);
+	commandContext.SetGraphicsRootSignature(*graphicsRootSignature_);
 
-	//commandContext.TransitionResource(rwStructuredBuffer_, D3D12_RESOURCE_STATE_GENERIC_READ);
-	//commandContext.SetGraphicsDescriptorTable(0, rwStructuredBufferHandle_);
-	//commandContext.SetGraphicsConstantBuffer(1, viewProjection.constBuff_->GetGPUVirtualAddress());
-	//commandContext.DrawIndexedInstanced(static_cast<UINT>(indices_.size()), kNumThread);
+	commandContext.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	commandContext.SetGraphicsConstantBuffer(1, viewProjection.constBuff_->GetGPUVirtualAddress());
+
+	commandContext.TransitionResource(processedCommandBuffers_, D3D12_RESOURCE_STATE_INDIRECT_ARGUMENT);
+	commandContext.ExecuteIndirect(
+		commandSignature_.Get(),
+		kNumThread,
+		processedCommandBuffers_,
+		0,
+		processedCommandBuffers_,
+		0
+	);
 }
 
 void GPUParticle::InitializeSpawnParticle() {
@@ -128,9 +146,19 @@ void GPUParticle::InitializeUpdateParticle() {
 	auto device = GraphicsCore::GetInstance()->GetDevice();
 	// アップデート用コンピュートシグネイチャ
 	{
-		CD3DX12_ROOT_PARAMETER rootParameters[2]{};
+		// コマンド用
+		CD3DX12_DESCRIPTOR_RANGE commandRanges[1]{};
+		commandRanges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0, 0);
+
+		// AppendStructuredBuffer用（カウンター付きUAVの場合このように宣言）
+		CD3DX12_DESCRIPTOR_RANGE appendRanges[1]{};
+		appendRanges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 1, 0);
+
+		CD3DX12_ROOT_PARAMETER rootParameters[4]{};
 		rootParameters[0].InitAsUnorderedAccessView(0);
-		rootParameters[1].InitAsConstantBufferView(0);
+		rootParameters[1].InitAsDescriptorTable(_countof(commandRanges), commandRanges);
+		rootParameters[2].InitAsDescriptorTable(_countof(appendRanges), appendRanges);
+		rootParameters[3].InitAsConstantBufferView(0);
 
 		D3D12_ROOT_SIGNATURE_DESC desc{};
 		desc.pParameters = rootParameters;
@@ -173,47 +201,106 @@ void GPUParticle::InitializeUpdateParticle() {
 		memset(updateParticle_, 0, sizeof(uint32_t) * kNumThread);*/
 	}
 	// コマンドシグネイチャー
-	//{
-	//	D3D12_INDIRECT_ARGUMENT_DESC argumentDesc[2] = {};
-	//	argumentDesc[0].Type = D3D12_INDIRECT_ARGUMENT_TYPE_CONSTANT_BUFFER_VIEW;
-	//	argumentDesc[0].ConstantBufferView.RootParameterIndex = 0;
-	//	argumentDesc[1].Type = D3D12_INDIRECT_ARGUMENT_TYPE_DRAW;
+	{
+		D3D12_INDIRECT_ARGUMENT_DESC argumentDescs[2] = {};
+		argumentDescs[0].Type = D3D12_INDIRECT_ARGUMENT_TYPE_CONSTANT_BUFFER_VIEW;
+		argumentDescs[0].ConstantBufferView.RootParameterIndex = 0;
+		argumentDescs[1].Type = D3D12_INDIRECT_ARGUMENT_TYPE_DRAW;
 
-	//	D3D12_COMMAND_SIGNATURE_DESC commandSignatureDesc{};
-	//	commandSignatureDesc.pArgumentDescs = argumentDesc;
-	//	commandSignatureDesc.NumArgumentDescs = _countof(argumentDesc);
-	//	commandSignatureDesc.ByteStride = sizeof(IndirectCommand);
-	//	auto result = device->CreateCommandSignature(&commandSignatureDesc, *updateComputeRootSignature_, IID_PPV_ARGS(&commandSignature_));
-	//	assert(SUCCEEDED(result));
-	//}
-	//// IndirectCommandBuffer
-	//{
-	//	std::vector<IndirectCommand> commands;
-	//	commands.resize(kNumThread);
-	//	const UINT commandBufferSize = kNumThread * sizeof(IndirectCommand);
-	//	// Default
-	//	D3D12_RESOURCE_DESC commandBufferDesc = CD3DX12_RESOURCE_DESC::Buffer(commandBufferSize);
-	//	D3D12_HEAP_PROPERTIES heapProp = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
-	//	device->CreateCommittedResource(
-	//		&heapProp,
-	//		D3D12_HEAP_FLAG_NONE,
-	//		&commandBufferDesc,
-	//		D3D12_RESOURCE_STATE_COPY_DEST,
-	//		nullptr,
-	//		IID_PPV_ARGS(commandBuffer_.GetAddressOf()));
+		D3D12_COMMAND_SIGNATURE_DESC commandSignatureDesc{};
+		commandSignatureDesc.pArgumentDescs = argumentDescs;
+		commandSignatureDesc.NumArgumentDescs = _countof(argumentDescs);
+		commandSignatureDesc.ByteStride = sizeof(IndirectCommand);
+		auto result = device->CreateCommandSignature(&commandSignatureDesc, *graphicsRootSignature_, IID_PPV_ARGS(&commandSignature_));
+		assert(SUCCEEDED(result));
+	}
+	// IndirectCommandBuffer
+	{
+		std::vector<IndirectCommand> commands;
+		commands.resize(kNumThread);
+		UINT commandBufferSize = kNumThread * sizeof(IndirectCommand);
+		// Default
+		D3D12_RESOURCE_DESC commandBufferDesc = CD3DX12_RESOURCE_DESC::Buffer(commandBufferSize);
+		D3D12_HEAP_PROPERTIES heapProp = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
+		device->CreateCommittedResource(
+			&heapProp,
+			D3D12_HEAP_FLAG_NONE,
+			&commandBufferDesc,
+			D3D12_RESOURCE_STATE_COMMON,
+			nullptr,
+			IID_PPV_ARGS(commandBuffer_.GetAddressOf()));
+		commandBuffer_->SetName(L"commandBuffer");
+		// コピー用
+		UploadBuffer commandBufferUpload;
+		commandBufferUpload.Create(L"commandBufferUpload", commandBufferSize);
 
-	//	// Upload
-	//	commandUploadBuffer_.Create(L"commandUploadBuffer",commandBufferSize);
+		D3D12_GPU_VIRTUAL_ADDRESS gpuAddress = rwStructuredBuffer_.GetGPUVirtualAddress();
 
-	//	D3D12_GPU_VIRTUAL_ADDRESS gpuAddress = updateConstantBuffer_.GetGPUVirtualAddress();
-	//	for (UINT commandIndex = 0; commandIndex < kNumThread; ++commandIndex) {
-	//		commands[commandIndex].drawArguments.VertexCountPerInstance = 36;
-	//		commands[commandIndex].drawArguments.InstanceCount = 1;
-	//		commands[commandIndex].drawArguments.StartInstanceLocation = 0;
-	//		commands[commandIndex].drawArguments.StartInstanceLocation = 0;
-	//		//gpuAddress += updateConstantBuffer_.GetBufferSize();
-	//	}
-	//}
+		for (UINT commandIndex = 0; commandIndex < kNumThread; ++commandIndex) {
+			commands[commandIndex].cbv = gpuAddress;
+			commands[commandIndex].drawArguments.VertexCountPerInstance = 36;
+			commands[commandIndex].drawArguments.InstanceCount = 1;
+			commands[commandIndex].drawArguments.StartInstanceLocation = 0;
+			commands[commandIndex].drawArguments.StartInstanceLocation = 0;
+			gpuAddress += sizeof(Particle);
+		}
+		commandBufferUpload.Copy(commands.data(), commandBufferSize);
+
+		auto& commandContext = RenderManager::GetInstance()->GetCommandContext();
+		commandContext.CopyBuffer(commandBuffer_, commandBufferUpload);
+
+		// コピー
+		{
+			commandContext.Close();
+			CommandQueue& commandQueue = GraphicsCore::GetInstance()->GetCommandQueue();
+			commandQueue.Execute(commandContext);
+			commandQueue.Signal();
+			commandQueue.WaitForGPU();
+			commandContext.Reset();
+		}
+
+		D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+		srvDesc.Format = DXGI_FORMAT_UNKNOWN;
+		srvDesc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
+		srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+		srvDesc.Buffer.NumElements = kNumThread;
+		srvDesc.Buffer.StructureByteStride = sizeof(IndirectCommand);
+		srvDesc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
+		srvDesc.Buffer.FirstElement = 0;
+		commandHandle_ = graphics->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+		device->CreateShaderResourceView(
+			commandBuffer_,
+			&srvDesc,
+			commandHandle_
+		);
+
+		commandBufferDesc = CD3DX12_RESOURCE_DESC::Buffer(commandBufferSize, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
+		heapProp = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
+		device->CreateCommittedResource(
+			&heapProp,
+			D3D12_HEAP_FLAG_NONE,
+			&commandBufferDesc,
+			D3D12_RESOURCE_STATE_COMMON,
+			nullptr,
+			IID_PPV_ARGS(processedCommandBuffers_.GetAddressOf())
+		);
+
+		processedCommandsHandle_ = graphics->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+		D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = {};
+		uavDesc.Format = DXGI_FORMAT_UNKNOWN;
+		uavDesc.ViewDimension = D3D12_UAV_DIMENSION_BUFFER;
+		uavDesc.Buffer.FirstElement = 0;
+		uavDesc.Buffer.NumElements = kNumThread;
+		uavDesc.Buffer.StructureByteStride = sizeof(IndirectCommand);
+		uavDesc.Buffer.Flags = D3D12_BUFFER_UAV_FLAG_NONE;
+
+		device->CreateUnorderedAccessView(
+			processedCommandBuffers_,
+			nullptr,
+			&uavDesc,
+			processedCommandsHandle_);
+	}
+
 }
 
 void GPUParticle::InitializeGraphics() {
@@ -221,12 +308,12 @@ void GPUParticle::InitializeGraphics() {
 	auto device = graphics->GetDevice();
 	// グラフィックスルートシグネイチャ
 	{
-		CD3DX12_DESCRIPTOR_RANGE range{};
-		range.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);
+		/*CD3DX12_DESCRIPTOR_RANGE range{};
+		range.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);*/
 
 		CD3DX12_ROOT_PARAMETER rootParameters[2]{};
-		rootParameters[0].InitAsDescriptorTable(1, &range);
-		rootParameters[1].InitAsConstantBufferView(0);
+		rootParameters[0].InitAsConstantBufferView(0);
+		rootParameters[1].InitAsConstantBufferView(1);
 
 		D3D12_ROOT_SIGNATURE_DESC desc{};
 		desc.pParameters = rootParameters;
@@ -280,38 +367,38 @@ void GPUParticle::InitializeGraphics() {
 			Vector4 position;
 		};
 		std::vector<Vertex>vertex = {
-		// 前
-		{-0.5f, -0.5f, -0.5f, 1.0f}, // 左下
-		{-0.5f, +0.5f, -0.5f, 1.0f}, // 左上
-		{+0.5f, -0.5f, -0.5f, 1.0f}, // 右下
-		{+0.5f, +0.5f, -0.5f, 1.0f}, // 右上
-		// 後(前面とZ座標の符号が逆)
-		{+0.5f, -0.5f, +0.5f, 1.0f}, // 左下
-		{+0.5f, +0.5f, +0.5f, 1.0f}, // 左上
-		{-0.5f, -0.5f, +0.5f, 1.0f}, // 右下
-		{-0.5f, +0.5f, +0.5f, 1.0f}, // 右上
-		// 左
-		{-0.5f, -0.5f, +0.5f, 1.0f}, // 左下
-		{-0.5f, +0.5f, +0.5f, 1.0f}, // 左上
-		{-0.5f, -0.5f, -0.5f, 1.0f}, // 右下
-		{-0.5f, +0.5f, -0.5f, 1.0f}, // 右上
-		// 右（左面とX座標の符号が逆）
-		{+0.5f, -0.5f, -0.5f, 1.0f}, // 左下
-		{+0.5f, +0.5f, -0.5f, 1.0f}, // 左上
-		{+0.5f, -0.5f, +0.5f, 1.0f}, // 右下
-		{+0.5f, +0.5f, +0.5f, 1.0f}, // 右上
-		// 下
-		{+0.5f, -0.5f, -0.5f, 1.0f}, // 左下
-		{+0.5f, -0.5f, +0.5f, 1.0f}, // 左上
-		{-0.5f, -0.5f, -0.5f, 1.0f}, // 右下
-		{-0.5f, -0.5f, +0.5f, 1.0f}, // 右上
-		// 上（下面とY座標の符号が逆）
-		{-0.5f, +0.5f, -0.5f, 1.0f}, // 左下
-		{-0.5f, +0.5f, +0.5f, 1.0f}, // 左上
-		{+0.5f, +0.5f, -0.5f, 1.0f}, // 右下
-		{+0.5f, +0.5f, +0.5f, 1.0f}, // 右上
+			// 前
+			{-0.5f, -0.5f, -0.5f, 1.0f}, // 左下
+			{-0.5f, +0.5f, -0.5f, 1.0f}, // 左上
+			{+0.5f, -0.5f, -0.5f, 1.0f}, // 右下
+			{+0.5f, +0.5f, -0.5f, 1.0f}, // 右上
+			// 後(前面とZ座標の符号が逆)
+			{+0.5f, -0.5f, +0.5f, 1.0f}, // 左下
+			{+0.5f, +0.5f, +0.5f, 1.0f}, // 左上
+			{-0.5f, -0.5f, +0.5f, 1.0f}, // 右下
+			{-0.5f, +0.5f, +0.5f, 1.0f}, // 右上
+			// 左
+			{-0.5f, -0.5f, +0.5f, 1.0f}, // 左下
+			{-0.5f, +0.5f, +0.5f, 1.0f}, // 左上
+			{-0.5f, -0.5f, -0.5f, 1.0f}, // 右下
+			{-0.5f, +0.5f, -0.5f, 1.0f}, // 右上
+			// 右（左面とX座標の符号が逆）
+			{+0.5f, -0.5f, -0.5f, 1.0f}, // 左下
+			{+0.5f, +0.5f, -0.5f, 1.0f}, // 左上
+			{+0.5f, -0.5f, +0.5f, 1.0f}, // 右下
+			{+0.5f, +0.5f, +0.5f, 1.0f}, // 右上
+			// 下
+			{+0.5f, -0.5f, -0.5f, 1.0f}, // 左下
+			{+0.5f, -0.5f, +0.5f, 1.0f}, // 左上
+			{-0.5f, -0.5f, -0.5f, 1.0f}, // 右下
+			{-0.5f, -0.5f, +0.5f, 1.0f}, // 右上
+			// 上（下面とY座標の符号が逆）
+			{-0.5f, +0.5f, -0.5f, 1.0f}, // 左下
+			{-0.5f, +0.5f, +0.5f, 1.0f}, // 左上
+			{+0.5f, +0.5f, -0.5f, 1.0f}, // 右下
+			{+0.5f, +0.5f, +0.5f, 1.0f}, // 右上
 		};
-		
+
 		size_t sizeIB = sizeof(vertex.at(0)) * vertex.size();
 
 		vertexBuffer_.Create(L"vertexBuffer", sizeIB);

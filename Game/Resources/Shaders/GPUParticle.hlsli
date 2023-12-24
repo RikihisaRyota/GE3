@@ -9,7 +9,6 @@ struct Particle
     float scale;
     float3 rotate;
     float3 translate;
-    //WorldTransform worldTransform;
 };
 
 matrix MakeScaleMatrix(float3 scale)

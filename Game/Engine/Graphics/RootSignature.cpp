@@ -14,7 +14,13 @@ void RootSignature::Create(const std::wstring& name, const D3D12_ROOT_SIGNATURE_
 		blob.GetAddressOf(),
 		errorBlob.GetAddressOf()
 	);
-	assert(SUCCEEDED(result));
+	if (FAILED(result)) {
+		// エラーをログに出力するか、デバッグ中に確認する
+		if (errorBlob) {
+			OutputDebugStringA(static_cast<char*>(errorBlob->GetBufferPointer()));
+			assert(0);
+		}
+	}
 
 	GraphicsCore::GetInstance()->GetDevice()->CreateRootSignature(
 		0,

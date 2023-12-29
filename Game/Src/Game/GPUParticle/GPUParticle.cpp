@@ -11,6 +11,10 @@
 #include "Engine/Math/WorldTransform.h"
 #include "Engine/Model/ModelManager.h"
 
+const UINT GPUParticle::kNumThread = 4;
+const UINT GPUParticle::CommandSizePerFrame = kNumThread * sizeof(IndirectCommand);
+const UINT GPUParticle::CommandBufferCounterOffset = AlignForUavCounter(GPUParticle::CommandSizePerFrame);
+
 GPUParticle::GPUParticle() {
 	graphicsPipelineState_ = std::make_unique<PipelineState>();
 	graphicsRootSignature_ = std::make_unique<RootSignature>();
@@ -71,6 +75,8 @@ void GPUParticle::Render(const ViewProjection& viewProjection) {
 	commandContext.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	commandContext.SetGraphicsConstantBuffer(1, viewProjection.constBuff_->GetGPUVirtualAddress());
 
+	//commandContext.SetVertexBuffer(0, vbView_);
+
 	commandContext.TransitionResource(processedCommandBuffers_, D3D12_RESOURCE_STATE_INDIRECT_ARGUMENT);
 	commandContext.ExecuteIndirect(
 		commandSignature_.Get(),
@@ -78,8 +84,9 @@ void GPUParticle::Render(const ViewProjection& viewProjection) {
 		processedCommandBuffers_,
 		0,
 		processedCommandBuffers_,
-		0
+		CommandBufferCounterOffset
 	);
+
 }
 
 void GPUParticle::InitializeSpawnParticle() {
@@ -218,9 +225,8 @@ void GPUParticle::InitializeUpdateParticle() {
 	{
 		std::vector<IndirectCommand> commands;
 		commands.resize(kNumThread);
-		UINT commandBufferSize = kNumThread * sizeof(IndirectCommand);
 		// Default
-		D3D12_RESOURCE_DESC commandBufferDesc = CD3DX12_RESOURCE_DESC::Buffer(commandBufferSize);
+		D3D12_RESOURCE_DESC commandBufferDesc = CD3DX12_RESOURCE_DESC::Buffer(CommandSizePerFrame);
 		D3D12_HEAP_PROPERTIES heapProp = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
 		device->CreateCommittedResource(
 			&heapProp,
@@ -232,19 +238,19 @@ void GPUParticle::InitializeUpdateParticle() {
 		commandBuffer_->SetName(L"commandBuffer");
 		// コピー用
 		UploadBuffer commandBufferUpload;
-		commandBufferUpload.Create(L"commandBufferUpload", commandBufferSize);
+		commandBufferUpload.Create(L"commandBufferUpload", CommandSizePerFrame);
 
 		D3D12_GPU_VIRTUAL_ADDRESS gpuAddress = rwStructuredBuffer_.GetGPUVirtualAddress();
 
 		for (UINT commandIndex = 0; commandIndex < kNumThread; ++commandIndex) {
 			commands[commandIndex].cbv = gpuAddress;
-			commands[commandIndex].drawArguments.VertexCountPerInstance = 36;
+			commands[commandIndex].drawArguments.VertexCountPerInstance = UINT(indices_.size());
 			commands[commandIndex].drawArguments.InstanceCount = 1;
-			commands[commandIndex].drawArguments.StartInstanceLocation = 0;
+			commands[commandIndex].drawArguments.StartVertexLocation = 0;
 			commands[commandIndex].drawArguments.StartInstanceLocation = 0;
 			gpuAddress += sizeof(Particle);
 		}
-		commandBufferUpload.Copy(commands.data(), commandBufferSize);
+		commandBufferUpload.Copy(commands.data(), CommandSizePerFrame);
 
 		auto& commandContext = RenderManager::GetInstance()->GetCommandContext();
 		commandContext.CopyBuffer(commandBuffer_, commandBufferUpload);
@@ -266,7 +272,7 @@ void GPUParticle::InitializeUpdateParticle() {
 		srvDesc.Buffer.NumElements = kNumThread;
 		srvDesc.Buffer.StructureByteStride = sizeof(IndirectCommand);
 		srvDesc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
-		srvDesc.Buffer.FirstElement = 0;
+
 		commandHandle_ = graphics->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 		device->CreateShaderResourceView(
 			commandBuffer_,
@@ -274,7 +280,7 @@ void GPUParticle::InitializeUpdateParticle() {
 			commandHandle_
 		);
 
-		commandBufferDesc = CD3DX12_RESOURCE_DESC::Buffer(commandBufferSize, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
+		commandBufferDesc = CD3DX12_RESOURCE_DESC::Buffer(CommandBufferCounterOffset + sizeof(UINT), D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
 		heapProp = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
 		device->CreateCommittedResource(
 			&heapProp,
@@ -292,11 +298,12 @@ void GPUParticle::InitializeUpdateParticle() {
 		uavDesc.Buffer.FirstElement = 0;
 		uavDesc.Buffer.NumElements = kNumThread;
 		uavDesc.Buffer.StructureByteStride = sizeof(IndirectCommand);
+		uavDesc.Buffer.CounterOffsetInBytes = CommandBufferCounterOffset;
 		uavDesc.Buffer.Flags = D3D12_BUFFER_UAV_FLAG_NONE;
 
 		device->CreateUnorderedAccessView(
 			processedCommandBuffers_,
-			nullptr,
+			processedCommandBuffers_,
 			&uavDesc,
 			processedCommandsHandle_);
 	}
@@ -363,57 +370,55 @@ void GPUParticle::InitializeGraphics() {
 	}
 	// 頂点バッファ
 	{
-		struct Vertex {
-			Vector4 position;
-		};
-		std::vector<Vertex>vertex = {
+
+		vertices_ = {
 			// 前
-			{-0.5f, -0.5f, -0.5f, 1.0f}, // 左下
-			{-0.5f, +0.5f, -0.5f, 1.0f}, // 左上
-			{+0.5f, -0.5f, -0.5f, 1.0f}, // 右下
-			{+0.5f, +0.5f, -0.5f, 1.0f}, // 右上
+			{-0.5f, -0.5f, -0.5f}, // 左下
+			{-0.5f, +0.5f, -0.5f}, // 左上
+			{+0.5f, -0.5f, -0.5f}, // 右下
+			{+0.5f, +0.5f, -0.5f}, // 右上
 			// 後(前面とZ座標の符号が逆)
-			{+0.5f, -0.5f, +0.5f, 1.0f}, // 左下
-			{+0.5f, +0.5f, +0.5f, 1.0f}, // 左上
-			{-0.5f, -0.5f, +0.5f, 1.0f}, // 右下
-			{-0.5f, +0.5f, +0.5f, 1.0f}, // 右上
+			{+0.5f, -0.5f, +0.5f}, // 左下
+			{+0.5f, +0.5f, +0.5f}, // 左上
+			{-0.5f, -0.5f, +0.5f}, // 右下
+			{-0.5f, +0.5f, +0.5f}, // 右上
 			// 左
-			{-0.5f, -0.5f, +0.5f, 1.0f}, // 左下
-			{-0.5f, +0.5f, +0.5f, 1.0f}, // 左上
-			{-0.5f, -0.5f, -0.5f, 1.0f}, // 右下
-			{-0.5f, +0.5f, -0.5f, 1.0f}, // 右上
+			{-0.5f, -0.5f, +0.5f}, // 左下
+			{-0.5f, +0.5f, +0.5f}, // 左上
+			{-0.5f, -0.5f, -0.5f}, // 右下
+			{-0.5f, +0.5f, -0.5f}, // 右上
 			// 右（左面とX座標の符号が逆）
-			{+0.5f, -0.5f, -0.5f, 1.0f}, // 左下
-			{+0.5f, +0.5f, -0.5f, 1.0f}, // 左上
-			{+0.5f, -0.5f, +0.5f, 1.0f}, // 右下
-			{+0.5f, +0.5f, +0.5f, 1.0f}, // 右上
+			{+0.5f, -0.5f, -0.5f}, // 左下
+			{+0.5f, +0.5f, -0.5f}, // 左上
+			{+0.5f, -0.5f, +0.5f}, // 右下
+			{+0.5f, +0.5f, +0.5f}, // 右上
 			// 下
-			{+0.5f, -0.5f, -0.5f, 1.0f}, // 左下
-			{+0.5f, -0.5f, +0.5f, 1.0f}, // 左上
-			{-0.5f, -0.5f, -0.5f, 1.0f}, // 右下
-			{-0.5f, -0.5f, +0.5f, 1.0f}, // 右上
+			{+0.5f, -0.5f, -0.5f}, // 左下
+			{+0.5f, -0.5f, +0.5f}, // 左上
+			{-0.5f, -0.5f, -0.5f}, // 右下
+			{-0.5f, -0.5f, +0.5f}, // 右上
 			// 上（下面とY座標の符号が逆）
-			{-0.5f, +0.5f, -0.5f, 1.0f}, // 左下
-			{-0.5f, +0.5f, +0.5f, 1.0f}, // 左上
-			{+0.5f, +0.5f, -0.5f, 1.0f}, // 右下
-			{+0.5f, +0.5f, +0.5f, 1.0f}, // 右上
+			{-0.5f, +0.5f, -0.5f}, // 左下
+			{-0.5f, +0.5f, +0.5f}, // 左上
+			{+0.5f, +0.5f, -0.5f}, // 右下
+			{+0.5f, +0.5f, +0.5f}, // 右上
 		};
 
-		size_t sizeIB = sizeof(vertex.at(0)) * vertex.size();
+		size_t sizeIB = sizeof(vertices_.at(0)) * vertices_.size();
 
 		vertexBuffer_.Create(L"vertexBuffer", sizeIB);
 
-		vertexBuffer_.Copy(vertex.data(), sizeIB);
+		vertexBuffer_.Copy(vertices_.data(), sizeIB);
 
 		vbView_.BufferLocation = vertexBuffer_.GetGPUVirtualAddress();
+		vbView_.StrideInBytes = sizeof(vertices_.at(0));
 		vbView_.SizeInBytes = UINT(vertexBuffer_.GetBufferSize());
-		vbView_.StrideInBytes = sizeof(vertex.at(0));
 	}
 	// インデックスバッファ
 	{
 		indices_ = {
 			0,  1,  3,
-			3,  2,  0,
+			1,  3,  2,
 			4,  5,  7,
 			7,  6,  4,
 			8,  9,  11,
@@ -426,7 +431,7 @@ void GPUParticle::InitializeGraphics() {
 			23, 22, 20
 		};
 
-		size_t sizeIB = sizeof(uint16_t) * indices_.size();
+		size_t sizeIB = sizeof(uint32_t) * indices_.size();
 
 		indexBuffer_.Create(L"indexBuffer", sizeIB);
 

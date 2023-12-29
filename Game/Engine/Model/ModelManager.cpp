@@ -104,7 +104,7 @@ void ModelManager::Draw(const WorldTransform& worldTransform, const ViewProjecti
 	commandContext.SetPipelineState(*pipelineState_);
 	commandContext.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	commandContext.SetVertexBuffer(0, models_.at(modelHandle)->GetVBView());
-	for (auto& modelData : models_.at(modelHandle)->GetMeshData()) {
+	/*for (auto& modelData : models_.at(modelHandle)->GetMeshData()) {
 		commandContext.SetIndexBuffer(modelData->ibView_);
 		commandContext.SetGraphicsConstantBuffer(0, worldTransform.constBuff_.get()->GetGPUVirtualAddress());
 		commandContext.SetGraphicsConstantBuffer(1, viewProjection.constBuff_.get()->GetGPUVirtualAddress());
@@ -112,5 +112,5 @@ void ModelManager::Draw(const WorldTransform& worldTransform, const ViewProjecti
 		commandContext.SetGraphicsDescriptorTable(3, TextureManager::GetInstance()->GetTexture(models_.at(modelHandle)->GetTextureHandle()).GetSRV());
 		commandContext.SetGraphicsDescriptorTable(4, SamplerManager::Anisotropic);
 		commandContext.DrawIndexed(modelData->meshes_->indexCount);
-	}
+	}*/
 }

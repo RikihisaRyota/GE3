@@ -5,8 +5,8 @@ struct VertexShaderOutput
 
 struct Particle
 {
-    float3 velocity;
     float scale;
+    float3 velocity;
     float3 rotate;
     float3 translate;
 };

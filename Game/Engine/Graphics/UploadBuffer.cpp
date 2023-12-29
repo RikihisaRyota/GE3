@@ -22,13 +22,13 @@ void UploadBuffer::Create(const std::wstring& name, size_t bufferSize) {
 	&heapProps,
 		D3D12_HEAP_FLAG_NONE,
 		&desc,
-		D3D12_RESOURCE_STATE_GENERIC_READ,
+		D3D12_RESOURCE_STATE_COMMON,
 		nullptr,
 		IID_PPV_ARGS(resource_.GetAddressOf())
 	);
 	assert(SUCCEEDED(result));
 	
-	state_ = D3D12_RESOURCE_STATE_GENERIC_READ;
+	state_ = D3D12_RESOURCE_STATE_COMMON;
 	bufferSize_ = bufferSize;
 
 	resource_->Map(0, nullptr, &cpuData_);

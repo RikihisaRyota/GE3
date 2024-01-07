@@ -19,7 +19,7 @@ void UploadBuffer::Create(const std::wstring& name, size_t bufferSize) {
 	auto heapProps = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
 
 	auto result = device->CreateCommittedResource(
-	&heapProps,
+		&heapProps,
 		D3D12_HEAP_FLAG_NONE,
 		&desc,
 		D3D12_RESOURCE_STATE_COMMON,

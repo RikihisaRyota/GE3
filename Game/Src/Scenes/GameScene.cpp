@@ -11,6 +11,8 @@ GameScene::GameScene() {
 	debugCamera_ = std::make_unique<DebugCamera>();
 }
 
+GameScene::~GameScene() {}
+
 void GameScene::Initialize() {
 	gpuParticle_->Initialize();
 }
@@ -21,7 +23,7 @@ void GameScene::Update() {
 	ImGui::Text("Delta Time: %.4f", ImGui::GetIO().DeltaTime);
 	ImGui::End();
 
-	gpuParticle_->Update();
+	gpuParticle_->Update(&viewProjection_);
 	debugCamera_->Update(&viewProjection_);
 }
 

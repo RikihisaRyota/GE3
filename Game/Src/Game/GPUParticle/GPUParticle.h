@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <memory>
 #include <vector>
 #include <cstdint>
@@ -23,13 +24,23 @@ class GPUParticle {
 private:
 	struct Vertex {
 		Vector3 position;
+		Vector2 texcoord;
 	};
 	struct Particle {
-		float scale;
+		Vector3 scale;
+		float pad1;
 		Vector3 velocity;
+		float pad2;
 		Vector3 rotate;
-		float pad;
+		float pad3;
 		Vector3 translate;
+		float pad4;
+		bool isAlive;
+		float pad5[3];
+		bool isHit;
+		float pad6[3];
+		float aliveTime;
+		float pad7[3];
 	};
 	struct ParticleInfo {
 		float speed;
@@ -38,21 +49,49 @@ private:
 		D3D12_GPU_VIRTUAL_ADDRESS cbv;
 		D3D12_DRAW_ARGUMENTS drawArguments;
 	};
-
+	struct ParticleArea {
+		Vector3 min;
+		float pad1;
+		Vector3 max;
+		float pad2;
+	};
+	// ボールデータ
+	struct BallBufferData {
+		Vector3 position;
+		float size;
+	};
+	// ボール
+	struct Ball {
+		Vector3 position;
+		Vector3 velocity;
+		float size;
+		bool isAlive;
+		float aliveTime;
+	};
+	// ボールカウント
+	struct BallCount {
+		int ballCount;
+	};
 public:
 	GPUParticle();
 	void Initialize();
-	void Update();
+	void Update(ViewProjection* viewProjection);
 	void Render(const ViewProjection& viewProjection);
 
 private:
 	static const UINT kNumThread;
 	static const UINT CommandSizePerFrame;
 	static const UINT CommandBufferCounterOffset;
+	static const UINT kMaxBall = 15;
+	static const UINT kAliveTime = 100;
+	static const UINT ComputeThreadBlockSize = 128;
+	static const UINT kShotCoolTime = 10;
 
 	void InitializeSpawnParticle();
 	void InitializeUpdateParticle();
+	void InitializeParticleArea();
 	void InitializeGraphics();
+	void InitializeBall();
 
 	std::unique_ptr<PipelineState> graphicsPipelineState_;
 	std::unique_ptr<RootSignature> graphicsRootSignature_;
@@ -75,7 +114,7 @@ private:
 	DescriptorHandle uavHandle_;
 	
 	// モデル
-	ModelHandle modelHandle_;
+	ModelHandle gpuParticleModelHandle_;
 	WorldTransform worldTransform_;
 
 	Microsoft::WRL::ComPtr<ID3D12CommandSignature> commandSignature_;
@@ -85,10 +124,29 @@ private:
 	// 計算結果格納用
 	GpuResource processedCommandBuffers_;
 	DescriptorHandle processedCommandsHandle_;
+	GpuResource processedCommandBufferCounterReset_;
 
 	ParticleInfo* particleInfo_;
 	Particle* particle_;
 	UploadBuffer updateConstantBuffer_;
+
+	// パーティクルのエリア
+	ParticleArea* particleArea_;
+	UploadBuffer particleAreaBuffer_;
+	// ボールバッファー
+	BallBufferData* ball_;
+	UploadBuffer ballBuffer_;
+	DescriptorHandle ballBufferHandle_;
+	// ボールカウント
+	BallCount* ballCount_;
+	UploadBuffer ballCountBuffer_;
+	// ボールデータ
+	std::array<Ball, kMaxBall> ballData_;
+
+	ModelHandle ballModelHandle_;
+	std::array<WorldTransform, kMaxBall> ballWorldTransform_;
+	
+	UINT shotTime;
 
 	static inline UINT AlignForUavCounter(UINT bufferSize) {
 		const UINT alignment = D3D12_UAV_COUNTER_PLACEMENT_ALIGNMENT;

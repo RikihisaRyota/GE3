@@ -14,8 +14,8 @@ namespace GameCore {
 	RenderManager* renderManager = nullptr;
 	WinApp* winApp = nullptr;
 	ShaderCompiler* shaderCompiler = nullptr;
-	//std::unique_ptr<GameScene> gameScene = nullptr;
-	GameScene* gameScene = nullptr;
+	std::unique_ptr<GameScene> gameScene = nullptr;
+	//GameScene* gameScene = nullptr;
 	void Initialize() {
 		winApp = WinApp::GetInstance();
 		winApp->CreateGameWindow(L"GE3");
@@ -31,8 +31,8 @@ namespace GameCore {
 
 		ModelManager::CreatePipeline(renderManager->GetRenderTargetFormat(),renderManager->GetDepthFormat());
 
-		//gameScene = std::make_unique<GameScene>();
-		gameScene = new GameScene();
+		gameScene = std::make_unique<GameScene>();
+		//gameScene = new GameScene();
 		gameScene->Initialize();
 
 	}
@@ -57,9 +57,9 @@ namespace GameCore {
 	}
 
 	void Shutdown() {
+		//delete gameScene;
 		renderManager->Shutdown();
 		ModelManager::DestroyPipeline();
 		winApp->TerminateGameWindow();
-		delete gameScene;
 	}
 }

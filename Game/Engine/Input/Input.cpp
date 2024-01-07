@@ -74,8 +74,7 @@ void Input::Update() {
 	devKeyboard_->Acquire(); // キーボード動作開始
 	devMouse_->Acquire(); // マウス動作開始
 	// 前回のキー入力を保存
-	std::copy(keyPre_.begin(), keyPre_.end(), key_.begin());
-	//keyPre_ = key_;
+	keyPre_ = key_;
 	mousePre_ = mouse_;
 
 	// キーの入力
@@ -253,47 +252,17 @@ bool Input::GetJoystickStatePrevious(int32_t stickNo, XINPUT_STATE& out) const {
 	}
 	return false;
 }
-//BOOL CALLBACK Input::EnumJoystickObjectsCallback(const DIDEVICEOBJECTINSTANCE* instance, VOID* context) {
-//	IDirectInputDevice8* device = static_cast<IDirectInputDevice8*>(context);
-//
-//	DIPROPRANGE range;
-//	range.diph.dwSize = sizeof(DIPROPRANGE);
-//	range.diph.dwHeaderSize = sizeof(DIPROPHEADER);
-//	range.diph.dwObj = instance->dwType;
-//	range.diph.dwHow = DIPH_BYID;
-//	range.lMin = -1000;
-//	range.lMax = 1000;
-//
-//	HRESULT result = device->SetProperty(DIPROP_RANGE, &range.diph);
-//	if (FAILED(result)) {
-//		return DIENUM_STOP;
-//	}
-//
-//	return DIENUM_CONTINUE;
-//}
-//
-//BOOL CALLBACK Input::EnumJoysticksCallback(const DIDEVICEINSTANCE* instance, VOID* context) {
-//
-//	Joystick joystick;
-//	joystick.type_ = PadType::DirectInput;
-//	joystick.device_ = nullptr;
-//	joystick.state_ = {};
-//	joystick.statePre_ = {};
-//
-//	HRESULT result = dInput_->CreateDevice(instance->guidInstance, &joystick.device_, nullptr);
-//	if (SUCCEEDED(result)) {
-//		result = joystick.device_->SetDataFormat(&c_dfDIJoystick);
-//		if (SUCCEEDED(result)) {
-//			result = joystick.device_->SetCooperativeLevel(WinApp::GetInstance()->GetHwnd(), DISCL_FOREGROUND | DISCL_NONEXCLUSIVE);
-//			if (SUCCEEDED(result)) {
-//				// オブジェクトの列挙と設定
-//				result = joystick.device_->EnumObjects(EnumJoystickObjectsCallback, joystick.device_.Get(), DIDFT_ALL);
-//				if (SUCCEEDED(result)) {
-//					devJoysticks_.push_back(joystick);
-//				}
-//			}
-//		}
-//	}
-//
-//	return DIENUM_CONTINUE;
-//}
+bool Input::IsControllerConnected() const {
+	for (DWORD i = 0; i < devJoysticks_.size(); ++i) {
+		if (devJoysticks_[i].type_ == PadType::XInput) {
+			XINPUT_STATE xInputState;
+			ZeroMemory(&xInputState, sizeof(XINPUT_STATE));
+			DWORD result = XInputGetState(i, &xInputState);
+			if (result == ERROR_SUCCESS) {
+				return true;
+			}
+			return false;
+		}
+	}
+	return false;
+}

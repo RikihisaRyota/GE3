@@ -79,6 +79,13 @@ void CommandContext::CopyBuffer(GpuResource& dest, GpuResource& src) {
 	commandList_->CopyResource(dest, src);
 }
 
+void CommandContext::CopyBufferRegion(GpuResource& dest, UINT64 destOffset, GpuResource& src, UINT64 srcOffset, UINT64 NumBytes) {
+	TransitionResource(dest, D3D12_RESOURCE_STATE_COPY_DEST);
+	TransitionResource(src, D3D12_RESOURCE_STATE_COPY_SOURCE);
+	FlushResourceBarriers();
+	commandList_->CopyBufferRegion(dest, destOffset, src, srcOffset, NumBytes);
+}
+
 void CommandContext::ClearColor(ColorBuffer& target) {
 	FlushResourceBarriers();
 	commandList_->ClearRenderTargetView(target.GetRTV(), target.GetClearColor().GetPtr(), 0, nullptr);
@@ -145,7 +152,7 @@ void CommandContext::SetGraphicsShaderResource(UINT rootIndex, D3D12_GPU_VIRTUAL
 }
 
 void CommandContext::SetComputeShaderResource(UINT rootIndex, D3D12_GPU_VIRTUAL_ADDRESS address) {
-	commandList_->SetComputeRootShaderResourceView(0, address);
+	commandList_->SetComputeRootShaderResourceView(rootIndex, address);
 }
 
 void CommandContext::SetGraphicsDescriptorTable(UINT rootIndex, D3D12_GPU_DESCRIPTOR_HANDLE address) {

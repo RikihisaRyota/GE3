@@ -21,6 +21,7 @@ public:
 	void FlushResourceBarriers();
 
 	void CopyBuffer(GpuResource& dest, GpuResource& src);
+	void CopyBufferRegion(GpuResource& dest,UINT64 destOffset, GpuResource& src,UINT64 srcOffset,UINT64 NumBytes = 0) ;
 
 	void ClearColor(ColorBuffer& target);
 	void ClearColor(ColorBuffer& target, float Colour[4]);

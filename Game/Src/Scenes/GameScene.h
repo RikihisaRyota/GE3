@@ -10,6 +10,7 @@ class CommandContext;
 class GameScene {
 public:
 	GameScene();
+	~GameScene();
 	void Initialize();
 	void Update();
 	void Draw(const CommandContext& commandContext);

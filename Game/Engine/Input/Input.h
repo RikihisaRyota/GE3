@@ -146,6 +146,8 @@ public: // メンバ関数
 	/// <param name="out">前回のジョイスティック状態</param>
 	/// <returns>正しく取得できたか</returns>
 	bool GetJoystickStatePrevious(int32_t stickNo, XINPUT_STATE& out) const;
+
+	bool IsControllerConnected() const;
 private: // メンバ変数
 	Input() = default;
 	~Input() = default;

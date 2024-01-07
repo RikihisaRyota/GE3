@@ -5,13 +5,18 @@
 #include "Engine/Graphics/CommandContext.h"
 #include "Engine/Graphics/Helper.h"
 #include "Engine/Graphics/GraphicsCore.h"
+#include "Engine/Graphics/SamplerManager.h"
 #include "Engine/ShderCompiler/ShaderCompiler.h"
 #include "Engine/Graphics/RenderManager.h"
+#include "Engine/Texture/TextureManager.h"
 #include "Engine/Math/ViewProjection.h"
 #include "Engine/Math/WorldTransform.h"
+#include "Engine/Math/MyMath.h"
 #include "Engine/Model/ModelManager.h"
+#include "Engine/ImGui/ImGuiManager.h"
+#include "Engine/Input/Input.h"
 
-const UINT GPUParticle::kNumThread = 4;
+const UINT GPUParticle::kNumThread = 1048576 / 2;
 const UINT GPUParticle::CommandSizePerFrame = kNumThread * sizeof(IndirectCommand);
 const UINT GPUParticle::CommandBufferCounterOffset = AlignForUavCounter(GPUParticle::CommandSizePerFrame);
 
@@ -27,32 +32,176 @@ GPUParticle::GPUParticle() {
 
 	InitializeGraphics();
 
+	InitializeParticleArea();
+
 	InitializeSpawnParticle();
 
 	InitializeUpdateParticle();
 
-	modelHandle_ = ModelManager::GetInstance()->Load("Game/Resources/Models/block");
+	InitializeBall();
+
+	gpuParticleModelHandle_ = ModelManager::GetInstance()->Load("Game/Resources/Models/GPUParticle");
+	ballModelHandle_ = ModelManager::GetInstance()->Load("Game/Resources/Models/Ball");
+	for (auto& worldTransform : ballWorldTransform_) {
+		worldTransform.Initialize();
+	}
+
 	worldTransform_.Initialize();
+	worldTransform_.translation_.z = 30.0f;
+	worldTransform_.UpdateMatrix();
+	shotTime = 0;
 }
 
 void GPUParticle::Initialize() {
 
 }
 
-void GPUParticle::Update() {
+void GPUParticle::Update(ViewProjection* viewProjection) {
+	Vector3 vector{};
+	Vector3 cameraMove{};
+	// ゲームパットの状態を得る変数
+	XINPUT_STATE joyState{};
+	// ゲームパットの状況取得
+	// 入力がなかったら何もしない
+	if (Input::GetInstance()->IsControllerConnected()) {
+		Input::GetInstance()->GetJoystickState(0, joyState);
+		const float kMargin = 0.7f;
+		// 移動量
+		Vector3 move = {
+			static_cast<float>(joyState.Gamepad.sThumbLX),
+			0.0f,
+			static_cast<float>(joyState.Gamepad.sThumbLY),
+		};
+		cameraMove = {
+			-static_cast<float>(joyState.Gamepad.sThumbRY),
+			static_cast<float>(joyState.Gamepad.sThumbRX),
+			0.0f,
+		};
+		if (move.Length() > kMargin) {
+			vector = Normalize(move);
+		}
+		if (cameraMove.Length() > 0.0f) {
+			cameraMove = Normalize(cameraMove);
+		}
+	}
+	if (Input::GetInstance()->PushKey(DIK_W)) {
+		vector.z = 1.0f;
+	}
+	if (Input::GetInstance()->PushKey(DIK_A)) {
+		vector.x = -1.0f;
+	}
+	if (Input::GetInstance()->PushKey(DIK_S)) {
+		vector.z = -1.0f;
+	}
+	if (Input::GetInstance()->PushKey(DIK_D)) {
+		vector.x = 1.0f;
+	}
+	if (Input::GetInstance()->PushKey(DIK_R)) {
+		auto commandContext = RenderManager::GetInstance()->GetCommandContext();
+		commandContext.SetPipelineState(*spawnComputePipelineState_);
+		commandContext.SetComputeRootSignature(*spawnComputeRootSignature_);
+
+		commandContext.TransitionResource(rwStructuredBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+		commandContext.TransitionResource(particleAreaBuffer_, D3D12_RESOURCE_STATE_GENERIC_READ);
+		commandContext.SetComputeUAV(0, rwStructuredBuffer_->GetGPUVirtualAddress());
+		commandContext.SetComputeConstantBuffer(1, particleAreaBuffer_->GetGPUVirtualAddress());
+
+		commandContext.Dispatch(static_cast<UINT>(ceil(kNumThread / float(ComputeThreadBlockSize))), 1, 1);
+
+		commandContext.Close();
+
+		CommandQueue& commandQueue = GraphicsCore::GetInstance()->GetCommandQueue();
+		commandQueue.Execute(commandContext);
+		commandQueue.Signal();
+		commandQueue.WaitForGPU();
+		commandContext.Reset();
+	}
+	if (Input::GetInstance()->PushKey(DIK_UPARROW)) {
+		cameraMove.x = -1.0f;
+	}
+	if (Input::GetInstance()->PushKey(DIK_DOWNARROW)) {
+		cameraMove.x = 1.0f;
+	}
+	if (Input::GetInstance()->PushKey(DIK_LEFTARROW)) {
+		cameraMove.y = -1.0f;
+	}
+	if (Input::GetInstance()->PushKey(DIK_RIGHTARROW)) {
+		cameraMove.y = 1.0f;
+	}
+	Matrix4x4 rotate = MakeRotateYMatrix(viewProjection->rotation_.y);
+	vector = TransformNormal(vector * 0.2f, rotate);
+	viewProjection->translation_ += vector;
+	viewProjection->rotation_ += cameraMove * 0.05f;
+	viewProjection->UpdateMatrix();
+
+	if (shotTime > 0) {
+		shotTime--;
+	}
+	else {
+		shotTime = 0;
+	}
+
+	if (shotTime == 0 &&
+		(Input::GetInstance()->PushKey(DIK_SPACE) ||
+			(Input::GetInstance()->GetJoystickState(0, joyState) &&
+				(joyState.Gamepad.wButtons & XINPUT_GAMEPAD_A)))) {
+		for (size_t i = 0; i < kMaxBall; i++) {
+			if (!ballData_.at(i).isAlive) {
+				ballData_.at(i).isAlive = true;
+				rotate = MakeRotateXYZMatrix(viewProjection->rotation_);
+				Vector3 ballVector = Normalize(TransformNormal({ 0.0f,0.0f,1.0f }, rotate));
+				ballData_.at(i).position = viewProjection->translation_ + ballVector * 10.0f;
+				ballData_.at(i).velocity = ballVector;
+				ballData_.at(i).size = 1.0f;
+				ballData_.at(i).aliveTime = kAliveTime;
+				break;
+			}
+		}
+		shotTime = kShotCoolTime;
+	}
+	ballCount_->ballCount = 0;
+	for (size_t i = 0; i < kMaxBall; i++) {
+		if (ballData_.at(i).isAlive) {
+			ballData_.at(i).position += ballData_.at(i).velocity;
+			ballData_.at(i).aliveTime--;
+			if (ballData_.at(i).aliveTime >= 0) {
+				ball_[ballCount_->ballCount].position = ballData_.at(i).position;
+				ball_[ballCount_->ballCount].size = ballData_.at(i).size;
+				ballWorldTransform_.at(i).translation_ = ball_[ballCount_->ballCount].position;
+				ballWorldTransform_.at(i).scale_.x = ball_[ballCount_->ballCount].size;
+				ballWorldTransform_.at(i).scale_.y = ball_[ballCount_->ballCount].size;
+				ballWorldTransform_.at(i).scale_.z = ball_[ballCount_->ballCount].size;
+				ballWorldTransform_.at(i).UpdateMatrix();
+				ballCount_->ballCount++;
+			}
+			else {
+				ballData_.at(i).isAlive = false;
+			}
+		}
+	}
+
+
+	ballBuffer_.Copy(ball_, sizeof(BallBufferData) * kMaxBall);
+	ballCountBuffer_.Copy(ballCount_, sizeof(BallCount));
 
 	auto commandContext = RenderManager::GetInstance()->GetCommandContext();
-	commandContext.TransitionResource(rwStructuredBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-	commandContext.TransitionResource(processedCommandBuffers_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 	commandContext.SetPipelineState(*updateComputePipelineState_);
 	commandContext.SetComputeRootSignature(*updateComputeRootSignature_);
 
+	// リセット
+	commandContext.CopyBufferRegion(processedCommandBuffers_, CommandBufferCounterOffset, processedCommandBufferCounterReset_, 0, sizeof(UINT));
+
+	commandContext.TransitionResource(rwStructuredBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+	commandContext.TransitionResource(processedCommandBuffers_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 	commandContext.SetComputeUAV(0, rwStructuredBuffer_->GetGPUVirtualAddress());
 	commandContext.SetComputeDescriptorTable(1, commandHandle_);
 	commandContext.SetComputeDescriptorTable(2, processedCommandsHandle_);
 	commandContext.SetComputeConstantBuffer(3, updateConstantBuffer_->GetGPUVirtualAddress());
+	commandContext.SetComputeShaderResource(4, ballBuffer_->GetGPUVirtualAddress());
+	commandContext.SetComputeConstantBuffer(5, ballCountBuffer_->GetGPUVirtualAddress());
+	commandContext.SetComputeConstantBuffer(6, particleAreaBuffer_->GetGPUVirtualAddress());
 
-	commandContext.Dispatch(kNumThread, 1, 1);
+	commandContext.Dispatch(static_cast<UINT>(ceil(kNumThread / float(ComputeThreadBlockSize))), 1, 1);
 
 	commandContext.Close();
 
@@ -67,15 +216,20 @@ void GPUParticle::Render(const ViewProjection& viewProjection) {
 	auto graphics = GraphicsCore::GetInstance();
 	auto commandContext = RenderManager::GetInstance()->GetCommandContext();
 
-	ModelManager::GetInstance()->Draw(worldTransform_, viewProjection, modelHandle_, commandContext);
-
+	for (size_t i = 0; i < kMaxBall; i++) {
+		if (ballData_.at(i).isAlive) {
+			ModelManager::GetInstance()->Draw(ballWorldTransform_.at(i), viewProjection, ballModelHandle_, commandContext);
+		}
+	}
 	commandContext.SetPipelineState(*graphicsPipelineState_);
 	commandContext.SetGraphicsRootSignature(*graphicsRootSignature_);
 
 	commandContext.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	commandContext.SetGraphicsConstantBuffer(1, viewProjection.constBuff_->GetGPUVirtualAddress());
-
-	//commandContext.SetVertexBuffer(0, vbView_);
+	commandContext.SetGraphicsDescriptorTable(2, TextureManager::GetInstance()->GetTexture(ModelManager::GetInstance()->GetModel(gpuParticleModelHandle_).GetTextureHandle()).GetSRV());
+	commandContext.SetGraphicsDescriptorTable(3, SamplerManager::Anisotropic);
+	commandContext.SetVertexBuffer(0, vbView_);
+	//commandContext.SetIndexBuffer(ibView_);
 
 	commandContext.TransitionResource(processedCommandBuffers_, D3D12_RESOURCE_STATE_INDIRECT_ARGUMENT);
 	commandContext.ExecuteIndirect(
@@ -87,6 +241,35 @@ void GPUParticle::Render(const ViewProjection& viewProjection) {
 		CommandBufferCounterOffset
 	);
 
+}
+
+void GPUParticle::InitializeBall() {
+	auto graphics = GraphicsCore::GetInstance();
+	ballBuffer_.Create(L"BallBufferData Buffer", sizeof(BallBufferData) * kMaxBall);
+	ball_ = new BallBufferData();
+	for (int i = 0; i < kMaxBall; i++) {
+		ballData_.at(i).position = { 0.0f,0.0f,0.0f };
+		ballData_.at(i).isAlive = false;
+		ballData_.at(i).aliveTime = kAliveTime;
+		ballData_.at(i).size = 1.0f;
+	}
+	ballBuffer_.Copy(ball_, sizeof(BallBufferData) * kMaxBall);
+
+	// シェーダーリソースビュー
+	D3D12_SHADER_RESOURCE_VIEW_DESC desc{};
+	desc.Format = DXGI_FORMAT_UNKNOWN;
+	desc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+	desc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
+	desc.Buffer.FirstElement = 0;
+	desc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
+	desc.Buffer.NumElements = kMaxBall;
+	desc.Buffer.StructureByteStride = sizeof(BallBufferData);
+	ballBufferHandle_ = graphics->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+
+	ballCountBuffer_.Create(L"BallCountBuffer", sizeof(BallCount));
+	ballCount_ = new BallCount();
+	ballCount_->ballCount = 10;
+	ballCountBuffer_.Copy(ballCount_, sizeof(BallCount));
 }
 
 void GPUParticle::InitializeSpawnParticle() {
@@ -110,8 +293,10 @@ void GPUParticle::InitializeSpawnParticle() {
 	}
 	// 初期化用コンピュートルートシグネイチャ
 	{
-		CD3DX12_ROOT_PARAMETER rootParameters[1]{};
+		// コマンド用
+		CD3DX12_ROOT_PARAMETER rootParameters[2]{};
 		rootParameters[0].InitAsUnorderedAccessView(0);
+		rootParameters[1].InitAsConstantBufferView(0);
 
 		D3D12_ROOT_SIGNATURE_DESC desc{};
 		desc.pParameters = rootParameters;
@@ -135,9 +320,12 @@ void GPUParticle::InitializeSpawnParticle() {
 		commandContext.SetComputeRootSignature(*spawnComputeRootSignature_);
 
 		commandContext.TransitionResource(rwStructuredBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+		commandContext.TransitionResource(particleAreaBuffer_, D3D12_RESOURCE_STATE_GENERIC_READ);
 		commandContext.SetComputeUAV(0, rwStructuredBuffer_->GetGPUVirtualAddress());
+		commandContext.SetComputeConstantBuffer(1, particleAreaBuffer_->GetGPUVirtualAddress());
 
-		commandContext.Dispatch(kNumThread, 1, 1);
+		commandContext.Dispatch(static_cast<UINT>(ceil(kNumThread / float(ComputeThreadBlockSize))), 1, 1);
+
 		commandContext.Close();
 
 		CommandQueue& commandQueue = GraphicsCore::GetInstance()->GetCommandQueue();
@@ -161,11 +349,14 @@ void GPUParticle::InitializeUpdateParticle() {
 		CD3DX12_DESCRIPTOR_RANGE appendRanges[1]{};
 		appendRanges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 1, 0);
 
-		CD3DX12_ROOT_PARAMETER rootParameters[4]{};
+		CD3DX12_ROOT_PARAMETER rootParameters[7]{};
 		rootParameters[0].InitAsUnorderedAccessView(0);
 		rootParameters[1].InitAsDescriptorTable(_countof(commandRanges), commandRanges);
 		rootParameters[2].InitAsDescriptorTable(_countof(appendRanges), appendRanges);
 		rootParameters[3].InitAsConstantBufferView(0);
+		rootParameters[4].InitAsShaderResourceView(1);
+		rootParameters[5].InitAsConstantBufferView(1);
+		rootParameters[6].InitAsConstantBufferView(2);
 
 		D3D12_ROOT_SIGNATURE_DESC desc{};
 		desc.pParameters = rootParameters;
@@ -197,15 +388,10 @@ void GPUParticle::InitializeUpdateParticle() {
 	}
 	// 定数バッファ
 	{
-		updateConstantBuffer_.Create(L"GPUParticle UpdateConstantBuffer", sizeof(particleInfo_));
+		updateConstantBuffer_.Create(L"GPUParticle UpdateConstantBuffer", sizeof(ParticleInfo));
 		particleInfo_ = new ParticleInfo();
-		particleInfo_->speed = 0.5f;
-		updateConstantBuffer_.Copy(particleInfo_, sizeof(particleInfo_));
-	}
-	// マップ
-	{
-		/*rwStructuredBuffer_->Map(0, 0, reinterpret_cast<void**>(&updateParticle_));
-		memset(updateParticle_, 0, sizeof(uint32_t) * kNumThread);*/
+		particleInfo_->speed = 0.05f;
+		updateConstantBuffer_.Copy(particleInfo_, sizeof(ParticleInfo));
 	}
 	// コマンドシグネイチャー
 	{
@@ -279,7 +465,7 @@ void GPUParticle::InitializeUpdateParticle() {
 			&srvDesc,
 			commandHandle_
 		);
-
+		// 計算結果を積み込むよう
 		commandBufferDesc = CD3DX12_RESOURCE_DESC::Buffer(CommandBufferCounterOffset + sizeof(UINT), D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
 		heapProp = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
 		device->CreateCommittedResource(
@@ -306,6 +492,26 @@ void GPUParticle::InitializeUpdateParticle() {
 			processedCommandBuffers_,
 			&uavDesc,
 			processedCommandsHandle_);
+
+		// リセット用
+		commandBufferDesc = CD3DX12_RESOURCE_DESC::Buffer(sizeof(UINT));
+		heapProp = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
+
+		device->CreateCommittedResource(
+			&heapProp,
+			D3D12_HEAP_FLAG_NONE,
+			&commandBufferDesc,
+			D3D12_RESOURCE_STATE_COMMON,
+			nullptr,
+			IID_PPV_ARGS(processedCommandBufferCounterReset_.GetAddressOf())
+		);
+
+		UINT8* pMappedCounterReset = nullptr;
+		CD3DX12_RANGE readRange(0, 0);
+		processedCommandBufferCounterReset_->Map(0, &readRange, reinterpret_cast<void**>(&pMappedCounterReset));
+		ZeroMemory(pMappedCounterReset, sizeof(UINT));
+		processedCommandBufferCounterReset_->Unmap(0, nullptr);
+
 	}
 
 }
@@ -315,12 +521,16 @@ void GPUParticle::InitializeGraphics() {
 	auto device = graphics->GetDevice();
 	// グラフィックスルートシグネイチャ
 	{
-		/*CD3DX12_DESCRIPTOR_RANGE range{};
-		range.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);*/
+		CD3DX12_DESCRIPTOR_RANGE range[1]{};
+		range[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);
+		CD3DX12_DESCRIPTOR_RANGE samplerRanges[1]{};
+		samplerRanges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER, 1, 0);
 
-		CD3DX12_ROOT_PARAMETER rootParameters[2]{};
+		CD3DX12_ROOT_PARAMETER rootParameters[4]{};
 		rootParameters[0].InitAsConstantBufferView(0);
 		rootParameters[1].InitAsConstantBufferView(1);
+		rootParameters[2].InitAsDescriptorTable(_countof(range), range);
+		rootParameters[3].InitAsDescriptorTable(_countof(samplerRanges), samplerRanges);
 
 		D3D12_ROOT_SIGNATURE_DESC desc{};
 		desc.pParameters = rootParameters;
@@ -337,6 +547,7 @@ void GPUParticle::InitializeGraphics() {
 
 		D3D12_INPUT_ELEMENT_DESC inputElements[] = {
 			{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+			{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
 		};
 		D3D12_INPUT_LAYOUT_DESC inputLayoutDesc{};
 		inputLayoutDesc.pInputElementDescs = inputElements;
@@ -370,39 +581,14 @@ void GPUParticle::InitializeGraphics() {
 	}
 	// 頂点バッファ
 	{
-
 		vertices_ = {
 			// 前
-			{-0.5f, -0.5f, -0.5f}, // 左下
-			{-0.5f, +0.5f, -0.5f}, // 左上
-			{+0.5f, -0.5f, -0.5f}, // 右下
-			{+0.5f, +0.5f, -0.5f}, // 右上
-			// 後(前面とZ座標の符号が逆)
-			{+0.5f, -0.5f, +0.5f}, // 左下
-			{+0.5f, +0.5f, +0.5f}, // 左上
-			{-0.5f, -0.5f, +0.5f}, // 右下
-			{-0.5f, +0.5f, +0.5f}, // 右上
-			// 左
-			{-0.5f, -0.5f, +0.5f}, // 左下
-			{-0.5f, +0.5f, +0.5f}, // 左上
-			{-0.5f, -0.5f, -0.5f}, // 右下
-			{-0.5f, +0.5f, -0.5f}, // 右上
-			// 右（左面とX座標の符号が逆）
-			{+0.5f, -0.5f, -0.5f}, // 左下
-			{+0.5f, +0.5f, -0.5f}, // 左上
-			{+0.5f, -0.5f, +0.5f}, // 右下
-			{+0.5f, +0.5f, +0.5f}, // 右上
-			// 下
-			{+0.5f, -0.5f, -0.5f}, // 左下
-			{+0.5f, -0.5f, +0.5f}, // 左上
-			{-0.5f, -0.5f, -0.5f}, // 右下
-			{-0.5f, -0.5f, +0.5f}, // 右上
-			// 上（下面とY座標の符号が逆）
-			{-0.5f, +0.5f, -0.5f}, // 左下
-			{-0.5f, +0.5f, +0.5f}, // 左上
-			{+0.5f, +0.5f, -0.5f}, // 右下
-			{+0.5f, +0.5f, +0.5f}, // 右上
+			{ { -0.5f, -0.5f, +0.0f },{0.0f,1.0f} }, // 左下
+			{ { -0.5f, +0.5f, +0.0f },{0.0f,0.0f} }, // 左上
+			{ { +0.5f, -0.5f, +0.0f },{1.0f,1.0f} }, // 右下
+			{ { +0.5f, +0.5f, +0.0f },{1.0f,0.0f} }, // 右上
 		};
+
 
 		size_t sizeIB = sizeof(vertices_.at(0)) * vertices_.size();
 
@@ -417,18 +603,8 @@ void GPUParticle::InitializeGraphics() {
 	// インデックスバッファ
 	{
 		indices_ = {
-			0,  1,  3,
-			1,  3,  2,
-			4,  5,  7,
-			7,  6,  4,
-			8,  9,  11,
-			11, 10, 8,
-			12, 13, 15,
-			15, 14, 12,
-			16, 17, 19,
-			19, 18, 16,
-			20, 21, 23,
-			23, 22, 20
+		0, 1, 2,
+		1, 3, 2,
 		};
 
 		size_t sizeIB = sizeof(uint32_t) * indices_.size();
@@ -442,4 +618,13 @@ void GPUParticle::InitializeGraphics() {
 		ibView_.Format = DXGI_FORMAT_R16_UINT;
 		ibView_.SizeInBytes = UINT(indexBuffer_.GetBufferSize());
 	}
+}
+
+
+void GPUParticle::InitializeParticleArea() {
+	particleAreaBuffer_.Create(L"GPUParticle ParticleAreaBuffer", sizeof(ParticleArea));
+	particleArea_ = new ParticleArea();
+	particleArea_->min = { -5.0f,-5.0f,-5.0f };
+	particleArea_->max = { +5.0f,+5.0f,+5.0f };
+	particleAreaBuffer_.Copy(particleArea_, sizeof(ParticleArea));
 }

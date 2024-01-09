@@ -18,7 +18,7 @@ namespace GameCore {
 	//GameScene* gameScene = nullptr;
 	void Initialize() {
 		winApp = WinApp::GetInstance();
-		winApp->CreateGameWindow(L"GE3");
+		winApp->CreateGameWindow(L"LE2A_24_リキヒサ_リョウタ");
 
 		shaderCompiler->Initialize();
 

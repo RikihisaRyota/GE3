@@ -1,6 +1,7 @@
 #include "GPUParticle.hlsli"
 
 RWStructuredBuffer<Particle> Input : register(u0);
+
 struct DrawIndex
 {
     uint IndexCountPerInstance;
@@ -8,7 +9,9 @@ struct DrawIndex
     uint StartIndexLocation;
     int BaseVertexLocation;
     uint StartInstanceLocation;
+    float pad;
 };
+
 struct IndirectCommand
 {
     uint2 cbvAddress;

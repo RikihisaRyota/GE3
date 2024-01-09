@@ -36,9 +36,9 @@ private:
 		float pad3;
 		Vector3 translate;
 		float pad4;
-		bool isAlive;
+		uint32_t isAlive;
 		float pad5[3];
-		bool isHit;
+		uint32_t isHit;
 		float pad6[3];
 		float aliveTime;
 		float pad7[3];
@@ -49,6 +49,7 @@ private:
 	struct IndirectCommand {
 		D3D12_GPU_VIRTUAL_ADDRESS cbv;
 		D3D12_DRAW_INDEXED_ARGUMENTS drawIndex;
+		float pad;
 	};
 	struct ParticleArea {
 		Vector3 min;

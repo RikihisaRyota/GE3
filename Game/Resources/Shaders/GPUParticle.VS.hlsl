@@ -19,11 +19,12 @@ struct VertexShaderInput
 VertexShaderOutput main(VertexShaderInput input)
 {
     VertexShaderOutput output;
-    float4x4 viewMatrix = gViewProjection.view;
-    viewMatrix[3] = float4(0.0f, 0.0f, 0.0f, 1.0f);
-    float4x4 billboardMatrix = Inverse(viewMatrix);
-    billboardMatrix[3] = float4(0.0f, 0.0f, 0.0f, 1.0f);
-    float4x4 mat = mul(billboardMatrix,MakeAffine(gParticle.scale, gParticle.rotate, gParticle.translate));
+    //float4x4 viewMatrix = gViewProjection.view;
+    //viewMatrix[3] = float4(0.0f, 0.0f, 0.0f, 1.0f);
+    //float4x4 billboardMatrix = Inverse(viewMatrix);
+    //billboardMatrix[3] = float4(0.0f, 0.0f, 0.0f, 1.0f);
+    //float4x4 mat = mul(billboardMatrix,MakeAffine(gParticle.scale, gParticle.rotate, gParticle.translate));
+    float4x4 mat = MakeAffine(gParticle.scale, gParticle.rotate, gParticle.translate);
     float4 worldPos = mul(float4(input.position, 1.0f), mat);
     output.position = mul(worldPos, mul(gViewProjection.view, gViewProjection.projection));
     output.texcoord = input.texcoord;

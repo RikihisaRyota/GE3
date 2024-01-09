@@ -16,7 +16,7 @@
 #include "Engine/ImGui/ImGuiManager.h"
 #include "Engine/Input/Input.h"
 
-const UINT GPUParticle::kNumThread = 128/*524288*/;
+const UINT GPUParticle::kNumThread = 524288;
 const UINT GPUParticle::CommandSizePerFrame = kNumThread * sizeof(IndirectCommand);
 const UINT GPUParticle::CommandBufferCounterOffset = AlignForUavCounter(GPUParticle::CommandSizePerFrame);
 
@@ -40,9 +40,10 @@ GPUParticle::GPUParticle() {
 
 	InitializeBall();
 
-	gpuParticleModelHandle_ = ModelManager::GetInstance()->Load("Game/Resources/Models/GPUParticle");
 	ballModelHandle_ = ModelManager::GetInstance()->Load("Game/Resources/Models/Ball");
+	gpuParticleModelHandle_ = ModelManager::GetInstance()->Load("Game/Resources/Models/block");
 	
+
 	for (auto& worldTransform : ballWorldTransform_) {
 		worldTransform.Initialize();
 	}
@@ -222,6 +223,7 @@ void GPUParticle::Render(const ViewProjection& viewProjection) {
 			ModelManager::GetInstance()->Draw(ballWorldTransform_.at(i), viewProjection, ballModelHandle_, commandContext);
 		}
 	}
+	ModelManager::GetInstance()->Draw(worldTransform_, viewProjection, gpuParticleModelHandle_, commandContext);
 	commandContext.SetPipelineState(*graphicsPipelineState_);
 	commandContext.SetGraphicsRootSignature(*graphicsRootSignature_);
 
@@ -430,6 +432,7 @@ void GPUParticle::InitializeUpdateParticle() {
 
 		for (UINT commandIndex = 0; commandIndex < kNumThread; ++commandIndex) {
 			commands[commandIndex].cbv = gpuAddress;
+
 			commands[commandIndex].drawIndex.IndexCountPerInstance = UINT(indices_.size());
 			commands[commandIndex].drawIndex.InstanceCount = 1;
 			commands[commandIndex].drawIndex.StartIndexLocation = 0;
@@ -459,7 +462,6 @@ void GPUParticle::InitializeUpdateParticle() {
 		srvDesc.Buffer.NumElements = kNumThread;
 		srvDesc.Buffer.StructureByteStride = sizeof(IndirectCommand);
 		srvDesc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
-
 		commandHandle_ = graphics->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 		device->CreateShaderResourceView(
 			commandBuffer_,

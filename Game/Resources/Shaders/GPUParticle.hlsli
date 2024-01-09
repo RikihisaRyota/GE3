@@ -17,9 +17,9 @@ struct Particle
     float pad3;
     float3 translate;
     float pad4;
-    bool isAlive;
+    uint isAlive;
     float3 pad5;
-    bool isHit;
+    uint isHit;
     float3 pad6;
     float aliveTime;
     float3 pad7;

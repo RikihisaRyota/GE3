@@ -16,7 +16,7 @@
 #include "Engine/ImGui/ImGuiManager.h"
 #include "Engine/Input/Input.h"
 
-const UINT GPUParticle::kNumThread = 1048576 / 2;
+const UINT GPUParticle::kNumThread = 524288/2;
 const UINT GPUParticle::CommandSizePerFrame = kNumThread * sizeof(IndirectCommand);
 const UINT GPUParticle::CommandBufferCounterOffset = AlignForUavCounter(GPUParticle::CommandSizePerFrame);
 
@@ -42,6 +42,7 @@ GPUParticle::GPUParticle() {
 
 	gpuParticleModelHandle_ = ModelManager::GetInstance()->Load("Game/Resources/Models/GPUParticle");
 	ballModelHandle_ = ModelManager::GetInstance()->Load("Game/Resources/Models/Ball");
+	
 	for (auto& worldTransform : ballWorldTransform_) {
 		worldTransform.Initialize();
 	}
@@ -229,8 +230,7 @@ void GPUParticle::Render(const ViewProjection& viewProjection) {
 	commandContext.SetGraphicsDescriptorTable(2, TextureManager::GetInstance()->GetTexture(ModelManager::GetInstance()->GetModel(gpuParticleModelHandle_).GetTextureHandle()).GetSRV());
 	commandContext.SetGraphicsDescriptorTable(3, SamplerManager::Anisotropic);
 	commandContext.SetVertexBuffer(0, vbView_);
-	//commandContext.SetIndexBuffer(ibView_);
-
+	commandContext.SetIndexBuffer(ibView_);
 	commandContext.TransitionResource(processedCommandBuffers_, D3D12_RESOURCE_STATE_INDIRECT_ARGUMENT);
 	commandContext.ExecuteIndirect(
 		commandSignature_.Get(),
@@ -398,7 +398,7 @@ void GPUParticle::InitializeUpdateParticle() {
 		D3D12_INDIRECT_ARGUMENT_DESC argumentDescs[2] = {};
 		argumentDescs[0].Type = D3D12_INDIRECT_ARGUMENT_TYPE_CONSTANT_BUFFER_VIEW;
 		argumentDescs[0].ConstantBufferView.RootParameterIndex = 0;
-		argumentDescs[1].Type = D3D12_INDIRECT_ARGUMENT_TYPE_DRAW;
+		argumentDescs[1].Type = D3D12_INDIRECT_ARGUMENT_TYPE_DRAW_INDEXED;
 
 		D3D12_COMMAND_SIGNATURE_DESC commandSignatureDesc{};
 		commandSignatureDesc.pArgumentDescs = argumentDescs;
@@ -430,9 +430,9 @@ void GPUParticle::InitializeUpdateParticle() {
 
 		for (UINT commandIndex = 0; commandIndex < kNumThread; ++commandIndex) {
 			commands[commandIndex].cbv = gpuAddress;
-			commands[commandIndex].drawArguments.VertexCountPerInstance = UINT(indices_.size());
+			commands[commandIndex].drawArguments.IndexCountPerInstance = UINT(indices_.size());
 			commands[commandIndex].drawArguments.InstanceCount = 1;
-			commands[commandIndex].drawArguments.StartVertexLocation = 0;
+			commands[commandIndex].drawArguments.BaseVertexLocation = 0;
 			commands[commandIndex].drawArguments.StartInstanceLocation = 0;
 			gpuAddress += sizeof(Particle);
 		}
@@ -588,26 +588,31 @@ void GPUParticle::InitializeGraphics() {
 			{ { +0.5f, -0.5f, +0.0f },{1.0f,1.0f} }, // 右下
 			{ { +0.5f, +0.5f, +0.0f },{1.0f,0.0f} }, // 右上
 		};
+		//vertices_ = {
+		//	// 前
+		//	{ { -0.5f, -0.5f, +0.0f },{0.0f,0.0f} }, // 左
+		//	{ { +0.0f, +0.5f, +0.0f },{0.5f,0.5f} }, // 真ん中
+		//	{ { +0.5f, -0.5f, +0.0f },{1.0f,0.0f} }, // 右
+		//};
 
-
-		size_t sizeIB = sizeof(vertices_.at(0)) * vertices_.size();
+		size_t sizeIB = sizeof(Vertex) * vertices_.size();
 
 		vertexBuffer_.Create(L"vertexBuffer", sizeIB);
 
 		vertexBuffer_.Copy(vertices_.data(), sizeIB);
 
 		vbView_.BufferLocation = vertexBuffer_.GetGPUVirtualAddress();
-		vbView_.StrideInBytes = sizeof(vertices_.at(0));
-		vbView_.SizeInBytes = UINT(vertexBuffer_.GetBufferSize());
+		vbView_.SizeInBytes = UINT(sizeIB);
+		vbView_.StrideInBytes = sizeof(Vertex);
 	}
 	// インデックスバッファ
 	{
 		indices_ = {
-		0, 1, 2,
-		1, 3, 2,
+		0, 1, 3,
+		2, 0, 3,
 		};
 
-		size_t sizeIB = sizeof(uint32_t) * indices_.size();
+		size_t sizeIB = sizeof(uint16_t) * indices_.size();
 
 		indexBuffer_.Create(L"indexBuffer", sizeIB);
 
@@ -616,7 +621,7 @@ void GPUParticle::InitializeGraphics() {
 		// インデックスバッファビューの作成
 		ibView_.BufferLocation = indexBuffer_.GetGPUVirtualAddress();
 		ibView_.Format = DXGI_FORMAT_R16_UINT;
-		ibView_.SizeInBytes = UINT(indexBuffer_.GetBufferSize());
+		ibView_.SizeInBytes = UINT(sizeIB);
 	}
 }
 

@@ -19,6 +19,7 @@
 #include "Engine/Math/WorldTransform.h"
 #include "Engine/Model/ModelHandle.h"
 
+
 struct ViewProjection;
 class GPUParticle {
 private:
@@ -47,7 +48,7 @@ private:
 	};
 	struct IndirectCommand {
 		D3D12_GPU_VIRTUAL_ADDRESS cbv;
-		D3D12_DRAW_ARGUMENTS drawArguments;
+		D3D12_DRAW_INDEXED_ARGUMENTS drawArguments;
 	};
 	struct ParticleArea {
 		Vector3 min;
@@ -145,6 +146,8 @@ private:
 
 	ModelHandle ballModelHandle_;
 	std::array<WorldTransform, kMaxBall> ballWorldTransform_;
+	
+	// テクスチャ
 	
 	UINT shotTime;
 

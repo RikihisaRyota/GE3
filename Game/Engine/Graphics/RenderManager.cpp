@@ -58,9 +58,7 @@ void RenderManager::BeginRender() {
 	Color clearColor = { 0.1f,0.25f,0.5f,1.0f };
 	swapChainColorBuffer.SetClearColor(clearColor);
 	commandContext.ClearColor(swapChainColorBuffer);
-	commandContext.ClearDepth
-	
-	(mainDepthBuffer_);
+	commandContext.ClearDepth(mainDepthBuffer_);
 	commandContext.SetViewportAndScissorRect(0, 0, swapChainColorBuffer.GetWidth(), swapChainColorBuffer.GetHeight());
 }
 

@@ -68,7 +68,7 @@ void main(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex)
 
             }
             
-        }    
+        }
     }
     else
     {

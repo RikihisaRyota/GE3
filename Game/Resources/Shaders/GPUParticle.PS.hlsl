@@ -11,6 +11,6 @@ struct PixelShaderOutput
 PixelShaderOutput main(VertexShaderOutput input)
 {
     PixelShaderOutput output;
-    output.color = float4(1.0f,1.0f,1.0f,1.0f) * gTexture.Sample(gSampler, input.texcoord);
+    output.color = float4(1.0f, 1.0f, 1.0f, 1.0f) * gTexture.Sample(gSampler, input.texcoord);
     return output;
 }

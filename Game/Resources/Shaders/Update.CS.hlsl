@@ -1,11 +1,18 @@
 #include "GPUParticle.hlsli"
 
 RWStructuredBuffer<Particle> Input : register(u0);
-
+struct DrawIndex
+{
+    uint IndexCountPerInstance;
+    uint InstanceCount;
+    uint StartIndexLocation;
+    int BaseVertexLocation;
+    uint StartInstanceLocation;
+};
 struct IndirectCommand
 {
     uint2 cbvAddress;
-    uint4 drawArguments;
+    DrawIndex drawArguments;
 };
 StructuredBuffer<IndirectCommand> inputCommands : register(t0);
 AppendStructuredBuffer<IndirectCommand> outputCommands : register(u1);

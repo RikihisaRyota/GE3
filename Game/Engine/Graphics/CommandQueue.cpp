@@ -35,7 +35,7 @@ void CommandQueue::Execute(const CommandContext& commandContext) {
 	// GPUにコマンドリストの実行を行わせる
 	ID3D12CommandList* cmdLists[] = { commandContext};
 	commandQueue_->ExecuteCommandLists(_countof(cmdLists), cmdLists);
-} 
+ } 
 
 void CommandQueue::Signal() {
 	commandQueue_->Signal(fence_.Get(), ++fenceValue_);

@@ -16,7 +16,7 @@
 #include "Engine/ImGui/ImGuiManager.h"
 #include "Engine/Input/Input.h"
 
-const UINT GPUParticle::kNumThread = 524288/2;
+const UINT GPUParticle::kNumThread = 128/*524288*/;
 const UINT GPUParticle::CommandSizePerFrame = kNumThread * sizeof(IndirectCommand);
 const UINT GPUParticle::CommandBufferCounterOffset = AlignForUavCounter(GPUParticle::CommandSizePerFrame);
 
@@ -430,10 +430,11 @@ void GPUParticle::InitializeUpdateParticle() {
 
 		for (UINT commandIndex = 0; commandIndex < kNumThread; ++commandIndex) {
 			commands[commandIndex].cbv = gpuAddress;
-			commands[commandIndex].drawArguments.IndexCountPerInstance = UINT(indices_.size());
-			commands[commandIndex].drawArguments.InstanceCount = 1;
-			commands[commandIndex].drawArguments.BaseVertexLocation = 0;
-			commands[commandIndex].drawArguments.StartInstanceLocation = 0;
+			commands[commandIndex].drawIndex.IndexCountPerInstance = UINT(indices_.size());
+			commands[commandIndex].drawIndex.InstanceCount = 1;
+			commands[commandIndex].drawIndex.StartIndexLocation = 0;
+			commands[commandIndex].drawIndex.StartInstanceLocation = 0;
+			commands[commandIndex].drawIndex.BaseVertexLocation = 0;
 			gpuAddress += sizeof(Particle);
 		}
 		commandBufferUpload.Copy(commands.data(), CommandSizePerFrame);

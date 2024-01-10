@@ -16,7 +16,8 @@
 #include "Engine/ImGui/ImGuiManager.h"
 #include "Engine/Input/Input.h"
 
-const UINT GPUParticle::kNumThread = 524288;
+//const UINT GPUParticle::kNumThread = 524288;
+const UINT GPUParticle::kNumThread = 256;
 const UINT GPUParticle::CommandSizePerFrame = kNumThread * sizeof(IndirectCommand);
 const UINT GPUParticle::CommandBufferCounterOffset = AlignForUavCounter(GPUParticle::CommandSizePerFrame);
 
@@ -41,8 +42,8 @@ GPUParticle::GPUParticle() {
 	InitializeBall();
 
 	ballModelHandle_ = ModelManager::GetInstance()->Load("Game/Resources/Models/Ball");
-	gpuParticleModelHandle_ = ModelManager::GetInstance()->Load("Game/Resources/Models/block");
-	
+	gpuParticleModelHandle_ = ModelManager::GetInstance()->Load("Game/Resources/Models/GPUParticle");
+
 
 	for (auto& worldTransform : ballWorldTransform_) {
 		worldTransform.Initialize();
@@ -398,8 +399,8 @@ void GPUParticle::InitializeUpdateParticle() {
 	// コマンドシグネイチャー
 	{
 		D3D12_INDIRECT_ARGUMENT_DESC argumentDescs[2] = {};
-		argumentDescs[0].Type = D3D12_INDIRECT_ARGUMENT_TYPE_CONSTANT_BUFFER_VIEW;
-		argumentDescs[0].ConstantBufferView.RootParameterIndex = 0;
+		argumentDescs[0].Type = D3D12_INDIRECT_ARGUMENT_TYPE_SHADER_RESOURCE_VIEW;
+		argumentDescs[0].ShaderResourceView.RootParameterIndex = 0;
 		argumentDescs[1].Type = D3D12_INDIRECT_ARGUMENT_TYPE_DRAW_INDEXED;
 
 		D3D12_COMMAND_SIGNATURE_DESC commandSignatureDesc{};
@@ -431,14 +432,13 @@ void GPUParticle::InitializeUpdateParticle() {
 		D3D12_GPU_VIRTUAL_ADDRESS gpuAddress = rwStructuredBuffer_.GetGPUVirtualAddress();
 
 		for (UINT commandIndex = 0; commandIndex < kNumThread; ++commandIndex) {
-			commands[commandIndex].cbv = gpuAddress;
+			commands[commandIndex].srv = gpuAddress;
 
 			commands[commandIndex].drawIndex.IndexCountPerInstance = UINT(indices_.size());
 			commands[commandIndex].drawIndex.InstanceCount = 1;
 			commands[commandIndex].drawIndex.StartIndexLocation = 0;
 			commands[commandIndex].drawIndex.StartInstanceLocation = 0;
 			commands[commandIndex].drawIndex.BaseVertexLocation = 0;
-			gpuAddress += sizeof(Particle);
 		}
 		commandBufferUpload.Copy(commands.data(), CommandSizePerFrame);
 
@@ -524,14 +524,16 @@ void GPUParticle::InitializeGraphics() {
 	auto device = graphics->GetDevice();
 	// グラフィックスルートシグネイチャ
 	{
+		CD3DX12_DESCRIPTOR_RANGE structuredBuffer[1]{};
+		structuredBuffer[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);
 		CD3DX12_DESCRIPTOR_RANGE range[1]{};
-		range[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);
+		range[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 1);
 		CD3DX12_DESCRIPTOR_RANGE samplerRanges[1]{};
 		samplerRanges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER, 1, 0);
 
 		CD3DX12_ROOT_PARAMETER rootParameters[4]{};
-		rootParameters[0].InitAsConstantBufferView(0);
-		rootParameters[1].InitAsConstantBufferView(1);
+		rootParameters[0].InitAsShaderResourceView(0);
+		rootParameters[1].InitAsConstantBufferView(0);
 		rootParameters[2].InitAsDescriptorTable(_countof(range), range);
 		rootParameters[3].InitAsDescriptorTable(_countof(samplerRanges), samplerRanges);
 
@@ -561,8 +563,8 @@ void GPUParticle::InitializeGraphics() {
 		auto ps = ShaderCompiler::Compile(L"Game/Resources/Shaders/GPUParticle.PS.hlsl", L"ps_6_0");
 		desc.VS = CD3DX12_SHADER_BYTECODE(vs->GetBufferPointer(), vs->GetBufferSize());
 		desc.PS = CD3DX12_SHADER_BYTECODE(ps->GetBufferPointer(), ps->GetBufferSize());
-		desc.BlendState = Helper::BlendDisable;
-		desc.DepthStencilState = Helper::DepthStateReadWrite;
+		desc.BlendState = Helper::BlendAdditive;
+		desc.DepthStencilState = Helper::DepthStateDisabled;
 		desc.RasterizerState = Helper::RasterizerDefault;
 		desc.NumRenderTargets = 1;
 		desc.RTVFormats[0] = RenderManager::GetInstance()->GetRenderTargetFormat();

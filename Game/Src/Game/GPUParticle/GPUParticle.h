@@ -28,26 +28,26 @@ private:
 		Vector2 texcoord;
 	};
 	struct Particle {
-		Vector3 scale;
-		float pad1;
-		Vector3 velocity;
-		float pad2;
-		Vector3 rotate;
-		float pad3;
-		Vector3 translate;
-		float pad4;
-		uint32_t isAlive;
-		float pad5[3];
-		uint32_t isHit;
-		float pad6[3];
-		float aliveTime;
-		float pad7[3];
+		Vector3 scale; // 12
+		float pad1;	// 16
+		Vector3 velocity; // 28
+		float pad2;	// 32
+		Vector3 rotate;	// 44
+		float pad3;	// 48
+		Vector3 translate; // 60
+		float pad4;	// 64
+		uint32_t isAlive;	// 68
+		float pad5[3];	// 80
+		uint32_t isHit;	// 84
+		float pad6[3];	// 96
+		float aliveTime;	// 100
+		float pad7[3];	// 112
 	};
 	struct ParticleInfo {
 		float speed;
 	};
 	struct IndirectCommand {
-		D3D12_GPU_VIRTUAL_ADDRESS cbv;
+		D3D12_GPU_VIRTUAL_ADDRESS srv;
 		D3D12_DRAW_INDEXED_ARGUMENTS drawIndex;
 		float pad;
 	};

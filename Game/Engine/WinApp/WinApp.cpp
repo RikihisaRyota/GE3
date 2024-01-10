@@ -1,11 +1,11 @@
 #include "WinApp.h"
 
-//#include "imgui.h"
-//#include "imgui_impl_dx12.h"
-//#include "imgui_impl_win32.h"
+#include "imgui.h"
+#include "imgui_impl_dx12.h"
+#include "imgui_impl_win32.h"
 #include <string>
 
-//extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 
 WinApp* WinApp::GetInstance() {
@@ -15,9 +15,9 @@ WinApp* WinApp::GetInstance() {
 
 LRESULT WinApp::WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
 
-	/*if (ImGui_ImplWin32_WndProcHandler(hwnd, msg, wparam, lparam)) {
+	if (ImGui_ImplWin32_WndProcHandler(hwnd, msg, wparam, lparam)) {
 		return true;
-	}*/
+	}
 	//メッセージに応じてゲーム固有の処理を行う
 	switch (msg) {
 		//ウィンドウが破棄された

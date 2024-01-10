@@ -14,7 +14,7 @@ struct DrawIndex
 
 struct IndirectCommand
 {
-    uint2 cbvAddress;
+    uint2 srvAddress;
     DrawIndex drawArguments;
 };
 StructuredBuffer<IndirectCommand> inputCommands : register(t0);

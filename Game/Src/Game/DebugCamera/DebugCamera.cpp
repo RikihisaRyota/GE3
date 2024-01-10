@@ -1,9 +1,9 @@
 #include "DebugCamera.h"
 
-#include "../../Game/Engine/ImGui/ImGuiManager.h"
-#include "../../Game/Engine/Input/Input.h"
-#include "../../Game/Engine/Math/MyMath.h"
-#include "../../Game/Engine/Math/Vector2.h"
+#include "Engine/ImGui/ImGuiManager.h"
+#include "Engine/Input/Input.h"
+#include "Engine/Math/MyMath.h"
+#include "Engine/Math/Vector2.h"
 
 
 DebugCamera::DebugCamera() {}

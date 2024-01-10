@@ -1,6 +1,6 @@
 #include "GPUParticle.hlsli"
 
-ConstantBuffer<Particle> gParticle : register(b0);
+StructuredBuffer<Particle> gParticle : register(t0);
 
 struct ViewProjection
 {
@@ -8,7 +8,7 @@ struct ViewProjection
     matrix projection; // プロジェクション変換行列
     float3 cameraPos; // カメラのワールド座標
 };
-ConstantBuffer<ViewProjection> gViewProjection : register(b1);
+ConstantBuffer<ViewProjection> gViewProjection : register(b0);
 
 struct VertexShaderInput
 {
@@ -16,7 +16,7 @@ struct VertexShaderInput
     float2 texcoord : TEXCOORD0;
 };
 
-VertexShaderOutput main(VertexShaderInput input)
+VertexShaderOutput main(VertexShaderInput input,uint instanceID : SV_InstanceID)
 {
     VertexShaderOutput output;
     //float4x4 viewMatrix = gViewProjection.view;
@@ -24,7 +24,7 @@ VertexShaderOutput main(VertexShaderInput input)
     //float4x4 billboardMatrix = Inverse(viewMatrix);
     //billboardMatrix[3] = float4(0.0f, 0.0f, 0.0f, 1.0f);
     //float4x4 mat = mul(billboardMatrix,MakeAffine(gParticle.scale, gParticle.rotate, gParticle.translate));
-    float4x4 mat = MakeAffine(gParticle.scale, gParticle.rotate, gParticle.translate);
+    float4x4 mat = MakeAffine(gParticle[instanceID].scale, gParticle[instanceID].rotate, gParticle[instanceID].translate);
     float4 worldPos = mul(float4(input.position, 1.0f), mat);
     output.position = mul(worldPos, mul(gViewProjection.view, gViewProjection.projection));
     output.texcoord = input.texcoord;

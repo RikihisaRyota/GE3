@@ -17,7 +17,7 @@
 #include "Engine/Input/Input.h"
 
 //const UINT GPUParticle::kNumThread = 524288;
-const UINT GPUParticle::kNumThread = 256;
+const UINT GPUParticle::kNumThread = 128;
 const UINT GPUParticle::CommandSizePerFrame = kNumThread * sizeof(IndirectCommand);
 const UINT GPUParticle::CommandBufferCounterOffset = AlignForUavCounter(GPUParticle::CommandSizePerFrame);
 

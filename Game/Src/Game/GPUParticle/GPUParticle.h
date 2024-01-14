@@ -49,7 +49,6 @@ private:
 	struct IndirectCommand {
 		D3D12_GPU_VIRTUAL_ADDRESS srv;
 		D3D12_DRAW_INDEXED_ARGUMENTS drawIndex;
-		float pad;
 	};
 	struct ParticleArea {
 		Vector3 min;

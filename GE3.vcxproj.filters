@@ -60,61 +60,61 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Game\Engine\Math\MyMath.cpp">
+    <ClCompile Include="Engine\Engine\Math\MyMath.cpp">
       <Filter>Engine\Math</Filter>
     </ClCompile>
-    <ClCompile Include="Game\Engine\ConvertString\ConvertString.cpp">
+    <ClCompile Include="Engine\Engine\ConvertString\ConvertString.cpp">
       <Filter>Engine\ConvertString</Filter>
     </ClCompile>
-    <ClCompile Include="Game\Engine\ImGui\ImGuiManager.cpp">
+    <ClCompile Include="Engine\Engine\ImGui\ImGuiManager.cpp">
       <Filter>Engine\ImGui</Filter>
     </ClCompile>
-    <ClCompile Include="Game\Engine\Input\Input.cpp">
+    <ClCompile Include="Engine\Engine\Input\Input.cpp">
       <Filter>Engine\Input</Filter>
     </ClCompile>
-    <ClCompile Include="Game\Engine\WinApp\WinApp.cpp">
+    <ClCompile Include="Engine\Engine\WinApp\WinApp.cpp">
       <Filter>Engine\WinApp</Filter>
     </ClCompile>
-    <ClCompile Include="Game\Engine\Math\Matrix4x4.cpp">
+    <ClCompile Include="Engine\Engine\Math\Matrix4x4.cpp">
       <Filter>Engine\Math</Filter>
     </ClCompile>
-    <ClCompile Include="Game\Engine\Math\ViewProjection.cpp">
+    <ClCompile Include="Engine\Engine\Math\ViewProjection.cpp">
       <Filter>Engine\Math</Filter>
     </ClCompile>
-    <ClCompile Include="Game\Engine\Math\WorldTransform.cpp">
+    <ClCompile Include="Engine\Engine\Math\WorldTransform.cpp">
       <Filter>Engine\Math</Filter>
     </ClCompile>
-    <ClCompile Include="Game\Engine\Graphics\CommandQueue.cpp">
+    <ClCompile Include="Engine\Engine\Graphics\CommandQueue.cpp">
       <Filter>Engine\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Game\Engine\Graphics\GraphicsCore.cpp">
+    <ClCompile Include="Engine\Engine\Graphics\GraphicsCore.cpp">
       <Filter>Engine\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Game\Engine\Graphics\DescriptorHeap.cpp">
+    <ClCompile Include="Engine\Engine\Graphics\DescriptorHeap.cpp">
       <Filter>Engine\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Game\Engine\Graphics\SamplerManager.cpp">
+    <ClCompile Include="Engine\Engine\Graphics\SamplerManager.cpp">
       <Filter>Engine\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Game\Engine\Graphics\Color.cpp">
+    <ClCompile Include="Engine\Engine\Graphics\Color.cpp">
       <Filter>Engine\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Game\Engine\Graphics\SwapChain.cpp">
+    <ClCompile Include="Engine\Engine\Graphics\SwapChain.cpp">
       <Filter>Engine\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Game\Engine\Graphics\ColorBuffer.cpp">
+    <ClCompile Include="Engine\Engine\Graphics\ColorBuffer.cpp">
       <Filter>Engine\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Game\Engine\Graphics\PixelBuffer.cpp">
+    <ClCompile Include="Engine\Engine\Graphics\PixelBuffer.cpp">
       <Filter>Engine\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Game\Engine\Graphics\RenderManager.cpp">
+    <ClCompile Include="Engine\Engine\Graphics\RenderManager.cpp">
       <Filter>Engine\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Game\Engine\Graphics\CommandContext.cpp">
+    <ClCompile Include="Engine\Engine\Graphics\CommandContext.cpp">
       <Filter>Engine\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Game\Engine\Graphics\DepthBuffer.cpp">
+    <ClCompile Include="Engine\Engine\Graphics\DepthBuffer.cpp">
       <Filter>Engine\Graphics</Filter>
     </ClCompile>
     <ClCompile Include="Externals\Imgui\imgui.cpp">
@@ -138,25 +138,25 @@
     <ClCompile Include="Externals\Imgui\imgui_widgets.cpp">
       <Filter>Externals\imgui</Filter>
     </ClCompile>
-    <ClCompile Include="Game\Engine\GameCore.cpp">
+    <ClCompile Include="Engine\Engine\GameCore.cpp">
       <Filter>Engine</Filter>
     </ClCompile>
-    <ClCompile Include="Game\Engine\Graphics\LinerAllocator.cpp">
+    <ClCompile Include="Engine\Engine\Graphics\LinerAllocator.cpp">
       <Filter>Engine\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Game\Engine\Graphics\UploadBuffer.cpp">
+    <ClCompile Include="Engine\Engine\Graphics\UploadBuffer.cpp">
       <Filter>Engine\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Game\Engine\Graphics\RootSignature.cpp">
+    <ClCompile Include="Engine\Engine\Graphics\RootSignature.cpp">
       <Filter>Engine\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Game\Engine\Graphics\PipelineState.cpp">
+    <ClCompile Include="Engine\Engine\Graphics\PipelineState.cpp">
       <Filter>Engine\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Game\Engine\ShderCompiler\ShaderCompiler.cpp">
+    <ClCompile Include="Engine\Engine\ShderCompiler\ShaderCompiler.cpp">
       <Filter>Engine\ShaderCompiler</Filter>
     </ClCompile>
-    <ClCompile Include="Game\Engine\Graphics\Helper.cpp">
+    <ClCompile Include="Engine\Engine\Graphics\Helper.cpp">
       <Filter>Engine\Graphics</Filter>
     </ClCompile>
     <ClCompile Include="Game\Src\main.cpp" />
@@ -169,96 +169,96 @@
     <ClCompile Include="Game\Src\Game\DebugCamera\DebugCamera.cpp">
       <Filter>Game\DebugCamera</Filter>
     </ClCompile>
-    <ClCompile Include="Game\Engine\Model\Model.cpp">
+    <ClCompile Include="Engine\Engine\Model\Model.cpp">
       <Filter>Engine\Model</Filter>
     </ClCompile>
-    <ClCompile Include="Game\Engine\Texture\Texture.cpp">
+    <ClCompile Include="Engine\Engine\Texture\Texture.cpp">
       <Filter>Engine\Texture</Filter>
     </ClCompile>
-    <ClCompile Include="Game\Engine\Texture\TextureManager.cpp">
+    <ClCompile Include="Engine\Engine\Texture\TextureManager.cpp">
       <Filter>Engine\Texture</Filter>
     </ClCompile>
-    <ClCompile Include="Game\Engine\Model\ModelManager.cpp">
+    <ClCompile Include="Engine\Engine\Model\ModelManager.cpp">
       <Filter>Engine\Model</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Game\Engine\WinApp\WinApp.h">
+    <ClInclude Include="Engine\Engine\WinApp\WinApp.h">
       <Filter>Engine\WinApp</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Engine\ImGui\ImGuiManager.h">
+    <ClInclude Include="Engine\Engine\ImGui\ImGuiManager.h">
       <Filter>Engine\ImGui</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Engine\ConvertString\ConvertString.h">
+    <ClInclude Include="Engine\Engine\ConvertString\ConvertString.h">
       <Filter>Engine\ConvertString</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Engine\Input\Input.h">
+    <ClInclude Include="Engine\Engine\Input\Input.h">
       <Filter>Engine\Input</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Engine\Math\Matrix4x4.h">
+    <ClInclude Include="Engine\Engine\Math\Matrix4x4.h">
       <Filter>Engine\Math</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Engine\Math\MyMath.h">
+    <ClInclude Include="Engine\Engine\Math\MyMath.h">
       <Filter>Engine\Math</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Engine\Math\Vector2.h">
+    <ClInclude Include="Engine\Engine\Math\Vector2.h">
       <Filter>Engine\Math</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Engine\Math\Vector4.h">
+    <ClInclude Include="Engine\Engine\Math\Vector4.h">
       <Filter>Engine\Math</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Engine\Math\Vector3.h">
+    <ClInclude Include="Engine\Engine\Math\Vector3.h">
       <Filter>Engine\Math</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Engine\Math\AABB.h">
+    <ClInclude Include="Engine\Engine\Math\AABB.h">
       <Filter>Engine\Math</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Engine\Math\OBB.h">
+    <ClInclude Include="Engine\Engine\Math\OBB.h">
       <Filter>Engine\Math</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Engine\Math\ViewProjection.h">
+    <ClInclude Include="Engine\Engine\Math\ViewProjection.h">
       <Filter>Engine\Math</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Engine\Math\WorldTransform.h">
+    <ClInclude Include="Engine\Engine\Math\WorldTransform.h">
       <Filter>Engine\Math</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Engine\Graphics\CommandQueue.h">
+    <ClInclude Include="Engine\Engine\Graphics\CommandQueue.h">
       <Filter>Engine\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Engine\Graphics\GraphicsCore.h">
+    <ClInclude Include="Engine\Engine\Graphics\GraphicsCore.h">
       <Filter>Engine\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Engine\Graphics\DescriptorHeap.h">
+    <ClInclude Include="Engine\Engine\Graphics\DescriptorHeap.h">
       <Filter>Engine\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Engine\Graphics\DescriptorHandle.h">
+    <ClInclude Include="Engine\Engine\Graphics\DescriptorHandle.h">
       <Filter>Engine\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Engine\Graphics\SamplerManager.h">
+    <ClInclude Include="Engine\Engine\Graphics\SamplerManager.h">
       <Filter>Engine\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Engine\Graphics\Color.h">
+    <ClInclude Include="Engine\Engine\Graphics\Color.h">
       <Filter>Engine\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Engine\Graphics\SwapChain.h">
+    <ClInclude Include="Engine\Engine\Graphics\SwapChain.h">
       <Filter>Engine\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Engine\Graphics\GpuResource.h">
+    <ClInclude Include="Engine\Engine\Graphics\GpuResource.h">
       <Filter>Engine\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Engine\Graphics\PixelBuffer.h">
+    <ClInclude Include="Engine\Engine\Graphics\PixelBuffer.h">
       <Filter>Engine\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Engine\Graphics\ColorBuffer.h">
+    <ClInclude Include="Engine\Engine\Graphics\ColorBuffer.h">
       <Filter>Engine\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Engine\Graphics\RenderManager.h">
+    <ClInclude Include="Engine\Engine\Graphics\RenderManager.h">
       <Filter>Engine\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Engine\Graphics\CommandContext.h">
+    <ClInclude Include="Engine\Engine\Graphics\CommandContext.h">
       <Filter>Engine\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Engine\Graphics\DepthBuffer.h">
+    <ClInclude Include="Engine\Engine\Graphics\DepthBuffer.h">
       <Filter>Engine\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Externals\Imgui\imstb_truetype.h">
@@ -285,25 +285,25 @@
     <ClInclude Include="Externals\Imgui\imstb_rectpack.h">
       <Filter>Externals\imgui</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Engine\GameCore.h">
+    <ClInclude Include="Engine\Engine\GameCore.h">
       <Filter>Engine</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Engine\Graphics\LinerAllocator.h">
+    <ClInclude Include="Engine\Engine\Graphics\LinerAllocator.h">
       <Filter>Engine\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Engine\Graphics\UploadBuffer.h">
+    <ClInclude Include="Engine\Engine\Graphics\UploadBuffer.h">
       <Filter>Engine\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Engine\Graphics\PipelineState.h">
+    <ClInclude Include="Engine\Engine\Graphics\PipelineState.h">
       <Filter>Engine\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Engine\Graphics\RootSignature.h">
+    <ClInclude Include="Engine\Engine\Graphics\RootSignature.h">
       <Filter>Engine\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Engine\ShderCompiler\ShaderCompiler.h">
+    <ClInclude Include="Engine\Engine\ShderCompiler\ShaderCompiler.h">
       <Filter>Engine\ShaderCompiler</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Engine\Graphics\Helper.h">
+    <ClInclude Include="Engine\Engine\Graphics\Helper.h">
       <Filter>Engine\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Game\Src\Scenes\GameScene.h">
@@ -315,22 +315,22 @@
     <ClInclude Include="Game\Src\Game\DebugCamera\DebugCamera.h">
       <Filter>Game\DebugCamera</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Engine\Model\Model.h">
+    <ClInclude Include="Engine\Engine\Model\Model.h">
       <Filter>Engine\Model</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Engine\Texture\Texture.h">
+    <ClInclude Include="Engine\Engine\Texture\Texture.h">
       <Filter>Engine\Texture</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Engine\Texture\TextureHandle.h">
+    <ClInclude Include="Engine\Engine\Texture\TextureHandle.h">
       <Filter>Engine\Texture</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Engine\Texture\TextureManager.h">
+    <ClInclude Include="Engine\Engine\Texture\TextureManager.h">
       <Filter>Engine\Texture</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Engine\Model\ModelHandle.h">
+    <ClInclude Include="Engine\Engine\Model\ModelHandle.h">
       <Filter>Engine\Model</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Engine\Model\ModelManager.h">
+    <ClInclude Include="Engine\Engine\Model\ModelManager.h">
       <Filter>Engine\Model</Filter>
     </ClInclude>
   </ItemGroup>
@@ -340,31 +340,31 @@
     </Text>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="Game\Resources\Shaders\GPUParticle.VS.hlsl">
+    <None Include="Resources\Shaders\GPUParticle.hlsli">
       <Filter>Shaders\GPUParticle</Filter>
-    </FxCompile>
-    <FxCompile Include="Game\Resources\Shaders\GPUParticle.PS.hlsl">
-      <Filter>Shaders\GPUParticle</Filter>
-    </FxCompile>
-    <FxCompile Include="Game\Resources\Shaders\Update.CS.hlsl">
-      <Filter>Shaders\GPUParticle</Filter>
-    </FxCompile>
-    <FxCompile Include="Game\Resources\Shaders\Spawn.CS.hlsl">
-      <Filter>Shaders\GPUParticle</Filter>
-    </FxCompile>
-    <FxCompile Include="Game\Resources\Shaders\Model.VS.hlsl">
+    </None>
+    <None Include="Resources\Shaders\Model.hlsli">
       <Filter>Shaders\Model</Filter>
-    </FxCompile>
-    <FxCompile Include="Game\Resources\Shaders\Model.PS.hlsl">
-      <Filter>Shaders\Model</Filter>
-    </FxCompile>
+    </None>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Game\Resources\Shaders\GPUParticle.hlsli">
+    <FxCompile Include="Resources\Shaders\GPUParticle.PS.hlsl">
       <Filter>Shaders\GPUParticle</Filter>
-    </None>
-    <None Include="Game\Resources\Shaders\Model.hlsli">
+    </FxCompile>
+    <FxCompile Include="Resources\Shaders\GPUParticle.VS.hlsl">
+      <Filter>Shaders\GPUParticle</Filter>
+    </FxCompile>
+    <FxCompile Include="Resources\Shaders\Spawn.CS.hlsl">
+      <Filter>Shaders\GPUParticle</Filter>
+    </FxCompile>
+    <FxCompile Include="Resources\Shaders\Update.CS.hlsl">
+      <Filter>Shaders\GPUParticle</Filter>
+    </FxCompile>
+    <FxCompile Include="Resources\Shaders\Model.PS.hlsl">
       <Filter>Shaders\Model</Filter>
-    </None>
+    </FxCompile>
+    <FxCompile Include="Resources\Shaders\Model.VS.hlsl">
+      <Filter>Shaders\Model</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

@@ -46,10 +46,12 @@ private:
 	struct ParticleInfo {
 		float speed;
 	};
+
 	struct IndirectCommand {
 		D3D12_GPU_VIRTUAL_ADDRESS srv;
 		D3D12_DRAW_INDEXED_ARGUMENTS drawIndex;
 	};
+	
 	struct ParticleArea {
 		Vector3 min;
 		float pad1;
@@ -126,6 +128,8 @@ private:
 	GpuResource processedCommandBuffers_;
 	DescriptorHandle processedCommandsHandle_;
 	GpuResource processedCommandBufferCounterReset_;
+	GpuResource drawArgumentBuffer_;
+	DescriptorHandle drawArgumentHandle_;
 
 	ParticleInfo* particleInfo_;
 	Particle* particle_;

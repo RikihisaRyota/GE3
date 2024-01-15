@@ -5,7 +5,7 @@
 #include <Windows.h>
 #include <wrl.h>
 
-#include "../Engine/GameCore.h"
+#include "Engine/GameCore.h"
 
 #pragma comment(lib,"dxguid.lib")
 

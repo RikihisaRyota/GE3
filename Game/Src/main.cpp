@@ -27,8 +27,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	GameCore::Initialize();
 
 	// メインループ
-	while (GameCore::BeginFrame()) {
-	}
+	while (GameCore::BeginFrame()) {}
 
 	GameCore::Shutdown();
 	return 0;

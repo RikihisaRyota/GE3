@@ -16,8 +16,23 @@
 #include "Engine/ImGui/ImGuiManager.h"
 #include "Engine/Input/Input.h"
 
-const UINT GPUParticle::kNumThread = 524288*2*2;
-//const UINT GPUParticle::kNumThread = 128;
+//#define STR(x) (#x)
+//
+//#define Serialize(x) f(STR(x), &x)
+//#define DeSerialize(x) f(STR(x), &x)
+//
+//
+//int main() {
+//	int power = 0;
+//
+//	const char name[] = STR(power);
+//
+//	Serialize(power);
+//	DeSerialize(power);
+//}
+
+//const UINT GPUParticle::kNumThread = 524288*2;
+const UINT GPUParticle::kNumThread = 128;
 const UINT GPUParticle::CommandSizePerFrame = kNumThread * sizeof(uint32_t);
 const UINT GPUParticle::CommandBufferCounterOffset = AlignForUavCounter(GPUParticle::CommandSizePerFrame);
 
@@ -225,17 +240,18 @@ void GPUParticle::Render(const ViewProjection& viewProjection) {
 		}
 	}
 
-	ModelManager::GetInstance()->Draw(worldTransform_, viewProjection, gpuParticleModelHandle_, commandContext);
+	//ModelManager::GetInstance()->Draw(worldTransform_, viewProjection, gpuParticleModelHandle_, commandContext);
 	commandContext.SetPipelineState(*graphicsPipelineState_);
 	commandContext.SetGraphicsRootSignature(*graphicsRootSignature_);
 
+	commandContext.TransitionResource(rwStructuredBuffer_, D3D12_RESOURCE_STATE_GENERIC_READ);
 	commandContext.TransitionResource(processedCommandBuffers_, D3D12_RESOURCE_STATE_GENERIC_READ);
 	commandContext.TransitionResource(drawArgumentBuffer_, D3D12_RESOURCE_STATE_INDIRECT_ARGUMENT);
 
 	commandContext.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	/*commandContext.SetGraphicsDescriptorTable(0, rwStructuredBufferHandle_);*/
 	commandContext.SetGraphicsShaderResource(1, processedCommandBuffers_->GetGPUVirtualAddress());
-	commandContext.SetGraphicsConstantBuffer(2, viewProjection.constBuff_->GetGPUVirtualAddress());
+	commandContext.SetGraphicsConstantBuffer(2, viewProjection.constBuff_.GetGPUVirtualAddress());
 	commandContext.SetGraphicsDescriptorTable(3, TextureManager::GetInstance()->GetTexture(ModelManager::GetInstance()->GetModel(gpuParticleModelHandle_).GetTextureHandle()).GetSRV());
 	commandContext.SetGraphicsDescriptorTable(4, SamplerManager::Anisotropic);
 	commandContext.SetVertexBuffer(0, vbView_);

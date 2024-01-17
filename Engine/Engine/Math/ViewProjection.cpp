@@ -14,14 +14,13 @@ void ViewProjection::Initialize() {
 }
 
 void ViewProjection::CreateConstBuffer() {
-	constBuff_ = std::make_unique<UploadBuffer>();
-	constBuff_->Create(L"ViewProjection", sizeof(ConstBufferDataViewProjection));
+	constBuff_.Create(L"ViewProjection", sizeof(ConstBufferDataViewProjection));
 	constMap_ = new ConstBufferDataViewProjection();
 }
 
 void ViewProjection::Map() {
 	// 定数バッファとのデータリンク
-	constBuff_->Copy(constMap_, sizeof(ConstBufferDataViewProjection));
+	constBuff_.Copy(constMap_, sizeof(ConstBufferDataViewProjection));
 }
 
 void ViewProjection::UpdateMatrix() {
@@ -44,7 +43,7 @@ void ViewProjection::UpdateMatrix() {
 	constBufferDate.projection = matProjection_;
 	constBufferDate.cameraPos = translation_;
 
-	constBuff_->Copy(constBufferDate);
+	constBuff_.Copy(constBufferDate);
 }
 
 void ViewProjection::TransferMatrix() {

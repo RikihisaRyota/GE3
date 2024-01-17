@@ -16,7 +16,7 @@ struct ConstBufferDataViewProjection {
 struct ViewProjection
 {
 	// 定数バッファ
-	std::unique_ptr<UploadBuffer> constBuff_;
+	UploadBuffer constBuff_;
 	// マッピング済みアドレス
 	ConstBufferDataViewProjection* constMap_ = nullptr;
 #pragma region ビュー行列の設定

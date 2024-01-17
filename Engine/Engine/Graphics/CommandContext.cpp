@@ -236,6 +236,7 @@ void CommandContext::DrawIndexedInstanced(UINT indexCountPerInstance, UINT insta
 }
 
 void CommandContext::ExecuteIndirect(ID3D12CommandSignature* commandSignature, UINT maxCommandCount, ID3D12Resource* argumentBuffer, UINT64 argumentBufferOffset, ID3D12Resource* countBuffer, UINT64 countBufferOffset) {
+	FlushResourceBarriers();
 	commandList_->ExecuteIndirect(commandSignature, maxCommandCount, argumentBuffer, argumentBufferOffset, countBuffer, countBufferOffset);
 }
 

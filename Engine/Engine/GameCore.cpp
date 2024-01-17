@@ -14,8 +14,7 @@ namespace GameCore {
 	RenderManager* renderManager = nullptr;
 	WinApp* winApp = nullptr;
 	ShaderCompiler* shaderCompiler = nullptr;
-	std::unique_ptr<GameScene> gameScene = nullptr;
-	//GameScene* gameScene = nullptr;
+	GameScene* gameScene = nullptr;
 	void Initialize() {
 		winApp = WinApp::GetInstance();
 		winApp->CreateGameWindow(L"LE2A_24_リキヒサ_リョウタ");
@@ -31,8 +30,7 @@ namespace GameCore {
 
 		ModelManager::CreatePipeline(renderManager->GetRenderTargetFormat(),renderManager->GetDepthFormat());
 
-		gameScene = std::make_unique<GameScene>();
-		//gameScene = new GameScene();
+		gameScene = new GameScene();
 		gameScene->Initialize();
 
 	}
@@ -57,7 +55,7 @@ namespace GameCore {
 	}
 
 	void Shutdown() {
-		//delete gameScene;
+		delete gameScene;
 		renderManager->Shutdown();
 		ModelManager::DestroyPipeline();
 		winApp->TerminateGameWindow();

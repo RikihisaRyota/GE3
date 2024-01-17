@@ -107,7 +107,7 @@ void ModelManager::Draw(const WorldTransform& worldTransform, const ViewProjecti
 	for (auto& modelData : models_.at(modelHandle)->GetMeshData()) {
 		commandContext.SetIndexBuffer(modelData->ibView_);
 		commandContext.SetGraphicsConstantBuffer(0, worldTransform.constBuff_.get()->GetGPUVirtualAddress());
-		commandContext.SetGraphicsConstantBuffer(1, viewProjection.constBuff_.get()->GetGPUVirtualAddress());
+		commandContext.SetGraphicsConstantBuffer(1, viewProjection.constBuff_.GetGPUVirtualAddress());
 		commandContext.SetGraphicsConstantBuffer(2, models_.at(modelHandle)->GetMaterialBuffer().GetGPUVirtualAddress());
 		commandContext.SetGraphicsDescriptorTable(3, TextureManager::GetInstance()->GetTexture(models_.at(modelHandle)->GetTextureHandle()).GetSRV());
 		commandContext.SetGraphicsDescriptorTable(4, SamplerManager::Anisotropic);

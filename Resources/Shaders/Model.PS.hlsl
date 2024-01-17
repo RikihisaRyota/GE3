@@ -5,8 +5,8 @@ SamplerState gSampler : register(s0);
 
 struct ViewProjection
 {
-    matrix view; // ビュー変換行列
-    matrix projection; // プロジェクション変換行列
+    float4x4 view; // ビュー変換行列
+    float4x4 projection; // プロジェクション変換行列
     float3 cameraPos; // カメラのワールド座標
 };
 
@@ -29,4 +29,5 @@ PixelShaderOutput main(VertexShaderOutput input)
     PixelShaderOutput output;
     output.color = float4(1.0f,0.0f,0.0f,1.0f) /** gTexture.Sample(gSampler, input.texcoord)*/;
     return output;
+    
 }

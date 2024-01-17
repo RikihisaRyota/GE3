@@ -2,16 +2,16 @@
 
 struct WorldTransform
 {
-    matrix world; // ƒ[ƒ‹ƒh•ÏŠ·s—ñ
+    float4x4 world; // ãƒ¯ãƒ¼ãƒ«ãƒ‰å¤‰æ›è¡Œåˆ—
 };
 
 ConstantBuffer<WorldTransform> gWorldTransform : register(b0);
 
 struct ViewProjection
 {
-    matrix view; // ƒrƒ…[•ÏŠ·s—ñ
-    matrix projection; // ƒvƒƒWƒFƒNƒVƒ‡ƒ“•ÏŠ·s—ñ
-    float3 cameraPos; // ƒJƒƒ‰‚Ìƒ[ƒ‹ƒhÀ•W
+    float4x4 view; // ãƒ“ãƒ¥ãƒ¼å¤‰æ›è¡Œåˆ—
+    float4x4 projection; // ãƒ—ãƒ­ã‚¸ã‚§ã‚¯ã‚·ãƒ§ãƒ³å¤‰æ›è¡Œåˆ—
+    float3 cameraPos; // ã‚«ãƒ¡ãƒ©ã®ãƒ¯ãƒ¼ãƒ«ãƒ‰åº§æ¨™
 };
 
 ConstantBuffer<ViewProjection> gViewProjection : register(b1);
@@ -25,7 +25,7 @@ struct VertexShaderInput
 
 VertexShaderOutput main(VertexShaderInput input)
 {
-    VertexShaderOutput output; // ƒsƒNƒZƒ‹ƒVƒF[ƒ_[‚É“n‚·’l
+    VertexShaderOutput output; // ãƒ”ã‚¯ã‚»ãƒ«ã‚·ã‚§ãƒ¼ãƒ€ãƒ¼ã«æ¸¡ã™å€¤
     output.position = float4(input.position,1.0f);
     output.position = mul(mul(output.position, gWorldTransform.world),mul(gViewProjection.view, gViewProjection.projection));
     output.normal = normalize(mul(input.normal, (float3x3) gWorldTransform.world));

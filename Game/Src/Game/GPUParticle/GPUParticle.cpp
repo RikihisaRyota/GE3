@@ -211,7 +211,6 @@ void GPUParticle::Update(ViewProjection* viewProjection) {
 
 	commandContext.TransitionResource(rwStructuredBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 	commandContext.TransitionResource(processedCommandBuffers_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-	commandContext.TransitionResource(drawArgumentBuffer_, D3D12_RESOURCE_STATE_GENERIC_READ);
 
 	commandContext.SetComputeUAV(0, rwStructuredBuffer_->GetGPUVirtualAddress());
 	commandContext.SetComputeDescriptorTable(1, commandHandle_);
@@ -313,6 +312,7 @@ void GPUParticle::InitializeSpawnParticle() {
 			nullptr,
 			IID_PPV_ARGS(rwStructuredBuffer_.GetAddressOf())
 		);
+		rwStructuredBuffer_->SetName(L"rwStructuredBuffer");
 	}
 	// 初期化用コンピュートルートシグネイチャ
 	{
@@ -326,7 +326,6 @@ void GPUParticle::InitializeSpawnParticle() {
 		desc.NumParameters = _countof(rootParameters);
 
 		spawnComputeRootSignature_->Create(L"GPUParticle SpawnRootSignature", desc);
-
 	}
 	// 初期化用コンピュートパイプライン
 	{
@@ -533,7 +532,7 @@ void GPUParticle::InitializeUpdateParticle() {
 			nullptr,
 			IID_PPV_ARGS(processedCommandBuffers_.GetAddressOf())
 		);
-
+		processedCommandBuffers_->SetName(L"processedCommandBuffers");
 		processedCommandsHandle_ = graphics->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 		D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = {};
 		uavDesc.Format = DXGI_FORMAT_UNKNOWN;
@@ -562,7 +561,7 @@ void GPUParticle::InitializeUpdateParticle() {
 			nullptr,
 			IID_PPV_ARGS(processedCommandBufferCounterReset_.GetAddressOf())
 		);
-
+		processedCommandBufferCounterReset_->SetName(L"processedCommandBufferCounterReset");
 		UINT8* pMappedCounterReset = nullptr;
 		CD3DX12_RANGE readRange(0, 0);
 		processedCommandBufferCounterReset_->Map(0, &readRange, reinterpret_cast<void**>(&pMappedCounterReset));

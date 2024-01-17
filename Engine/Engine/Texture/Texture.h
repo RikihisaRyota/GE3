@@ -17,7 +17,7 @@ public:
 	std::filesystem::path GetName() const { return name_.stem(); }
 private:
 	DirectX::ScratchImage LoadTexture(const std::filesystem::path& path);
-	void CreateResource(const DirectX::TexMetadata& metadata);
+	void CreateResource(const DirectX::TexMetadata& metadata, const std::filesystem::path& path);
 	[[nodiscard]]
 	void UploadTextureData(const DirectX::ScratchImage& mipImages);
 	void CreateView(const DirectX::TexMetadata& metadata);

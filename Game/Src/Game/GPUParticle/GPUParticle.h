@@ -152,7 +152,6 @@ private:
 	std::array<WorldTransform, kMaxBall> ballWorldTransform_;
 	
 	// テクスチャ
-	
 	UINT shotTime;
 
 	static inline UINT AlignForUavCounter(UINT bufferSize) {

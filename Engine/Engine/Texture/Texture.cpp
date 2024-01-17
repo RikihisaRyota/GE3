@@ -8,6 +8,7 @@
 #include "Engine/ConvertString/ConvertString.h"
 #include "Engine/Graphics/CommandContext.h"
 #include "Engine/Graphics/GraphicsCore.h"
+#include "Engine/Graphics/RenderManager.h"
 
 void Texture::CreateFromWICFile(const std::filesystem::path& path) {
 	// TextureデータをCPUにロード
@@ -15,7 +16,7 @@ void Texture::CreateFromWICFile(const std::filesystem::path& path) {
 
 	const DirectX::TexMetadata& metadata = mipImage.GetMetadata();
 
-	CreateResource(metadata);
+	CreateResource(metadata,path);
 
 	UploadTextureData(mipImage);
 
@@ -42,7 +43,7 @@ DirectX::ScratchImage Texture::LoadTexture(const std::filesystem::path& path) {
 	return mipImages;
 }
 
-void Texture::CreateResource(const DirectX::TexMetadata& metadata) {
+void Texture::CreateResource(const DirectX::TexMetadata& metadata, const std::filesystem::path& path) {
 	
 	desc_.Width = UINT(metadata.width);// Textureの幅
 	desc_.Height = UINT(metadata.height);// Textureの高さ
@@ -56,10 +57,11 @@ void Texture::CreateResource(const DirectX::TexMetadata& metadata) {
 		&heapPropeteies,
 		D3D12_HEAP_FLAG_NONE,
 		&desc_,
-		D3D12_RESOURCE_STATE_COPY_DEST,
+		D3D12_RESOURCE_STATE_COMMON,
 		nullptr,
 		IID_PPV_ARGS(resource_.GetAddressOf()));
-	state_ = D3D12_RESOURCE_STATE_COPY_DEST;
+	resource_->SetName(path.c_str());
+	state_ = D3D12_RESOURCE_STATE_COMMON;
 }
 
 void Texture::UploadTextureData(const DirectX::ScratchImage& mipImages) {
@@ -68,13 +70,12 @@ void Texture::UploadTextureData(const DirectX::ScratchImage& mipImages) {
 	auto& commandQueue = graphicsCore->GetCommandQueue();
 	CommandContext commandContext;
 	commandContext.Create();
-
 	std::vector<D3D12_SUBRESOURCE_DATA> subResources{};
 	DirectX::PrepareUpload(device, mipImages.GetImages(), mipImages.GetImageCount(), mipImages.GetMetadata(), subResources);
 	uint64_t intermediateSize = GetRequiredIntermediateSize(resource_.Get(), 0, UINT(subResources.size()));
 	D3D12_RESOURCE_DESC intermediateDesc = CD3DX12_RESOURCE_DESC::Buffer(intermediateSize);
 	D3D12_HEAP_PROPERTIES heapPropeteies = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
-	Microsoft::WRL::ComPtr<ID3D12Resource> intermediateResource{};
+	GpuResource intermediateResource{};
 	device->CreateCommittedResource(
 		&heapPropeteies,
 		D3D12_HEAP_FLAG_NONE,
@@ -83,8 +84,12 @@ void Texture::UploadTextureData(const DirectX::ScratchImage& mipImages) {
 		nullptr,
 		IID_PPV_ARGS(intermediateResource.GetAddressOf())
 	);
+	intermediateResource.SetState(D3D12_RESOURCE_STATE_GENERIC_READ);
+	intermediateResource->SetName(L"intermediateResource");
+	commandContext.TransitionResource(*this, D3D12_RESOURCE_STATE_COPY_DEST);
+	commandContext.FlushResourceBarriers();
 
-	UpdateSubresources(commandContext,resource_.Get(), intermediateResource.Get(), 0, 0, UINT(subResources.size()), subResources.data());
+	UpdateSubresources(commandContext,resource_.Get(), intermediateResource.GetResource(), 0, 0, UINT(subResources.size()), subResources.data());
 
 	commandContext.TransitionResource(*this, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 	commandContext.Close();

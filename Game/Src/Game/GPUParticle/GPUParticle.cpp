@@ -241,29 +241,29 @@ void GPUParticle::Render(const ViewProjection& viewProjection) {
 	}
 	ModelManager::GetInstance()->Draw(worldTransform_, viewProjection, gpuParticleModelHandle_, commandContext);
 
-	//commandContext.SetPipelineState(*graphicsPipelineState_);
-	//commandContext.SetGraphicsRootSignature(*graphicsRootSignature_);
+	commandContext.SetPipelineState(*graphicsPipelineState_);
+	commandContext.SetGraphicsRootSignature(*graphicsRootSignature_);
 
-	//commandContext.TransitionResource(rwStructuredBuffer_, D3D12_RESOURCE_STATE_GENERIC_READ);
-	//commandContext.TransitionResource(processedCommandBuffers_, D3D12_RESOURCE_STATE_GENERIC_READ);
-	//commandContext.TransitionResource(drawArgumentBuffer_, D3D12_RESOURCE_STATE_INDIRECT_ARGUMENT);
+	commandContext.TransitionResource(rwStructuredBuffer_, D3D12_RESOURCE_STATE_GENERIC_READ);
+	commandContext.TransitionResource(processedCommandBuffers_, D3D12_RESOURCE_STATE_GENERIC_READ);
+	commandContext.TransitionResource(drawArgumentBuffer_, D3D12_RESOURCE_STATE_INDIRECT_ARGUMENT);
 
-	//commandContext.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	///*commandContext.SetGraphicsDescriptorTable(0, rwStructuredBufferHandle_);*/
-	//commandContext.SetGraphicsShaderResource(1, processedCommandBuffers_->GetGPUVirtualAddress());
-	//commandContext.SetGraphicsConstantBuffer(2, viewProjection.constBuff_.GetGPUVirtualAddress());
-	//commandContext.SetGraphicsDescriptorTable(3, TextureManager::GetInstance()->GetTexture(ModelManager::GetInstance()->GetModel(gpuParticleModelHandle_).GetTextureHandle()).GetSRV());
-	//commandContext.SetGraphicsDescriptorTable(4, SamplerManager::Anisotropic);
-	//commandContext.SetVertexBuffer(0, vbView_);
-	//commandContext.SetIndexBuffer(ibView_);
-	//commandContext.ExecuteIndirect(
-	//	commandSignature_.Get(),
-	//	1,
-	//	drawArgumentBuffer_,
-	//	0,
-	//	nullptr,
-	//	0
-	//);
+	commandContext.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	/*commandContext.SetGraphicsDescriptorTable(0, rwStructuredBufferHandle_);*/
+	commandContext.SetGraphicsShaderResource(1, processedCommandBuffers_->GetGPUVirtualAddress());
+	commandContext.SetGraphicsConstantBuffer(2, viewProjection.constBuff_.GetGPUVirtualAddress());
+	commandContext.SetGraphicsDescriptorTable(3, TextureManager::GetInstance()->GetTexture(ModelManager::GetInstance()->GetModel(gpuParticleModelHandle_).GetTextureHandle()).GetSRV());
+	commandContext.SetGraphicsDescriptorTable(4, SamplerManager::Anisotropic);
+	commandContext.SetVertexBuffer(0, vbView_);
+	commandContext.SetIndexBuffer(ibView_);
+	commandContext.ExecuteIndirect(
+		commandSignature_.Get(),
+		1,
+		drawArgumentBuffer_,
+		0,
+		nullptr,
+		0
+	);
 }
 
 void GPUParticle::InitializeBall() {

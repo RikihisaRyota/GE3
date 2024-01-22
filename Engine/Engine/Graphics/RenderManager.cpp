@@ -3,7 +3,6 @@
 #include "../../Engine/WinApp/WinApp.h"
 #include "../Imgui/ImGuiManager.h"
 
-
 RenderManager* RenderManager::GetInstance() {
 	static RenderManager instance;
 	return &instance;
@@ -76,6 +75,7 @@ void RenderManager::EndRender() {
 	commandQueue.Execute(commandContext);
 	swapChain_.Present();
 	commandQueue.Signal();
+	commandQueue.UpdateFixFPS();
 }
 
 void RenderManager::Shutdown() {

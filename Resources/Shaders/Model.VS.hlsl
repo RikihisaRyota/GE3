@@ -1,21 +1,5 @@
 #include "Model.hlsli"
 
-struct WorldTransform
-{
-    float4x4 world; // ワールド変換行列
-};
-
-ConstantBuffer<WorldTransform> gWorldTransform : register(b0);
-
-struct ViewProjection
-{
-    float4x4 view; // ビュー変換行列
-    float4x4 projection; // プロジェクション変換行列
-    float3 cameraPos; // カメラのワールド座標
-};
-
-ConstantBuffer<ViewProjection> gViewProjection : register(b1);
-
 struct VertexShaderInput
 {
     float3 position : POSITION0;

@@ -77,6 +77,7 @@ private:
 	};
 public:
 	GPUParticle();
+	~GPUParticle();
 	void Initialize();
 	void Update(ViewProjection* viewProjection);
 	void Render(const ViewProjection& viewProjection);

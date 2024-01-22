@@ -2,24 +2,32 @@
 
 #include <memory>
 
+#include "Audio/Audio.h"
 #include "Graphics/RenderManager.h"
 #include "Input/Input.h"
 #include "Model/ModelManager.h"
 #include "ShderCompiler/ShaderCompiler.h"
+#include "Src/Scenes/SceneManager/SceneManager.h"
+#include "Src/Scenes/SceneFactory/SceneFactory.h"
 #include "WinApp/WinApp.h"
-#include "Src/Scenes/GameScene.h"
 
 namespace GameCore {
-	Input* input=nullptr;
+	Audio* audio = nullptr;
+	Input* input = nullptr;
 	RenderManager* renderManager = nullptr;
 	WinApp* winApp = nullptr;
 	ShaderCompiler* shaderCompiler = nullptr;
-	GameScene* gameScene = nullptr;
+	SceneManager* sceneManager = nullptr;
+	SceneFactory* sceneFactory = nullptr;
+
 	void Initialize() {
 		winApp = WinApp::GetInstance();
 		winApp->CreateGameWindow(L"LE2A_24_リキヒサ_リョウタ");
 
 		shaderCompiler->Initialize();
+
+		audio = Audio::GetInstance();
+		audio->Initialize();
 
 		input = Input::GetInstance();
 		input->Initialize();
@@ -30,9 +38,11 @@ namespace GameCore {
 
 		ModelManager::CreatePipeline(renderManager->GetRenderTargetFormat(),renderManager->GetDepthFormat());
 
-		gameScene = new GameScene();
-		gameScene->Initialize();
+		sceneManager = SceneManager::GetInstance();
 
+		sceneFactory = new SceneFactory();
+		sceneManager->SetSceneFactory(sceneFactory);
+		sceneManager->Initialize(AbstractSceneFactory::Scene::kGame);
 	}
 
 	bool BeginFrame() {
@@ -41,11 +51,13 @@ namespace GameCore {
 		}
 		input->Update();
 
-		gameScene->Update();
+		audio->Update();
+
+		sceneManager->Update();
 
 		renderManager->BeginRender();
 
-		gameScene->Draw(renderManager->GetCommandContext());
+		sceneManager->Draw(renderManager->GetCommandContext());
 
 		renderManager->EndRender();
 
@@ -55,7 +67,7 @@ namespace GameCore {
 	}
 
 	void Shutdown() {
-		delete gameScene;
+		delete sceneFactory;
 		renderManager->Shutdown();
 		ModelManager::DestroyPipeline();
 		winApp->TerminateGameWindow();

@@ -13,6 +13,17 @@
 std::unique_ptr<RootSignature> ModelManager::rootSignature_;
 std::unique_ptr<PipelineState> ModelManager::pipelineState_;
 
+namespace Parameter {
+	enum RootParameter {
+		WorldTransform,
+		ViewProjection,
+		Material,
+		Texture,
+		Sampler,
+		Count,
+	};
+}
+
 ModelManager* ModelManager::GetInstance() {
 	static ModelManager instance;
 	return &instance;
@@ -27,12 +38,12 @@ void ModelManager::CreatePipeline(DXGI_FORMAT rtvFormat, DXGI_FORMAT dsvFormat) 
 		CD3DX12_DESCRIPTOR_RANGE samplerRanges[1]{};
 		samplerRanges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER, 1, 0);
 
-		CD3DX12_ROOT_PARAMETER rootParameters[5]{};
-		rootParameters[0].InitAsConstantBufferView(0);
-		rootParameters[1].InitAsConstantBufferView(1);
-		rootParameters[2].InitAsConstantBufferView(2);
-		rootParameters[3].InitAsDescriptorTable(_countof(range), range);
-		rootParameters[4].InitAsDescriptorTable(_countof(samplerRanges), samplerRanges);
+		CD3DX12_ROOT_PARAMETER rootParameters[Parameter::RootParameter::Count]{};
+		rootParameters[Parameter::RootParameter::WorldTransform].InitAsConstantBufferView(0);
+		rootParameters[Parameter::RootParameter::ViewProjection].InitAsConstantBufferView(1);
+		rootParameters[Parameter::RootParameter::Material].InitAsConstantBufferView(2);
+		rootParameters[Parameter::RootParameter::Texture].InitAsDescriptorTable(_countof(range), range);
+		rootParameters[Parameter::RootParameter::Sampler].InitAsDescriptorTable(_countof(samplerRanges), samplerRanges);
 
 		D3D12_ROOT_SIGNATURE_DESC desc{};
 		desc.pParameters = rootParameters;
@@ -61,7 +72,7 @@ void ModelManager::CreatePipeline(DXGI_FORMAT rtvFormat, DXGI_FORMAT dsvFormat) 
 
 		desc.VS = CD3DX12_SHADER_BYTECODE(vs->GetBufferPointer(), vs->GetBufferSize());
 		desc.PS = CD3DX12_SHADER_BYTECODE(ps->GetBufferPointer(), ps->GetBufferSize());
-		desc.BlendState = Helper::BlendDisable;
+		desc.BlendState = Helper::BlendAlpha;
 		desc.DepthStencilState = Helper::DepthStateReadWrite;
 		desc.RasterizerState = Helper::RasterizerDefault;
 		desc.NumRenderTargets = 1;
@@ -106,11 +117,11 @@ void ModelManager::Draw(const WorldTransform& worldTransform, const ViewProjecti
 	commandContext.SetVertexBuffer(0, models_.at(modelHandle)->GetVBView());
 	for (auto& modelData : models_.at(modelHandle)->GetMeshData()) {
 		commandContext.SetIndexBuffer(modelData->ibView_);
-		commandContext.SetGraphicsConstantBuffer(0, worldTransform.constBuff_.get()->GetGPUVirtualAddress());
-		commandContext.SetGraphicsConstantBuffer(1, viewProjection.constBuff_.GetGPUVirtualAddress());
-		commandContext.SetGraphicsConstantBuffer(2, models_.at(modelHandle)->GetMaterialBuffer().GetGPUVirtualAddress());
-		commandContext.SetGraphicsDescriptorTable(3, TextureManager::GetInstance()->GetTexture(models_.at(modelHandle)->GetTextureHandle()).GetSRV());
-		commandContext.SetGraphicsDescriptorTable(4, SamplerManager::Anisotropic);
+		commandContext.SetGraphicsConstantBuffer(Parameter::RootParameter::WorldTransform, worldTransform.constBuff_.get()->GetGPUVirtualAddress());
+		commandContext.SetGraphicsConstantBuffer(Parameter::RootParameter::ViewProjection, viewProjection.constBuff_.GetGPUVirtualAddress());
+		commandContext.SetGraphicsConstantBuffer(Parameter::RootParameter::Material, models_.at(modelHandle)->GetMaterialBuffer().GetGPUVirtualAddress());
+		commandContext.SetGraphicsDescriptorTable(Parameter::RootParameter::Texture, TextureManager::GetInstance()->GetTexture(models_.at(modelHandle)->GetTextureHandle()).GetSRV());
+		commandContext.SetGraphicsDescriptorTable(Parameter::RootParameter::Sampler, SamplerManager::Anisotropic);
 		commandContext.DrawIndexed(modelData->meshes_->indexCount);
 	}
 }

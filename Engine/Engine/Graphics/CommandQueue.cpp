@@ -1,6 +1,8 @@
 #include "CommandQueue.h"
 
 #include <assert.h>
+#include <chrono>
+#include <thread>
 
 #include "CommandContext.h"
 #include "GraphicsCore.h"
@@ -45,6 +47,33 @@ void CommandQueue::WaitForGPU() {
 	if (fence_->GetCompletedValue() < fenceValue_) {
 		fence_->SetEventOnCompletion(fenceValue_, fenceEvent_);
 		WaitForSingleObject(fenceEvent_, INFINITE);
+	}
+}
+
+void CommandQueue::UpdateFixFPS() {
+	// FPS固定
+	{
+		timeBeginPeriod(1);
+		std::chrono::steady_clock::time_point now = std::chrono::steady_clock::now();
+		std::chrono::microseconds elapsed =
+			std::chrono::duration_cast<std::chrono::microseconds>(now - referenceTime_);
+
+		static const std::chrono::microseconds kMinCheckTime(uint64_t(1000000.0f / 62.0f));
+		static const std::chrono::microseconds kMinTime(uint64_t(1000000.0f / 60.0f));
+		std::chrono::microseconds check = kMinCheckTime - elapsed;
+		if (check > std::chrono::microseconds(0)) {
+			std::chrono::microseconds waitTime = kMinTime - elapsed;
+
+			std::chrono::steady_clock::time_point waitStart = std::chrono::steady_clock::now();
+			do {
+				std::this_thread::sleep_for(std::chrono::nanoseconds(1));
+			} while (std::chrono::steady_clock::now() - waitStart < waitTime);
+		}
+
+		elapsed = std::chrono::duration_cast<std::chrono::microseconds>(
+			std::chrono::steady_clock::now() - referenceTime_);
+		referenceTime_ = std::chrono::steady_clock::now();
+		timeBeginPeriod(1);
 	}
 }
 

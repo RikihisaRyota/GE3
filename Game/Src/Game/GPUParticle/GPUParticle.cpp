@@ -70,6 +70,9 @@ GPUParticle::GPUParticle() {
 	shotTime = 0;
 }
 
+GPUParticle::~GPUParticle() {
+}
+
 void GPUParticle::Initialize() {
 
 }

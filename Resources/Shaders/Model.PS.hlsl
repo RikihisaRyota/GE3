@@ -3,15 +3,6 @@
 Texture2D<float4> gTexture : register(t0);
 SamplerState gSampler : register(s0);
 
-struct ViewProjection
-{
-    float4x4 view; // ビュー変換行列
-    float4x4 projection; // プロジェクション変換行列
-    float3 cameraPos; // カメラのワールド座標
-};
-
-ConstantBuffer<ViewProjection> gViewProjection : register(b1);
-
 struct Material
 {
     float4 color;
@@ -27,7 +18,7 @@ struct PixelShaderOutput
 PixelShaderOutput main(VertexShaderOutput input)
 {
     PixelShaderOutput output;
-    output.color = float4(1.0f,0.0f,0.0f,1.0f) /** gTexture.Sample(gSampler, input.texcoord)*/;
+    output.color = gMaterial.color * gTexture.Sample(gSampler, input.texcoord);
     return output;
     
 }

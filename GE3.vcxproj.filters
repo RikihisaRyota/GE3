@@ -58,6 +58,30 @@
     <Filter Include="Shaders\Model">
       <UniqueIdentifier>{e798e65e-572e-4230-a498-4abace6ab381}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\Audio">
+      <UniqueIdentifier>{5182a3b5-3e8d-4498-8f2b-0042f307c3f4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Audio\SoundHandle">
+      <UniqueIdentifier>{e99f5797-e526-4df4-b293-3060566102c6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scenes\GameScene">
+      <UniqueIdentifier>{adc05955-4fed-458b-9cf9-eb3407035992}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scenes\TitleScene">
+      <UniqueIdentifier>{6fe2159c-fe84-4fdb-943e-2a1aa27b5fe3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scenes\BaseScene">
+      <UniqueIdentifier>{f933f337-5f31-4b23-a12c-b9c173e727d7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scenes\SceneManager">
+      <UniqueIdentifier>{8bad419b-b6ca-4705-a4da-9cc73ada41df}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scenes\SceneFactory">
+      <UniqueIdentifier>{6453c829-a8f4-42f5-8a4b-d203c0ac6835}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scenes\SceneFactory\AbstractSceneFactory">
+      <UniqueIdentifier>{13e82e98-ea04-45d0-bacc-4ae3c344608d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine\Engine\Math\MyMath.cpp">
@@ -160,9 +184,6 @@
       <Filter>Engine\Graphics</Filter>
     </ClCompile>
     <ClCompile Include="Game\Src\main.cpp" />
-    <ClCompile Include="Game\Src\Scenes\GameScene.cpp">
-      <Filter>Scenes</Filter>
-    </ClCompile>
     <ClCompile Include="Game\Src\Game\GPUParticle\GPUParticle.cpp">
       <Filter>Game\GPUParticle</Filter>
     </ClCompile>
@@ -181,6 +202,19 @@
     <ClCompile Include="Engine\Engine\Model\ModelManager.cpp">
       <Filter>Engine\Model</Filter>
     </ClCompile>
+    <ClCompile Include="Engine\Engine\Audio\Audio.cpp">
+      <Filter>Engine\Audio</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Src\Scenes\TitleScene\TitleScene.cpp">
+      <Filter>Scenes\TitleScene</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Src\Scenes\SceneManager\SceneManager.cpp">
+      <Filter>Scenes\SceneManager</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Src\Scenes\GameScene\GameScene.cpp">
+      <Filter>Scenes\GameScene</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Src\Scenes\SceneFactory\SceneFactory.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\Engine\WinApp\WinApp.h">
@@ -306,9 +340,6 @@
     <ClInclude Include="Engine\Engine\Graphics\Helper.h">
       <Filter>Engine\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Src\Scenes\GameScene.h">
-      <Filter>Scenes</Filter>
-    </ClInclude>
     <ClInclude Include="Game\Src\Game\GPUParticle\GPUParticle.h">
       <Filter>Game\GPUParticle</Filter>
     </ClInclude>
@@ -332,6 +363,30 @@
     </ClInclude>
     <ClInclude Include="Engine\Engine\Model\ModelManager.h">
       <Filter>Engine\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Engine\Audio\Audio.h">
+      <Filter>Engine\Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Engine\Audio\SoundHandle\SoundHandle.h">
+      <Filter>Engine\Audio\SoundHandle</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Src\Scenes\TitleScene\TitleScene.h">
+      <Filter>Scenes\TitleScene</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Src\Scenes\BaseScene\BaseScene.h">
+      <Filter>Scenes\BaseScene</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Src\Scenes\SceneManager\SceneManager.h">
+      <Filter>Scenes\SceneManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Src\Scenes\GameScene\GameScene.h">
+      <Filter>Scenes\GameScene</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Src\Scenes\SceneFactory\SceneFactory.h">
+      <Filter>Scenes\SceneFactory</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Src\Scenes\SceneFactory\AbstractSceneFactory\AbstractSceneFactory.h">
+      <Filter>Scenes\SceneFactory\AbstractSceneFactory</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -360,10 +415,10 @@
     <FxCompile Include="Resources\Shaders\Update.CS.hlsl">
       <Filter>Shaders\GPUParticle</Filter>
     </FxCompile>
-    <FxCompile Include="Resources\Shaders\Model.PS.hlsl">
+    <FxCompile Include="Resources\Shaders\Model.VS.hlsl">
       <Filter>Shaders\Model</Filter>
     </FxCompile>
-    <FxCompile Include="Resources\Shaders\Model.VS.hlsl">
+    <FxCompile Include="Resources\Shaders\Model.PS.hlsl">
       <Filter>Shaders\Model</Filter>
     </FxCompile>
   </ItemGroup>

@@ -2,6 +2,7 @@
 
 #include <d3dx12.h>
 
+#include "Engine/Lighting/Lighting.h"
 #include "Engine/Graphics/CommandContext.h"
 #include "Engine/Graphics/Helper.h"
 #include "Engine/Graphics/SamplerManager.h"
@@ -18,6 +19,8 @@ namespace Parameter {
 		WorldTransform,
 		ViewProjection,
 		Material,
+		DirectionLight,
+		PointLight,
 		Texture,
 		Sampler,
 		Count,
@@ -42,6 +45,8 @@ void ModelManager::CreatePipeline(DXGI_FORMAT rtvFormat, DXGI_FORMAT dsvFormat) 
 		rootParameters[Parameter::RootParameter::WorldTransform].InitAsConstantBufferView(0);
 		rootParameters[Parameter::RootParameter::ViewProjection].InitAsConstantBufferView(1);
 		rootParameters[Parameter::RootParameter::Material].InitAsConstantBufferView(2);
+		rootParameters[Parameter::RootParameter::DirectionLight].InitAsConstantBufferView(3);
+		rootParameters[Parameter::RootParameter::PointLight].InitAsConstantBufferView(4);
 		rootParameters[Parameter::RootParameter::Texture].InitAsDescriptorTable(_countof(range), range);
 		rootParameters[Parameter::RootParameter::Sampler].InitAsDescriptorTable(_countof(samplerRanges), samplerRanges);
 
@@ -119,6 +124,8 @@ void ModelManager::Draw(const WorldTransform& worldTransform, const ViewProjecti
 		commandContext.SetIndexBuffer(modelData->ibView_);
 		commandContext.SetGraphicsConstantBuffer(Parameter::RootParameter::WorldTransform, worldTransform.constBuff_.get()->GetGPUVirtualAddress());
 		commandContext.SetGraphicsConstantBuffer(Parameter::RootParameter::ViewProjection, viewProjection.constBuff_.GetGPUVirtualAddress());
+		commandContext.SetGraphicsConstantBuffer(Parameter::RootParameter::DirectionLight, Lighting::GetInstance()->GetDirectionLightBuffer().GetGPUVirtualAddress());
+		commandContext.SetGraphicsConstantBuffer(Parameter::RootParameter::PointLight, Lighting::GetInstance()->GetPointLightBuffer().GetGPUVirtualAddress());
 		commandContext.SetGraphicsConstantBuffer(Parameter::RootParameter::Material, models_.at(modelHandle)->GetMaterialBuffer().GetGPUVirtualAddress());
 		commandContext.SetGraphicsDescriptorTable(Parameter::RootParameter::Texture, TextureManager::GetInstance()->GetTexture(models_.at(modelHandle)->GetTextureHandle()).GetSRV());
 		commandContext.SetGraphicsDescriptorTable(Parameter::RootParameter::Sampler, SamplerManager::Anisotropic);

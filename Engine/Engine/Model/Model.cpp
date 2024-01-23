@@ -18,6 +18,11 @@ void Model::Create(const std::filesystem::path& modelPath) {
 	LoadFile(modelPath);
 }
 
+void Model::SetMaterialColor(const Vector4& color) {
+	material_->color = color;
+	materialBuffer_.Copy(material_,sizeof(Material));
+}
+
 void Model::LoadFile(const std::filesystem::path& modelPath) {
 	name_ = modelPath.stem();
 

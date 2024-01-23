@@ -21,7 +21,9 @@ private:
 	std::unique_ptr<GPUParticle> gpuParticle_;
 	std::unique_ptr<DebugCamera> debugCamera_;
 	ModelHandle modelHandle_;
+	ModelHandle terrainHandle_;
 	WorldTransform worldTransform_;
 	int32_t soundHandle_;
 	int32_t playHandle_;
+	Vector4 color_;
 };

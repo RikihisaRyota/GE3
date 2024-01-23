@@ -82,6 +82,12 @@
     <Filter Include="Scenes\SceneFactory\AbstractSceneFactory">
       <UniqueIdentifier>{13e82e98-ea04-45d0-bacc-4ae3c344608d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\Lighting">
+      <UniqueIdentifier>{1df8f23e-304d-4e51-a698-0e13444b5e70}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\Lighting">
+      <UniqueIdentifier>{8446d343-ff89-4af5-ae89-eb61c5e9dae5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine\Engine\Math\MyMath.cpp">
@@ -215,6 +221,9 @@
       <Filter>Scenes\GameScene</Filter>
     </ClCompile>
     <ClCompile Include="Game\Src\Scenes\SceneFactory\SceneFactory.cpp" />
+    <ClCompile Include="Engine\Engine\Lighting\Lighting.cpp">
+      <Filter>Engine\Lighting</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\Engine\WinApp\WinApp.h">
@@ -388,6 +397,9 @@
     <ClInclude Include="Game\Src\Scenes\SceneFactory\AbstractSceneFactory\AbstractSceneFactory.h">
       <Filter>Scenes\SceneFactory\AbstractSceneFactory</Filter>
     </ClInclude>
+    <ClInclude Include="Engine\Engine\Lighting\Lighting.h">
+      <Filter>Engine\Lighting</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Externals\Imgui\LICENSE.txt">
@@ -400,6 +412,9 @@
     </None>
     <None Include="Resources\Shaders\Model.hlsli">
       <Filter>Shaders\Model</Filter>
+    </None>
+    <None Include="Resources\Shaders\Lighting\Lighting.hlsli">
+      <Filter>Shaders\Lighting</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

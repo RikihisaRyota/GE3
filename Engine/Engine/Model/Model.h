@@ -46,6 +46,7 @@ public:
 	const D3D12_VERTEX_BUFFER_VIEW GetVBView()const { return vbView_; }
 	const TextureHandle GetTextureHandle()const { return textureHandle; }
 	const UploadBuffer& GetMaterialBuffer()const { return materialBuffer_; }
+	void SetMaterialColor(const Vector4& color);
 private:
 	void LoadFile(const std::filesystem::path& modelPath);
 	std::vector<std::unique_ptr<MeshData>> meshDatas_;

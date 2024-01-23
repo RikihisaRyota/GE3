@@ -3,6 +3,7 @@
 #include <memory>
 
 #include "Audio/Audio.h"
+#include "Engine/Lighting/Lighting.h"
 #include "Graphics/RenderManager.h"
 #include "Input/Input.h"
 #include "Model/ModelManager.h"
@@ -19,7 +20,7 @@ namespace GameCore {
 	ShaderCompiler* shaderCompiler = nullptr;
 	SceneManager* sceneManager = nullptr;
 	SceneFactory* sceneFactory = nullptr;
-
+	Lighting* lighting = nullptr;
 	void Initialize() {
 		winApp = WinApp::GetInstance();
 		winApp->CreateGameWindow(L"LE2A_24_リキヒサ_リョウタ");
@@ -43,6 +44,9 @@ namespace GameCore {
 		sceneFactory = new SceneFactory();
 		sceneManager->SetSceneFactory(sceneFactory);
 		sceneManager->Initialize(AbstractSceneFactory::Scene::kGame);
+
+		lighting = Lighting::GetInstance();
+		lighting->Initialize();
 	}
 
 	bool BeginFrame() {
@@ -52,6 +56,8 @@ namespace GameCore {
 		input->Update();
 
 		audio->Update();
+
+		lighting->Update();
 
 		sceneManager->Update();
 

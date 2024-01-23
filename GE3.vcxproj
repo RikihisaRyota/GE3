@@ -103,6 +103,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Engine\Engine\Audio\Audio.cpp" />
+    <ClCompile Include="Engine\Engine\Lighting\Lighting.cpp" />
     <ClCompile Include="Externals\Imgui\imgui.cpp" />
     <ClCompile Include="Externals\Imgui\imgui_demo.cpp" />
     <ClCompile Include="Externals\Imgui\imgui_draw.cpp" />
@@ -151,6 +152,7 @@
   <ItemGroup>
     <ClInclude Include="Engine\Engine\Audio\Audio.h" />
     <ClInclude Include="Engine\Engine\Audio\SoundHandle\SoundHandle.h" />
+    <ClInclude Include="Engine\Engine\Lighting\Lighting.h" />
     <ClInclude Include="Externals\Imgui\imconfig.h" />
     <ClInclude Include="Externals\Imgui\imgui.h" />
     <ClInclude Include="Externals\Imgui\imgui_impl_dx12.h" />
@@ -220,6 +222,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </None>
+    <None Include="Resources\Shaders\Lighting\Lighting.hlsli" />
     <None Include="Resources\Shaders\Model.hlsli">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>

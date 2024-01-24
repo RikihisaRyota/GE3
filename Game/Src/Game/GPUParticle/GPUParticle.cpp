@@ -32,7 +32,7 @@
 //}
 
 //const UINT GPUParticle::kNumThread = 524288*2;
-const UINT GPUParticle::kNumThread = 128;
+const UINT GPUParticle::kNumThread = 2048;
 const UINT GPUParticle::CommandSizePerFrame = kNumThread * sizeof(uint32_t);
 const UINT GPUParticle::CommandBufferCounterOffset = AlignForUavCounter(GPUParticle::CommandSizePerFrame);
 

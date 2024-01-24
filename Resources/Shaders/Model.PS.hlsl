@@ -23,7 +23,8 @@ PixelShaderOutput main(VertexShaderOutput input)
     float3 pointLightDiffuse = PointLightHalfRanbert(input.normal);
     float3 pointLightSpecular = PointLightBlinnPhongReflection(input.normal);
     
-    output.color.rgb = gMaterial.color.rgb * textureColor.rgb * ( /*(diffuse + specular + ambient) + */(pointLightDiffuse + pointLightSpecular));
+    output.color.rgb = gMaterial.color.rgb * textureColor.rgb * ((diffuse + specular + ambient) + (pointLightDiffuse + pointLightSpecular));
+    output.color.a = gMaterial.color.a;
     return output;
     
 }

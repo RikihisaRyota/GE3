@@ -220,9 +220,11 @@
     <ClCompile Include="Game\Src\Scenes\GameScene\GameScene.cpp">
       <Filter>Scenes\GameScene</Filter>
     </ClCompile>
-    <ClCompile Include="Game\Src\Scenes\SceneFactory\SceneFactory.cpp" />
     <ClCompile Include="Engine\Engine\Lighting\Lighting.cpp">
       <Filter>Engine\Lighting</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Src\Scenes\SceneFactory\SceneFactory.cpp">
+      <Filter>Scenes\SceneFactory</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

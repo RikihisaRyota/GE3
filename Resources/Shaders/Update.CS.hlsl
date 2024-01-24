@@ -4,7 +4,8 @@ RWStructuredBuffer<Particle> Input : register(u0);
 
 struct IndirectCommand
 {
-    uint2 srv;
+    uint2 srv1;
+    uint2 srv2;
     struct INDEXEDARGUMENTS
     {
         uint IndexCountPerInstance;

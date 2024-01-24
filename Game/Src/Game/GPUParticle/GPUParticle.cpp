@@ -119,8 +119,8 @@ void GPUParticle::Update(ViewProjection* viewProjection) {
 	}
 	if (Input::GetInstance()->PushKey(DIK_R)) {
 		auto commandContext = RenderManager::GetInstance()->GetCommandContext();
-		commandContext.SetPipelineState(*spawnComputePipelineState_);
 		commandContext.SetComputeRootSignature(*spawnComputeRootSignature_);
+		commandContext.SetPipelineState(*spawnComputePipelineState_);
 
 		commandContext.TransitionResource(rwStructuredBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 		commandContext.TransitionResource(particleAreaBuffer_, D3D12_RESOURCE_STATE_GENERIC_READ);
@@ -206,8 +206,8 @@ void GPUParticle::Update(ViewProjection* viewProjection) {
 	ballCountBuffer_.Copy(ballCount_, sizeof(BallCount));
 
 	auto commandContext = RenderManager::GetInstance()->GetCommandContext();
-	commandContext.SetPipelineState(*updateComputePipelineState_);
 	commandContext.SetComputeRootSignature(*updateComputeRootSignature_);
+	commandContext.SetPipelineState(*updateComputePipelineState_);
 
 	// リセット
 	commandContext.CopyBufferRegion(processedCommandBuffers_, CommandBufferCounterOffset, processedCommandBufferCounterReset_, 0, sizeof(UINT));
@@ -241,10 +241,10 @@ void GPUParticle::Render(const ViewProjection& viewProjection) {
 			ModelManager::GetInstance()->Draw(ballWorldTransform_.at(i), viewProjection, ballModelHandle_, commandContext);
 		}
 	}
-	ModelManager::GetInstance()->Draw(worldTransform_, viewProjection, gpuParticleModelHandle_, commandContext);
+	//ModelManager::GetInstance()->Draw(worldTransform_, viewProjection, gpuParticleModelHandle_, commandContext);
 
-	commandContext.SetPipelineState(*graphicsPipelineState_);
 	commandContext.SetGraphicsRootSignature(*graphicsRootSignature_);
+	commandContext.SetPipelineState(*graphicsPipelineState_);
 
 	commandContext.TransitionResource(rwStructuredBuffer_, D3D12_RESOURCE_STATE_GENERIC_READ);
 	commandContext.TransitionResource(processedCommandBuffers_, D3D12_RESOURCE_STATE_GENERIC_READ);
@@ -252,10 +252,10 @@ void GPUParticle::Render(const ViewProjection& viewProjection) {
 
 	commandContext.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	/*commandContext.SetGraphicsDescriptorTable(0, rwStructuredBufferHandle_);*/
-	commandContext.SetGraphicsShaderResource(1, processedCommandBuffers_->GetGPUVirtualAddress());
+	/*commandContext.SetGraphicsShaderResource(1, processedCommandBuffers_->GetGPUVirtualAddress());*/
 	commandContext.SetGraphicsConstantBuffer(2, viewProjection.constBuff_.GetGPUVirtualAddress());
-	commandContext.SetGraphicsDescriptorTable(3, TextureManager::GetInstance()->GetTexture(ModelManager::GetInstance()->GetModel(gpuParticleModelHandle_).GetTextureHandle()).GetSRV());
-	commandContext.SetGraphicsDescriptorTable(4, SamplerManager::Anisotropic);
+	commandContext.SetGraphicsDescriptorTable(3, TextureManager::GetInstance()->GetTexture(ModelManager::GetInstance()->GetModel(ballModelHandle_).GetTextureHandle()).GetSRV());
+	commandContext.SetGraphicsDescriptorTable(4, SamplerManager::LinearWrap);
 	commandContext.SetVertexBuffer(0, vbView_);
 	commandContext.SetIndexBuffer(ibView_);
 	commandContext.ExecuteIndirect(
@@ -315,6 +315,7 @@ void GPUParticle::InitializeSpawnParticle() {
 			nullptr,
 			IID_PPV_ARGS(rwStructuredBuffer_.GetAddressOf())
 		);
+		rwStructuredBuffer_.SetState(D3D12_RESOURCE_STATE_COMMON);
 		rwStructuredBuffer_->SetName(L"rwStructuredBuffer");
 	}
 	// 初期化用コンピュートルートシグネイチャ
@@ -341,8 +342,8 @@ void GPUParticle::InitializeSpawnParticle() {
 	// 初期化
 	{
 		auto commandContext = RenderManager::GetInstance()->GetCommandContext();
-		commandContext.SetPipelineState(*spawnComputePipelineState_);
 		commandContext.SetComputeRootSignature(*spawnComputeRootSignature_);
+		commandContext.SetPipelineState(*spawnComputePipelineState_);
 
 		commandContext.TransitionResource(rwStructuredBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 		commandContext.TransitionResource(particleAreaBuffer_, D3D12_RESOURCE_STATE_GENERIC_READ);
@@ -420,10 +421,12 @@ void GPUParticle::InitializeUpdateParticle() {
 	}
 	// コマンドシグネイチャー
 	{
-		D3D12_INDIRECT_ARGUMENT_DESC argumentDescs[2] = {};
+		D3D12_INDIRECT_ARGUMENT_DESC argumentDescs[3] = {};
 		argumentDescs[0].Type = D3D12_INDIRECT_ARGUMENT_TYPE_SHADER_RESOURCE_VIEW;
 		argumentDescs[0].ShaderResourceView.RootParameterIndex = 0;
-		argumentDescs[1].Type = D3D12_INDIRECT_ARGUMENT_TYPE_DRAW_INDEXED;
+		argumentDescs[1].Type = D3D12_INDIRECT_ARGUMENT_TYPE_SHADER_RESOURCE_VIEW;
+		argumentDescs[1].ShaderResourceView.RootParameterIndex = 1;
+		argumentDescs[2].Type = D3D12_INDIRECT_ARGUMENT_TYPE_DRAW_INDEXED;
 
 		D3D12_COMMAND_SIGNATURE_DESC commandSignatureDesc{};
 		commandSignatureDesc.pArgumentDescs = argumentDescs;
@@ -434,99 +437,9 @@ void GPUParticle::InitializeUpdateParticle() {
 	}
 	// IndirectCommandBuffer
 	{
-		std::vector<uint32_t> commands;
-		commands.resize(kNumThread);
-		// Default
-		D3D12_RESOURCE_DESC commandBufferDesc = CD3DX12_RESOURCE_DESC::Buffer(CommandSizePerFrame);
-		D3D12_HEAP_PROPERTIES heapProp = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
-		device->CreateCommittedResource(
-			&heapProp,
-			D3D12_HEAP_FLAG_NONE,
-			&commandBufferDesc,
-			D3D12_RESOURCE_STATE_COMMON,
-			nullptr,
-			IID_PPV_ARGS(commandBuffer_.GetAddressOf()));
-		commandBuffer_->SetName(L"commandBuffer");
-
-		// Draw引数用バッファー
-		{
-			D3D12_RESOURCE_DESC commandBufferDesc = CD3DX12_RESOURCE_DESC::Buffer(sizeof(IndirectCommand));
-			D3D12_HEAP_PROPERTIES heapProp = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
-			device->CreateCommittedResource(
-				&heapProp,
-				D3D12_HEAP_FLAG_NONE,
-				&commandBufferDesc,
-				D3D12_RESOURCE_STATE_COMMON,
-				nullptr,
-				IID_PPV_ARGS(drawArgumentBuffer_.GetAddressOf()));
-			drawArgumentBuffer_->SetName(L"DrawArgumentBuffer");
-			D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
-			srvDesc.Format = DXGI_FORMAT_UNKNOWN;
-			srvDesc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
-			srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-			srvDesc.Buffer.NumElements = 1;
-			srvDesc.Buffer.StructureByteStride = sizeof(IndirectCommand);
-			srvDesc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
-			drawArgumentHandle_ = graphics->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-			device->CreateShaderResourceView(
-				drawArgumentBuffer_,
-				&srvDesc,
-				drawArgumentHandle_
-			);
-		}
-
-		// コピー用
-		UploadBuffer commandBufferUpload{};
-		commandBufferUpload.Create(L"commandBufferUpload", CommandSizePerFrame);
-
-		for (UINT commandIndex = 0; commandIndex < kNumThread; ++commandIndex) {
-			commands[commandIndex] = commandIndex;
-		}
-		commandBufferUpload.Copy(commands.data(), CommandSizePerFrame);
-
-		auto& commandContext = RenderManager::GetInstance()->GetCommandContext();
-		commandContext.CopyBuffer(commandBuffer_, commandBufferUpload);
-
-		UploadBuffer DrawCopyBuffer{};
-		DrawCopyBuffer.Create(L"Copy", sizeof(IndirectCommand));
-		IndirectCommand tmp{};
-
-		tmp.srv = rwStructuredBuffer_->GetGPUVirtualAddress();
-
-		tmp.drawIndex.IndexCountPerInstance = UINT(indices_.size());
-		tmp.drawIndex.InstanceCount = 1;
-		tmp.drawIndex.BaseVertexLocation = 0;
-		tmp.drawIndex.StartIndexLocation = 0;
-		tmp.drawIndex.StartInstanceLocation = 0;
-		DrawCopyBuffer.Copy(&tmp, sizeof(IndirectCommand));
-		commandContext.CopyBuffer(drawArgumentBuffer_, DrawCopyBuffer);
-
-		// コピー
-		{
-			commandContext.Close();
-			CommandQueue& commandQueue = GraphicsCore::GetInstance()->GetCommandQueue();
-			commandQueue.Execute(commandContext);
-			commandQueue.Signal();
-			commandQueue.WaitForGPU();
-			commandContext.Reset();
-		}
-
-		D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
-		srvDesc.Format = DXGI_FORMAT_UNKNOWN;
-		srvDesc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
-		srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-		srvDesc.Buffer.NumElements = kNumThread;
-		srvDesc.Buffer.StructureByteStride = sizeof(uint32_t);
-		srvDesc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
-		commandHandle_ = graphics->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-		device->CreateShaderResourceView(
-			commandBuffer_,
-			&srvDesc,
-			commandHandle_
-		);
 		// 計算結果を積み込むよう
-		commandBufferDesc = CD3DX12_RESOURCE_DESC::Buffer(CommandBufferCounterOffset + sizeof(UINT), D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
-		heapProp = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
+		D3D12_RESOURCE_DESC commandBufferDesc = CD3DX12_RESOURCE_DESC::Buffer(CommandBufferCounterOffset + sizeof(UINT), D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
+		D3D12_HEAP_PROPERTIES heapProp = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
 		device->CreateCommittedResource(
 			&heapProp,
 			D3D12_HEAP_FLAG_NONE,
@@ -535,6 +448,7 @@ void GPUParticle::InitializeUpdateParticle() {
 			nullptr,
 			IID_PPV_ARGS(processedCommandBuffers_.GetAddressOf())
 		);
+		processedCommandBuffers_.SetState(D3D12_RESOURCE_STATE_COMMON);
 		processedCommandBuffers_->SetName(L"processedCommandBuffers");
 		processedCommandsHandle_ = graphics->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 		D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = {};
@@ -564,6 +478,7 @@ void GPUParticle::InitializeUpdateParticle() {
 			nullptr,
 			IID_PPV_ARGS(processedCommandBufferCounterReset_.GetAddressOf())
 		);
+		processedCommandBufferCounterReset_.SetState(D3D12_RESOURCE_STATE_COMMON);
 		processedCommandBufferCounterReset_->SetName(L"processedCommandBufferCounterReset");
 		UINT8* pMappedCounterReset = nullptr;
 		CD3DX12_RANGE readRange(0, 0);
@@ -571,6 +486,100 @@ void GPUParticle::InitializeUpdateParticle() {
 		ZeroMemory(pMappedCounterReset, sizeof(UINT));
 		processedCommandBufferCounterReset_->Unmap(0, nullptr);
 
+		std::vector<uint32_t> commands;
+		commands.resize(kNumThread);
+		// Default
+		commandBufferDesc = CD3DX12_RESOURCE_DESC::Buffer(CommandSizePerFrame);
+		heapProp = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
+		device->CreateCommittedResource(
+			&heapProp,
+			D3D12_HEAP_FLAG_NONE,
+			&commandBufferDesc,
+			D3D12_RESOURCE_STATE_COMMON,
+			nullptr,
+			IID_PPV_ARGS(commandBuffer_.GetAddressOf()));
+		commandBuffer_.SetState(D3D12_RESOURCE_STATE_COMMON);
+		commandBuffer_->SetName(L"commandBuffer");
+		
+		D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+		srvDesc.Format = DXGI_FORMAT_UNKNOWN;
+		srvDesc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
+		srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+		srvDesc.Buffer.NumElements = kNumThread;
+		srvDesc.Buffer.StructureByteStride = sizeof(uint32_t);
+		srvDesc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
+		commandHandle_ = graphics->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+		device->CreateShaderResourceView(
+			commandBuffer_,
+			&srvDesc,
+			commandHandle_
+		);
+
+		// コピー用
+		UploadBuffer commandBufferUpload{};
+		commandBufferUpload.Create(L"commandBufferUpload", CommandSizePerFrame);
+
+		for (UINT commandIndex = 0; commandIndex < kNumThread; ++commandIndex) {
+			commands[commandIndex] = commandIndex;
+		}
+		commandBufferUpload.Copy(commands.data(), CommandSizePerFrame);
+
+		auto& commandContext = RenderManager::GetInstance()->GetCommandContext();
+		commandContext.CopyBuffer(commandBuffer_, commandBufferUpload);
+		// Draw引数用バッファー
+		{
+			D3D12_RESOURCE_DESC commandBufferDesc = CD3DX12_RESOURCE_DESC::Buffer(sizeof(IndirectCommand));
+			D3D12_HEAP_PROPERTIES heapProp = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
+			device->CreateCommittedResource(
+				&heapProp,
+				D3D12_HEAP_FLAG_NONE,
+				&commandBufferDesc,
+				D3D12_RESOURCE_STATE_COMMON,
+				nullptr,
+				IID_PPV_ARGS(drawArgumentBuffer_.GetAddressOf()));
+			drawArgumentBuffer_.SetState(D3D12_RESOURCE_STATE_COMMON);
+			drawArgumentBuffer_->SetName(L"DrawArgumentBuffer");
+			D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+			srvDesc.Format = DXGI_FORMAT_UNKNOWN;
+			srvDesc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
+			srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+			srvDesc.Buffer.NumElements = 1;
+			srvDesc.Buffer.StructureByteStride = sizeof(IndirectCommand);
+			srvDesc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
+			drawArgumentHandle_ = graphics->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+			device->CreateShaderResourceView(
+				drawArgumentBuffer_,
+				&srvDesc,
+				drawArgumentHandle_
+			);
+		}
+
+		UploadBuffer DrawCopyBuffer{};
+		DrawCopyBuffer.Create(L"Copy", sizeof(IndirectCommand));
+		IndirectCommand tmp{};
+
+		tmp.particleSRV = rwStructuredBuffer_->GetGPUVirtualAddress();
+		tmp.drawIndexSRV = processedCommandBuffers_->GetGPUVirtualAddress();
+
+		tmp.drawIndex.IndexCountPerInstance = UINT(indices_.size());
+		tmp.drawIndex.InstanceCount = 1;
+		tmp.drawIndex.BaseVertexLocation = 0;
+		tmp.drawIndex.StartIndexLocation = 0;
+		tmp.drawIndex.StartInstanceLocation = 0;
+		DrawCopyBuffer.Copy(&tmp, sizeof(IndirectCommand));
+		commandContext.CopyBuffer(drawArgumentBuffer_, DrawCopyBuffer);
+
+		// コピー
+		{
+			commandContext.Close();
+			CommandQueue& commandQueue = GraphicsCore::GetInstance()->GetCommandQueue();
+			commandQueue.Execute(commandContext);
+			commandQueue.Signal();
+			commandQueue.WaitForGPU();
+			commandContext.Reset();
+		}
+
+		
 	}
 	
 
@@ -587,8 +596,8 @@ void GPUParticle::InitializeGraphics() {
 		samplerRanges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER, 1, 0);
 
 		CD3DX12_ROOT_PARAMETER rootParameters[5]{};
-		rootParameters[0].InitAsShaderResourceView(0);
-		rootParameters[1].InitAsShaderResourceView(1);
+		rootParameters[0].InitAsShaderResourceView(0, 0, D3D12_SHADER_VISIBILITY_VERTEX);
+		rootParameters[1].InitAsShaderResourceView(1, 0, D3D12_SHADER_VISIBILITY_VERTEX);
 		rootParameters[2].InitAsConstantBufferView(0);
 		rootParameters[3].InitAsDescriptorTable(_countof(range), range);
 		rootParameters[4].InitAsDescriptorTable(_countof(samplerRanges), samplerRanges);

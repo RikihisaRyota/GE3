@@ -6,8 +6,8 @@ StructuredBuffer<uint> gDrawIndex : register(t1);
 
 struct ViewProjection
 {
-    matrix view; // ビュー変換行列
-    matrix projection; // プロジェクション変換行列
+    float4x4 view; // ビュー変換行列
+    float4x4 projection; // プロジェクション変換行列
     float3 cameraPos; // カメラのワールド座標
 };
 ConstantBuffer<ViewProjection> gViewProjection : register(b0);

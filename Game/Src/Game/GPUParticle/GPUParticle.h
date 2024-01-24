@@ -48,7 +48,8 @@ private:
 	};
 
 	struct IndirectCommand {
-		D3D12_GPU_VIRTUAL_ADDRESS srv;
+		D3D12_GPU_VIRTUAL_ADDRESS particleSRV;
+		D3D12_GPU_VIRTUAL_ADDRESS drawIndexSRV;
 		D3D12_DRAW_INDEXED_ARGUMENTS drawIndex;
 	};
 	

@@ -225,7 +225,7 @@ void GPUParticle::Update(ViewProjection* viewProjection) {
 
 	commandContext.Dispatch(static_cast<UINT>(ceil(kNumThread / float(ComputeThreadBlockSize))), 1, 1);
 	
-	UINT64 destInstanceCountArgumentOffset = sizeof(D3D12_GPU_VIRTUAL_ADDRESS) + sizeof(UINT);
+	UINT64 destInstanceCountArgumentOffset = sizeof(D3D12_GPU_VIRTUAL_ADDRESS) + sizeof(D3D12_GPU_VIRTUAL_ADDRESS) + sizeof(UINT);
 	UINT64 srcInstanceCountArgumentOffset = CommandBufferCounterOffset;
 	
 	commandContext.CopyBufferRegion(drawArgumentBuffer_, destInstanceCountArgumentOffset, processedCommandBuffers_, srcInstanceCountArgumentOffset, sizeof(UINT));
@@ -591,7 +591,7 @@ void GPUParticle::InitializeGraphics() {
 	// グラフィックスルートシグネイチャ
 	{
 		CD3DX12_DESCRIPTOR_RANGE range[1]{};
-		range[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 2);
+		range[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);
 		CD3DX12_DESCRIPTOR_RANGE samplerRanges[1]{};
 		samplerRanges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER, 1, 0);
 
@@ -599,8 +599,8 @@ void GPUParticle::InitializeGraphics() {
 		rootParameters[0].InitAsShaderResourceView(0, 0, D3D12_SHADER_VISIBILITY_VERTEX);
 		rootParameters[1].InitAsShaderResourceView(1, 0, D3D12_SHADER_VISIBILITY_VERTEX);
 		rootParameters[2].InitAsConstantBufferView(0);
-		rootParameters[3].InitAsDescriptorTable(_countof(range), range);
-		rootParameters[4].InitAsDescriptorTable(_countof(samplerRanges), samplerRanges);
+		rootParameters[3].InitAsDescriptorTable(_countof(range), range, D3D12_SHADER_VISIBILITY_PIXEL);
+		rootParameters[4].InitAsDescriptorTable(_countof(samplerRanges), samplerRanges, D3D12_SHADER_VISIBILITY_PIXEL);
 
 		D3D12_ROOT_SIGNATURE_DESC desc{};
 		desc.pParameters = rootParameters;

@@ -24,15 +24,14 @@ struct Particle
     float aliveTime;
     float3 pad7;
 };
-
-struct ParticleArea
+struct Emitter
 {
+    uint createParticleNum;
     float3 min;
-    float pad1;
+    uint maxParticleNum;
     float3 max;
-    float pad2;
+    float3 position;
 };
-
 float hash(uint seed)
 {
     seed = (seed ^ 61u) ^ (seed >> 16u);

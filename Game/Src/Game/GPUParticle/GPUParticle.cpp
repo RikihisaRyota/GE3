@@ -123,9 +123,9 @@ void GPUParticle::Update(ViewProjection* viewProjection) {
 		commandContext.SetPipelineState(*spawnComputePipelineState_);
 
 		commandContext.TransitionResource(rwStructuredBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-		commandContext.TransitionResource(particleAreaBuffer_, D3D12_RESOURCE_STATE_GENERIC_READ);
+		commandContext.TransitionResource(emitterForGPUBuffer_, D3D12_RESOURCE_STATE_GENERIC_READ);
 		commandContext.SetComputeUAV(0, rwStructuredBuffer_->GetGPUVirtualAddress());
-		commandContext.SetComputeConstantBuffer(1, particleAreaBuffer_->GetGPUVirtualAddress());
+		commandContext.SetComputeConstantBuffer(1, emitterForGPUBuffer_->GetGPUVirtualAddress());
 
 		commandContext.Dispatch(static_cast<UINT>(ceil(kNumThread / float(ComputeThreadBlockSize))), 1, 1);
 
@@ -221,7 +221,7 @@ void GPUParticle::Update(ViewProjection* viewProjection) {
 	commandContext.SetComputeConstantBuffer(3, updateConstantBuffer_->GetGPUVirtualAddress());
 	commandContext.SetComputeShaderResource(4, ballBuffer_->GetGPUVirtualAddress());
 	commandContext.SetComputeConstantBuffer(5, ballCountBuffer_->GetGPUVirtualAddress());
-	commandContext.SetComputeConstantBuffer(6, particleAreaBuffer_->GetGPUVirtualAddress());
+	commandContext.SetComputeConstantBuffer(6, emitterForGPUBuffer_->GetGPUVirtualAddress());
 
 	commandContext.Dispatch(static_cast<UINT>(ceil(kNumThread / float(ComputeThreadBlockSize))), 1, 1);
 	
@@ -323,7 +323,7 @@ void GPUParticle::InitializeSpawnParticle() {
 		// コマンド用
 		CD3DX12_ROOT_PARAMETER rootParameters[2]{};
 		rootParameters[0].InitAsUnorderedAccessView(0);
-		rootParameters[1].InitAsConstantBufferView(0);
+		rootParameters[1].InitAsUnorderedAccessView(1);
 
 		D3D12_ROOT_SIGNATURE_DESC desc{};
 		desc.pParameters = rootParameters;
@@ -345,10 +345,13 @@ void GPUParticle::InitializeSpawnParticle() {
 		commandContext.SetComputeRootSignature(*spawnComputeRootSignature_);
 		commandContext.SetPipelineState(*spawnComputePipelineState_);
 
+		//commandContext.CopyBufferRegion(emitterForGPUBuffer_, 0, processedCommandBufferCounterReset_, 0, sizeof(UINT));
+
 		commandContext.TransitionResource(rwStructuredBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-		commandContext.TransitionResource(particleAreaBuffer_, D3D12_RESOURCE_STATE_GENERIC_READ);
+		commandContext.TransitionResource(emitterForGPUBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+		
 		commandContext.SetComputeUAV(0, rwStructuredBuffer_->GetGPUVirtualAddress());
-		commandContext.SetComputeConstantBuffer(1, particleAreaBuffer_->GetGPUVirtualAddress());
+		commandContext.SetComputeUAV(1, emitterForGPUBuffer_->GetGPUVirtualAddress());
 
 		commandContext.Dispatch(static_cast<UINT>(ceil(kNumThread / float(ComputeThreadBlockSize))), 1, 1);
 
@@ -697,9 +700,44 @@ void GPUParticle::InitializeGraphics() {
 
 
 void GPUParticle::InitializeParticleArea() {
-	particleAreaBuffer_.Create(L"GPUParticle ParticleAreaBuffer", sizeof(ParticleArea));
-	particleArea_ = new ParticleArea();
-	particleArea_->min = { -5.0f,-5.0f,-5.0f };
-	particleArea_->max = { +5.0f,+5.0f,+5.0f };
-	particleAreaBuffer_.Copy(particleArea_, sizeof(ParticleArea));
+	auto device = GraphicsCore::GetInstance()->GetDevice();
+
+	auto desc = CD3DX12_RESOURCE_DESC::Buffer(UINT64(sizeof(EmitterForGPU)),
+		D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
+	CD3DX12_HEAP_PROPERTIES heapProps(D3D12_HEAP_TYPE_DEFAULT);
+	GraphicsCore::GetInstance()->GetDevice()->CreateCommittedResource(
+		&heapProps,
+		D3D12_HEAP_FLAG_NONE,
+		&desc,
+		D3D12_RESOURCE_STATE_COMMON,
+		nullptr,
+		IID_PPV_ARGS(emitterForGPUBuffer_.GetAddressOf())
+	);
+	emitterForGPUBuffer_.SetState(D3D12_RESOURCE_STATE_COMMON);
+	emitterForGPUBuffer_->SetName(L"emitterForGPUBuffer_");
+	emitterForGPU_ = new EmitterForGPU();
+	emitterForGPU_->min = { -5.0f , -5.0f , -5.0f };
+	emitterForGPU_->maxParticleNum = 3;
+	emitterForGPU_->max = { 5.0f,5.0f,5.0f };
+	emitterForGPU_->createParticleNum = 0;
+	emitterForGPU_->position = { 0.0f,0.0f,0.0f };
+	emitterForCPU_ = new EmitterForCPU();
+	emitterForCPU_->frequency = 60;
+	emitterForCPU_->frequencyTime = 0;
+	UploadBuffer copy{};
+	copy.Create(L"Copy", sizeof(EmitterForGPU));
+	copy.Copy(emitterForGPU_, sizeof(EmitterForGPU));
+	
+	auto& commandContext = RenderManager::GetInstance()->GetCommandContext();
+	commandContext.CopyBuffer(emitterForGPUBuffer_, copy);
+
+	// コピー
+	{
+		commandContext.Close();
+		CommandQueue& commandQueue = GraphicsCore::GetInstance()->GetCommandQueue();
+		commandQueue.Execute(commandContext);
+		commandQueue.Signal();
+		commandQueue.WaitForGPU();
+		commandContext.Reset();
+	}
 }

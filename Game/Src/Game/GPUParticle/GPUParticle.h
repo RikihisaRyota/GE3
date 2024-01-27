@@ -46,6 +46,17 @@ private:
 	struct ParticleInfo {
 		float speed;
 	};
+	struct EmitterForGPU {
+		uint32_t createParticleNum;
+		Vector3 min;
+		uint32_t maxParticleNum;
+		Vector3 max;
+		Vector3 position;
+	};
+	struct EmitterForCPU {
+		uint32_t frequency;
+		uint32_t frequencyTime;
+	};
 
 	struct IndirectCommand {
 		D3D12_GPU_VIRTUAL_ADDRESS particleSRV;
@@ -53,12 +64,6 @@ private:
 		D3D12_DRAW_INDEXED_ARGUMENTS drawIndex;
 	};
 	
-	struct ParticleArea {
-		Vector3 min;
-		float pad1;
-		Vector3 max;
-		float pad2;
-	};
 	// ボールデータ
 	struct BallBufferData {
 		Vector3 position;
@@ -137,9 +142,10 @@ private:
 	Particle* particle_;
 	UploadBuffer updateConstantBuffer_;
 
-	// パーティクルのエリア
-	ParticleArea* particleArea_;
-	UploadBuffer particleAreaBuffer_;
+	// パーティクルのエミッター
+	EmitterForGPU* emitterForGPU_;
+	EmitterForCPU* emitterForCPU_;
+	GpuResource emitterForGPUBuffer_;
 	// ボールバッファー
 	BallBufferData* ball_;
 	UploadBuffer ballBuffer_;

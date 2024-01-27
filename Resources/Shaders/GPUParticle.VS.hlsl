@@ -22,9 +22,13 @@ VertexShaderOutput main(VertexShaderInput input, uint instanceID : SV_InstanceID
 {
     uint particleID= gDrawIndex[instanceID];
     VertexShaderOutput output;
+    float4x4 inverseCamera = Inverse(gViewProjection.view);
+    inverseCamera[3][0] = 0.0f;
+    inverseCamera[3][1] = 0.0f;
+    inverseCamera[3][2] = 0.0f;
     float4x4 mat = MakeAffine(gParticle[particleID].scale, gParticle[particleID].rotate, gParticle[particleID].translate);
     float4 worldPos = mul(float4(input.position, 1.0f), mat);
-    output.position = mul(worldPos, mul(gViewProjection.view, gViewProjection.projection));
+    output.position = mul(/*mul(*/worldPos/*, inverseCamera)*/, mul(gViewProjection.view, gViewProjection.projection));
     output.texcoord = input.texcoord;
     return output;
 }

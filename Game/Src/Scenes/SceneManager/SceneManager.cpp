@@ -15,6 +15,7 @@ SceneManager* SceneManager::GetInstance() {
 void SceneManager::Initialize(AbstractSceneFactory::Scene scene) {
 	scene_ = abstractSceneFactory_->CreateScene(scene);
 	scene_->SetSceneManager(this);
+	scene_->Initialize();
 }
 
 void SceneManager::Update() {

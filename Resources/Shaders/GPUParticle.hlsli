@@ -1,5 +1,5 @@
 
-#define threadBlockSize 128
+#define threadBlockSize 1
 
 struct VertexShaderOutput
 {
@@ -10,19 +10,12 @@ struct VertexShaderOutput
 struct Particle
 {
     float3 scale;
-    float pad1;
     float3 velocity;
-    float pad2;
     float3 rotate;
-    float pad3;
     float3 translate;
-    float pad4;
     uint isAlive;
-    float3 pad5;
     uint isHit;
-    float3 pad6;
     float aliveTime;
-    float3 pad7;
 };
 struct Emitter
 {

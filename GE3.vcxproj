@@ -103,6 +103,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Engine\Engine\Audio\Audio.cpp" />
+    <ClCompile Include="Engine\Engine\GPUParticleManager\GPUParticleManager.cpp" />
+    <ClCompile Include="Engine\Engine\GPUParticleManager\GPUParticle\GPUParticle.cpp" />
     <ClCompile Include="Engine\Engine\Lighting\Lighting.cpp" />
     <ClCompile Include="Externals\Imgui\imgui.cpp" />
     <ClCompile Include="Externals\Imgui\imgui_demo.cpp" />
@@ -142,7 +144,6 @@
     <ClCompile Include="Engine\Engine\Texture\TextureManager.cpp" />
     <ClCompile Include="Engine\Engine\WinApp\WinApp.cpp" />
     <ClCompile Include="Game\Src\Game\DebugCamera\DebugCamera.cpp" />
-    <ClCompile Include="Game\Src\Game\GPUParticle\GPUParticle.cpp" />
     <ClCompile Include="Game\Src\main.cpp" />
     <ClCompile Include="Game\Src\Scenes\GameScene\GameScene.cpp" />
     <ClCompile Include="Game\Src\Scenes\SceneFactory\SceneFactory.cpp" />
@@ -152,6 +153,9 @@
   <ItemGroup>
     <ClInclude Include="Engine\Engine\Audio\Audio.h" />
     <ClInclude Include="Engine\Engine\Audio\SoundHandle\SoundHandle.h" />
+    <ClInclude Include="Engine\Engine\GPUParticleManager\GPUParticleManager.h" />
+    <ClInclude Include="Engine\Engine\GPUParticleManager\GPUParticle\GPUParticle.h" />
+    <ClInclude Include="Engine\Engine\GPUParticleManager\GPUParticle\GPUParticleShaderStructs.h" />
     <ClInclude Include="Engine\Engine\Lighting\Lighting.h" />
     <ClInclude Include="Externals\Imgui\imconfig.h" />
     <ClInclude Include="Externals\Imgui\imgui.h" />
@@ -201,7 +205,6 @@
     <ClInclude Include="Engine\Engine\Texture\TextureManager.h" />
     <ClInclude Include="Engine\Engine\WinApp\WinApp.h" />
     <ClInclude Include="Game\Src\Game\DebugCamera\DebugCamera.h" />
-    <ClInclude Include="Game\Src\Game\GPUParticle\GPUParticle.h" />
     <ClInclude Include="Game\Src\Scenes\BaseScene\BaseScene.h" />
     <ClInclude Include="Game\Src\Scenes\GameScene\GameScene.h" />
     <ClInclude Include="Game\Src\Scenes\SceneFactory\AbstractSceneFactory\AbstractSceneFactory.h" />

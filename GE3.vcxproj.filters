@@ -40,9 +40,6 @@
     <Filter Include="Game\DebugCamera">
       <UniqueIdentifier>{2759c711-4795-4143-894d-4f9fbb7d2ddc}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Game\GPUParticle">
-      <UniqueIdentifier>{61d4c636-7a83-4f32-8586-1c9ce12ff31b}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Scenes">
       <UniqueIdentifier>{841401a7-620d-4e94-9ea6-a1cfbf7b61e8}</UniqueIdentifier>
     </Filter>
@@ -87,6 +84,12 @@
     </Filter>
     <Filter Include="Shaders\Lighting">
       <UniqueIdentifier>{8446d343-ff89-4af5-ae89-eb61c5e9dae5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\GPUParticleManager">
+      <UniqueIdentifier>{816fff5c-2a0a-4cfe-84bb-29e1ecaa88fd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\GPUParticleManager\GPUParticle">
+      <UniqueIdentifier>{31d83bfe-61ad-46b4-9e92-915e669491eb}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -190,9 +193,6 @@
       <Filter>Engine\Graphics</Filter>
     </ClCompile>
     <ClCompile Include="Game\Src\main.cpp" />
-    <ClCompile Include="Game\Src\Game\GPUParticle\GPUParticle.cpp">
-      <Filter>Game\GPUParticle</Filter>
-    </ClCompile>
     <ClCompile Include="Game\Src\Game\DebugCamera\DebugCamera.cpp">
       <Filter>Game\DebugCamera</Filter>
     </ClCompile>
@@ -225,6 +225,12 @@
     </ClCompile>
     <ClCompile Include="Game\Src\Scenes\SceneFactory\SceneFactory.cpp">
       <Filter>Scenes\SceneFactory</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Engine\GPUParticleManager\GPUParticle\GPUParticle.cpp">
+      <Filter>Engine\GPUParticleManager\GPUParticle</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Engine\GPUParticleManager\GPUParticleManager.cpp">
+      <Filter>Engine\GPUParticleManager</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -351,9 +357,6 @@
     <ClInclude Include="Engine\Engine\Graphics\Helper.h">
       <Filter>Engine\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Src\Game\GPUParticle\GPUParticle.h">
-      <Filter>Game\GPUParticle</Filter>
-    </ClInclude>
     <ClInclude Include="Game\Src\Game\DebugCamera\DebugCamera.h">
       <Filter>Game\DebugCamera</Filter>
     </ClInclude>
@@ -401,6 +404,15 @@
     </ClInclude>
     <ClInclude Include="Engine\Engine\Lighting\Lighting.h">
       <Filter>Engine\Lighting</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Engine\GPUParticleManager\GPUParticleManager.h">
+      <Filter>Engine\GPUParticleManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Engine\GPUParticleManager\GPUParticle\GPUParticle.h">
+      <Filter>Engine\GPUParticleManager\GPUParticle</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Engine\GPUParticleManager\GPUParticle\GPUParticleShaderStructs.h">
+      <Filter>Engine\GPUParticleManager\GPUParticle</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

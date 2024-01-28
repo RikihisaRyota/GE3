@@ -37,7 +37,6 @@ void CreateParticle(uint emitterIndex, uint index)
 [numthreads(1, 1, 1)]
 void main(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex)
 {
-    uint index = (groupId.x * 1) + groupIndex;
     uint cureateParticleNum = 0;
     uint emitterCounter = gEmitterCounter.emitterCounter;
     for (int emitterIndex = 0; emitterIndex < emitterCounter; emitterIndex++)
@@ -53,7 +52,7 @@ void main(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex)
                     CreateParticle(emitterIndex,i);
                     cureateParticleNum++;
                     
-                    if (cureateParticleNum > gEmitter[emitterIndex].createParticleNum)
+                    if (cureateParticleNum >= gEmitter[emitterIndex].createParticleNum)
                     {
                         gEmitter[emitterIndex].frequencyTime = 0;
                         break;

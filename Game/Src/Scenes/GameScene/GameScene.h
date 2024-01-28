@@ -2,7 +2,7 @@
 
 #include <memory>
 
-#include "Src/Game/GPUParticle/GPUParticle.h"
+#include "Engine/GPUParticleManager/GPUParticleManager.h"
 #include "Src/Game/DebugCamera/DebugCamera.h"
 #include "Src/Scenes/BaseScene/BaseScene.h"
 
@@ -18,8 +18,9 @@ public:
 private:
 	ViewProjection viewProjection_;
 
-	std::unique_ptr<GPUParticle> gpuParticle_;
+	std::unique_ptr<GPUParticleManager> gpuParticleManager_;
 	std::unique_ptr<DebugCamera> debugCamera_;
+	TextureHandle gpuTexture_;
 	ModelHandle modelHandle_;
 	ModelHandle terrainHandle_;
 	WorldTransform worldTransform_;

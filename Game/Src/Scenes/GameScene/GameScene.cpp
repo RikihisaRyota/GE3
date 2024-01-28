@@ -4,15 +4,18 @@
 #include "Engine/Graphics/CommandContext.h"
 #include "Engine/Graphics/RenderManager.h"
 #include "Engine/Model/ModelManager.h"
-
+#include "Engine/GPUParticleManager/GPUParticle/GPUParticleShaderStructs.h"
+#include "Engine/Texture/TextureManager.h"
 #include "Engine/ImGui/ImGuiManager.h"
 
 GameScene::GameScene() {
-	viewProjection_.Initialize();
-	gpuParticle_ = std::make_unique<GPUParticle>();
 	debugCamera_ = std::make_unique<DebugCamera>();
+	gpuParticleManager_ = std::make_unique<GPUParticleManager>();
+
 	modelHandle_ = ModelManager::GetInstance()->Load("Resources/Models/Ball");
 	terrainHandle_ = ModelManager::GetInstance()->Load("Resources/Models/terrain");
+	
+	gpuTexture_ = TextureManager::GetInstance()->Load("Resources/Images/GPUParticle.png");
 	color_ = { 1.0f,1.0f,1.0f,1.0 };
 	worldTransform_.Initialize();
 	soundHandle_ = Audio::GetInstance()->SoundLoadWave("play.wav");
@@ -23,7 +26,18 @@ GameScene::GameScene() {
 GameScene::~GameScene() {}
 
 void GameScene::Initialize() {
-	gpuParticle_->Initialize();
+	viewProjection_.Initialize();
+
+	gpuParticleManager_->Initialize();
+	EmitterForGPU emitterForGPU = {
+	.min = {-5.0f,-5.0f,-5.0f},
+	.maxParticleNum = 2048,
+	.max = {5.0f,5.0f,5.0f},
+	.frequency = 30,
+	.position = {0.0f,0.0f,0.0f},
+	.createParticleNum = 2,
+	};
+	gpuParticleManager_->CreateParticle(emitterForGPU, gpuTexture_);
 }
 
 void GameScene::Update() {
@@ -37,7 +51,7 @@ void GameScene::Update() {
 	ImGui::End();
 #endif // _DEBUG
 
-	gpuParticle_->Update(&viewProjection_);
+	gpuParticleManager_->Update(RenderManager::GetInstance()->GetCommandContext());
 	debugCamera_->Update(&viewProjection_);
 
 	worldTransform_.UpdateMatrix();
@@ -45,8 +59,10 @@ void GameScene::Update() {
 }
 
 void GameScene::Draw(CommandContext& commandContext) {
-	gpuParticle_->Render(viewProjection_);
+	gpuParticleManager_->Draw(viewProjection_,commandContext);
+	
 	ModelManager::GetInstance()->Draw(worldTransform_, viewProjection_, modelHandle_, commandContext);
+
 	ModelManager::GetInstance()->Draw(worldTransform_, viewProjection_, terrainHandle_, commandContext);
 }
 

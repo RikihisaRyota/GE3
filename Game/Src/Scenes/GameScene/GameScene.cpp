@@ -31,7 +31,7 @@ void GameScene::Initialize() {
 	gpuParticleManager_->Initialize();
 	EmitterForGPU emitterForGPU = {
 	.min = {-5.0f,-5.0f,-5.0f},
-	.maxParticleNum = 2048,
+	.maxParticleNum = 10,
 	.max = {5.0f,5.0f,5.0f},
 	.frequency = 30,
 	.position = {0.0f,0.0f,0.0f},

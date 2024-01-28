@@ -62,7 +62,7 @@ void GPUParticle::Update(CommandContext& commandContext) {
 	commandContext.SetComputeDescriptorTable(2, appendDrawIndexUAVHandle_);
 	//commandContext.SetComputeConstantBuffer(3, emitterForGPUBuffer_->GetGPUVirtualAddress());
 
-	commandContext.Dispatch(emitterForGPU_->maxParticleNum, 1, 1);
+	commandContext.Dispatch(10, 1, 1);
 
 	UINT64 destInstanceCountArgumentOffset = sizeof(IndirectCommand::SRV) + sizeof(UINT);
 	UINT64 srcInstanceCountArgumentOffset = appendBufferCounterOffset_;

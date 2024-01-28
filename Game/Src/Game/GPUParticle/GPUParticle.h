@@ -47,16 +47,21 @@ private:
 		float speed;
 	};
 	struct EmitterForGPU {
-		uint32_t createParticleNum;
 		Vector3 min;
 		uint32_t maxParticleNum;
 		Vector3 max;
+		uint32_t frequency;
 		Vector3 position;
+		uint32_t frequencyTime;
+		uint32_t createParticleNum;
 	};
-	struct EmitterForCPU {
+	struct EmitterCounter {
+		uint32_t emitterCounter;
+	};
+	/*struct EmitterForCPU {
 		uint32_t frequency;
 		uint32_t frequencyTime;
-	};
+	};*/
 
 	struct IndirectCommand {
 		D3D12_GPU_VIRTUAL_ADDRESS particleSRV;
@@ -144,7 +149,8 @@ private:
 
 	// パーティクルのエミッター
 	EmitterForGPU* emitterForGPU_;
-	EmitterForCPU* emitterForCPU_;
+	EmitterCounter* emitterCounter_;
+	UploadBuffer emitterCounterBuffer_;
 	GpuResource emitterForGPUBuffer_;
 	// ボールバッファー
 	BallBufferData* ball_;

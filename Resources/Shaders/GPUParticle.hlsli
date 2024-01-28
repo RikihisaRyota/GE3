@@ -26,11 +26,13 @@ struct Particle
 };
 struct Emitter
 {
-    uint createParticleNum;
     float3 min;
     uint maxParticleNum;
     float3 max;
+    uint frequency;
     float3 position;
+    uint frequencyTime;
+    uint createParticleNum;
 };
 float hash(uint seed)
 {
@@ -45,7 +47,7 @@ float hash(uint seed)
 float random(float min, float max, float seed)
 {
     float range = max - min;
-    return min + hash(uint(seed)) * range;
+    return min + (hash(uint(seed))) * 0.5f * range;
 }
 uint RandomSeed(uint seed)
 {

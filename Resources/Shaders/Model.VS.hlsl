@@ -1,5 +1,9 @@
 #include "Model.hlsli"
 
+ConstantBuffer<WorldTransform> gWorldTransform : register(b0);
+
+ConstantBuffer<ViewProjection> gViewProjection : register(b1);
+
 struct VertexShaderInput
 {
     float3 position : POSITION0;

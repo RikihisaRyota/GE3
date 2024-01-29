@@ -16,6 +16,7 @@ public:
 	void Present();
 
 	ColorBuffer& GetColorBuffer() { return *buffers_[currentBufferIndex_]; }
+	ColorBuffer& GetColorBuffer(uint32_t index) { return *buffers_[index]; }
 	const ColorBuffer& GetColorBuffer()const { return *buffers_[currentBufferIndex_]; }
 	uint32_t GetBufferIndex() { return currentBufferIndex_; }
 private:

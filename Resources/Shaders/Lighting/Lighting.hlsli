@@ -31,11 +31,12 @@ float3 PointLightDirection(float3 worldPos, float3 pointLightPos)
     return normalize(worldPos - pointLightPos);
 }
 
-float Factor(float3 worldPos, float3 pointLightPos)
+float Factor(float3 worldPos, float3 pointLightPos,float radius,float decay)
 {
     float distance = length((pointLightPos - worldPos));
     
-    return 1.0f / (distance * distance);
+    return pow(saturate(-distance / radius + 1.0f), decay);
+
 }
 
 float PointLightHalfRanbert(float3 normal, float3 worldPos, float3 pointLightPos)

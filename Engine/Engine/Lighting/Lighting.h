@@ -16,8 +16,12 @@ public:
 		Vector4 color;
 		Vector3 position;
 		float intensity;
+		float radius;
+		float decay;
 		float sharpness;
+		float pad;
 	};
+
 public:
 	static Lighting* GetInstance();
 

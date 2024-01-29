@@ -20,6 +20,8 @@ namespace ParticleManager {
 		kParticleBuffer,
 		kArgumentRange,
 		kAppendRange,
+		kEmitter,
+		kEmitterCounter,
 
 		kUpdateRootSigunatureCount,
 	};
@@ -51,12 +53,14 @@ void GPUParticleManager::Initialize() {
 }
 
 void GPUParticleManager::Update(CommandContext& commandContext) {
+
 	commandContext.SetComputeRootSignature(*spawnComputeRootSignature_);
 	commandContext.SetPipelineState(*spawnComputePipelineState_);
 
 	for (auto& gpuParticle : gpuParticles_) {
 		gpuParticle->Spawn(commandContext);
 	}
+
 	commandContext.SetComputeRootSignature(*updateComputeRootSignature_);
 	commandContext.SetPipelineState(*updateComputePipelineState_);
 	for (auto& gpuParticle : gpuParticles_) {
@@ -68,18 +72,18 @@ void GPUParticleManager::Update(CommandContext& commandContext) {
 void GPUParticleManager::Draw(const ViewProjection& viewProjection, CommandContext& commandContext) {
 	commandContext.SetGraphicsRootSignature(*graphicsRootSignature_);
 	commandContext.SetPipelineState(*graphicsPipelineState_);
-	
+
 	commandContext.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	commandContext.SetVertexBuffer(0, vbView_);
 	commandContext.SetIndexBuffer(ibView_);
 
 	for (auto& gpuParticle : gpuParticles_) {
-		gpuParticle->Draw(viewProjection,commandContext);
+		gpuParticle->Draw(viewProjection, commandContext);
 	}
 
 }
 
-void GPUParticleManager::CreateParticle(EmitterForGPU emitterForGPU, TextureHandle textureHandle) {
+void GPUParticleManager::CreateParticle(const EmitterForGPU& emitterForGPU, TextureHandle textureHandle) {
 	GPUParticle* gpuParticle = new GPUParticle();
 	gpuParticle->SetCommandSignature(commandSignature_.Get());
 	gpuParticle->Create(emitterForGPU, textureHandle);
@@ -152,7 +156,7 @@ void GPUParticleManager::CreateGraphics() {
 		desc.PS = CD3DX12_SHADER_BYTECODE(ps->GetBufferPointer(), ps->GetBufferSize());
 		desc.BlendState = Helper::BlendAdditive;
 		desc.DepthStencilState = Helper::DepthStateReadWrite;
-		desc.RasterizerState = Helper::RasterizerDefault;
+		desc.RasterizerState = Helper::RasterizerNoCull;
 		desc.NumRenderTargets = 1;
 		desc.RTVFormats[0] = RenderManager::GetInstance()->GetRenderTargetFormat();
 		desc.DSVFormat = RenderManager::GetInstance()->GetDepthFormat();
@@ -174,6 +178,10 @@ void GPUParticleManager::CreateUpdate() {
 		CD3DX12_DESCRIPTOR_RANGE argumentRanges[1]{};
 		argumentRanges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0, 0);
 
+		// Emitter
+		CD3DX12_DESCRIPTOR_RANGE emitterRanges[1]{};
+		emitterRanges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 1, 0);
+
 		// AppendStructuredBuffer用（カウンター付きUAVの場合このように宣言）
 		CD3DX12_DESCRIPTOR_RANGE appendRanges[1]{};
 		appendRanges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 1, 0);
@@ -182,6 +190,8 @@ void GPUParticleManager::CreateUpdate() {
 		rootParameters[ParticleManager::UpdateRootSigunature::kParticleBuffer].InitAsUnorderedAccessView(0);
 		rootParameters[ParticleManager::UpdateRootSigunature::kArgumentRange].InitAsDescriptorTable(_countof(argumentRanges), argumentRanges);
 		rootParameters[ParticleManager::UpdateRootSigunature::kAppendRange].InitAsDescriptorTable(_countof(appendRanges), appendRanges);
+		rootParameters[ParticleManager::UpdateRootSigunature::kEmitter].InitAsDescriptorTable(_countof(emitterRanges), emitterRanges);
+		rootParameters[ParticleManager::UpdateRootSigunature::kEmitterCounter].InitAsConstantBufferView(0);
 
 		D3D12_ROOT_SIGNATURE_DESC desc{};
 		desc.pParameters = rootParameters;

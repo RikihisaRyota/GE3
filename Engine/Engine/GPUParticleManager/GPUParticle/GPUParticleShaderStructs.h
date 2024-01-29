@@ -31,6 +31,7 @@ struct EmitterForGPU {
 };
 struct EmitterCounter {
 	uint32_t emitterCounter;
+	uint32_t pad[3];
 };
 
 struct IndirectCommand {

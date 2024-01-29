@@ -16,7 +16,7 @@ void RenderManager::Initialize() {
 	// スワップチェーンを初期化
 	auto window = WinApp::GetInstance();
 	swapChain_.Create(window->GetHwnd());
-	
+
 	// コマンドリストの初期化
 	for (auto& commandContext : commandContexts_) {
 		commandContext.Create();
@@ -27,16 +27,18 @@ void RenderManager::Initialize() {
 	mainColorBufferFormat_ = DXGI_FORMAT_R8G8B8A8_UNORM;
 	mainDepthBufferFormat_ = DXGI_FORMAT_D32_FLOAT;
 	auto& swapChainBuffer = swapChain_.GetColorBuffer();
-	Color clearColor = { 0.3f,0.1f,0.3f,0.0f };
-	swapChain_.GetColorBuffer().SetClearColor(clearColor);
+	Color clearColor = { 0.0f,0.0f,0.0f,0.0f };
+	for (uint32_t i = 0; i < SwapChain::kNumBuffers; i++) {
+		swapChain_.GetColorBuffer(i).SetClearColor(clearColor);
+	}
 	mainColorBuffer_.SetClearColor(clearColor);
 	mainColorBuffer_.Create(L"mainColorBuffer", swapChainBuffer.GetWidth(), swapChainBuffer.GetHeight(), mainColorBufferFormat_);
 
 
 	mainDepthBuffer_.Create(L"mainDepthBuffer", swapChainBuffer.GetWidth(), swapChainBuffer.GetHeight(), mainDepthBufferFormat_);
-	
+
 	// ImGUi初期化
-	ImGuiManager::GetInstance()->Initialize(window->GetHwnd(),swapChain_.GetColorBuffer().GetFormat());
+	ImGuiManager::GetInstance()->Initialize(window->GetHwnd(), swapChain_.GetColorBuffer().GetFormat());
 }
 
 void RenderManager::Reset() {
@@ -54,8 +56,6 @@ void RenderManager::BeginRender() {
 	commandContext.TransitionResource(swapChainColorBuffer, D3D12_RESOURCE_STATE_RENDER_TARGET);
 	commandContext.TransitionResource(mainDepthBuffer_, D3D12_RESOURCE_STATE_DEPTH_WRITE);
 	commandContext.SetRenderTarget(swapChainColorBuffer.GetRTV(), mainDepthBuffer_.GetDSV());
-	Color clearColor = { 0.1f,0.25f,0.5f,1.0f };
-	swapChainColorBuffer.SetClearColor(clearColor);
 	commandContext.ClearColor(swapChainColorBuffer);
 	commandContext.ClearDepth(mainDepthBuffer_);
 	commandContext.SetViewportAndScissorRect(0, 0, swapChainColorBuffer.GetWidth(), swapChainColorBuffer.GetHeight());
@@ -71,7 +71,7 @@ void RenderManager::EndRender() {
 	commandContext.TransitionResource(swapChainColorBuffer, D3D12_RESOURCE_STATE_PRESENT);
 	commandContext.Close();
 	CommandQueue& commandQueue = graphicsCore_->GetCommandQueue();
-	
+
 	commandQueue.Execute(commandContext);
 	swapChain_.Present();
 	commandQueue.Signal();

@@ -14,7 +14,7 @@ GameScene::GameScene() {
 
 	modelHandle_ = ModelManager::GetInstance()->Load("Resources/Models/Ball");
 	terrainHandle_ = ModelManager::GetInstance()->Load("Resources/Models/terrain");
-	
+
 	gpuTexture_ = TextureManager::GetInstance()->Load("Resources/Images/GPUParticle.png");
 	color_ = { 1.0f,1.0f,1.0f,1.0 };
 	worldTransform_.Initialize();
@@ -29,15 +29,62 @@ void GameScene::Initialize() {
 	viewProjection_.Initialize();
 
 	gpuParticleManager_->Initialize();
-	EmitterForGPU emitterForGPU = {
-	.min = {-5.0f,-5.0f,-5.0f},
-	.maxParticleNum = 10,
-	.max = {5.0f,5.0f,5.0f},
-	.frequency = 30,
-	.position = {0.0f,0.0f,0.0f},
-	.createParticleNum = 2,
-	};
-	gpuParticleManager_->CreateParticle(emitterForGPU, gpuTexture_);
+	{
+		EmitterForGPU emitterForGPU = {
+		.min = {-5.0f,-15.0f,-10.0f},
+		.maxParticleNum = 1 << 24,
+		.max = {5.0f,15.0f,50.0f},
+		.frequency = 10,
+		.position = {-15.0,0.0f,-10.0f},
+		.createParticleNum = 1 << 8,
+		};
+
+		gpuParticleManager_->CreateParticle(emitterForGPU, gpuTexture_);
+	}
+	{
+		EmitterForGPU emitterForGPU = {
+		.min = {-5.0f,-15.0f,-10.0f},
+		.maxParticleNum = 1 << 24,
+		.max = {5.0f,15.0f,50.0f},
+		.frequency = 10,
+		.position = {15.0,0.0f,-10.0f},
+		.createParticleNum = 1 << 8,
+		};
+		gpuParticleManager_->CreateParticle(emitterForGPU, gpuTexture_);
+	}
+	{
+		EmitterForGPU emitterForGPU = {
+		.min = {-15.0f,-5.0f,-10.0f},
+		.maxParticleNum = 1 << 24,
+		.max = {15.0f,5.0f,50.0f},
+		.frequency = 10,
+		.position = {0.0f,15.0f,-10.0f},
+		.createParticleNum = 1 << 8,
+		};
+		gpuParticleManager_->CreateParticle(emitterForGPU, gpuTexture_);
+	}
+	{
+		EmitterForGPU emitterForGPU = {
+		.min = {-15.0f,-5.0f,-10.0f},
+		.maxParticleNum = 1 << 24,
+		.max = {15.0f,5.0f,50.0f},
+		.frequency = 10,
+		.position = {0.0f,-15.0f,-10.0f},
+		.createParticleNum = 1 << 8,
+		};
+		gpuParticleManager_->CreateParticle(emitterForGPU, gpuTexture_);
+	}
+	{
+		EmitterForGPU emitterForGPU = {
+		.min = {-10.0f,-10.0f,10.0f},
+		.maxParticleNum = 1 << 24,
+		.max = {10.0f,10.0f,50.0f},
+		.frequency = 10,
+		.position = {0.0f,0.0f,10.0f},
+		.createParticleNum = 1 << 8,
+		};
+		gpuParticleManager_->CreateParticle(emitterForGPU, gpuTexture_);
+	}
 }
 
 void GameScene::Update() {
@@ -59,11 +106,11 @@ void GameScene::Update() {
 }
 
 void GameScene::Draw(CommandContext& commandContext) {
-	gpuParticleManager_->Draw(viewProjection_,commandContext);
-	
 	ModelManager::GetInstance()->Draw(worldTransform_, viewProjection_, modelHandle_, commandContext);
 
 	ModelManager::GetInstance()->Draw(worldTransform_, viewProjection_, terrainHandle_, commandContext);
+
+	gpuParticleManager_->Draw(viewProjection_, commandContext);
 }
 
 void GameScene::Finalize() {}

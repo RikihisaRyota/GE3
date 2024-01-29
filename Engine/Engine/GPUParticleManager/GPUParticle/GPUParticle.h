@@ -41,13 +41,13 @@ public:
 	void Update(CommandContext& commandContext);
 	void Draw(const ViewProjection& viewProjection, CommandContext& commandContext);
 	void SetCommandSignature(ID3D12CommandSignature* commandSignature) { commandSignature_ = commandSignature; }
-	void Create(EmitterForGPU emitterForGPU, TextureHandle textureHandle);
+	void Create(const EmitterForGPU& emitterForGPU, TextureHandle textureHandle);
 private:
 	static const UINT ComputeThreadBlockSize = 128;
 
 	void InitializeParticleBuffer();
 	void InitializeUpdateParticle();
-	void InitializeEmitter(EmitterForGPU emitterForGPU);
+	void InitializeEmitter(const EmitterForGPU& emitterForGPU);
 
 	// コマンドシグネイチャ
 	ID3D12CommandSignature* commandSignature_;
@@ -61,15 +61,16 @@ private:
 	// AppendBuffer
 	GpuResource appendDrawIndexBuffers_;
 	DescriptorHandle appendDrawIndexUAVHandle_;
-	GpuResource resetAppendDrawIndexBufferCounterReset_;
+	UploadBuffer resetAppendDrawIndexBufferCounterReset_;
 	// 描画引数用
 	GpuResource drawArgumentBuffer_;
 	DescriptorHandle drawArgumentHandle_;
 	// パーティクルのエミッター
-	EmitterForGPU* emitterForGPU_;
+	EmitterForGPU emitterForGPU_;
 	EmitterCounter* emitterCounter_;
 	UploadBuffer emitterCounterBuffer_;
 	GpuResource emitterForGPUBuffer_;
+	DescriptorHandle emitterForGPUSRVHandle_;
 
 	UINT commandSizePerFrame_;
 	UINT appendBufferCounterOffset_;

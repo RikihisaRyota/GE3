@@ -29,15 +29,16 @@ PixelShaderOutput main(VertexShaderOutput input)
     float halfRanbert = HalfRanbert(input.normal, gDirectionLight.direction);
     float3 diffuse = float3(gDirectionLight.color.rgb * halfRanbert * gDirectionLight.intensity);
     // スペキュラー
-    float blinnPhongReflection = BlinnPhongReflection(input.normal, gViewProjection.cameraPos, worldPos,gDirectionLight.direction);
+    float blinnPhongReflection = BlinnPhongReflection(input.normal, gViewProjection.cameraPos, worldPos, gDirectionLight.direction);
     float3 specular = float3(gDirectionLight.color.rgb * gDirectionLight.sharpness * blinnPhongReflection * float3(1.0f, 1.0f, 1.0f));
     // アンビエント
     float3 ambient = float3(0.1f, 0.1f, 0.1f);
     // ポイントライト
+    float factor = Factor(worldPos, gPointLight.position,gPointLight.radius,gPointLight.decay);
     float pointLightHalfRanbert = PointLightHalfRanbert(input.normal, worldPos, gPointLight.position);
-    float3 pointLightDiffuse = float3(gPointLight.color.rgb * pointLightHalfRanbert * gPointLight.intensity);
+    float3 pointLightDiffuse = float3(gPointLight.color.rgb * pointLightHalfRanbert * factor * gPointLight.intensity);
     float3 pointLightBlinnPhongReflection = PointLightBlinnPhongReflection(input.normal, worldPos, gPointLight.position);
-    float3 pointLightSpecular = float3(gPointLight.color.rgb * pointLightBlinnPhongReflection * gPointLight.intensity);
+    float3 pointLightSpecular = float3(gPointLight.color.rgb * pointLightBlinnPhongReflection * factor * gPointLight.intensity);
     
     output.color.rgb = gMaterial.color.rgb * textureColor.rgb * ((diffuse + specular + ambient) + (pointLightDiffuse + pointLightSpecular));
     output.color.a = gMaterial.color.a;

@@ -1,5 +1,5 @@
 
-#define threadBlockSize 1
+#define threadBlockSize 128
 
 struct VertexShaderOutput
 {
@@ -27,6 +27,13 @@ struct Emitter
     uint frequencyTime;
     uint createParticleNum;
 };
+
+struct EmitterCounterBuffer
+{
+    uint emitterCounter;
+    uint3 pad;
+};
+
 float hash(uint seed)
 {
     seed = (seed ^ 61u) ^ (seed >> 16u);
@@ -147,37 +154,4 @@ matrix MakeAffine(float scale, float3 rotate, float3 translate)
 {
     return matrix(mul(mul(MakeScaleMatrix(scale), MakeRotationMatrix(rotate)), MakeTranslationMatrix(translate)));
 
-}
-float4x4 Inverse(float4x4 m)
-{
-    float4 c0 = m[0];
-    float4 c1 = m[1];
-    float4 c2 = m[2];
-    float4 c3 = m[3];
-
-    float4 r0 = float4(c1.y * c2.z * c3.w - c1.z * c2.y * c3.w + c1.z * c2.w * c3.y - c1.w * c2.z * c3.y - c1.y * c2.w * c3.z + c1.w * c2.y * c3.z,
-        -c0.y * c2.z * c3.w + c0.z * c2.y * c3.w - c0.z * c2.w * c3.y + c0.w * c2.z * c3.y + c0.y * c2.w * c3.z - c0.w * c2.y * c3.z,
-        c0.y * c1.z * c3.w - c0.z * c1.y * c3.w + c0.z * c1.w * c3.y - c0.w * c1.z * c3.y - c0.y * c1.w * c3.z + c0.w * c1.y * c3.z,
-        -c0.y * c1.z * c2.w + c0.z * c1.y * c2.w - c0.z * c1.w * c2.y + c0.w * c1.z * c2.y + c0.y * c1.w * c2.z - c0.w * c1.y * c2.z);
-
-    float4 r1 = float4(-c1.x * c2.z * c3.w + c1.z * c2.x * c3.w - c1.z * c2.w * c3.x + c1.w * c2.z * c3.x + c1.x * c2.w * c3.z - c1.w * c2.x * c3.z,
-        c0.x * c2.z * c3.w - c0.z * c2.x * c3.w + c0.z * c2.w * c3.x - c0.w * c2.z * c3.x - c0.x * c2.w * c3.z + c0.w * c2.x * c3.z,
-        -c0.x * c1.z * c3.w + c0.z * c1.x * c3.w - c0.z * c1.w * c3.x + c0.w * c1.z * c3.x + c0.x * c1.w * c3.z - c0.w * c1.x * c3.z,
-        c0.x * c1.z * c2.w - c0.z * c1.x * c2.w + c0.z * c1.w * c2.x - c0.w * c1.z * c2.x - c0.x * c1.w * c2.z + c0.w * c1.x * c2.z);
-
-    float4 r2 = float4(c1.x * c2.y * c3.w - c1.y * c2.x * c3.w + c1.y * c2.w * c3.x - c1.w * c2.y * c3.x - c1.x * c2.w * c3.y + c1.w * c2.x * c3.y,
-        -c0.x * c2.y * c3.w + c0.y * c2.x * c3.w - c0.y * c2.w * c3.x + c0.w * c2.y * c3.x + c0.x * c2.w * c3.y - c0.w * c2.x * c3.y,
-        c0.x * c1.y * c3.w - c0.y * c1.x * c3.w + c0.y * c1.w * c3.x - c0.w * c1.y * c3.x - c0.x * c1.w * c3.y + c0.w * c1.x * c3.y,
-        -c0.x * c1.y * c2.w + c0.y * c1.x * c2.w - c0.y * c1.w * c2.x + c0.w * c1.y * c2.x + c0.x * c1.w * c2.y - c0.w * c1.x * c2.y);
-
-    float4 r3 = float4(-c1.x * c2.y * c3.z + c1.y * c2.x * c3.z - c1.y * c2.z * c3.x + c1.z * c2.y * c3.x + c1.x * c2.z * c3.y - c1.z * c2.x * c3.y,
-        c0.x * c2.y * c3.z - c0.y * c2.x * c3.z + c0.y * c2.z * c3.x - c0.z * c2.y * c3.x - c0.x * c2.z * c3.y + c0.z * c2.x * c3.y,
-        -c0.x * c1.y * c3.z + c0.y * c1.x * c3.z - c0.y * c1.z * c3.x + c0.z * c1.y * c3.x + c0.x * c1.z * c3.y - c0.z * c1.x * c3.y,
-        c0.x * c1.y * c2.z - c0.y * c1.x * c2.z + c0.y * c1.z * c2.x - c0.z * c1.y * c2.x - c0.x * c1.z * c2.y + c0.z * c1.x * c2.y);
-
-    float determinant = dot(m[0], r0);
-    if (abs(determinant) < 1e-6)
-        return m;
-
-    return float4x4(r0 / determinant, r1 / determinant, r2 / determinant, r3 / determinant);
 }

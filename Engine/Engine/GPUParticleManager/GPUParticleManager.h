@@ -24,7 +24,7 @@ public:
 
 	void Draw(const ViewProjection& viewProjection,CommandContext& commandContext);
 
-	void CreateParticle(EmitterForGPU emitterForGPU, TextureHandle textureHandle);
+	void CreateParticle(const EmitterForGPU& emitterForGPU, TextureHandle textureHandle);
 private:
 	void CreateGraphics();
 	void CreateUpdate();

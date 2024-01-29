@@ -54,11 +54,10 @@ private:
 	// パーティクルの情報
 	GpuResource particleBuffer_;
 	DescriptorHandle rwStructuredBufferHandle_;
-	// DrawIndexの基となるバッファ
+	// パーティクルの生きてるか判定用
 	GpuResource originalCommandBuffer_;
 	DescriptorHandle originalCommandUAVHandle_;
-	UploadBuffer commandUploadBuffer_;
-	// AppendBuffer
+	// drawIndexBuffer
 	GpuResource drawIndexCommandBuffers_;
 	DescriptorHandle drawIndexCommandUAVHandle_;
 	UploadBuffer resetAppendDrawIndexBufferCounterReset_;
@@ -75,7 +74,7 @@ private:
 
 	TextureHandle texture_;
 
-	float time_=60.0f;
+	float time_ = 0.0f;
 	
 	static inline UINT AlignForUavCounter(UINT bufferSize) {
 		const UINT alignment = D3D12_UAV_COUNTER_PLACEMENT_ALIGNMENT;

@@ -18,7 +18,8 @@ namespace ParticleManager {
 
 	enum UpdateRootSigunature {
 		kParticleBuffer,
-		kAppendRange,
+		kParticleIndexCommand,
+		kOutputDrawIndex,
 
 		kUpdateRootSigunatureCount,
 	};
@@ -171,13 +172,16 @@ void GPUParticleManager::CreateUpdate() {
 	{
 		updateComputeRootSignature_ = std::make_unique<RootSignature>();
 
-		// AppendStructuredBuffer用（カウンター付きUAVの場合このように宣言）
-		CD3DX12_DESCRIPTOR_RANGE appendRanges[1]{};
-		appendRanges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 1, 0);
+		//	ParticleIndexCommand用（カウンター付きUAVの場合このように宣言）
+		CD3DX12_DESCRIPTOR_RANGE particleIndexRange[1]{};
+		particleIndexRange[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, ParticleManager::UpdateRootSigunature::kParticleIndexCommand, 0);
+		CD3DX12_DESCRIPTOR_RANGE outputDrawRange[1]{};
+		outputDrawRange[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, ParticleManager::UpdateRootSigunature::kOutputDrawIndex, 0);
 
 		CD3DX12_ROOT_PARAMETER rootParameters[ParticleManager::UpdateRootSigunature::kUpdateRootSigunatureCount]{};
 		rootParameters[ParticleManager::UpdateRootSigunature::kParticleBuffer].InitAsUnorderedAccessView(0);
-		rootParameters[ParticleManager::UpdateRootSigunature::kAppendRange].InitAsDescriptorTable(_countof(appendRanges), appendRanges);
+		rootParameters[ParticleManager::UpdateRootSigunature::kParticleIndexCommand].InitAsDescriptorTable(_countof(particleIndexRange), particleIndexRange);
+		rootParameters[ParticleManager::UpdateRootSigunature::kOutputDrawIndex].InitAsDescriptorTable(_countof(outputDrawRange), outputDrawRange);
 
 		D3D12_ROOT_SIGNATURE_DESC desc{};
 		desc.pParameters = rootParameters;
@@ -205,7 +209,7 @@ void GPUParticleManager::CreateSpawn() {
 		// AppendStructuredBuffer用（カウンター付きUAVの場合このように宣言）
 		CD3DX12_DESCRIPTOR_RANGE consumeRanges[1]{};
 		consumeRanges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 1, 0);
-		CD3DX12_ROOT_PARAMETER rootParameters[ParticleManager::CommandSigunature::kCommandSigunatureCount]{};
+		CD3DX12_ROOT_PARAMETER rootParameters[ParticleManager::SpawnRootSignature::kSpawnRootSignatureCount]{};
 		rootParameters[ParticleManager::SpawnRootSignature::kParticleInfo].InitAsUnorderedAccessView(0);
 		rootParameters[ParticleManager::SpawnRootSignature::kEmitter].InitAsConstantBufferView(0);
 		rootParameters[ParticleManager::SpawnRootSignature::kOutputCommand].InitAsDescriptorTable(_countof(consumeRanges), consumeRanges);

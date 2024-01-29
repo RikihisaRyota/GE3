@@ -24,14 +24,9 @@ struct EmitterForGPU {
 	Vector3 min;
 	uint32_t maxParticleNum;
 	Vector3 max;
-	Vector3 position;
 	uint32_t createParticleNum;
+	Vector3 position;
 };
-struct EmitterCounter {
-	uint32_t emitterCounter;
-	uint32_t pad[3];
-};
-
 struct IndirectCommand {
 	struct SRV {
 		D3D12_GPU_VIRTUAL_ADDRESS particleSRV;

@@ -32,59 +32,54 @@ void GameScene::Initialize() {
 	{
 		EmitterForGPU emitterForGPU = {
 		.min = {-5.0f,-15.0f,-10.0f},
-		.maxParticleNum = 1 << 24,
+		.maxParticleNum = 1 << 7,
 		.max = {5.0f,15.0f,50.0f},
-		.frequency = 10,
+		.createParticleNum= 1 << 4,
 		.position = {-15.0,0.0f,-10.0f},
-		.createParticleNum = 1 << 8,
 		};
 
 		gpuParticleManager_->CreateParticle(emitterForGPU, gpuTexture_);
 	}
-	{
-		EmitterForGPU emitterForGPU = {
-		.min = {-5.0f,-15.0f,-10.0f},
-		.maxParticleNum = 1 << 24,
-		.max = {5.0f,15.0f,50.0f},
-		.frequency = 10,
-		.position = {15.0,0.0f,-10.0f},
-		.createParticleNum = 1 << 8,
-		};
-		gpuParticleManager_->CreateParticle(emitterForGPU, gpuTexture_);
-	}
-	{
-		EmitterForGPU emitterForGPU = {
-		.min = {-15.0f,-5.0f,-10.0f},
-		.maxParticleNum = 1 << 24,
-		.max = {15.0f,5.0f,50.0f},
-		.frequency = 10,
-		.position = {0.0f,15.0f,-10.0f},
-		.createParticleNum = 1 << 8,
-		};
-		gpuParticleManager_->CreateParticle(emitterForGPU, gpuTexture_);
-	}
-	{
-		EmitterForGPU emitterForGPU = {
-		.min = {-15.0f,-5.0f,-10.0f},
-		.maxParticleNum = 1 << 24,
-		.max = {15.0f,5.0f,50.0f},
-		.frequency = 10,
-		.position = {0.0f,-15.0f,-10.0f},
-		.createParticleNum = 1 << 8,
-		};
-		gpuParticleManager_->CreateParticle(emitterForGPU, gpuTexture_);
-	}
-	{
-		EmitterForGPU emitterForGPU = {
-		.min = {-10.0f,-10.0f,10.0f},
-		.maxParticleNum = 1 << 24,
-		.max = {10.0f,10.0f,50.0f},
-		.frequency = 10,
-		.position = {0.0f,0.0f,10.0f},
-		.createParticleNum = 1 << 8,
-		};
-		gpuParticleManager_->CreateParticle(emitterForGPU, gpuTexture_);
-	}
+	//{
+	//	EmitterForGPU emitterForGPU = {
+	//	.min = {-5.0f,-15.0f,-10.0f},
+	//	.maxParticleNum = 1 << 24,
+	//	.max = {5.0f,15.0f,50.0f},
+	//	.position = {15.0,0.0f,-10.0f},
+	//	.createParticleNum = 1 << 8,
+	//	};
+	//	gpuParticleManager_->CreateParticle(emitterForGPU, gpuTexture_);
+	//}
+	//{
+	//	EmitterForGPU emitterForGPU = {
+	//	.min = {-15.0f,-5.0f,-10.0f},
+	//	.maxParticleNum = 1 << 24,
+	//	.max = {15.0f,5.0f,50.0f},
+	//	.position = {0.0f,15.0f,-10.0f},
+	//	.createParticleNum = 1 << 8,
+	//	};
+	//	gpuParticleManager_->CreateParticle(emitterForGPU, gpuTexture_);
+	//}
+	//{
+	//	EmitterForGPU emitterForGPU = {
+	//	.min = {-15.0f,-5.0f,-10.0f},
+	//	.maxParticleNum = 1 << 24,
+	//	.max = {15.0f,5.0f,50.0f},
+	//	.position = {0.0f,-15.0f,-10.0f},
+	//	.createParticleNum = 1 << 8,
+	//	};
+	//	gpuParticleManager_->CreateParticle(emitterForGPU, gpuTexture_);
+	//}
+	//{
+	//	EmitterForGPU emitterForGPU = {
+	//	.min = {-10.0f,-10.0f,10.0f},
+	//	.maxParticleNum = 1 << 24,
+	//	.max = {10.0f,10.0f,50.0f},
+	//	.position = {0.0f,0.0f,10.0f},
+	//	.createParticleNum = 1 << 8,
+	//	};
+	//	gpuParticleManager_->CreateParticle(emitterForGPU, gpuTexture_);
+	//}
 }
 
 void GameScene::Update() {

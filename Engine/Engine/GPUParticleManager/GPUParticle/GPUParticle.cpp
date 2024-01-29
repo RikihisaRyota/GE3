@@ -45,10 +45,11 @@ void GPUParticle::Spawn(CommandContext& commandContext) {
 	commandContext.SetComputeUAV(0, particleBuffer_->GetGPUVirtualAddress());
 	commandContext.SetComputeConstantBuffer(1, emitterForGPUBuffer_->GetGPUVirtualAddress());
 	commandContext.SetComputeDescriptorTable(2, originalCommandUAVHandle_);
-	time_ -= 0.0f;
+	commandContext.Dispatch(UINT(emitterForGPU_.createParticleNum), 1, 1);
+	time_ -= 1.0f;
 	if (time_ <= 0.0f) {
 		time_ = 60.0f;
-		commandContext.Dispatch(UINT(emitterForGPU_.createParticleNum), 1, 1);
+		//commandContext.Dispatch(UINT(emitterForGPU_.createParticleNum), 1, 1);
 	}
 }
 
@@ -142,7 +143,7 @@ void GPUParticle::InitializeUpdateParticle() {
 		IID_PPV_ARGS(drawIndexCommandBuffers_.GetAddressOf())
 	);
 	drawIndexCommandBuffers_.SetState(D3D12_RESOURCE_STATE_COMMON);
-	drawIndexCommandBuffers_->SetName(L"AppendDrawIndexBuffers");
+	drawIndexCommandBuffers_->SetName(L"DrawIndexBuffers");
 	drawIndexCommandUAVHandle_ = graphics->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 
 	// UAVView生成
@@ -167,9 +168,7 @@ void GPUParticle::InitializeUpdateParticle() {
 	resetAppendDrawIndexBufferCounterReset_.Copy(resetValue);
 
 	// DrawIndexの基となるバッファ
-	std::vector<uint32_t> commands;
-	commands.resize(emitterForGPU_.maxParticleNum);
-	desc = CD3DX12_RESOURCE_DESC::Buffer(commandSizePerFrame_);
+	desc = CD3DX12_RESOURCE_DESC::Buffer(sizeof(uint32_t) * emitterForGPU_.maxParticleNum, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
 	heapProp = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
 	device->CreateCommittedResource(
 		&heapProp,
@@ -187,24 +186,28 @@ void GPUParticle::InitializeUpdateParticle() {
 	uavDesc.Buffer.FirstElement = 0;
 	uavDesc.Buffer.NumElements = emitterForGPU_.maxParticleNum;
 	uavDesc.Buffer.StructureByteStride = sizeof(uint32_t);
-	uavDesc.Buffer.CounterOffsetInBytes = drawIndexBufferCounterOffset_;
 	uavDesc.Buffer.Flags = D3D12_BUFFER_UAV_FLAG_NONE;
+	originalCommandUAVHandle_ = graphics->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 
+	// リソースビューを作成した後、UAV を作成
 	device->CreateUnorderedAccessView(
-		commandUploadBuffer_,
-		0,
+		originalCommandBuffer_,
+		nullptr,
 		&uavDesc,
 		originalCommandUAVHandle_);
+
 
 	// コピー用
 	// インデックスを代入
 	UploadBuffer copyIndexBuffer{};
-	copyIndexBuffer.Create(L"copyIndex", commandSizePerFrame_);
+	copyIndexBuffer.Create(L"copyIndex", sizeof(uint32_t) * emitterForGPU_.maxParticleNum);
+	std::vector<uint32_t> commands;
+	commands.resize(emitterForGPU_.maxParticleNum);
 
 	for (UINT commandIndex = 0; commandIndex < emitterForGPU_.maxParticleNum; ++commandIndex) {
 		commands[commandIndex] = commandIndex;
 	}
-	copyIndexBuffer.Copy(commands.data(), commandSizePerFrame_);
+	copyIndexBuffer.Copy(commands.data(), sizeof(uint32_t) * emitterForGPU_.maxParticleNum);
 
 	commandContext.CopyBuffer(originalCommandBuffer_, copyIndexBuffer);
 

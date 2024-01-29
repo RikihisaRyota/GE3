@@ -2,9 +2,9 @@
 
 RWStructuredBuffer<Particle> Input : register(u0);
 
-AppendStructuredBuffer<uint> outputDrawIndexCommands : register(u1);
+AppendStructuredBuffer<uint> particleIndexCommands : register(u1);
 
-AppendStructuredBuffer<uint> particleIndexCommands: register(u2);
+AppendStructuredBuffer<uint> outputDrawIndexCommands : register(u2);
 
 [numthreads(threadBlockSize, 1, 1)]
 void main(uint3 DTid : SV_DispatchThreadID)

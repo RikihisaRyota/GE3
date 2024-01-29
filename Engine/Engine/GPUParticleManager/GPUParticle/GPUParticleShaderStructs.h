@@ -24,9 +24,7 @@ struct EmitterForGPU {
 	Vector3 min;
 	uint32_t maxParticleNum;
 	Vector3 max;
-	uint32_t frequency;
 	Vector3 position;
-	uint32_t frequencyTime;
 	uint32_t createParticleNum;
 };
 struct EmitterCounter {

@@ -9,19 +9,16 @@
 #include "Engine/Graphics/CommandContext.h"
 
 namespace ParticleManager {
-	/*enum SpawnRootSignature {
-		kParticleSRV,
-		kDrawIndexSRV,
-		kDrawIndex,
+	enum SpawnRootSignature {
+		kParticleInfo,
+		kEmitter,
+		kOutputCommand,
 		kSpawnRootSignatureCount,
-	};*/
+	};
 
 	enum UpdateRootSigunature {
 		kParticleBuffer,
-		kArgumentRange,
 		kAppendRange,
-		kEmitter,
-		kEmitterCounter,
 
 		kUpdateRootSigunatureCount,
 	};
@@ -174,24 +171,13 @@ void GPUParticleManager::CreateUpdate() {
 	{
 		updateComputeRootSignature_ = std::make_unique<RootSignature>();
 
-		// 全部で何個パーティクルがあるか
-		CD3DX12_DESCRIPTOR_RANGE argumentRanges[1]{};
-		argumentRanges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0, 0);
-
-		// Emitter
-		CD3DX12_DESCRIPTOR_RANGE emitterRanges[1]{};
-		emitterRanges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 1, 0);
-
 		// AppendStructuredBuffer用（カウンター付きUAVの場合このように宣言）
 		CD3DX12_DESCRIPTOR_RANGE appendRanges[1]{};
 		appendRanges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 1, 0);
 
 		CD3DX12_ROOT_PARAMETER rootParameters[ParticleManager::UpdateRootSigunature::kUpdateRootSigunatureCount]{};
 		rootParameters[ParticleManager::UpdateRootSigunature::kParticleBuffer].InitAsUnorderedAccessView(0);
-		rootParameters[ParticleManager::UpdateRootSigunature::kArgumentRange].InitAsDescriptorTable(_countof(argumentRanges), argumentRanges);
 		rootParameters[ParticleManager::UpdateRootSigunature::kAppendRange].InitAsDescriptorTable(_countof(appendRanges), appendRanges);
-		rootParameters[ParticleManager::UpdateRootSigunature::kEmitter].InitAsDescriptorTable(_countof(emitterRanges), emitterRanges);
-		rootParameters[ParticleManager::UpdateRootSigunature::kEmitterCounter].InitAsConstantBufferView(0);
 
 		D3D12_ROOT_SIGNATURE_DESC desc{};
 		desc.pParameters = rootParameters;
@@ -216,12 +202,13 @@ void GPUParticleManager::CreateSpawn() {
 	// スポーンシグネイチャー
 	{
 		spawnComputeRootSignature_ = std::make_unique<RootSignature>();
-		// 
+		// AppendStructuredBuffer用（カウンター付きUAVの場合このように宣言）
+		CD3DX12_DESCRIPTOR_RANGE consumeRanges[1]{};
+		consumeRanges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 1, 0);
 		CD3DX12_ROOT_PARAMETER rootParameters[ParticleManager::CommandSigunature::kCommandSigunatureCount]{};
-		rootParameters[ParticleManager::CommandSigunature::kParticleSRV].InitAsUnorderedAccessView(0);
-		rootParameters[ParticleManager::CommandSigunature::kDrawIndexSRV].InitAsUnorderedAccessView(1);
-		rootParameters[ParticleManager::CommandSigunature::kDrawIndexBuffer].InitAsConstantBufferView(0);
-
+		rootParameters[ParticleManager::SpawnRootSignature::kParticleInfo].InitAsUnorderedAccessView(0);
+		rootParameters[ParticleManager::SpawnRootSignature::kEmitter].InitAsConstantBufferView(0);
+		rootParameters[ParticleManager::SpawnRootSignature::kOutputCommand].InitAsDescriptorTable(_countof(consumeRanges), consumeRanges);
 		D3D12_ROOT_SIGNATURE_DESC desc{};
 		desc.pParameters = rootParameters;
 		desc.NumParameters = _countof(rootParameters);

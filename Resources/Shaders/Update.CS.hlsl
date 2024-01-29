@@ -2,12 +2,9 @@
 
 RWStructuredBuffer<Particle> Input : register(u0);
 
-StructuredBuffer<uint> inputCommands : register(t0);
-AppendStructuredBuffer<uint> outputCommands : register(u1);
+AppendStructuredBuffer<uint> outputDrawIndexCommands : register(u1);
 
-StructuredBuffer<Emitter> gEmitter : register(t1);
-
-ConstantBuffer<EmitterCounterBuffer> gEmitterCounter : register(b0);
+AppendStructuredBuffer<uint> particleIndexCommands: register(u2);
 
 [numthreads(threadBlockSize, 1, 1)]
 void main(uint3 DTid : SV_DispatchThreadID)
@@ -16,11 +13,13 @@ void main(uint3 DTid : SV_DispatchThreadID)
     if (Input[index].isAlive)
     {
         Input[index].aliveTime -= 1.0f;
+        Input[index].translate += Input[index].velocity * 0.1f;
+        
         if (Input[index].aliveTime <= 0.0f)
         {
             Input[index].isAlive = false;
+            particleIndexCommands.Append(index);
         }
-        Input[index].translate += Input[index].velocity * 0.1f;
-        outputCommands.Append(index);
+        outputDrawIndexCommands.Append(index);
     }
 }

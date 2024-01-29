@@ -22,10 +22,8 @@ struct Emitter
     float3 min;
     uint maxParticleNum;
     float3 max;
-    uint frequency;
-    float3 position;
-    uint frequencyTime;
     uint createParticleNum;
+    float3 position;
 };
 
 struct EmitterCounterBuffer

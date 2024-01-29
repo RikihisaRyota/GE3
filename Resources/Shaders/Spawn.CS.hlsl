@@ -2,19 +2,18 @@
 
 RWStructuredBuffer<Particle> Output : register(u0);
 
-RWStructuredBuffer<Emitter> gEmitter : register(u1);
+ConstantBuffer<Emitter> gEmitter : register(b0);
 
-ConstantBuffer<EmitterCounterBuffer> gEmitterCounter : register(b0);
+ConsumeStructuredBuffer<uint> particleIndexCommands : register(u1);
 
-
-void CreateParticle(uint emitterIndex, uint index)
+void CreateParticle(uint index)
 {
     Output[index].scale = float3(0.1f, 0.1f, 0.1f);
     Output[index].rotate = float3(0.0f, 0.0f, 0.0f);
-    Output[index].translate = gEmitter[emitterIndex].position;
-    Output[index].translate.x += random(gEmitter[emitterIndex].min.x, gEmitter[emitterIndex].max.x, float(index) * 2.0f);
-    Output[index].translate.y += random(gEmitter[emitterIndex].min.y, gEmitter[emitterIndex].max.y, float(index) * 1.0f);
-    Output[index].translate.z += random(gEmitter[emitterIndex].min.z, gEmitter[emitterIndex].max.z, float(index) * 3.0f);
+    Output[index].translate = gEmitter.position;
+    Output[index].translate.x += random(gEmitter.min.x, gEmitter.max.x, float(index) * 2.0f);
+    Output[index].translate.y += random(gEmitter.min.y, gEmitter.max.y, float(index) * 1.0f);
+    Output[index].translate.z += random(gEmitter.min.z, gEmitter.max.z, float(index) * 3.0f);
    
     Output[index].isAlive = true;
     Output[index].isHit = false;
@@ -23,29 +22,8 @@ void CreateParticle(uint emitterIndex, uint index)
 }
 
 [numthreads(1, 1, 1)]
-void main(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex)
+void main(uint3 DTid : SV_DispatchThreadID)
 {
-    uint cureateParticleNum = 0;
-    uint emitterCounter = gEmitterCounter.emitterCounter;
-    for (int emitterIndex = 0; emitterIndex < emitterCounter; emitterIndex++)
-    {
-        gEmitter[emitterIndex].frequencyTime++;
-
-        if (gEmitter[emitterIndex].frequencyTime >= gEmitter[emitterIndex].frequency)
-        {
-            for (int i = 0; i < gEmitter[emitterIndex].maxParticleNum; i++)
-            {
-                if (!Output[i].isAlive)
-                {
-                    CreateParticle(emitterIndex,i);
-                    cureateParticleNum++;
-                    if (cureateParticleNum >= gEmitter[emitterIndex].createParticleNum)
-                    {
-                        gEmitter[emitterIndex].frequencyTime = 0;
-                        break;
-                    }
-                }
-            }
-        }
-    }
+    uint index = particleIndexCommands.Consume();
+    CreateParticle(index);
 }

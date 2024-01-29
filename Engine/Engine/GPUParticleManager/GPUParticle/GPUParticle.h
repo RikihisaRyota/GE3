@@ -56,26 +56,26 @@ private:
 	DescriptorHandle rwStructuredBufferHandle_;
 	// DrawIndexの基となるバッファ
 	GpuResource originalCommandBuffer_;
-	DescriptorHandle originalCommandSRVHandle_;
+	DescriptorHandle originalCommandUAVHandle_;
 	UploadBuffer commandUploadBuffer_;
 	// AppendBuffer
-	GpuResource appendDrawIndexBuffers_;
-	DescriptorHandle appendDrawIndexUAVHandle_;
+	GpuResource drawIndexCommandBuffers_;
+	DescriptorHandle drawIndexCommandUAVHandle_;
 	UploadBuffer resetAppendDrawIndexBufferCounterReset_;
 	// 描画引数用
 	GpuResource drawArgumentBuffer_;
 	DescriptorHandle drawArgumentHandle_;
 	// パーティクルのエミッター
 	EmitterForGPU emitterForGPU_;
-	EmitterCounter* emitterCounter_;
-	UploadBuffer emitterCounterBuffer_;
 	GpuResource emitterForGPUBuffer_;
 	DescriptorHandle emitterForGPUSRVHandle_;
 
 	UINT commandSizePerFrame_;
-	UINT appendBufferCounterOffset_;
+	UINT drawIndexBufferCounterOffset_;
 
 	TextureHandle texture_;
+
+	float time_=60.0f;
 	
 	static inline UINT AlignForUavCounter(UINT bufferSize) {
 		const UINT alignment = D3D12_UAV_COUNTER_PLACEMENT_ALIGNMENT;

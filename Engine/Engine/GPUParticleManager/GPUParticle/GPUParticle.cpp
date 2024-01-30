@@ -45,12 +45,14 @@ void GPUParticle::Spawn(CommandContext& commandContext) {
 	commandContext.SetComputeUAV(0, particleBuffer_->GetGPUVirtualAddress());
 	commandContext.SetComputeConstantBuffer(1, emitterForGPUBuffer_->GetGPUVirtualAddress());
 	commandContext.SetComputeDescriptorTable(2, originalCommandUAVHandle_);
-	commandContext.Dispatch(UINT(emitterForGPU_.createParticleNum), 1, 1);
 	time_ -= 1.0f;
-	if (time_ <= 0.0f) {
+	if (time_ <= 0.0f &&
+		*originalCommandCounter_ > emitterForGPU_.createParticleNum) {
 		time_ = 60.0f;
-		//commandContext.Dispatch(UINT(emitterForGPU_.createParticleNum), 1, 1);
+		commandContext.Dispatch(UINT(emitterForGPU_.createParticleNum), 1, 1);
+		originalCommandCounter_ = static_cast<uint32_t*>(originalCommandCounterDate_);
 	}
+	commandContext.CopyBufferRegion(originalCommandCounterBuffer_, 0, originalCommandBuffer_, drawIndexBufferCounterOffset_, sizeof(UINT));
 }
 
 void GPUParticle::Update(CommandContext& commandContext) {
@@ -72,7 +74,6 @@ void GPUParticle::Update(CommandContext& commandContext) {
 	UINT64 srcInstanceCountArgumentOffset = drawIndexBufferCounterOffset_;
 
 	commandContext.CopyBufferRegion(drawArgumentBuffer_, destInstanceCountArgumentOffset, drawIndexCommandBuffers_, srcInstanceCountArgumentOffset, sizeof(UINT));
-
 }
 
 void GPUParticle::Draw(const ViewProjection& viewProjection, CommandContext& commandContext) {
@@ -167,8 +168,24 @@ void GPUParticle::InitializeUpdateParticle() {
 	resetAppendDrawIndexBufferCounterReset_.Create(L"ResetAppendDrawIndexBufferCounterReset", sizeof(resetValue));
 	resetAppendDrawIndexBufferCounterReset_.Copy(resetValue);
 
-	// DrawIndexの基となるバッファ
-	desc = CD3DX12_RESOURCE_DESC::Buffer(sizeof(uint32_t) * emitterForGPU_.maxParticleNum, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
+	// カウンター用
+	desc = CD3DX12_RESOURCE_DESC::Buffer(sizeof(UINT));
+	heapProp = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_READBACK);
+	device->CreateCommittedResource(
+		&heapProp,
+		D3D12_HEAP_FLAG_NONE,
+		&desc,
+		D3D12_RESOURCE_STATE_COMMON,
+		nullptr,
+		IID_PPV_ARGS(originalCommandCounterBuffer_.GetAddressOf())
+	);
+	originalCommandCounterBuffer_->SetName(L"originalCommandCounterBuffer");
+	originalCommandCounterBuffer_.SetState(D3D12_RESOURCE_STATE_COMMON);
+	originalCommandCounterBuffer_->Map(0, nullptr, &originalCommandCounterDate_);
+	originalCommandCounter_ = new uint32_t();
+	*originalCommandCounter_ = emitterForGPU_.maxParticleNum;
+	// DrawIndexバッファ
+	desc = CD3DX12_RESOURCE_DESC::Buffer(drawIndexBufferCounterOffset_ + sizeof(UINT), D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
 	heapProp = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
 	device->CreateCommittedResource(
 		&heapProp,
@@ -179,20 +196,20 @@ void GPUParticle::InitializeUpdateParticle() {
 		IID_PPV_ARGS(originalCommandBuffer_.GetAddressOf()));
 	originalCommandBuffer_.SetState(D3D12_RESOURCE_STATE_COMMON);
 	originalCommandBuffer_->SetName(L"originalCommandBuffer");
+	originalCommandUAVHandle_ = graphics->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 
+	// リソースビューを作成した後、UAV を作成
 	uavDesc = {};
 	uavDesc.Format = DXGI_FORMAT_UNKNOWN;
 	uavDesc.ViewDimension = D3D12_UAV_DIMENSION_BUFFER;
 	uavDesc.Buffer.FirstElement = 0;
 	uavDesc.Buffer.NumElements = emitterForGPU_.maxParticleNum;
 	uavDesc.Buffer.StructureByteStride = sizeof(uint32_t);
+	uavDesc.Buffer.CounterOffsetInBytes = drawIndexBufferCounterOffset_;
 	uavDesc.Buffer.Flags = D3D12_BUFFER_UAV_FLAG_NONE;
-	originalCommandUAVHandle_ = graphics->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-
-	// リソースビューを作成した後、UAV を作成
 	device->CreateUnorderedAccessView(
 		originalCommandBuffer_,
-		nullptr,
+		originalCommandBuffer_,
 		&uavDesc,
 		originalCommandUAVHandle_);
 
@@ -200,16 +217,24 @@ void GPUParticle::InitializeUpdateParticle() {
 	// コピー用
 	// インデックスを代入
 	UploadBuffer copyIndexBuffer{};
-	copyIndexBuffer.Create(L"copyIndex", sizeof(uint32_t) * emitterForGPU_.maxParticleNum);
-	std::vector<uint32_t> commands;
+	copyIndexBuffer.Create(L"copyIndex", drawIndexBufferCounterOffset_);
+	std::vector<uint32_t> commands{};
 	commands.resize(emitterForGPU_.maxParticleNum);
 
 	for (UINT commandIndex = 0; commandIndex < emitterForGPU_.maxParticleNum; ++commandIndex) {
 		commands[commandIndex] = commandIndex;
 	}
-	copyIndexBuffer.Copy(commands.data(), sizeof(uint32_t) * emitterForGPU_.maxParticleNum);
+	copyIndexBuffer.Copy(commands.data(), drawIndexBufferCounterOffset_);
 
-	commandContext.CopyBuffer(originalCommandBuffer_, copyIndexBuffer);
+	commandContext.CopyBufferRegion(originalCommandBuffer_, 0, copyIndexBuffer, 0, commandSizePerFrame_);
+
+	// カウンターを初期化
+	UploadBuffer copyDrawIndexCounterBuffer{};
+	UINT counterNum = emitterForGPU_.maxParticleNum;
+	copyDrawIndexCounterBuffer.Create(L"copyDrawIndexCounterBuffer", sizeof(counterNum));
+	copyDrawIndexCounterBuffer.Copy(counterNum);
+
+	commandContext.CopyBufferRegion(originalCommandBuffer_, drawIndexBufferCounterOffset_, copyDrawIndexCounterBuffer, 0, sizeof(UINT));
 
 	// Draw引数用バッファー
 	desc = CD3DX12_RESOURCE_DESC::Buffer(sizeof(IndirectCommand));

@@ -56,6 +56,9 @@ private:
 	DescriptorHandle rwStructuredBufferHandle_;
 	// パーティクルの生きてるか判定用
 	GpuResource originalCommandBuffer_;
+	uint32_t* originalCommandCounter_;
+	void* originalCommandCounterDate_;
+	GpuResource originalCommandCounterBuffer_;
 	DescriptorHandle originalCommandUAVHandle_;
 	// drawIndexBuffer
 	GpuResource drawIndexCommandBuffers_;

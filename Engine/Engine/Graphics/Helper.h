@@ -15,5 +15,6 @@ namespace Helper {
     extern const D3D12_BLEND_DESC BlendSubtract;    // 加算合成
 
     extern const D3D12_DEPTH_STENCIL_DESC DepthStateDisabled;
+    extern const D3D12_DEPTH_STENCIL_DESC DepthStateRead;
     extern const D3D12_DEPTH_STENCIL_DESC DepthStateReadWrite;
 }

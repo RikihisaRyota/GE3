@@ -153,7 +153,7 @@ void GPUParticleManager::CreateGraphics() {
 		desc.VS = CD3DX12_SHADER_BYTECODE(vs->GetBufferPointer(), vs->GetBufferSize());
 		desc.PS = CD3DX12_SHADER_BYTECODE(ps->GetBufferPointer(), ps->GetBufferSize());
 		desc.BlendState = Helper::BlendAdditive;
-		desc.DepthStencilState = Helper::DepthStateReadWrite;
+		desc.DepthStencilState = Helper::DepthStateRead;
 		desc.RasterizerState = Helper::RasterizerNoCull;
 		desc.NumRenderTargets = 1;
 		desc.RTVFormats[0] = RenderManager::GetInstance()->GetRenderTargetFormat();

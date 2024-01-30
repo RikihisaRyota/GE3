@@ -17,7 +17,7 @@ void CreateParticle(uint index)
    
     Output[index].isAlive = true;
     Output[index].isHit = false;
-    Output[index].aliveTime = random(360.0f, 600.0f, float(index) * 1414531.0f);
+    Output[index].aliveTime = random(3000.0f, 6000.0f, float(index) * 1414531.0f);
     Output[index].velocity.z = random(0.1f, 0.3f, float(index) * 3.0f);
 }
 

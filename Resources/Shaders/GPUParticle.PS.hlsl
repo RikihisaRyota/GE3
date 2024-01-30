@@ -10,12 +10,16 @@ struct PixelShaderOutput
 
 PixelShaderOutput main(VertexShaderOutput input)
 {
+    
+    float2 center = float2(0.5f, 0.5f);
+    float radius = 0.2f;
+
+    float distanceToCenter = length(input.texcoord - center);
+    
     PixelShaderOutput output;
-    float4 textureColor = float4(0.5f, 0.5f, 1.0f, 0.3f);// * gTexture.Sample(gSampler, input.texcoord);
-    //if (textureColor.a <= 0.5f)
-    //{
-    //    discard;
-    //}
+    float4 textureColor = float4(input.position.xy,0.5f, 0.3f);// * gTexture.Sample(gSampler, input.texcoord);
     output.color = textureColor;
+    output.color.a = min(step(distanceToCenter, radius),0.2f);
+    
     return output;
 }

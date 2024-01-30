@@ -42,6 +42,9 @@ public:
 	void Draw(const ViewProjection& viewProjection, CommandContext& commandContext);
 	void SetCommandSignature(ID3D12CommandSignature* commandSignature) { commandSignature_ = commandSignature; }
 	void Create(const EmitterForGPU& emitterForGPU, TextureHandle textureHandle);
+
+	void SetEmitter(const EmitterForGPU& emitterForGPU);
+	const EmitterForGPU& GetEmitter () { return emitterForGPU_; }
 private:
 	static const UINT ComputeThreadBlockSize = 1024;
 
@@ -78,7 +81,7 @@ private:
 	TextureHandle texture_;
 
 	float time_ = 0.0f;
-	
+
 	static inline UINT AlignForUavCounter(UINT bufferSize) {
 		const UINT alignment = D3D12_UAV_COUNTER_PLACEMENT_ALIGNMENT;
 		return (bufferSize + (alignment - 1)) & ~(alignment - 1);

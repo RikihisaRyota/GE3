@@ -10,7 +10,7 @@ struct VSInput
 
 VSOutput main(VSInput input)
 {
-    VSOutput output; // ピクセルシェーダーに渡す値
+    VSOutput output;
     output.svpos = mul(float4(input.position, 1.0f), gWorldTransform.mat);
     output.uv = input.texcoord;
     return output;

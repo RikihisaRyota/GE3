@@ -25,6 +25,8 @@ public:
 	void Draw(const ViewProjection& viewProjection,CommandContext& commandContext);
 
 	void CreateParticle(const EmitterForGPU& emitterForGPU, TextureHandle textureHandle);
+
+	GPUParticle* GetGPUParticle(uint32_t index) { return gpuParticles_.at(index).get(); }
 private:
 	void CreateGraphics();
 	void CreateUpdate();

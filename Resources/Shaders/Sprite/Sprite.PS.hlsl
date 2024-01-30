@@ -1,11 +1,19 @@
 #include "Sprite.hlsli"
 
-Texture2D<float4> tex : register(t0); // 0番スロットに設定されたテクスチャ
-SamplerState smp : register(s0); // 0番スロットに設定されたサンプラー
+Texture2D<float4> gTexture : register(t0);
+SamplerState gSampler : register(s0);
 
 ConstantBuffer<Material> gMaterial : register(b1);
 
-float4 main(VSOutput input) : SV_TARGET
+struct PixelShaderOutput
 {
-    return gMaterial.color * tex.Sample(smp, input.uv);
+    float4 color : SV_TARGET0;
+};
+
+PixelShaderOutput main(VSOutput input)
+{
+    PixelShaderOutput output;
+    output.color = gMaterial.color * gTexture.Sample(gSampler, input.uv);
+    return output;
+
 }

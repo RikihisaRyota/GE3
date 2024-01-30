@@ -12,28 +12,21 @@
 #include "Engine/Texture/Texture.h"
 
 class CommandContext;
-struct ViewProjection;
 class SpriteManager {
 public:
 	static SpriteManager* GetInstance();
 	static void CreatePipeline(DXGI_FORMAT rtvFormat, DXGI_FORMAT dsvFormat);
 	static void DestroyPipeline();
 
-	SpriteHandle Load(const std::filesystem::path path);
+	SpriteHandle Create(
+		TextureHandle textureHandle, Vector2 position, Vector2 anchorpoint = { 0.0f, 0.0f },Vector4 color = { 1, 1, 1, 1 }, bool isFlipX = false, bool isFlipY = false);
 
-	//Texture& GetTexture(const TextureHandle& textureHandle) { return *sprite_[textureHandle]; }
+	Sprite* GetSprite(const SpriteHandle& spriteHandle) { return sprites_[spriteHandle].get(); }
 
-	void Draw(const Vector2& pos, const SpriteHandle& spriteHandle, CommandContext& commandContext);
+	void Draw(const SpriteHandle& spriteHandle, CommandContext& commandContext);
 private:
-	void CreateIndexVertexBuffer();
 	static std::unique_ptr<PipelineState> pipelineState_;
 	static std::unique_ptr<RootSignature> rootSignature_;
-
-	UploadBuffer vertexBuffer_;
-	D3D12_VERTEX_BUFFER_VIEW vbView_{};
-
-	UploadBuffer indexBuffer_;
-	D3D12_INDEX_BUFFER_VIEW ibView_{};
 
 	std::vector<std::unique_ptr<Sprite>> sprites_;
 };

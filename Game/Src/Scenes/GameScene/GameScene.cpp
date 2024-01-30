@@ -24,7 +24,8 @@ GameScene::GameScene() {
 	playHandle_ = Audio::GetInstance()->SoundPlayLoopStart(soundHandle_);
 	Audio::GetInstance()->SoundPlayLoopStart(playHandle_);
 
-	testSpriteHandle_ = SpriteManager::GetInstance()->Load("Resources/Images/GPUParticle.png");
+	testSpriteHandle_ = SpriteManager::GetInstance()->Create(ModelManager::GetInstance()->GetModel(modelHandle_).GetTextureHandle(), {640.0f,360.0f},{0.5f,0.5f});
+	SpriteManager::GetInstance()->GetSprite(testSpriteHandle_)->SetSize({ 1280.0f, 720.0f });
 }
 
 GameScene::~GameScene() {}
@@ -35,16 +36,16 @@ void GameScene::Initialize() {
 	gpuParticleManager_->Initialize();
 	{
 		EmitterForGPU emitterForGPU = {
-		.min = {-10.0f,-15.0f,-10.0f},
-		.maxParticleNum = 1 << 24,
-		.max = {10.0f,15.0f,50.0f},
-		.createParticleNum= 1 << 15,
-		.position = {-20.0,0.0f,0.0f},
+		.min = {-0.5f,-1.0f,-0.5f},
+		.maxParticleNum = 1 << 26,
+		.max = {0.5f,1.0f,0.5f},
+		.createParticleNum= 1 << 10,
+		.position = {0.0,0.0f,0.0f},
 		};
 
 		gpuParticleManager_->CreateParticle(emitterForGPU, gpuTexture_);
 	}
-	{
+	/*{
 		EmitterForGPU emitterForGPU = {
 		.min = {-10.0f,-15.0f,-10.0f},
 		.maxParticleNum = 1 << 24,
@@ -83,11 +84,14 @@ void GameScene::Initialize() {
 		.position = {0.0f,0.0f,10.0f},
 		};
 		gpuParticleManager_->CreateParticle(emitterForGPU, gpuTexture_);
-	}
+	}*/
 
 }
 
 void GameScene::Update() {
+
+	auto particle = gpuParticleManager_->GetGPUParticle(0);
+	auto emitter = particle->GetEmitter();
 #ifdef _DEBUG
 	ImGui::Begin("fps");
 	ImGui::Text("Frame rate: %3.0f fps", ImGui::GetIO().Framerate);
@@ -95,24 +99,27 @@ void GameScene::Update() {
 	ImGui::End();
 	ImGui::Begin("Material");
 	ImGui::DragFloat4("color", &color_.x, 0.01f, 0.0f, 1.0f);
+	ImGui::DragFloat3("pos", &emitter.position.x, 0.1f);
 	ImGui::End();
+	particle->SetEmitter(emitter);
 #endif // _DEBUG
 
-	//gpuParticleManager_->Update(RenderManager::GetInstance()->GetCommandContext());
+	gpuParticleManager_->Update(RenderManager::GetInstance()->GetCommandContext());
 	debugCamera_->Update(&viewProjection_);
 
 	worldTransform_.UpdateMatrix();
 	ModelManager::GetInstance()->GetModel(modelHandle_).SetMaterialColor(color_);
+	SpriteManager::GetInstance()->GetSprite(testSpriteHandle_)->SetColor(color_);
 }
 
 void GameScene::Draw(CommandContext& commandContext) {
-	//gpuParticleManager_->Draw(viewProjection_, commandContext);
+	gpuParticleManager_->Draw(viewProjection_, commandContext);
 
 	ModelManager::GetInstance()->Draw(worldTransform_, viewProjection_, modelHandle_, commandContext);
 
-	ModelManager::GetInstance()->Draw(worldTransform_, viewProjection_, terrainHandle_, commandContext);
+	//ModelManager::GetInstance()->Draw(worldTransform_, viewProjection_, terrainHandle_, commandContext);
 
-	SpriteManager::GetInstance()->Draw({ 0.0f,0.0f }, testSpriteHandle_, commandContext);
+	SpriteManager::GetInstance()->Draw(testSpriteHandle_, commandContext);
 }
 
 void GameScene::Finalize() {}

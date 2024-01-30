@@ -2,6 +2,8 @@
 
 #include <d3dx12.h>
 
+#include "imgui.h"
+
 #include "Engine/Graphics/CommandContext.h"
 #include "Engine/Graphics/Helper.h"
 #include "Engine/Graphics/GraphicsCore.h"
@@ -45,14 +47,17 @@ void GPUParticle::Spawn(CommandContext& commandContext) {
 	commandContext.SetComputeUAV(0, particleBuffer_->GetGPUVirtualAddress());
 	commandContext.SetComputeConstantBuffer(1, emitterForGPUBuffer_->GetGPUVirtualAddress());
 	commandContext.SetComputeDescriptorTable(2, originalCommandUAVHandle_);
-	time_ -= 1.0f;
-	if (time_ <= 0.0f &&
+	/*time_ -= 1.0f;*/
+	if (/*time_ <= 0.0f &&*/
 		*originalCommandCounter_ > emitterForGPU_.createParticleNum) {
 		time_ = 60.0f;
-		commandContext.Dispatch(UINT(emitterForGPU_.createParticleNum), 1, 1);
+		commandContext.Dispatch(static_cast<UINT>(ceil(emitterForGPU_.createParticleNum / float(ComputeThreadBlockSize))), 1, 1);
 		originalCommandCounter_ = static_cast<uint32_t*>(originalCommandCounterDate_);
 	}
 	commandContext.CopyBufferRegion(originalCommandCounterBuffer_, 0, originalCommandBuffer_, drawIndexBufferCounterOffset_, sizeof(UINT));
+	ImGui::Begin("GPUParticle");
+	ImGui::Text("%u", emitterForGPU_.maxParticleNum-*originalCommandCounter_);
+	ImGui::End();
 }
 
 void GPUParticle::Update(CommandContext& commandContext) {
@@ -101,6 +106,26 @@ void GPUParticle::Create(const EmitterForGPU& emitterForGPU, TextureHandle textu
 	InitializeParticleBuffer();
 	InitializeUpdateParticle();
 
+}
+
+void GPUParticle::SetEmitter(const EmitterForGPU& emitterForGPU) {
+	emitterForGPU_ = emitterForGPU;
+	UploadBuffer copy{};
+	copy.Create(L"Copy", sizeof(EmitterForGPU));
+	copy.Copy(&emitterForGPU_, sizeof(EmitterForGPU));
+
+	auto& commandContext = RenderManager::GetInstance()->GetCommandContext();
+	commandContext.CopyBuffer(emitterForGPUBuffer_, copy);
+
+	// コピー
+	{
+		commandContext.Close();
+		CommandQueue& commandQueue = GraphicsCore::GetInstance()->GetCommandQueue();
+		commandQueue.Execute(commandContext);
+		commandQueue.Signal();
+		commandQueue.WaitForGPU();
+		commandContext.Reset();
+	}
 }
 
 void GPUParticle::InitializeParticleBuffer() {

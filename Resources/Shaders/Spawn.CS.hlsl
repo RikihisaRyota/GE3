@@ -17,11 +17,11 @@ void CreateParticle(uint index)
    
     Output[index].isAlive = true;
     Output[index].isHit = false;
-    Output[index].aliveTime = random(3000.0f, 6000.0f, float(index) * 1414531.0f);
-    Output[index].velocity.z = random(0.1f, 0.3f, float(index) * 3.0f);
+    Output[index].aliveTime = random(30.0f*1.0f, 30.0f*2.0f, float(index) * 1414531.0f);
+    Output[index].velocity.x = random(0.1f, 0.3f, float(index) * 3.0f);
 }
 
-[numthreads(1, 1, 1)]
+[numthreads(threadBlockSize, 1, 1)]
 void main(uint3 DTid : SV_DispatchThreadID)
 {
     uint index = particleIndexCommands.Consume();

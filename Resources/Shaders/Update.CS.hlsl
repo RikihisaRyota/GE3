@@ -13,7 +13,7 @@ void main(uint3 DTid : SV_DispatchThreadID)
     if (Input[index].isAlive)
     {
         Input[index].aliveTime -= 1.0f;
-        Input[index].translate += Input[index].velocity * 0.1f;
+        //Input[index].translate += Input[index].velocity * 0.1f;
         
         if (Input[index].aliveTime <= 0.0f)
         {

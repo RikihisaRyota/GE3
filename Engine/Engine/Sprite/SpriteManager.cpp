@@ -2,16 +2,13 @@
 
 #include <d3dx12.h>
 
-#include "Engine/Graphics/CommandContext.h"
 #include "Engine/Graphics/Helper.h"
 #include "Engine/Graphics/SamplerManager.h"
-#include "Engine/Math/ViewProjection.h"
+#include "Engine/Graphics/CommandContext.h"
 #include "Engine/ShderCompiler/ShaderCompiler.h"
-#include "Engine/Texture/TextureManager.h"
 
 std::unique_ptr<RootSignature> SpriteManager::rootSignature_;
 std::unique_ptr<PipelineState> SpriteManager::pipelineState_;
-
 namespace Parameter {
 	enum RootParameter {
 		kWorldTransform,
@@ -68,8 +65,8 @@ void SpriteManager::CreatePipeline(DXGI_FORMAT rtvFormat, DXGI_FORMAT dsvFormat)
 
 		desc.VS = CD3DX12_SHADER_BYTECODE(vs->GetBufferPointer(), vs->GetBufferSize());
 		desc.PS = CD3DX12_SHADER_BYTECODE(ps->GetBufferPointer(), ps->GetBufferSize());
-		desc.BlendState = Helper::BlendDisable;
-		desc.DepthStencilState = Helper::DepthStateReadWrite;
+		desc.BlendState = Helper::BlendAlpha;
+		desc.DepthStencilState = Helper::DepthStateRead;
 		desc.RasterizerState = Helper::RasterizerDefault;
 		desc.NumRenderTargets = 1;
 		desc.RTVFormats[0] = rtvFormat;
@@ -86,10 +83,11 @@ void SpriteManager::DestroyPipeline() {
 	pipelineState_.reset();
 }
 
-SpriteHandle SpriteManager::Load(const std::filesystem::path path) {
+SpriteHandle SpriteManager::Create(
+	TextureHandle textureHandle, Vector2 position, Vector2 anchorpoint, Vector4 color, bool isFlipX, bool isFlipY) {
 	SpriteHandle handle;
 	// 読み込み済みか探す
-	auto iter = std::find_if(sprites_.begin(), sprites_.end(), [&](const auto& sprite) { return sprite->GetName() == path.stem(); });
+	auto iter = std::find_if(sprites_.begin(), sprites_.end(), [&](const auto& sprite) { return sprite->GetTextureHandle() == textureHandle; });
 	// 読み込み済み
 	if (iter != sprites_.end()) {
 		handle.index_ = std::distance(sprites_.begin(), iter);
@@ -99,68 +97,18 @@ SpriteHandle SpriteManager::Load(const std::filesystem::path path) {
 	// 最後尾に読み込む
 	handle.index_ = sprites_.size();
 
-	auto model = std::make_unique<Sprite>();
-	model->Create(path);
+	Sprite* sprite = new Sprite();
+	sprite= Sprite::Create(textureHandle, position, color,
+		anchorpoint, isFlipX, isFlipY);
 
-	sprites_.emplace_back(std::move(model));
+	sprites_.emplace_back(std::move(sprite));
 	return handle;
 }
 
-void SpriteManager::Draw(const Vector2& pos,const SpriteHandle& spriteHandle, CommandContext& commandContext) {
-	sprites_.at(spriteHandle)->SetPosition(pos);
+void SpriteManager::Draw(const SpriteHandle& spriteHandle, CommandContext& commandContext) {
 	commandContext.SetGraphicsRootSignature(*rootSignature_);
 	commandContext.SetPipelineState(*pipelineState_);
 	commandContext.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	commandContext.SetVertexBuffer(0, vbView_);
-	commandContext.SetIndexBuffer(ibView_);
-	commandContext.SetGraphicsConstantBuffer(Parameter::RootParameter::kWorldTransform, sprites_.at(spriteHandle)->GetWorldMatBuffer().GetGPUVirtualAddress());
-	commandContext.SetGraphicsConstantBuffer(Parameter::RootParameter::kMaterial, sprites_.at(spriteHandle)->GetMaterialBuffer().GetGPUVirtualAddress());
-	commandContext.SetGraphicsDescriptorTable(Parameter::RootParameter::kTexture, TextureManager::GetInstance()->GetTexture(sprites_.at(spriteHandle)->GetTextureHandle()).GetSRV());
-	commandContext.SetGraphicsDescriptorTable(Parameter::RootParameter::kSampler, SamplerManager::Anisotropic);
-	commandContext.DrawIndexed(4);
-}
 
-void SpriteManager::CreateIndexVertexBuffer() {
-	// 頂点バッファ
-	{
-		struct Vertex {
-			Vector3 position;
-			Vector2 texcoord;
-		};
-		std::vector<Vertex> vertices = {
-			// 前
-			{ { -0.5f, -0.5f, +0.0f },{0.0f,1.0f} }, // 左下
-			{ { -0.5f, +0.5f, +0.0f },{0.0f,0.0f} }, // 左上
-			{ { +0.5f, -0.5f, +0.0f },{1.0f,1.0f} }, // 右下
-			{ { +0.5f, +0.5f, +0.0f },{1.0f,0.0f} }, // 右上
-		};
-
-		size_t sizeIB = sizeof(Vertex) * vertices.size();
-
-		vertexBuffer_.Create(L"SpriteVertexBuffer", sizeIB);
-
-		vertexBuffer_.Copy(vertices.data(), sizeIB);
-
-		vbView_.BufferLocation = vertexBuffer_.GetGPUVirtualAddress();
-		vbView_.SizeInBytes = UINT(sizeIB);
-		vbView_.StrideInBytes = sizeof(Vertex);
-	}
-	// インデックスバッファ
-	{
-		std::vector<uint16_t>indices = {
-		0, 1, 3,
-		2, 0, 3,
-		};
-
-		size_t sizeIB = sizeof(uint16_t) * indices.size();
-
-		indexBuffer_.Create(L"SpriteIndexBuffer", sizeIB);
-
-		indexBuffer_.Copy(indices.data(), sizeIB);
-
-		// インデックスバッファビューの作成
-		ibView_.BufferLocation = indexBuffer_.GetGPUVirtualAddress();
-		ibView_.Format = DXGI_FORMAT_R16_UINT;
-		ibView_.SizeInBytes = UINT(sizeIB);
-	}
+	sprites_.at(spriteHandle)->Draw(commandContext);
 }

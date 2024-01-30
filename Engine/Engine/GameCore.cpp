@@ -11,6 +11,7 @@
 #include "Src/Scenes/SceneManager/SceneManager.h"
 #include "Src/Scenes/SceneFactory/SceneFactory.h"
 #include "WinApp/WinApp.h"
+#include "Sprite/SpriteManager.h"
 
 namespace GameCore {
 	Audio* audio = nullptr;
@@ -37,7 +38,9 @@ namespace GameCore {
 		renderManager->Initialize();
 		renderManager->Reset();
 
-		ModelManager::CreatePipeline(renderManager->GetRenderTargetFormat(),renderManager->GetDepthFormat());
+		ModelManager::CreatePipeline(renderManager->GetRenderTargetFormat(), renderManager->GetDepthFormat());
+
+		SpriteManager::CreatePipeline(renderManager->GetRenderTargetFormat(), renderManager->GetDepthFormat());
 
 		sceneManager = SceneManager::GetInstance();
 
@@ -75,6 +78,7 @@ namespace GameCore {
 	void Shutdown() {
 		delete sceneFactory;
 		renderManager->Shutdown();
+		SpriteManager::DestroyPipeline();
 		ModelManager::DestroyPipeline();
 		winApp->TerminateGameWindow();
 	}

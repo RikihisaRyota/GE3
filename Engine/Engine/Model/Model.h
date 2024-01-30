@@ -31,8 +31,6 @@ private:
 		Vector2 texcoord;
 	};
 
-	using Index = uint32_t;
-
 	struct MeshData {
 		UploadBuffer indexBuffer_;
 		D3D12_INDEX_BUFFER_VIEW ibView_{};
@@ -44,7 +42,7 @@ public:
 	const std::filesystem::path& GetName() const { return name_; }
 	const std::vector<std::unique_ptr<MeshData>>& GetMeshData() const {return meshDatas_; }
 	const D3D12_VERTEX_BUFFER_VIEW GetVBView()const { return vbView_; }
-	const TextureHandle GetTextureHandle()const { return textureHandle; }
+	const TextureHandle GetTextureHandle()const { return textureHandle_; }
 	const UploadBuffer& GetMaterialBuffer()const { return materialBuffer_; }
 	void SetMaterialColor(const Vector4& color);
 private:
@@ -53,7 +51,7 @@ private:
 
 	UploadBuffer vertexBuffer_;
 	D3D12_VERTEX_BUFFER_VIEW vbView_{};
-	TextureHandle textureHandle;
+	TextureHandle textureHandle_;
 	Material* material_;
 	UploadBuffer materialBuffer_;
 	std::filesystem::path name_;

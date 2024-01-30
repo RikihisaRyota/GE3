@@ -8,6 +8,8 @@
 #include "Engine/Texture/TextureManager.h"
 #include "Engine/ImGui/ImGuiManager.h"
 
+#include "Engine/Sprite/SpriteManager.h"
+
 GameScene::GameScene() {
 	debugCamera_ = std::make_unique<DebugCamera>();
 	gpuParticleManager_ = std::make_unique<GPUParticleManager>();
@@ -21,6 +23,8 @@ GameScene::GameScene() {
 	soundHandle_ = Audio::GetInstance()->SoundLoadWave("play.wav");
 	playHandle_ = Audio::GetInstance()->SoundPlayLoopStart(soundHandle_);
 	Audio::GetInstance()->SoundPlayLoopStart(playHandle_);
+
+	testSpriteHandle_ = SpriteManager::GetInstance()->Load("Resources/Images/GPUParticle.png");
 }
 
 GameScene::~GameScene() {}
@@ -94,7 +98,7 @@ void GameScene::Update() {
 	ImGui::End();
 #endif // _DEBUG
 
-	gpuParticleManager_->Update(RenderManager::GetInstance()->GetCommandContext());
+	//gpuParticleManager_->Update(RenderManager::GetInstance()->GetCommandContext());
 	debugCamera_->Update(&viewProjection_);
 
 	worldTransform_.UpdateMatrix();
@@ -102,11 +106,13 @@ void GameScene::Update() {
 }
 
 void GameScene::Draw(CommandContext& commandContext) {
-	gpuParticleManager_->Draw(viewProjection_, commandContext);
+	//gpuParticleManager_->Draw(viewProjection_, commandContext);
 
 	ModelManager::GetInstance()->Draw(worldTransform_, viewProjection_, modelHandle_, commandContext);
 
 	ModelManager::GetInstance()->Draw(worldTransform_, viewProjection_, terrainHandle_, commandContext);
+
+	SpriteManager::GetInstance()->Draw({ 0.0f,0.0f }, testSpriteHandle_, commandContext);
 }
 
 void GameScene::Finalize() {}

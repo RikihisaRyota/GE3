@@ -6,6 +6,8 @@
 #include "Src/Game/DebugCamera/DebugCamera.h"
 #include "Src/Scenes/BaseScene/BaseScene.h"
 
+#include "Engine/Sprite/SpriteHandle.h"
+
 class CommandContext;
 class GameScene : public BaseScene {
 public:
@@ -27,4 +29,5 @@ private:
 	int32_t soundHandle_;
 	int32_t playHandle_;
 	Vector4 color_;
+	SpriteHandle testSpriteHandle_;
 };

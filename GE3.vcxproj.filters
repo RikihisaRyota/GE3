@@ -91,6 +91,12 @@
     <Filter Include="Engine\GPUParticleManager\GPUParticle">
       <UniqueIdentifier>{31d83bfe-61ad-46b4-9e92-915e669491eb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\Sprite">
+      <UniqueIdentifier>{bff35815-6245-4e7b-8b77-69b1b3c90ac1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\Sprite">
+      <UniqueIdentifier>{9ce46e04-878e-4d36-a6e8-8672e482ca11}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine\Engine\Math\MyMath.cpp">
@@ -231,6 +237,12 @@
     </ClCompile>
     <ClCompile Include="Engine\Engine\GPUParticleManager\GPUParticleManager.cpp">
       <Filter>Engine\GPUParticleManager</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Engine\Sprite\Sprite.cpp">
+      <Filter>Engine\Sprite</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Engine\Sprite\SpriteManager.cpp">
+      <Filter>Engine\Sprite</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -414,6 +426,15 @@
     <ClInclude Include="Engine\Engine\GPUParticleManager\GPUParticle\GPUParticleShaderStructs.h">
       <Filter>Engine\GPUParticleManager\GPUParticle</Filter>
     </ClInclude>
+    <ClInclude Include="Engine\Engine\Sprite\Sprite.h">
+      <Filter>Engine\Sprite</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Engine\Sprite\SpriteManager.h">
+      <Filter>Engine\Sprite</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Engine\Sprite\SpriteHandle.h">
+      <Filter>Engine\Sprite</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Externals\Imgui\LICENSE.txt">
@@ -429,6 +450,9 @@
     </None>
     <None Include="Resources\Shaders\Lighting\Lighting.hlsli">
       <Filter>Shaders\Lighting</Filter>
+    </None>
+    <None Include="Resources\Shaders\Sprite\Sprite.hlsli">
+      <Filter>Shaders\Sprite</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -449,6 +473,12 @@
     </FxCompile>
     <FxCompile Include="Resources\Shaders\Model.PS.hlsl">
       <Filter>Shaders\Model</Filter>
+    </FxCompile>
+    <FxCompile Include="Resources\Shaders\Sprite\Sprite.VS.hlsl">
+      <Filter>Shaders\Sprite</Filter>
+    </FxCompile>
+    <FxCompile Include="Resources\Shaders\Sprite\Sprite.PS.hlsl">
+      <Filter>Shaders\Sprite</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

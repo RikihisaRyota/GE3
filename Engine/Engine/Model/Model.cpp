@@ -29,7 +29,7 @@ void Model::LoadFile(const std::filesystem::path& modelPath) {
 	std::string path = modelPath.string() + "/" + modelPath.stem().string() + ".obj";
 
 	std::vector<Vertex> vertexPos; //!< 構築するModelData
-	std::vector<Index> indices;
+	std::vector<uint32_t> indices;
 
 	Assimp::Importer importer{};
 
@@ -89,7 +89,7 @@ void Model::LoadFile(const std::filesystem::path& modelPath) {
 		if (material->GetTextureCount(aiTextureType_DIFFUSE) != 0) {
 			aiString textureFilePath;
 			material->GetTexture(aiTextureType_DIFFUSE, 0, &textureFilePath);
-			textureHandle = (TextureManager::GetInstance()->Load(modelPath / textureFilePath.C_Str()));
+			textureHandle_ = (TextureManager::GetInstance()->Load(modelPath / textureFilePath.C_Str()));
 			material_ = new Material();
 			material_->color = { 1.0f,1.0f,1.0f,1.0f };
 			materialBuffer_.Create(modelPath.stem().wstring() + L"materialBuffer", sizeof(Material));

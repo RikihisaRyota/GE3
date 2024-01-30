@@ -106,6 +106,8 @@
     <ClCompile Include="Engine\Engine\GPUParticleManager\GPUParticleManager.cpp" />
     <ClCompile Include="Engine\Engine\GPUParticleManager\GPUParticle\GPUParticle.cpp" />
     <ClCompile Include="Engine\Engine\Lighting\Lighting.cpp" />
+    <ClCompile Include="Engine\Engine\Sprite\Sprite.cpp" />
+    <ClCompile Include="Engine\Engine\Sprite\SpriteManager.cpp" />
     <ClCompile Include="Externals\Imgui\imgui.cpp" />
     <ClCompile Include="Externals\Imgui\imgui_demo.cpp" />
     <ClCompile Include="Externals\Imgui\imgui_draw.cpp" />
@@ -157,6 +159,9 @@
     <ClInclude Include="Engine\Engine\GPUParticleManager\GPUParticle\GPUParticle.h" />
     <ClInclude Include="Engine\Engine\GPUParticleManager\GPUParticle\GPUParticleShaderStructs.h" />
     <ClInclude Include="Engine\Engine\Lighting\Lighting.h" />
+    <ClInclude Include="Engine\Engine\Sprite\Sprite.h" />
+    <ClInclude Include="Engine\Engine\Sprite\SpriteHandle.h" />
+    <ClInclude Include="Engine\Engine\Sprite\SpriteManager.h" />
     <ClInclude Include="Externals\Imgui\imconfig.h" />
     <ClInclude Include="Externals\Imgui\imgui.h" />
     <ClInclude Include="Externals\Imgui\imgui_impl_dx12.h" />
@@ -230,6 +235,10 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </None>
+    <None Include="Resources\Shaders\Sprite\Sprite.hlsli">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Resources\Shaders\GPUParticle.PS.hlsl">
@@ -251,6 +260,18 @@
     <FxCompile Include="Resources\Shaders\Spawn.CS.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="Resources\Shaders\Sprite\Sprite.PS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="Resources\Shaders\Sprite\Sprite.VS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="Resources\Shaders\Update.CS.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>

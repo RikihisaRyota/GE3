@@ -43,7 +43,7 @@ public:
 	void SetCommandSignature(ID3D12CommandSignature* commandSignature) { commandSignature_ = commandSignature; }
 	void Create(const EmitterForGPU& emitterForGPU, TextureHandle textureHandle);
 private:
-	static const UINT ComputeThreadBlockSize = 128;
+	static const UINT ComputeThreadBlockSize = 1024;
 
 	void InitializeParticleBuffer();
 	void InitializeUpdateParticle();

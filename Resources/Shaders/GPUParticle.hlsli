@@ -1,5 +1,5 @@
 
-#define threadBlockSize 128
+#define threadBlockSize 1024
 
 struct VertexShaderOutput
 {

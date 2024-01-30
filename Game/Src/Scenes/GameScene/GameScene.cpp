@@ -31,10 +31,10 @@ void GameScene::Initialize() {
 	gpuParticleManager_->Initialize();
 	{
 		EmitterForGPU emitterForGPU = {
-		.min = {-10.0f,-10.0f,-10.0f},
+		.min = {-10.0f,-15.0f,-10.0f},
 		.maxParticleNum = 1 << 24,
-		.max = {10.0f,10.0f,50.0f},
-		.createParticleNum= 1 << 12,
+		.max = {10.0f,15.0f,50.0f},
+		.createParticleNum= 1 << 15,
 		.position = {-20.0,0.0f,0.0f},
 		};
 
@@ -42,31 +42,31 @@ void GameScene::Initialize() {
 	}
 	{
 		EmitterForGPU emitterForGPU = {
-		.min = {-5.0f,-15.0f,-10.0f},
+		.min = {-10.0f,-15.0f,-10.0f},
 		.maxParticleNum = 1 << 24,
-		.max = {5.0f,15.0f,50.0f},
-		.createParticleNum = 1 << 12,
-		.position = {15.0,0.0f,-10.0f},
+		.max = {10.0f,15.0f,50.0f},
+		.createParticleNum = 1 << 15,
+		.position = {20.0,0.0f,0.0f},
 		};
 		gpuParticleManager_->CreateParticle(emitterForGPU, gpuTexture_);
 	}
 	{
 		EmitterForGPU emitterForGPU = {
-		.min = {-15.0f,-5.0f,-10.0f},
+		.min = {-15.0f,-10.0f,-10.0f},
 		.maxParticleNum = 1 << 24,
-		.max = {15.0f,5.0f,50.0f},
-		.createParticleNum = 1 << 12,
-		.position = {0.0f,15.0f,-10.0f},
+		.max = {15.0f,10.0f,50.0f},
+		.createParticleNum = 1 << 15,
+		.position = {0.0f,20.0f,0.0f},
 		};
 		gpuParticleManager_->CreateParticle(emitterForGPU, gpuTexture_);
 	}
 	{
 		EmitterForGPU emitterForGPU = {
-		.min = {-15.0f,-5.0f,-10.0f},
+		.min = {-15.0f,-10.0f,-10.0f},
 		.maxParticleNum = 1 << 24,
-		.max = {15.0f,5.0f,50.0f},
-		.createParticleNum = 1 << 12,
-		.position = {0.0f,-15.0f,-10.0f},
+		.max = {15.0f,10.0f,10.0f},
+		.createParticleNum = 1 << 15,
+		.position = {0.0f,-20.0f,-10.0f},
 		};
 		gpuParticleManager_->CreateParticle(emitterForGPU, gpuTexture_);
 	}
@@ -75,11 +75,12 @@ void GameScene::Initialize() {
 		.min = {-10.0f,-10.0f,10.0f},
 		.maxParticleNum = 1 << 24,
 		.max = {10.0f,10.0f,50.0f},
-		.createParticleNum = 1 << 12,
+		.createParticleNum = 1 << 15,
 		.position = {0.0f,0.0f,10.0f},
 		};
 		gpuParticleManager_->CreateParticle(emitterForGPU, gpuTexture_);
 	}
+
 }
 
 void GameScene::Update() {
@@ -101,11 +102,11 @@ void GameScene::Update() {
 }
 
 void GameScene::Draw(CommandContext& commandContext) {
+	gpuParticleManager_->Draw(viewProjection_, commandContext);
+
 	ModelManager::GetInstance()->Draw(worldTransform_, viewProjection_, modelHandle_, commandContext);
 
 	ModelManager::GetInstance()->Draw(worldTransform_, viewProjection_, terrainHandle_, commandContext);
-
-	gpuParticleManager_->Draw(viewProjection_, commandContext);
 }
 
 void GameScene::Finalize() {}

@@ -46,7 +46,7 @@ namespace GameCore {
 
 		sceneFactory = new SceneFactory();
 		sceneManager->SetSceneFactory(sceneFactory);
-		sceneManager->Initialize(AbstractSceneFactory::Scene::kGame);
+		sceneManager->Initialize(AbstractSceneFactory::Scene::kTitle);
 
 		lighting = Lighting::GetInstance();
 		lighting->Initialize();

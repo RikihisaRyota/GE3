@@ -327,6 +327,9 @@ Matrix4x4 MakeTranslateMatrix(const Vector3& translate) {
 	tmp.m[3][3] = 1.0f;
 	return tmp;
 }
+Vector3 MakeTranslateMatrix(const Matrix4x4& matrix) {
+	return Vector3(matrix.m[3][0], matrix.m[3][1], matrix.m[3][2]);
+}
 
 Matrix4x4 MakeScaleMatrix(const Vector3& scale) {
 	Matrix4x4 tmp;
@@ -677,6 +680,10 @@ Vector3 Cross(const Vector3& a, const Vector3& b) {
 	return {a.y * b.z - a.z * b.y, a.z * b.x - a.x * b.z, a.x * b.y - a.y * b.x};
 }
 
+float Cross(const Vector2& v1, const Vector2& v2) {
+	return { v1.x * v2.y - v1.y * v2.x };
+}
+
 AABB AABBAssignment(const AABB& aabb) {
 	AABB result = aabb;
 	// x
@@ -877,4 +884,23 @@ bool SeparationAxis(const Vector3 axis, const OBB obb_1, const OBB obb_2) {// åˆ
 		return true;
 	}
 	return false;
+}
+
+float Angle(const Vector3& from, const Vector3& to) {
+	float dot = Dot(from, to);
+	Vector2 Vector2From = { from.x ,from.z };
+	Vector2 Vector2To = { to.x ,to.z };
+	if (dot >= 1.0f) {
+		return 0.0f;
+	}
+	if (dot <= -1.0f) {
+		return DegToRad(180.0f);
+	}
+
+	if (Cross(Vector2From, Vector2To) > 0) {
+		return -std::acosf(dot);
+	}
+	else {
+		return std::acosf(dot);
+	}
 }

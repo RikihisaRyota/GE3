@@ -52,6 +52,7 @@ Matrix4x4 MakeIdentity4x4();
 
 // 1,平行移動行列
 Matrix4x4 MakeTranslateMatrix(const Vector3& translate);
+Vector3 MakeTranslateMatrix(const Matrix4x4& matrix);
 // 2,拡大縮小行列
 Matrix4x4 MakeScaleMatrix(const Vector3& scale);
 // 3,座標変換
@@ -148,6 +149,7 @@ Vector3 Perpendicular(const Vector3& vector);
 // 外積
 // 外積
 Vector3 Cross(const Vector3& v1, const Vector3& v2);
+float Cross(const Vector2& v1, const Vector2& v2);
 
 // AABBに値を代入
 AABB AABBAssignment(const AABB& aabb);
@@ -191,3 +193,5 @@ Vector3 CubicCatmullRom(
 void OBBIndex(const OBB& obb, std::vector<Vector3>& output_vertices);
 // 分離軸
 bool SeparationAxis(const Vector3 axis, const OBB obb_1, const OBB obb_2);
+
+float Angle(const Vector3& from, const Vector3& to);

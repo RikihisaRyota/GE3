@@ -4,6 +4,8 @@
 
 #include "Engine/GPUParticleManager/GPUParticleManager.h"
 #include "Src/Game/DebugCamera/DebugCamera.h"
+#include "Src/Game/Player/Player.h"
+#include "Src/Game/FollowCamera/FollowCamera.h"
 #include "Src/Scenes/BaseScene/BaseScene.h"
 
 #include "Engine/Sprite/SpriteHandle.h"
@@ -22,12 +24,13 @@ private:
 
 	std::unique_ptr<GPUParticleManager> gpuParticleManager_;
 	std::unique_ptr<DebugCamera> debugCamera_;
+	std::unique_ptr<FollowCamera> followCamera_;
+	std::unique_ptr<Player> player_;
 	TextureHandle gpuTexture_;
 	ModelHandle modelHandle_;
 	ModelHandle terrainHandle_;
 	WorldTransform worldTransform_;
-	int32_t soundHandle_;
-	int32_t playHandle_;
+	//int32_t soundHandle_;
+	//int32_t playHandle_;
 	Vector4 color_;
-	SpriteHandle testSpriteHandle_;
 };

@@ -97,6 +97,15 @@
     <Filter Include="Shaders\Sprite">
       <UniqueIdentifier>{9ce46e04-878e-4d36-a6e8-8672e482ca11}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Scenes\Transition">
+      <UniqueIdentifier>{365c8e9b-c677-43cf-89b3-c6bee2e389c0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\Player">
+      <UniqueIdentifier>{6ee7db19-0d9b-46f8-b486-c52e2261f1d2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\FollowCamera">
+      <UniqueIdentifier>{8a65fcab-e43f-43b9-ad66-f26830ed4a59}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine\Engine\Math\MyMath.cpp">
@@ -244,6 +253,13 @@
     <ClCompile Include="Engine\Engine\Sprite\SpriteManager.cpp">
       <Filter>Engine\Sprite</Filter>
     </ClCompile>
+    <ClCompile Include="Game\Src\Scenes\Transition\Transition.cpp">
+      <Filter>Scenes\Transition</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Src\Game\Player\Player.cpp">
+      <Filter>Game\Player</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Src\Game\FollowCamera\FollowCamera.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\Engine\WinApp\WinApp.h">
@@ -434,6 +450,15 @@
     </ClInclude>
     <ClInclude Include="Engine\Engine\Sprite\SpriteHandle.h">
       <Filter>Engine\Sprite</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Src\Scenes\Transition\Transition.h">
+      <Filter>Scenes\Transition</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Src\Game\Player\Player.h">
+      <Filter>Game\Player</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Src\Game\FollowCamera\FollowCamera.h">
+      <Filter>Game\FollowCamera</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

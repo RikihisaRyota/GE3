@@ -13,44 +13,60 @@
 GameScene::GameScene() {
 	debugCamera_ = std::make_unique<DebugCamera>();
 	gpuParticleManager_ = std::make_unique<GPUParticleManager>();
+	player_ = std::make_unique<Player>();
+	followCamera_ = std::make_unique<FollowCamera>();
 
 	modelHandle_ = ModelManager::GetInstance()->Load("Resources/Models/Ball");
 	terrainHandle_ = ModelManager::GetInstance()->Load("Resources/Models/terrain");
 
 	gpuTexture_ = TextureManager::GetInstance()->Load("Resources/Images/GPUParticle.png");
 	color_ = { 1.0f,1.0f,1.0f,1.0 };
-	worldTransform_.Initialize();
-	soundHandle_ = Audio::GetInstance()->SoundLoadWave("play.wav");
-	playHandle_ = Audio::GetInstance()->SoundPlayLoopStart(soundHandle_);
-	Audio::GetInstance()->SoundPlayLoopStart(playHandle_);
+	/*soundHandle_ = Audio::GetInstance()->SoundLoadWave("play.wav");
+	playHandle_ = Audio::GetInstance()->SoundPlayLoopStart(soundHandle_);*/
 
-	testSpriteHandle_ = SpriteManager::GetInstance()->Create(ModelManager::GetInstance()->GetModel(modelHandle_).GetTextureHandle(), {640.0f,360.0f},{0.5f,0.5f});
-	SpriteManager::GetInstance()->GetSprite(testSpriteHandle_)->SetSize({ 1280.0f, 720.0f });
 }
 
 GameScene::~GameScene() {}
 
 void GameScene::Initialize() {
+	//Audio::GetInstance()->SoundPlayLoopStart(playHandle_);
 	viewProjection_.Initialize();
+	worldTransform_.Initialize();
+
+	player_->SetViewProjection(&viewProjection_);
+	player_->Initialize();
+
+	followCamera_->SetTarget(&player_->GetWorldTransform());
+	followCamera_->SetViewProjection(&viewProjection_);
 
 	gpuParticleManager_->Initialize();
 	{
 		EmitterForGPU emitterForGPU = {
 		.min = {-0.5f,-1.0f,-0.5f},
-		.maxParticleNum = 1 << 26,
+		.maxParticleNum = 1 << 24,
 		.max = {0.5f,1.0f,0.5f},
-		.createParticleNum= 1 << 10,
+		.createParticleNum = 1 << 10,
 		.position = {0.0,0.0f,0.0f},
 		};
 
 		gpuParticleManager_->CreateParticle(emitterForGPU, gpuTexture_);
 	}
-	/*{
+	{
 		EmitterForGPU emitterForGPU = {
 		.min = {-10.0f,-15.0f,-10.0f},
-		.maxParticleNum = 1 << 24,
-		.max = {10.0f,15.0f,50.0f},
-		.createParticleNum = 1 << 15,
+		.maxParticleNum = 1 << 20,
+		.max = {10.0f,15.0f,30.0f},
+		.createParticleNum = 1 << 10,
+		.position = {-20.0,0.0f,0.0f},
+		};
+		gpuParticleManager_->CreateParticle(emitterForGPU, gpuTexture_);
+	}
+	{
+		EmitterForGPU emitterForGPU = {
+		.min = {-10.0f,-15.0f,-10.0f},
+		.maxParticleNum = 1 << 20,
+		.max = {10.0f,15.0f,30.0f},
+		.createParticleNum = 1 << 10,
 		.position = {20.0,0.0f,0.0f},
 		};
 		gpuParticleManager_->CreateParticle(emitterForGPU, gpuTexture_);
@@ -58,9 +74,9 @@ void GameScene::Initialize() {
 	{
 		EmitterForGPU emitterForGPU = {
 		.min = {-15.0f,-10.0f,-10.0f},
-		.maxParticleNum = 1 << 24,
-		.max = {15.0f,10.0f,50.0f},
-		.createParticleNum = 1 << 15,
+		.maxParticleNum = 1 << 20,
+		.max = {15.0f,10.0f,30.0f},
+		.createParticleNum = 1 << 10,
 		.position = {0.0f,20.0f,0.0f},
 		};
 		gpuParticleManager_->CreateParticle(emitterForGPU, gpuTexture_);
@@ -68,24 +84,23 @@ void GameScene::Initialize() {
 	{
 		EmitterForGPU emitterForGPU = {
 		.min = {-15.0f,-10.0f,-10.0f},
-		.maxParticleNum = 1 << 24,
-		.max = {15.0f,10.0f,10.0f},
-		.createParticleNum = 1 << 15,
+		.maxParticleNum = 1 << 20,
+		.max = {15.0f,10.0f,30.0f},
+		.createParticleNum = 1 << 10,
 		.position = {0.0f,-20.0f,-10.0f},
 		};
 		gpuParticleManager_->CreateParticle(emitterForGPU, gpuTexture_);
 	}
-	{
+	/*{
 		EmitterForGPU emitterForGPU = {
 		.min = {-10.0f,-10.0f,10.0f},
-		.maxParticleNum = 1 << 24,
-		.max = {10.0f,10.0f,50.0f},
-		.createParticleNum = 1 << 15,
+		.maxParticleNum = 1 << 20,
+		.max = {10.0f,10.0f,30.0f},
+		.createParticleNum = 1 << 10,
 		.position = {0.0f,0.0f,10.0f},
 		};
 		gpuParticleManager_->CreateParticle(emitterForGPU, gpuTexture_);
 	}*/
-
 }
 
 void GameScene::Update() {
@@ -101,25 +116,28 @@ void GameScene::Update() {
 	ImGui::DragFloat4("color", &color_.x, 0.01f, 0.0f, 1.0f);
 	ImGui::DragFloat3("pos", &emitter.position.x, 0.1f);
 	ImGui::End();
-	particle->SetEmitter(emitter);
 #endif // _DEBUG
-
+	emitter.position = { player_->GetWorldTransform().matWorld_.m[3][0],player_->GetWorldTransform().matWorld_.m[3][1],player_->GetWorldTransform().matWorld_.m[3][2] };
+	particle->SetEmitter(emitter);
 	gpuParticleManager_->Update(RenderManager::GetInstance()->GetCommandContext());
-	debugCamera_->Update(&viewProjection_);
+	//debugCamera_->Update(&viewProjection_);
+
+	followCamera_->Update();
+
+	player_->Update();
 
 	worldTransform_.UpdateMatrix();
 	ModelManager::GetInstance()->GetModel(modelHandle_).SetMaterialColor(color_);
-	SpriteManager::GetInstance()->GetSprite(testSpriteHandle_)->SetColor(color_);
 }
 
 void GameScene::Draw(CommandContext& commandContext) {
 	gpuParticleManager_->Draw(viewProjection_, commandContext);
 
+	player_->Draw(viewProjection_, commandContext);
+
 	ModelManager::GetInstance()->Draw(worldTransform_, viewProjection_, modelHandle_, commandContext);
 
 	//ModelManager::GetInstance()->Draw(worldTransform_, viewProjection_, terrainHandle_, commandContext);
-
-	SpriteManager::GetInstance()->Draw(testSpriteHandle_, commandContext);
 }
 
 void GameScene::Finalize() {}

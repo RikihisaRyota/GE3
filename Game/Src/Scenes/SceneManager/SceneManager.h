@@ -1,6 +1,9 @@
 #pragma once
 
+#include <memory>
+
 #include "../SceneFactory/AbstractSceneFactory/AbstractSceneFactory.h"
+#include "../Transition/Transition.h"
 #include <string>
 
 class BaseScene;
@@ -23,4 +26,5 @@ private:
 	BaseScene* scene_ = nullptr;
 	BaseScene* nextScene_ = nullptr;
 	AbstractSceneFactory* abstractSceneFactory_ = nullptr;
+	std::unique_ptr<Transition> transition_;
 };

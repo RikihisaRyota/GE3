@@ -16,23 +16,40 @@ void SceneManager::Initialize(AbstractSceneFactory::Scene scene) {
 	scene_ = abstractSceneFactory_->CreateScene(scene);
 	scene_->SetSceneManager(this);
 	scene_->Initialize();
+	transition_ = std::make_unique<Transition>();
 }
 
 void SceneManager::Update() {
-	scene_->Update();
 	if (nextScene_) {
-		if (scene_) {
-			scene_->Finalize();
-			delete scene_;
+		if (!transition_->GetIsTransition()) {
+			transition_->Initialize();
 		}
-		scene_->SetSceneManager(this);
-		scene_ = nextScene_;
-		nextScene_ = nullptr;
-		scene_->Initialize();
+		else {
+			if (transition_->GetIsSceneChange()) {
+				if (scene_) {
+					scene_->Finalize();
+					delete scene_;
+				}
+				scene_ = nextScene_;
+				scene_->SetSceneManager(this);
+				scene_->Initialize();
+				nextScene_ = nullptr;
+			}
+		}
+
+	}
+	if (transition_->GetIsTransition()) {
+		transition_->Update();
+	}
+	if (transition_->GetIsSceneStart()) {
+		scene_->Update();
 	}
 }
 void SceneManager::Draw(CommandContext& commandContext) {
 	scene_->Draw(commandContext);
+	if (transition_->GetIsTransition()) {
+		transition_->Draw(commandContext);
+	}
 }
 
 void SceneManager::ChangeScene(AbstractSceneFactory::Scene scene) {

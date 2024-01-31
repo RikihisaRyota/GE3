@@ -2,6 +2,8 @@
 
 #include <numbers>
 
+#include "imgui.h"
+
 #include "Engine/Model/ModelManager.h"
 #include "Engine/Input/Input.h"
 #include "Engine/Math/MyMath.h"
@@ -28,8 +30,14 @@ void Player::Update() {
 	time = std::fmod(time, 2.0f * std::numbers::pi_v<float>);
 	// 浮遊を座標に反映
 	animationTransform_.translation_.y = (std::sin(time) * 0.05f);
-	animationTransform_.UpdateMatrix();
 	worldTransform_.UpdateMatrix();
+	animationTransform_.UpdateMatrix();
+#ifdef _DEBUG
+	ImGui::Begin("Player");
+	ImGui::DragFloat3("position",&worldTransform_.translation_.x,0.1f);
+	ImGui::End();
+#endif // _DEBUG
+
 }
 
 void Player::Draw(const ViewProjection& viewProjection, CommandContext& commandContext) {

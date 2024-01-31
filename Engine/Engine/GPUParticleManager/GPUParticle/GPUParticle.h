@@ -72,7 +72,8 @@ private:
 	DescriptorHandle drawArgumentHandle_;
 	// パーティクルのエミッター
 	EmitterForGPU emitterForGPU_;
-	GpuResource emitterForGPUBuffer_;
+	//GpuResource emitterForGPUBuffer_;
+	UploadBuffer emitterForGPUBuffer_;
 	DescriptorHandle emitterForGPUSRVHandle_;
 
 	UINT commandSizePerFrame_;

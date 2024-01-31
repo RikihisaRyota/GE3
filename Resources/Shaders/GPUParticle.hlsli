@@ -5,6 +5,7 @@ struct VertexShaderOutput
 {
     float4 position : SV_POSITION;
     float2 texcoord : TEXCOORD0;
+    uint instanceId : SV_InstanceID;
 };
 
 struct Particle
@@ -47,28 +48,13 @@ float random(float min, float max, float seed)
     float range = max - min;
     return min + (hash(uint(seed))) * 0.5f * range;
 }
-uint RandomSeed(uint seed)
+
+float randomRange(float2 uv, float seed)
 {
-    seed = (seed * 1664525u + 1013904223u);
-    return seed;
+    return frac(sin(dot(uv, float2(12.9898f, 78.233f)) + seed) * 43758.5453);
+
 }
 
-float Random(uint seed)
-{
-    return float(RandomSeed(seed)) / 4294967296.0f;
-}
-
-uint RandomIntRange(uint min, uint max,uint seed)
-{
-    return min + (RandomSeed(seed) % (max - min + 1));
-}
-
-float RandomRange(float min, float max, uint seed)
-{
-    seed = RandomSeed(seed);
-    float normalized = float(seed) / 4294967296.0f;
-    return min + normalized * (max - min);
-}
 matrix MakeScaleMatrix(float3 scale)
 {
     return matrix(

@@ -52,7 +52,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IncludePath>$(ProjectDir)lib\DirectXTex\include;$(ProjectDir)lib\Imgui\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(ProjectDir)lib\DirectXTex\lib\$(Configuration);$(ProjectDir)lib\imgui\lib\$(Configuration);$(LibraryPath)</LibraryPath>
-    <OutDir>\Generated\Output\$(Configuration)\</OutDir>
+    <OutDir>Generated\Output\$(Configuration)\</OutDir>
     <IntDir>\Generated\Obj\$(ProjectName)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">

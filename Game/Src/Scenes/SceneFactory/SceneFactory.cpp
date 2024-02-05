@@ -4,7 +4,7 @@
 #include "../GameScene/GameScene.h"
 #include "../TitleScene/TitleScene.h"
 
-BaseScene* SceneFactory::CreateScene(Scene scene) {
+BaseScene* SceneFactory::CreateScene(int scene) {
     BaseScene* newScene = nullptr;
     switch (scene) {
     case AbstractSceneFactory::kTitle:

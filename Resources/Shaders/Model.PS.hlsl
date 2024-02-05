@@ -39,7 +39,7 @@ PixelShaderOutput main(VertexShaderOutput input)
     float pointLightHalfRanbert = PointLightHalfRanbert(input.normal, worldPos, gPointLight.position);
     float3 pointLightDiffuse = float3(gPointLight.color.rgb * pointLightHalfRanbert * factor * gPointLight.intensity);
     
-    float3 pointLightBlinnPhongReflection = PointLightBlinnPhongReflection(input.normal, gViewProjection.cameraPos, worldPos, gPointLight.position, gDirectionLight.sharpness);
+    float3 pointLightBlinnPhongReflection = PointLightBlinnPhongReflection(input.normal,worldPos, gPointLight.position, gDirectionLight.sharpness);
     float3 pointLightSpecular = float3(gPointLight.color.rgb * pointLightBlinnPhongReflection * factor * gPointLight.intensity);
     
     output.color.rgb = gMaterial.color.rgb * textureColor.rgb * ((diffuse + specular + ambient) + (pointLightDiffuse + pointLightSpecular));

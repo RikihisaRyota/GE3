@@ -1,10 +1,13 @@
 #pragma once
 
+#include <string>
 #include <memory>
+#include <vector>
 
 #include "../SceneFactory/AbstractSceneFactory/AbstractSceneFactory.h"
 #include "../Transition/Transition.h"
-#include <string>
+
+#include "Engine/Math/ViewProjection.h"
 
 class BaseScene;
 class CommandContext;
@@ -14,17 +17,19 @@ public:
 
 	static SceneManager* GetInstance();
 
-	void Initialize(AbstractSceneFactory::Scene scene);
+	void Initialize(int scene, ViewProjection* viewProjection);
 
-	void Update();
+	void Update(ViewProjection* viewProjection);
 
 	void Draw(CommandContext& ommandContext);
 
-	void ChangeScene(AbstractSceneFactory::Scene scene);
+	void ChangeScene(int scene);
 	void SetSceneFactory(AbstractSceneFactory* abstractSceneFactory) { abstractSceneFactory_ = abstractSceneFactory; }
 private:
 	BaseScene* scene_ = nullptr;
 	BaseScene* nextScene_ = nullptr;
 	AbstractSceneFactory* abstractSceneFactory_ = nullptr;
 	std::unique_ptr<Transition> transition_;
+	int currentScene_;
+	std::vector<const char*> sceneNames_;
 };

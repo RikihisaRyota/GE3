@@ -24,13 +24,13 @@ void Lighting::Initialize() {
 	pointLightData_->position = { 0.0f,6.0f,0.0f };
 	pointLightData_->intensity = 1.0f;
 	pointLightData_->radius = 5.0f;
-	pointLightData_->decay = 0.1f;
+	pointLightData_->decay = 1.0f;
 	pointLightData_->sharpness = 1.0f;
 	pointLightBuffer_.Copy(pointLightData_, sizeof(PointLight));
 }
 
 void Lighting::Update() {
-#ifdef _DEBUG
+#ifdef ENABLE_IMGUI
 	ImGui::Begin("Lighting");
 	if (ImGui::TreeNode("DirectionLight")) {
 		ImGui::DragFloat4("Color", &directionLightData_->color.x, 0.01f, -1.0f, 1.0f);
@@ -49,7 +49,7 @@ void Lighting::Update() {
 		ImGui::TreePop();
 	}
 	ImGui::End();
-#endif // _DEBUG
+#endif // ENABLE_IMGUI
 	directionLightData_->direction.Normalize();
 	directionLightBuffer_.Copy(directionLightData_, sizeof(DirectionLight));
 	pointLightBuffer_.Copy(pointLightData_, sizeof(PointLight));

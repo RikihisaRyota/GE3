@@ -3,11 +3,11 @@
 #include "Engine/Audio/Audio.h"
 #include "Engine/Graphics/CommandContext.h"
 #include "Engine/Graphics/RenderManager.h"
+#include "Engine//Math/MyMath.h"
 #include "Engine/Model/ModelManager.h"
 #include "Engine/GPUParticleManager/GPUParticle/GPUParticleShaderStructs.h"
 #include "Engine/Texture/TextureManager.h"
 #include "Engine/ImGui/ImGuiManager.h"
-
 #include "Engine/Sprite/SpriteManager.h"
 
 GameScene::GameScene() {
@@ -30,15 +30,15 @@ GameScene::~GameScene() {}
 
 void GameScene::Initialize() {
 	//Audio::GetInstance()->SoundPlayLoopStart(playHandle_);
-	viewProjection_.Initialize();
 	worldTransform_.Initialize();
 
-	player_->SetViewProjection(&viewProjection_);
+
+	player_->SetViewProjection(viewProjection_);
 	player_->Initialize();
 
 	followCamera_->SetTarget(&player_->GetWorldTransform());
-	followCamera_->SetViewProjection(&viewProjection_);
-
+	followCamera_->SetViewProjection(viewProjection_);
+	followCamera_->Initialize();
 	gpuParticleManager_->Initialize();
 	/*{
 		EmitterForGPU emitterForGPU = {
@@ -90,34 +90,22 @@ void GameScene::Initialize() {
 		};
 		gpuParticleManager_->CreateParticle(emitterForGPU, gpuTexture_);
 	}
-	/*{
-		EmitterForGPU emitterForGPU = {
-		.min = {-10.0f,-10.0f,10.0f},
-		.maxParticleNum = 1 << 20,
-		.max = {10.0f,10.0f,30.0f},
-		.createParticleNum = 1 << 10,
-		.position = {0.0f,0.0f,10.0f},
-		};
-		gpuParticleManager_->CreateParticle(emitterForGPU, gpuTexture_);
-	}*/
 }
 
 void GameScene::Update() {
 
-#ifdef _DEBUG
-	ImGui::Begin("fps");
-	ImGui::Text("Frame rate: %3.0f fps", ImGui::GetIO().Framerate);
-	ImGui::Text("Delta Time: %.4f", ImGui::GetIO().DeltaTime);
-	ImGui::End();
+#ifdef ENABLE_IMGUI
 	ImGui::Begin("Sphere");
 	ImGui::DragFloat3("scale", &worldTransform_.scale_.x, 0.1f, 0.0f);
 	ImGui::End();
-#endif // _DEBUG
+#endif // ENABLE_IMGUI
 	gpuParticleManager_->Update(RenderManager::GetInstance()->GetCommandContext());
-	//debugCamera_->Update(&viewProjection_);
 
-	followCamera_->Update();
+	debugCamera_->Update(viewProjection_);
 
+	if (!debugCamera_->GetIsDebugCamera()) {
+		followCamera_->Update();
+	}
 	player_->Update();
 
 	worldTransform_.UpdateMatrix();
@@ -125,13 +113,13 @@ void GameScene::Update() {
 }
 
 void GameScene::Draw(CommandContext& commandContext) {
-	gpuParticleManager_->Draw(viewProjection_, commandContext);
+	gpuParticleManager_->Draw(*viewProjection_, commandContext);
 
-	player_->Draw(viewProjection_, commandContext);
+	player_->Draw(*viewProjection_, commandContext);
 
-	ModelManager::GetInstance()->Draw(worldTransform_, viewProjection_, modelHandle_, commandContext);
+	ModelManager::GetInstance()->Draw(worldTransform_, *viewProjection_, modelHandle_, commandContext);
 
-	ModelManager::GetInstance()->Draw(worldTransform_, viewProjection_, terrainHandle_, commandContext);
+	ModelManager::GetInstance()->Draw(worldTransform_, *viewProjection_, terrainHandle_, commandContext);
 }
 
 void GameScene::Finalize() {}

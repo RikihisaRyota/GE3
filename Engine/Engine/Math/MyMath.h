@@ -11,8 +11,6 @@
 #include "Vector2.h"
 
 
-const double PI = 3.14159265359;
-
 // ベクトル変換
 Vector3 TransformNormal(const Vector3& v, const Matrix4x4& m);
 
@@ -174,9 +172,9 @@ Vector3 CubicBezier(
     float t);
 
 // Lerp
-// float Lerp(float start, float end, float t);
-// Vector2 Lerp(const Vector2& start, const Vector2& end, float t);
-// Vector3 Lerp(const Vector3& start, const Vector3& end, float t);
+ float Lerp(float start, float end, float t);
+ Vector2 Lerp(const Vector2& start, const Vector2& end, float t);
+ Vector3 Lerp(const Vector3& start, const Vector3& end, float t);
 template<class T> T Lerp(const T& start, const T& end, float t);
 template<class T> inline T Lerp(const T& start, const T& end, float t) {
 	return start + (end - start) * t;

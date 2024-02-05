@@ -4,6 +4,7 @@
 
 #include "Audio/Audio.h"
 #include "Engine/Lighting/Lighting.h"
+#include "Engine/ParticleManager/ParticleManager.h"
 #include "Graphics/RenderManager.h"
 #include "Input/Input.h"
 #include "Model/ModelManager.h"
@@ -22,6 +23,8 @@ namespace GameCore {
 	SceneManager* sceneManager = nullptr;
 	SceneFactory* sceneFactory = nullptr;
 	Lighting* lighting = nullptr;
+	ParticleManager* particleManager = nullptr;
+	ViewProjection* viewProjection = nullptr;
 	void Initialize() {
 		winApp = WinApp::GetInstance();
 		winApp->CreateGameWindow(L"LE2A_24_リキヒサ_リョウタ");
@@ -46,10 +49,16 @@ namespace GameCore {
 
 		sceneFactory = new SceneFactory();
 		sceneManager->SetSceneFactory(sceneFactory);
-		sceneManager->Initialize(AbstractSceneFactory::Scene::kTitle);
+		sceneManager->Initialize(AbstractSceneFactory::Scene::kTitle,viewProjection);
 
 		lighting = Lighting::GetInstance();
 		lighting->Initialize();
+
+		//particleManager = ParticleManager::GetInstance();
+		//particleManager->Initialize();
+
+		viewProjection = new ViewProjection();
+		viewProjection->Initialize();
 	}
 
 	bool BeginFrame() {
@@ -62,11 +71,17 @@ namespace GameCore {
 
 		lighting->Update();
 
-		sceneManager->Update();
+		sceneManager->Update(viewProjection);
+
+		//particleManager->Update();
+
+		viewProjection->UpdateMatrix();
 
 		renderManager->BeginRender();
 
 		sceneManager->Draw(renderManager->GetCommandContext());
+
+		//particleManager->Draw(renderManager->GetCommandContext(),viewProjection);
 
 		renderManager->EndRender();
 
@@ -76,6 +91,8 @@ namespace GameCore {
 	}
 
 	void Shutdown() {
+		//particleManager->Shutdown();
+		delete viewProjection;
 		delete sceneFactory;
 		renderManager->Shutdown();
 		SpriteManager::DestroyPipeline();

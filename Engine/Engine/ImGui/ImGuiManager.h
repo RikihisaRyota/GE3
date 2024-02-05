@@ -2,9 +2,9 @@
 #include <d3d12.h>
 #include <Windows.h>
 
-#ifdef _DEBUG
+#ifdef ENABLE_IMGUI
 #include "../Imgui/imgui.h"
-#endif // _DEBUG
+#endif // ENABLE_IMGUI
 
 class CommandContext;
 

@@ -3,6 +3,7 @@
 #include <memory>
 
 #include "Engine/GPUParticleManager/GPUParticleManager.h"
+#include "Engine/DebugCamera/DebugCamera.h"
 #include "Engine/Math/ViewProjection.h"
 #include "Src/Scenes/BaseScene/BaseScene.h"
 
@@ -18,6 +19,7 @@ public:
 	void Draw(CommandContext& commandContext) override;
 	void Finalize() override;
 private:
+	std::unique_ptr<DebugCamera> debugCamera_;
 	std::unique_ptr<GPUParticleManager> gpuParticleManager_;
 	TextureHandle gpuTexture_;
 	ViewProjection viewProjection_;

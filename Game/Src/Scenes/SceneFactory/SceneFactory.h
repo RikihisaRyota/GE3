@@ -4,5 +4,5 @@
 
 class SceneFactory : public AbstractSceneFactory {
 public:
-	BaseScene* CreateScene(Scene scene) override;
+	BaseScene* CreateScene(int scene) override;
 };

@@ -15,6 +15,7 @@ struct ViewProjection
 {
     float4x4 view;
     float4x4 projection;
+    float4x4 inverseView;
     float3 cameraPos;
 };
 

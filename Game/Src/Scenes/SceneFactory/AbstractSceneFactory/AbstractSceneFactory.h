@@ -14,5 +14,5 @@ public:
 
 	virtual ~AbstractSceneFactory() = default;
 
-	virtual BaseScene* CreateScene(Scene scene) = 0;
+	virtual BaseScene* CreateScene(int scene) = 0;
 };

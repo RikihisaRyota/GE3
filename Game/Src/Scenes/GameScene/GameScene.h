@@ -3,6 +3,7 @@
 #include <memory>
 
 #include "Engine/GPUParticleManager/GPUParticleManager.h"
+#include "Engine/DebugCamera/DebugCamera.h"
 #include "Src/Game/DebugCamera/DebugCamera.h"
 #include "Src/Game/Player/Player.h"
 #include "Src/Game/FollowCamera/FollowCamera.h"
@@ -19,11 +20,11 @@ public:
 	void Update() override;
 	void Draw(CommandContext& commandContext) override;
 	void Finalize() override;
-private:
-	ViewProjection viewProjection_;
 
-	std::unique_ptr<GPUParticleManager> gpuParticleManager_;
+private:
+	
 	std::unique_ptr<DebugCamera> debugCamera_;
+	std::unique_ptr<GPUParticleManager> gpuParticleManager_;
 	std::unique_ptr<FollowCamera> followCamera_;
 	std::unique_ptr<Player> player_;
 	TextureHandle gpuTexture_;

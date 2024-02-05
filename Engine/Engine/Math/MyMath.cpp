@@ -2,8 +2,10 @@
 
 #include <cassert>
 #include <cmath>
+#include <numbers>
 #include <list>
 #include <vector>
+
 //#include "PrimitiveDrawer.h"
 
 #include "Vector3.h"
@@ -30,6 +32,10 @@ Vector3 Lerp(const Vector3& start, const Vector3& end, float t) {
 }
 
 float Lerp(float start, float end, float t) { 
+	return start + ((end - start) * t);
+}
+
+Vector2 Lerp(const Vector2& start, const Vector2& end, float t) {
 	return start + ((end - start) * t);
 }
 
@@ -574,9 +580,9 @@ float Clamp(float num, float min, float max) {
 	return num;
 }
 
-float RadToDeg(float radian) { return static_cast<float>(PI) / radian; }
+float RadToDeg(float radian) { return std::numbers::pi_v<float> / radian; }
 
-float DegToRad(float degree) { return degree * static_cast<float>(PI) / 180.0f; }
+float DegToRad(float degree) { return degree * std::numbers::pi_v<float> / 180.0f; }
 
 Matrix4x4 MakeMatWolrd(const WorldTransform& worldtransform) { 
 	Matrix4x4 result = MakeIdentity4x4();

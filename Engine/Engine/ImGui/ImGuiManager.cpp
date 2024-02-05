@@ -1,9 +1,9 @@
 #include "ImGuiManager.h"
 
-#ifdef _DEBUG
+#ifdef ENABLE_IMGUI
 #include "imgui_impl_dx12.h"
 #include "imgui_impl_win32.h"
-#endif // _DEBUG
+#endif // ENABLE_IMGUI
 
 
 #include "../Graphics/GraphicsCore.h"
@@ -16,7 +16,7 @@ ImGuiManager* ImGuiManager::GetInstance() {
 }
 
 void ImGuiManager::Initialize(HWND hWnd, DXGI_FORMAT rtvFormat) {
-#ifdef _DEBUG
+#ifdef ENABLE_IMGUI
     auto graphics = GraphicsCore::GetInstance();
     auto descriptor = graphics->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
     IMGUI_CHECKVERSION();
@@ -32,31 +32,31 @@ void ImGuiManager::Initialize(HWND hWnd, DXGI_FORMAT rtvFormat) {
         descriptor);
 #else
     hWnd; rtvFormat;
-#endif _DEBUG
+#endif ENABLE_IMGUI
 }
 
 void ImGuiManager::NewFrame() {
-#ifdef _DEBUG
+#ifdef ENABLE_IMGUI
     ImGui_ImplWin32_NewFrame();
     ImGui_ImplDX12_NewFrame();
     ImGui::NewFrame();
-#endif _DEBUG
+#endif ENABLE_IMGUI
 }
 
 void ImGuiManager::Render(CommandContext& commandContext) {
-#ifdef _DEBUG
+#ifdef ENABLE_IMGUI
     ImGui::Render();
     ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), commandContext);
 #else
     commandContext;
-#endif
+#endif // ENABLE_IMGUI
 }
 
 void ImGuiManager::Shutdown() {
-#ifdef _DEBUG
+#ifdef ENABLE_IMGUI
     ImGui_ImplDX12_Shutdown();
     ImGui_ImplWin32_Shutdown();
     ImGui::DestroyContext();
-#endif // _DEBUG
+#endif // ENABLE_IMGUI
 
 }

@@ -8,6 +8,7 @@
 #include "Engine/Sprite/SpriteManager.h"
 
 TitleScene::TitleScene() {
+	debugCamera_ = std::make_unique<DebugCamera>();
 	gpuParticleManager_ = std::make_unique<GPUParticleManager>();
 	gpuTexture_ = TextureManager::GetInstance()->Load("Resources/Images/GPUParticle.png");
 	titleTexture_ = TextureManager::GetInstance()->Load("Resources/Images/title.png");
@@ -36,6 +37,7 @@ void TitleScene::Initialize() {
 void TitleScene::Update() {
 	viewProjection_.UpdateMatrix();
 	gpuParticleManager_->Update(RenderManager::GetInstance()->GetCommandContext());
+	debugCamera_->Update(&viewProjection_);
 	if (Input::GetInstance()->PushKey(DIK_SPACE)) {
 		SceneManager::GetInstance()->ChangeScene(AbstractSceneFactory::Scene::kGame);
 	}

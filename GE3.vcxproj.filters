@@ -7,9 +7,6 @@
     <Filter Include="Engine\WinApp">
       <UniqueIdentifier>{6c90fb82-6550-4e5c-b081-06156ad9e489}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Engine\ImGui">
-      <UniqueIdentifier>{b18b82c8-98da-4545-8479-c61f74d7771e}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Engine\ConvertString">
       <UniqueIdentifier>{12bdc4ba-ff86-4019-a42e-bd488330f3cb}</UniqueIdentifier>
     </Filter>
@@ -37,14 +34,8 @@
     <Filter Include="Shaders">
       <UniqueIdentifier>{fa9f0d52-2c0d-4e3d-9599-041b3f66ff56}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Game\DebugCamera">
-      <UniqueIdentifier>{2759c711-4795-4143-894d-4f9fbb7d2ddc}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Scenes">
       <UniqueIdentifier>{841401a7-620d-4e94-9ea6-a1cfbf7b61e8}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Engine\Model">
-      <UniqueIdentifier>{86444217-c6c3-45f6-a45b-6e1e9f887a2d}</UniqueIdentifier>
     </Filter>
     <Filter Include="Engine\Texture">
       <UniqueIdentifier>{5cb82fb5-08f0-414a-a9d2-8a4811139f40}</UniqueIdentifier>
@@ -106,6 +97,24 @@
     <Filter Include="Game\FollowCamera">
       <UniqueIdentifier>{8a65fcab-e43f-43b9-ad66-f26830ed4a59}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\DebugCamera">
+      <UniqueIdentifier>{ba8af923-3524-4950-aaf4-bf588c4c4047}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\ParticleManager">
+      <UniqueIdentifier>{0790dd8b-4e3f-492a-8aab-78dfcf8c5fe5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\ParticleManager\Particle">
+      <UniqueIdentifier>{afbab9c0-ccb2-4fbe-aae9-72ed3ddbc534}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Math\ImGui">
+      <UniqueIdentifier>{b18b82c8-98da-4545-8479-c61f74d7771e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Math\ImGui\Model">
+      <UniqueIdentifier>{86444217-c6c3-45f6-a45b-6e1e9f887a2d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\Particle">
+      <UniqueIdentifier>{20a8c2b7-8c5e-4ee2-9705-b5e41b3532ba}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine\Engine\Math\MyMath.cpp">
@@ -115,7 +124,7 @@
       <Filter>Engine\ConvertString</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Engine\ImGui\ImGuiManager.cpp">
-      <Filter>Engine\ImGui</Filter>
+      <Filter>Engine\Math\ImGui</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Engine\Input\Input.cpp">
       <Filter>Engine\Input</Filter>
@@ -208,11 +217,8 @@
       <Filter>Engine\Graphics</Filter>
     </ClCompile>
     <ClCompile Include="Game\Src\main.cpp" />
-    <ClCompile Include="Game\Src\Game\DebugCamera\DebugCamera.cpp">
-      <Filter>Game\DebugCamera</Filter>
-    </ClCompile>
     <ClCompile Include="Engine\Engine\Model\Model.cpp">
-      <Filter>Engine\Model</Filter>
+      <Filter>Engine\Math\ImGui\Model</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Engine\Texture\Texture.cpp">
       <Filter>Engine\Texture</Filter>
@@ -221,7 +227,7 @@
       <Filter>Engine\Texture</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Engine\Model\ModelManager.cpp">
-      <Filter>Engine\Model</Filter>
+      <Filter>Engine\Math\ImGui\Model</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Engine\Audio\Audio.cpp">
       <Filter>Engine\Audio</Filter>
@@ -259,14 +265,25 @@
     <ClCompile Include="Game\Src\Game\Player\Player.cpp">
       <Filter>Game\Player</Filter>
     </ClCompile>
-    <ClCompile Include="Game\Src\Game\FollowCamera\FollowCamera.cpp" />
+    <ClCompile Include="Game\Src\Game\FollowCamera\FollowCamera.cpp">
+      <Filter>Game\FollowCamera</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Engine\DebugCamera\DebugCamera.cpp">
+      <Filter>Engine\DebugCamera</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Engine\ParticleManager\ParticleManager.cpp">
+      <Filter>Engine\ParticleManager</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Engine\ParticleManager\Particle\Particle.cpp">
+      <Filter>Engine\ParticleManager\Particle</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\Engine\WinApp\WinApp.h">
       <Filter>Engine\WinApp</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Engine\ImGui\ImGuiManager.h">
-      <Filter>Engine\ImGui</Filter>
+      <Filter>Engine\Math\ImGui</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Engine\ConvertString\ConvertString.h">
       <Filter>Engine\ConvertString</Filter>
@@ -385,11 +402,8 @@
     <ClInclude Include="Engine\Engine\Graphics\Helper.h">
       <Filter>Engine\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Src\Game\DebugCamera\DebugCamera.h">
-      <Filter>Game\DebugCamera</Filter>
-    </ClInclude>
     <ClInclude Include="Engine\Engine\Model\Model.h">
-      <Filter>Engine\Model</Filter>
+      <Filter>Engine\Math\ImGui\Model</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Engine\Texture\Texture.h">
       <Filter>Engine\Texture</Filter>
@@ -401,10 +415,10 @@
       <Filter>Engine\Texture</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Engine\Model\ModelHandle.h">
-      <Filter>Engine\Model</Filter>
+      <Filter>Engine\Math\ImGui\Model</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Engine\Model\ModelManager.h">
-      <Filter>Engine\Model</Filter>
+      <Filter>Engine\Math\ImGui\Model</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Engine\Audio\Audio.h">
       <Filter>Engine\Audio</Filter>
@@ -460,6 +474,21 @@
     <ClInclude Include="Game\Src\Game\FollowCamera\FollowCamera.h">
       <Filter>Game\FollowCamera</Filter>
     </ClInclude>
+    <ClInclude Include="Engine\Engine\DebugCamera\DebugCamera.h">
+      <Filter>Engine\DebugCamera</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Engine\Math\Random.h">
+      <Filter>Engine\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Engine\ParticleManager\Particle\Particle.h">
+      <Filter>Engine\ParticleManager\Particle</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Engine\ParticleManager\ParticleShaderStruct.h">
+      <Filter>Engine\ParticleManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Engine\ParticleManager\ParticleManager.h">
+      <Filter>Engine\ParticleManager</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Externals\Imgui\LICENSE.txt">
@@ -478,6 +507,9 @@
     </None>
     <None Include="Resources\Shaders\Sprite\Sprite.hlsli">
       <Filter>Shaders\Sprite</Filter>
+    </None>
+    <None Include="Resources\Shaders\Particle\Particle.hlsli">
+      <Filter>Shaders\Particle</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -504,6 +536,12 @@
     </FxCompile>
     <FxCompile Include="Resources\Shaders\Sprite\Sprite.PS.hlsl">
       <Filter>Shaders\Sprite</Filter>
+    </FxCompile>
+    <FxCompile Include="Resources\Shaders\Particle\Particle.VS.hlsl">
+      <Filter>Shaders\Particle</Filter>
+    </FxCompile>
+    <FxCompile Include="Resources\Shaders\Particle\Particle.PS.hlsl">
+      <Filter>Shaders\Particle</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

@@ -128,7 +128,7 @@ void ModelManager::Draw(const WorldTransform& worldTransform, const ViewProjecti
 		commandContext.SetGraphicsConstantBuffer(Parameter::RootParameter::PointLight, Lighting::GetInstance()->GetPointLightBuffer().GetGPUVirtualAddress());
 		commandContext.SetGraphicsConstantBuffer(Parameter::RootParameter::Material, models_.at(modelHandle)->GetMaterialBuffer().GetGPUVirtualAddress());
 		commandContext.SetGraphicsDescriptorTable(Parameter::RootParameter::Texture, TextureManager::GetInstance()->GetTexture(models_.at(modelHandle)->GetTextureHandle()).GetSRV());
-		commandContext.SetGraphicsDescriptorTable(Parameter::RootParameter::Sampler, SamplerManager::Anisotropic);
+		commandContext.SetGraphicsDescriptorTable(Parameter::RootParameter::Sampler, SamplerManager::LinearWrap);
 		commandContext.DrawIndexed(modelData->meshes_->indexCount);
 	}
 }

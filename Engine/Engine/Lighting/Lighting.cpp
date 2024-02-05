@@ -21,7 +21,7 @@ void Lighting::Initialize() {
 	pointLightBuffer_.Create(L"PointLightBuffer", sizeof(PointLight));
 	pointLightData_ = new PointLight();
 	pointLightData_->color = { 1.0f,1.0f,1.0f,1.0f };
-	pointLightData_->position = { 0.0f,2.0f,0.0f };
+	pointLightData_->position = { 0.0f,6.0f,0.0f };
 	pointLightData_->intensity = 1.0f;
 	pointLightData_->radius = 5.0f;
 	pointLightData_->decay = 0.1f;
@@ -41,7 +41,7 @@ void Lighting::Update() {
 	}
 	if (ImGui::TreeNode("PointLight")) {
 		ImGui::DragFloat4("Color", &pointLightData_->color.x, 0.1f, 0.0f, 1.0f);
-		ImGui::DragFloat3("Position", &pointLightData_->position.x, 0.1f);
+		ImGui::DragFloat3("Position", &pointLightData_->position.x, 0.01f);
 		ImGui::DragFloat("Intensity", &pointLightData_->intensity, 0.1f,0.0f);
 		ImGui::DragFloat("Radius", &pointLightData_->radius, 0.1f,0.0f);
 		ImGui::DragFloat("Decay", &pointLightData_->decay, 0.1f,0.0f);

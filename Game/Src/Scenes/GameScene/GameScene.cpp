@@ -33,8 +33,6 @@ void GameScene::Initialize() {
 	viewProjection_.Initialize();
 	worldTransform_.Initialize();
 
-	worldTransform_.translation_.z = 20.0f;
-
 	player_->SetViewProjection(&viewProjection_);
 	player_->Initialize();
 
@@ -42,7 +40,7 @@ void GameScene::Initialize() {
 	followCamera_->SetViewProjection(&viewProjection_);
 
 	gpuParticleManager_->Initialize();
-	{
+	/*{
 		EmitterForGPU emitterForGPU = {
 		.min = {-0.5f,-1.0f,-0.5f},
 		.maxParticleNum = 1 << 24,
@@ -51,7 +49,7 @@ void GameScene::Initialize() {
 		.position = {0.0,0.0f,0.0f},
 		};
 		gpuParticleManager_->CreateParticle(emitterForGPU, gpuTexture_);
-	}
+	}*/
 	{
 		EmitterForGPU emitterForGPU = {
 		.min = {-10.0f,-15.0f,-10.0f},
@@ -106,20 +104,15 @@ void GameScene::Initialize() {
 
 void GameScene::Update() {
 
-	auto particle = gpuParticleManager_->GetGPUParticle(0);
-	auto emitter = particle->GetEmitter();
 #ifdef _DEBUG
 	ImGui::Begin("fps");
 	ImGui::Text("Frame rate: %3.0f fps", ImGui::GetIO().Framerate);
 	ImGui::Text("Delta Time: %.4f", ImGui::GetIO().DeltaTime);
 	ImGui::End();
-	ImGui::Begin("Material");
-	ImGui::DragFloat4("color", &color_.x, 0.01f, 0.0f, 1.0f);
-	ImGui::DragFloat3("pos", &emitter.position.x, 0.1f);
+	ImGui::Begin("Sphere");
+	ImGui::DragFloat3("scale", &worldTransform_.scale_.x, 0.1f, 0.0f);
 	ImGui::End();
 #endif // _DEBUG
-	emitter.position = { worldTransform_.matWorld_.m[3][0],worldTransform_.matWorld_.m[3][1],worldTransform_.matWorld_.m[3][2] };
-	particle->SetEmitter(emitter);
 	gpuParticleManager_->Update(RenderManager::GetInstance()->GetCommandContext());
 	//debugCamera_->Update(&viewProjection_);
 
@@ -132,13 +125,13 @@ void GameScene::Update() {
 }
 
 void GameScene::Draw(CommandContext& commandContext) {
+	gpuParticleManager_->Draw(viewProjection_, commandContext);
 
 	player_->Draw(viewProjection_, commandContext);
 
 	ModelManager::GetInstance()->Draw(worldTransform_, viewProjection_, modelHandle_, commandContext);
 
-	gpuParticleManager_->Draw(viewProjection_, commandContext);
-	//ModelManager::GetInstance()->Draw(worldTransform_, viewProjection_, terrainHandle_, commandContext);
+	ModelManager::GetInstance()->Draw(worldTransform_, viewProjection_, terrainHandle_, commandContext);
 }
 
 void GameScene::Finalize() {}

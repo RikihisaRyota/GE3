@@ -55,12 +55,6 @@ void GPUParticle::Spawn(CommandContext& commandContext) {
 		originalCommandCounter_ = static_cast<uint32_t*>(originalCommandCounterDate_);
 	}
 	commandContext.CopyBufferRegion(originalCommandCounterBuffer_, 0, originalCommandBuffer_, drawIndexBufferCounterOffset_, sizeof(UINT));
-#ifdef _DEBUG
-	ImGui::Begin("GPUParticle");
-	ImGui::Text("%u", emitterForGPU_.maxParticleNum-*originalCommandCounter_);
-	ImGui::End();
-#endif // _DEBUG
-
 }
 
 void GPUParticle::Update(CommandContext& commandContext) {

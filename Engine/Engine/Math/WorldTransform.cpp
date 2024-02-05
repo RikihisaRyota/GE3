@@ -3,36 +3,32 @@
 #include <d3dx12.h>
 #include "MyMath.h"
 
-void WorldTransform::Initialize()
-{
+void WorldTransform::Initialize() {
 	CreateConstBuffer();
 	Map();
 	Reset();
 	UpdateMatrix();
 }
 
-void WorldTransform::CreateConstBuffer()
-{
+void WorldTransform::CreateConstBuffer() {
 	constBuff_ = std::make_unique<UploadBuffer>();
 	constBuff_->Create(L"WorldTransform", sizeof(ConstBufferDataWorldTransform));
 	constMap_ = new ConstBufferDataWorldTransform();
 }
 
-void WorldTransform::Map()
-{
+void WorldTransform::Map() {
 	// 定数バッファとのデータリンク
 	constBuff_->Copy(constMap_, sizeof(ConstBufferDataWorldTransform));
 }
 
-void WorldTransform::TransferMatrix()
-{
+void WorldTransform::TransferMatrix() {
 	// 定数バッファに書き込み
 	constMap_->matWorld = matWorld_;
+	constMap_->inverseMatWorld = Inverse(matWorld_);
 	Map();
 }
 
-void WorldTransform::UpdateMatrix()
-{
+void WorldTransform::UpdateMatrix() {
 	Matrix4x4 matScale, matRot, matTrans;
 
 	// スケール、回転、平行移動行列の計算

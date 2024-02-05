@@ -33,9 +33,9 @@ void Player::Update() {
 	worldTransform_.UpdateMatrix();
 	animationTransform_.UpdateMatrix();
 #ifdef _DEBUG
-	ImGui::Begin("Player");
+	/*ImGui::Begin("Player");
 	ImGui::DragFloat3("position",&worldTransform_.translation_.x,0.1f);
-	ImGui::End();
+	ImGui::End();*/
 #endif // _DEBUG
 
 }

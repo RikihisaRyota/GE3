@@ -8,6 +8,7 @@ struct VertexShaderOutput
 struct WorldTransform
 {
     float4x4 world;
+    float4x4 inverseMatWorld;
 };
 
 struct ViewProjection

@@ -16,7 +16,7 @@ VertexShaderOutput main(VertexShaderInput input)
     VertexShaderOutput output; // ピクセルシェーダーに渡す値
     output.position = float4(input.position,1.0f);
     output.position = mul(mul(output.position, gWorldTransform.world),mul(gViewProjection.view, gViewProjection.projection));
-    output.normal = normalize(mul(input.normal, (float3x3) gWorldTransform.world));
+    output.normal = normalize(mul(input.normal, (float3x3) gWorldTransform.inverseMatWorld));
     output.texcoord = input.texcoord;
     return output;
 }

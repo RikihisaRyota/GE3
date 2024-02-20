@@ -49,13 +49,13 @@ namespace GameCore {
 
 		sceneFactory = new SceneFactory();
 		sceneManager->SetSceneFactory(sceneFactory);
-		sceneManager->Initialize(AbstractSceneFactory::Scene::kTitle,viewProjection);
+		sceneManager->Initialize(AbstractSceneFactory::Scene::kGame,viewProjection);
 
 		lighting = Lighting::GetInstance();
 		lighting->Initialize();
 
-		//particleManager = ParticleManager::GetInstance();
-		//particleManager->Initialize();
+		particleManager = ParticleManager::GetInstance();
+		particleManager->Initialize();
 
 		viewProjection = new ViewProjection();
 		viewProjection->Initialize();
@@ -73,7 +73,7 @@ namespace GameCore {
 
 		sceneManager->Update(viewProjection);
 
-		//particleManager->Update();
+		particleManager->Update();
 
 		viewProjection->UpdateMatrix();
 
@@ -81,7 +81,7 @@ namespace GameCore {
 
 		sceneManager->Draw(renderManager->GetCommandContext());
 
-		//particleManager->Draw(renderManager->GetCommandContext(),viewProjection);
+		particleManager->Draw(renderManager->GetCommandContext(),*viewProjection);
 
 		renderManager->EndRender();
 
@@ -91,7 +91,7 @@ namespace GameCore {
 	}
 
 	void Shutdown() {
-		//particleManager->Shutdown();
+		particleManager->Shutdown();
 		delete viewProjection;
 		delete sceneFactory;
 		renderManager->Shutdown();

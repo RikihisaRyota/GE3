@@ -215,6 +215,9 @@ void ParticleManager::Draw(CommandContext& commandContext, const ViewProjection&
 }
 
 void ParticleManager::Shutdown() {
+	for (Instancing* inst : instancing_) {
+		delete inst;
+	}
 	// メンバー変数のリセット
 	instancing_.clear();
 }

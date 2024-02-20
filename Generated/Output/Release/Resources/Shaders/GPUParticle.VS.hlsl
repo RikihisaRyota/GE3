@@ -27,5 +27,6 @@ VertexShaderOutput main(VertexShaderInput input, uint instanceID : SV_InstanceID
     float4 worldPos = mul(float4(input.position, 1.0f), mat);
     output.position = mul(worldPos, mul(gViewProjection.view, gViewProjection.projection));
     output.texcoord = input.texcoord;
+    output.instanceId = particleID;
     return output;
 }

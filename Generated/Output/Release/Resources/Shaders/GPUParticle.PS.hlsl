@@ -8,18 +8,22 @@ struct PixelShaderOutput
     float4 color : SV_TARGET0;
 };
 
+float3 HSVToRGB(in float3 hsv)
+{
+    float4 k = float4(1.0f, 2.0f / 3.0f, 1.0f / 3.0f, 3.0f);
+    float3 p = abs(frac(hsv.xxx + k.xyz) * 6.0f - k.www);
+    return hsv.z * lerp(k.xxx, clamp(p - k.xxx, 0.0f, 1.0f), hsv.y);
+}
+
 PixelShaderOutput main(VertexShaderOutput input)
 {
     
-    float2 center = float2(0.5f, 0.5f);
-    float radius = 0.2f;
-
-    float distanceToCenter = length(input.texcoord - center);
-    
     PixelShaderOutput output;
-    float4 textureColor = float4(input.position.xy,0.5f, 0.3f);// * gTexture.Sample(gSampler, input.texcoord);
+    float4 textureColor = float4(HSVToRGB(float3(random(0.0f, 1.0f, input.instanceId), 1.0f, 0.2f)), 1.0f) * gTexture.Sample(gSampler, input.texcoord);
     output.color = textureColor;
-    output.color.a = min(step(distanceToCenter, radius),0.2f);
-    
-    return output;
+    if (output.color.a <= 0.5f)
+    {
+        discard;
+    }
+        return output;
 }

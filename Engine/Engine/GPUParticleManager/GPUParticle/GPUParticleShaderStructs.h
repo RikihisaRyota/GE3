@@ -22,10 +22,17 @@ struct ParticleInfo {
 };
 struct EmitterForGPU {
 	Vector3 min;
-	uint32_t maxParticleNum;
-	Vector3 max;
 	uint32_t createParticleNum;
+	Vector3 max;
+	uint32_t isAlive;
 	Vector3 position;
+	uint32_t time;
+	int32_t interval;
+	uint32_t isLoop;
+};
+struct CreateParticle {
+	uint32_t createParticleNum;
+	uint32_t emitterIndex;
 };
 struct IndirectCommand {
 	struct SRV {

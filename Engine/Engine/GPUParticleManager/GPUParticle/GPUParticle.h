@@ -38,32 +38,38 @@ public:
 	~GPUParticle();
 	void Initialize();
 	void Spawn(CommandContext& commandContext);
-	void Update(CommandContext& commandContext);
+	void EmitterUpdate(CommandContext& commandContext);
+	void AddEmitter(CommandContext& commandContext);
+	void ParticleUpdate(CommandContext& commandContext);
 	void Draw(const ViewProjection& viewProjection, CommandContext& commandContext);
 	void SetCommandSignature(ID3D12CommandSignature* commandSignature) { commandSignature_ = commandSignature; }
 	void Create(const EmitterForGPU& emitterForGPU, TextureHandle textureHandle);
 
 	void SetEmitter(const EmitterForGPU& emitterForGPU);
-	const EmitterForGPU& GetEmitter () { return emitterForGPU_; }
 private:
 	static const UINT ComputeThreadBlockSize = 1024;
+	static const UINT MaxParticleNum = 1 << 25;
+	// hlsli側も変更するように
+	static const UINT MaxEmitterNum = 100;
 
 	void InitializeParticleBuffer();
 	void InitializeUpdateParticle();
-	void InitializeEmitter(const EmitterForGPU& emitterForGPU);
+	void InitializeBuffer();
+	void InitializeEmitter();
+	void InitializeAddEmitter();
 
 	// コマンドシグネイチャ
 	ID3D12CommandSignature* commandSignature_;
 	// パーティクルの情報
 	GpuResource particleBuffer_;
-	DescriptorHandle rwStructuredBufferHandle_;
-	// パーティクルの生きてるか判定用
+	// パーティクルのIndexをAppend,Consumeするよう
 	GpuResource originalCommandBuffer_;
+	DescriptorHandle originalCommandUAVHandle_;
+	// パーティクルが何体生きているかをCPU側に伝えるコピー用
+	GpuResource originalCommandCounterBuffer_;
 	uint32_t* originalCommandCounter_;
 	void* originalCommandCounterDate_;
-	GpuResource originalCommandCounterBuffer_;
-	DescriptorHandle originalCommandUAVHandle_;
-	// drawIndexBuffer
+	// 何番目のパーティクルが生きているか積み込みよう(ExecuteIndirect用)
 	GpuResource drawIndexCommandBuffers_;
 	DescriptorHandle drawIndexCommandUAVHandle_;
 	UploadBuffer resetAppendDrawIndexBufferCounterReset_;
@@ -71,17 +77,33 @@ private:
 	GpuResource drawArgumentBuffer_;
 	DescriptorHandle drawArgumentHandle_;
 	// パーティクルのエミッター
-	EmitterForGPU emitterForGPU_;
-	//GpuResource emitterForGPUBuffer_;
-	UploadBuffer emitterForGPUBuffer_;
-	DescriptorHandle emitterForGPUSRVHandle_;
+	GpuResource emitterForGPUBuffer_;
+	// エミッターのIndexと何個生成するか
+	GpuResource createParticleBuffer_;
+	DescriptorHandle createParticleUAVHandle_;
+	// 何個生成するか数える用
+	GpuResource createParticleCounterCopyDestBuffer_;
+	GpuResource createParticleCounterCopySrcBuffer_;
+	uint32_t* createParticleCounter_;
+	void* createParticleCounterDate_;
+	// AddParticle用
+	UploadBuffer addParticleBuffer_;
+	// 追加するエミッターが何個あるか
+	UploadBuffer addParticleCountBuffer_;
+	DescriptorHandle addParticleUAVHandle_;
+	std::vector<EmitterForGPU> emitterForGPUs_;
 
-	UINT commandSizePerFrame_;
-	UINT drawIndexBufferCounterOffset_;
+
+	UINT particleIndexSize_;
+	UINT particleIndexCounterOffset_;
+
+	UINT emitterIndexSize_;
+	UINT emitterIndexCounterOffset_;
+
+	UINT addEmitterSize_;
+	UINT addEmitterCounterOffset_;
 
 	TextureHandle texture_;
-
-	float time_ = 0.0f;
 
 	static inline UINT AlignForUavCounter(UINT bufferSize) {
 		const UINT alignment = D3D12_UAV_COUNTER_PLACEMENT_ALIGNMENT;

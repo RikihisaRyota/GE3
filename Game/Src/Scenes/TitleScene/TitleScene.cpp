@@ -21,7 +21,7 @@ TitleScene::~TitleScene() {}
 void TitleScene::Initialize() {
 	viewProjection_.Initialize();
 	gpuParticleManager_->Initialize();
-	{
+	/*{
 		EmitterForGPU emitterForGPU = {
 		.min = {-30.0f,-30.0f,-10.0f},
 		.maxParticleNum = 1 << 24,
@@ -31,7 +31,7 @@ void TitleScene::Initialize() {
 		};
 
 		gpuParticleManager_->CreateParticle(emitterForGPU, gpuTexture_);
-	}
+	}*/
 }
 
 void TitleScene::Update() {

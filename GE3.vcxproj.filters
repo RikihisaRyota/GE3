@@ -496,9 +496,6 @@
     </Text>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\Shaders\GPUParticle.hlsli">
-      <Filter>Shaders\GPUParticle</Filter>
-    </None>
     <None Include="Resources\Shaders\Model.hlsli">
       <Filter>Shaders\Model</Filter>
     </None>
@@ -511,20 +508,11 @@
     <None Include="Resources\Shaders\Particle\Particle.hlsli">
       <Filter>Shaders\Particle</Filter>
     </None>
+    <None Include="Resources\Shaders\GPUParticle\GPUParticle.hlsli">
+      <Filter>Shaders\GPUParticle</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="Resources\Shaders\GPUParticle.PS.hlsl">
-      <Filter>Shaders\GPUParticle</Filter>
-    </FxCompile>
-    <FxCompile Include="Resources\Shaders\GPUParticle.VS.hlsl">
-      <Filter>Shaders\GPUParticle</Filter>
-    </FxCompile>
-    <FxCompile Include="Resources\Shaders\Spawn.CS.hlsl">
-      <Filter>Shaders\GPUParticle</Filter>
-    </FxCompile>
-    <FxCompile Include="Resources\Shaders\Update.CS.hlsl">
-      <Filter>Shaders\GPUParticle</Filter>
-    </FxCompile>
     <FxCompile Include="Resources\Shaders\Model.VS.hlsl">
       <Filter>Shaders\Model</Filter>
     </FxCompile>
@@ -542,6 +530,27 @@
     </FxCompile>
     <FxCompile Include="Resources\Shaders\Particle\Particle.PS.hlsl">
       <Filter>Shaders\Particle</Filter>
+    </FxCompile>
+    <FxCompile Include="Resources\Shaders\GPUParticle\Update.CS.hlsl">
+      <Filter>Shaders\GPUParticle</Filter>
+    </FxCompile>
+    <FxCompile Include="Resources\Shaders\GPUParticle\GPUParticle.PS.hlsl">
+      <Filter>Shaders\GPUParticle</Filter>
+    </FxCompile>
+    <FxCompile Include="Resources\Shaders\GPUParticle\GPUParticle.VS.hlsl">
+      <Filter>Shaders\GPUParticle</Filter>
+    </FxCompile>
+    <FxCompile Include="Resources\Shaders\GPUParticle\Spawn.CS.hlsl">
+      <Filter>Shaders\GPUParticle</Filter>
+    </FxCompile>
+    <FxCompile Include="Resources\Shaders\GPUParticle\InitializeGPUParticle.hlsl">
+      <Filter>Shaders\GPUParticle</Filter>
+    </FxCompile>
+    <FxCompile Include="Resources\Shaders\GPUParticle\EmitterUpdate.CS.hlsl">
+      <Filter>Shaders\GPUParticle</Filter>
+    </FxCompile>
+    <FxCompile Include="Resources\Shaders\GPUParticle\AddEmitter.CS.hlsl">
+      <Filter>Shaders\GPUParticle</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

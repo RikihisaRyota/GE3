@@ -40,17 +40,20 @@ void GameScene::Initialize() {
 	followCamera_->SetViewProjection(viewProjection_);
 	followCamera_->Initialize();
 	gpuParticleManager_->Initialize();
-	/*{
+	{
 		EmitterForGPU emitterForGPU = {
 		.min = {-0.5f,-1.0f,-0.5f},
-		.maxParticleNum = 1 << 24,
+		.createParticleNum = 1 << 6,
 		.max = {0.5f,1.0f,0.5f},
-		.createParticleNum = 1 << 10,
+		.isAlive = true,
 		.position = {0.0,0.0f,0.0f},
+		.time = 0,
+		.interval = 60,
+		.isLoop = true,
 		};
 		gpuParticleManager_->CreateParticle(emitterForGPU, gpuTexture_);
-	}*/
-	{
+	}
+	/*{
 		EmitterForGPU emitterForGPU = {
 		.min = {-10.0f,-15.0f,-10.0f},
 		.maxParticleNum = 1 << 24,
@@ -89,7 +92,7 @@ void GameScene::Initialize() {
 		.position = {0.0f,-20.0f,-10.0f},
 		};
 		gpuParticleManager_->CreateParticle(emitterForGPU, gpuTexture_);
-	}
+	}*/
 }
 
 void GameScene::Update() {

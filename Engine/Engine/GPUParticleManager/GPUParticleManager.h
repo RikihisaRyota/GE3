@@ -26,9 +26,11 @@ public:
 
 	void CreateParticle(const EmitterForGPU& emitterForGPU, TextureHandle textureHandle);
 
-	GPUParticle* GetGPUParticle(uint32_t index) { return gpuParticles_.at(index).get(); }
 private:
+	void CreateParticleBuffer();
 	void CreateGraphics();
+	void CreateEmitter();
+	void CreateAddEmitter();
 	void CreateUpdate();
 	void CreateSpawn();
 	void CreateIndexBuffer();
@@ -37,6 +39,10 @@ private:
 	std::unique_ptr<RootSignature> graphicsRootSignature_;
 	std::unique_ptr<RootSignature> spawnComputeRootSignature_;
 	std::unique_ptr<PipelineState> spawnComputePipelineState_;
+	std::unique_ptr<RootSignature> emitterUpdateComputeRootSignature_;
+	std::unique_ptr<PipelineState> emitterUpdateComputePipelineState_;
+	std::unique_ptr<RootSignature> addEmitterComputeRootSignature_;
+	std::unique_ptr<PipelineState> addEmitterComputePipelineState_;
 	std::unique_ptr<RootSignature> updateComputeRootSignature_;
 	std::unique_ptr<PipelineState> updateComputePipelineState_;
 	Microsoft::WRL::ComPtr<ID3D12CommandSignature> commandSignature_;
@@ -47,5 +53,5 @@ private:
 	UploadBuffer indexBuffer_;
 	D3D12_INDEX_BUFFER_VIEW ibView_{};
 
-	std::vector<std::unique_ptr<GPUParticle>> gpuParticles_;
+	std::unique_ptr<GPUParticle> gpuParticle_;
 };

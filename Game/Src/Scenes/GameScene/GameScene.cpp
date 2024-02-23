@@ -40,7 +40,7 @@ void GameScene::Initialize() {
 	followCamera_->SetViewProjection(viewProjection_);
 	followCamera_->Initialize();
 	gpuParticleManager_->Initialize();
-	/*{
+	{
 		EmitterForGPU emitterForGPU = {
 		.min = {-0.5f,-1.0f,-0.5f},
 		.createParticleNum = 1 << 10,
@@ -48,25 +48,25 @@ void GameScene::Initialize() {
 		.isAlive = true,
 		.position = {0.0,0.0f,0.0f},
 		.time = 0,
-		.interval = 60,
-		.isLoop = true,
-		};
-		gpuParticleManager_->CreateParticle(emitterForGPU, gpuTexture_);
-	}*/
-	{
-		EmitterForGPU emitterForGPU = {
-		.min = {-0.5f,-1.0f,-0.5f},
-		.createParticleNum = 1 << 11,
-		.max = {0.5f,1.0f,0.5f},
-		.isAlive = true,
-		.position = {2.0,0.0f,0.0f},
-		.time = 0,
-		.interval = 120,
+		.interval = 0,
 		.isLoop = true,
 		};
 		gpuParticleManager_->CreateParticle(emitterForGPU, gpuTexture_);
 	}
 	{
+		EmitterForGPU emitterForGPU = {
+		.min = {-0.5f,-1.0f,-0.5f},
+		.createParticleNum = 1 << 10,
+		.max = {0.5f,1.0f,0.5f},
+		.isAlive = true,
+		.position = {2.0,0.0f,0.0f},
+		.time = 0,
+		.interval = 0,
+		.isLoop = true,
+		};
+		gpuParticleManager_->CreateParticle(emitterForGPU, gpuTexture_);
+	}
+	/*{
 		EmitterForGPU emitterForGPU = {
 		.min = {-0.5f,-1.0f,-0.5f},
 		.createParticleNum = 1 << 12,
@@ -105,46 +105,7 @@ void GameScene::Initialize() {
 		.isLoop = true,
 		};
 		gpuParticleManager_->CreateParticle(emitterForGPU, gpuTexture_);
-	}
-	//{
-	//	EmitterForGPU emitterForGPU = {
-	//	.min = {-0.5f,-1.0f,-0.5f},
-	//	.createParticleNum = 1 << 15,
-	//	.max = {0.5f,1.0f,0.5f},
-	//	.isAlive = true,
-	//	.position = {-10.0,0.0f,0.0f},
-	//	.time = 0,
-	//	.interval = 0,
-	//	.isLoop = true,
-	//	};
-	//	gpuParticleManager_->CreateParticle(emitterForGPU, gpuTexture_);
-	//}
-	//{
-	//	EmitterForGPU emitterForGPU = {
-	//	.min = {-0.5f,-1.0f,-0.5f},
-	//	.createParticleNum = 1 << 15,
-	//	.max = {0.5f,1.0f,0.5f},
-	//	.isAlive = true,
-	//	.position = {0.0,10.0f,0.0f},
-	//	.time = 0,
-	//	.interval = 0,
-	//	.isLoop = true,
-	//	};
-	//	gpuParticleManager_->CreateParticle(emitterForGPU, gpuTexture_);
-	//}
-	//{
-	//	EmitterForGPU emitterForGPU = {
-	//	.min = {-0.5f,-1.0f,-0.5f},
-	//	.createParticleNum = 1 << 15,
-	//	.max = {0.5f,1.0f,0.5f},
-	//	.isAlive = true,
-	//	.position = {0.0,-10.0f,0.0f},
-	//	.time = 0,
-	//	.interval = 0,
-	//	.isLoop = true,
-	//	};
-	//	gpuParticleManager_->CreateParticle(emitterForGPU, gpuTexture_);
-	//}
+	}*/
 }
 
 void GameScene::Update() {

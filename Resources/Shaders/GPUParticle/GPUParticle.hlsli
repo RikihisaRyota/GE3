@@ -33,7 +33,7 @@ struct Emitter
 struct CreateParticle
 {
     uint emitterNum;
-    uint createParticleNum;
+    int createParticleNum;
 };
 struct EmitterCounterBuffer
 {

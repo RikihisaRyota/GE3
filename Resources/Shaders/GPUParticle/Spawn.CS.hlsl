@@ -30,11 +30,18 @@ void main(uint3 DTid : SV_DispatchThreadID)
     CreateParticle particle;
     for (int i = 0; i < emitterSize; i++)
     {
-        if (createParticle[i].createParticleNum > 0)
+        // ここで同期処理をしたい
+        // 並列処理で複数のスレットがcreateParticle[i].createParticleNumの計算を行っていて
+        // 現在のcreateParticle[i].createParticleNum の中身を知りたい
+        // createParticle[i].createParticleNum の値を安全に読み取る
+        int currentValue = 0;
+        InterlockedCompareExchange(createParticle[i].createParticleNum, -1, createParticle[i].createParticleNum, currentValue);
+        //
+        if (currentValue > 0)
         {
             particle = createParticle[i];
-            //InterlockedAdd(createParticle[i].createParticleNum, -1);
-            createParticle[i].createParticleNum--;
+            InterlockedAdd(createParticle[i].createParticleNum, -1);
+            //createParticle[i].createParticleNum--;
             break;
         }
     }

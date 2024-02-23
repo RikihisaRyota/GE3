@@ -31,8 +31,8 @@ struct EmitterForGPU {
 	uint32_t isLoop;
 };
 struct CreateParticle {
-	uint32_t createParticleNum;
 	uint32_t emitterIndex;
+	int32_t createParticleNum;
 };
 struct IndirectCommand {
 	struct SRV {

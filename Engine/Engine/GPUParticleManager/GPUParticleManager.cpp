@@ -68,6 +68,7 @@ void GPUParticleManager::Initialize() {
 	CreateGraphics();
 	CreateAddEmitter();
 	CreateIndexBuffer();
+	gpuParticle_->SetCommandSignature(commandSignature_.Get());
 }
 
 void GPUParticleManager::Update(CommandContext& commandContext) {
@@ -100,9 +101,8 @@ void GPUParticleManager::Draw(const ViewProjection& viewProjection, CommandConte
 }
 
 void GPUParticleManager::CreateParticle(const EmitterForGPU& emitterForGPU, TextureHandle textureHandle) {
-	GPUParticle* gpuParticle = new GPUParticle();
-	gpuParticle->SetCommandSignature(commandSignature_.Get());
-	gpuParticle->Create(emitterForGPU, textureHandle);
+
+	gpuParticle_->Create(emitterForGPU, textureHandle);
 }
 
 void GPUParticleManager::CreateParticleBuffer() {

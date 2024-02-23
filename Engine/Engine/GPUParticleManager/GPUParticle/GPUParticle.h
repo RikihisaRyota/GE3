@@ -87,7 +87,8 @@ private:
 	uint32_t* createParticleCounter_;
 	void* createParticleCounterDate_;
 	// AddParticle用
-	UploadBuffer addParticleBuffer_;
+	GpuResource addParticleBuffer_;
+	UploadBuffer addParticleCopyBuffer_;
 	// 追加するエミッターが何個あるか
 	UploadBuffer addParticleCountBuffer_;
 	DescriptorHandle addParticleUAVHandle_;

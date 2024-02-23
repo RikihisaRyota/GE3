@@ -30,9 +30,10 @@ void main(uint3 DTid : SV_DispatchThreadID)
     CreateParticle particle;
     for (int i = 0; i < emitterSize; i++)
     {
-        if (createParticle[i].createParticleNum != 0)
+        if (createParticle[i].createParticleNum > 0)
         {
             particle = createParticle[i];
+            //InterlockedAdd(createParticle[i].createParticleNum, -1);
             createParticle[i].createParticleNum--;
             break;
         }

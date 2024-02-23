@@ -65,10 +65,10 @@ void GPUParticle::EmitterUpdate(CommandContext& commandContext) {
 
 void GPUParticle::AddEmitter(CommandContext& commandContext) {
 	// エミッター追加
-	//if (!emitterForGPUs_.empty()) {
+	if (!emitterForGPUs_.empty()) {
 		// リセット
 		addParticleCopyBuffer_.Copy(nullptr,0);
-		addParticleCopyBuffer_.Copy(emitterForGPUs_.data(), emitterForGPUs_.size());
+		addParticleCopyBuffer_.Copy(emitterForGPUs_.data(), addEmitterCounterOffset_);
 		commandContext.CopyBufferRegion(addParticleBuffer_, 0, addParticleCopyBuffer_, 0, addEmitterCounterOffset_);
 		// 追加するエミッターが何個あるか
 		UINT emitterCount = (static_cast<UINT>(emitterForGPUs_.size()));
@@ -82,13 +82,13 @@ void GPUParticle::AddEmitter(CommandContext& commandContext) {
 		commandContext.SetComputeDescriptorTable(0, addParticleUAVHandle_);
 		commandContext.SetComputeUAV(1, emitterForGPUBuffer_->GetGPUVirtualAddress());
 		commandContext.Dispatch(1, 1, 1);
-		//emitterForGPUs_.clear();
-	//}
+		emitterForGPUs_.clear();
+	}
 }
 
 void GPUParticle::Spawn(CommandContext& commandContext) {
 	if (*createParticleCounter_ != 0 &&
-		*originalCommandCounter_ > MaxParticleNum) {
+		*originalCommandCounter_ < MaxParticleNum) {
 		commandContext.TransitionResource(particleBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 		commandContext.TransitionResource(emitterForGPUBuffer_, D3D12_RESOURCE_STATE_GENERIC_READ);
 		commandContext.TransitionResource(originalCommandBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
@@ -479,6 +479,6 @@ void GPUParticle::InitializeAddEmitter() {
 		&uavDesc,
 		addParticleUAVHandle_);
 
-	addParticleCountBuffer_.Create(L"addParticleCounterBuffer", sizeof(UINT));
+	addParticleCountBuffer_.Create(L"AddParticleCounterBuffer", sizeof(UINT));
 	addParticleCountBuffer_.Copy(0);
 }

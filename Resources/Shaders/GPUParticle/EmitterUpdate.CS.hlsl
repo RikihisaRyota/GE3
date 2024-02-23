@@ -9,7 +9,7 @@ void main(uint3 DTid : SV_DispatchThreadID)
 {
     uint index = DTid.x;
     // 生きているエミッターのみ
-    if (inputEmitter[index].isAlive)
+    if (index < emitterSize && inputEmitter[index].isAlive)
     {
         inputEmitter[index].time++;
         
@@ -19,7 +19,7 @@ void main(uint3 DTid : SV_DispatchThreadID)
             CreateParticle particle;
             particle.emitterNum = index;
             particle.createParticleNum = inputEmitter[index].createParticleNum;
-            createParticleCounter[0] += particle.createParticleNum;
+            InterlockedAdd(createParticleCounter[0], inputEmitter[index].createParticleNum);
             createParticle.Append(particle);
             // エミッターがループするか
             if (inputEmitter[index].isLoop)

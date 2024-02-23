@@ -40,10 +40,10 @@ void GameScene::Initialize() {
 	followCamera_->SetViewProjection(viewProjection_);
 	followCamera_->Initialize();
 	gpuParticleManager_->Initialize();
-	{
+	/*{
 		EmitterForGPU emitterForGPU = {
 		.min = {-0.5f,-1.0f,-0.5f},
-		.createParticleNum = 1 << 6,
+		.createParticleNum = 1 << 10,
 		.max = {0.5f,1.0f,0.5f},
 		.isAlive = true,
 		.position = {0.0,0.0f,0.0f},
@@ -52,47 +52,99 @@ void GameScene::Initialize() {
 		.isLoop = true,
 		};
 		gpuParticleManager_->CreateParticle(emitterForGPU, gpuTexture_);
-	}
-	/*{
-		EmitterForGPU emitterForGPU = {
-		.min = {-10.0f,-15.0f,-10.0f},
-		.maxParticleNum = 1 << 24,
-		.max = {10.0f,15.0f,30.0f},
-		.createParticleNum = 1 << 10,
-		.position = {-20.0,0.0f,0.0f},
-		};
-		gpuParticleManager_->CreateParticle(emitterForGPU, gpuTexture_);
-	}
-	{
-		EmitterForGPU emitterForGPU = {
-		.min = {-10.0f,-15.0f,-10.0f},
-		.maxParticleNum = 1 << 24,
-		.max = {10.0f,15.0f,30.0f},
-		.createParticleNum = 1 << 10,
-		.position = {20.0,0.0f,0.0f},
-		};
-		gpuParticleManager_->CreateParticle(emitterForGPU, gpuTexture_);
-	}
-	{
-		EmitterForGPU emitterForGPU = {
-		.min = {-15.0f,-10.0f,-10.0f},
-		.maxParticleNum = 1 << 24,
-		.max = {15.0f,10.0f,30.0f},
-		.createParticleNum = 1 << 10,
-		.position = {0.0f,20.0f,0.0f},
-		};
-		gpuParticleManager_->CreateParticle(emitterForGPU, gpuTexture_);
-	}
-	{
-		EmitterForGPU emitterForGPU = {
-		.min = {-15.0f,-10.0f,-10.0f},
-		.maxParticleNum = 1 << 24,
-		.max = {15.0f,10.0f,30.0f},
-		.createParticleNum = 1 << 10,
-		.position = {0.0f,-20.0f,-10.0f},
-		};
-		gpuParticleManager_->CreateParticle(emitterForGPU, gpuTexture_);
 	}*/
+	{
+		EmitterForGPU emitterForGPU = {
+		.min = {-0.5f,-1.0f,-0.5f},
+		.createParticleNum = 1 << 11,
+		.max = {0.5f,1.0f,0.5f},
+		.isAlive = true,
+		.position = {2.0,0.0f,0.0f},
+		.time = 0,
+		.interval = 120,
+		.isLoop = true,
+		};
+		gpuParticleManager_->CreateParticle(emitterForGPU, gpuTexture_);
+	}
+	{
+		EmitterForGPU emitterForGPU = {
+		.min = {-0.5f,-1.0f,-0.5f},
+		.createParticleNum = 1 << 12,
+		.max = {0.5f,1.0f,0.5f},
+		.isAlive = true,
+		.position = {-2.0,0.0f,0.0f},
+		.time = 0,
+		.interval = 120,
+		.isLoop = true,
+		};
+		gpuParticleManager_->CreateParticle(emitterForGPU, gpuTexture_);
+	}
+	{
+		EmitterForGPU emitterForGPU = {
+		.min = {-0.5f,-1.0f,-0.5f},
+		.createParticleNum = 1 << 13,
+		.max = {0.5f,1.0f,0.5f},
+		.isAlive = true,
+		.position = {0.0,2.0f,0.0f},
+		.time = 0,
+		.interval = 120,
+		.isLoop = true,
+		};
+		gpuParticleManager_->CreateParticle(emitterForGPU, gpuTexture_);
+	}
+	
+	{
+		EmitterForGPU emitterForGPU = {
+		.min = {-0.5f,-1.0f,-0.5f},
+		.createParticleNum = 1 << 14,
+		.max = {0.5f,1.0f,0.5f},
+		.isAlive = true,
+		.position = {0.0,-2.0f,0.0f},
+		.time = 0,
+		.interval = 120,
+		.isLoop = true,
+		};
+		gpuParticleManager_->CreateParticle(emitterForGPU, gpuTexture_);
+	}
+	//{
+	//	EmitterForGPU emitterForGPU = {
+	//	.min = {-0.5f,-1.0f,-0.5f},
+	//	.createParticleNum = 1 << 15,
+	//	.max = {0.5f,1.0f,0.5f},
+	//	.isAlive = true,
+	//	.position = {-10.0,0.0f,0.0f},
+	//	.time = 0,
+	//	.interval = 0,
+	//	.isLoop = true,
+	//	};
+	//	gpuParticleManager_->CreateParticle(emitterForGPU, gpuTexture_);
+	//}
+	//{
+	//	EmitterForGPU emitterForGPU = {
+	//	.min = {-0.5f,-1.0f,-0.5f},
+	//	.createParticleNum = 1 << 15,
+	//	.max = {0.5f,1.0f,0.5f},
+	//	.isAlive = true,
+	//	.position = {0.0,10.0f,0.0f},
+	//	.time = 0,
+	//	.interval = 0,
+	//	.isLoop = true,
+	//	};
+	//	gpuParticleManager_->CreateParticle(emitterForGPU, gpuTexture_);
+	//}
+	//{
+	//	EmitterForGPU emitterForGPU = {
+	//	.min = {-0.5f,-1.0f,-0.5f},
+	//	.createParticleNum = 1 << 15,
+	//	.max = {0.5f,1.0f,0.5f},
+	//	.isAlive = true,
+	//	.position = {0.0,-10.0f,0.0f},
+	//	.time = 0,
+	//	.interval = 0,
+	//	.isLoop = true,
+	//	};
+	//	gpuParticleManager_->CreateParticle(emitterForGPU, gpuTexture_);
+	//}
 }
 
 void GameScene::Update() {
@@ -118,11 +170,11 @@ void GameScene::Update() {
 void GameScene::Draw(CommandContext& commandContext) {
 	gpuParticleManager_->Draw(*viewProjection_, commandContext);
 
-	player_->Draw(*viewProjection_, commandContext);
+	/*player_->Draw(*viewProjection_, commandContext);
 
 	ModelManager::GetInstance()->Draw(worldTransform_, *viewProjection_, modelHandle_, commandContext);
 
-	ModelManager::GetInstance()->Draw(worldTransform_, *viewProjection_, terrainHandle_, commandContext);
+	ModelManager::GetInstance()->Draw(worldTransform_, *viewProjection_, terrainHandle_, commandContext);*/
 }
 
 void GameScene::Finalize() {}

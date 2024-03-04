@@ -43,9 +43,9 @@ public:
 	void ParticleUpdate(CommandContext& commandContext);
 	void Draw(const ViewProjection& viewProjection, CommandContext& commandContext);
 	void SetCommandSignature(ID3D12CommandSignature* commandSignature) { commandSignature_ = commandSignature; }
-	void Create(const EmitterForGPU& emitterForGPU, TextureHandle textureHandle);
+	void Create(const Emitter& emitterForGPU, TextureHandle textureHandle);
 
-	void SetEmitter(const EmitterForGPU& emitterForGPU);
+	void SetEmitter(const Emitter& emitterForGPU);
 private:
 	static const UINT ComputeThreadBlockSize = 1024;
 	static const UINT MaxParticleNum = 1 << 25;
@@ -87,12 +87,12 @@ private:
 	uint32_t* createParticleCounter_;
 	void* createParticleCounterDate_;
 	// AddParticle用
-	GpuResource addParticleBuffer_;
-	UploadBuffer addParticleCopyBuffer_;
+	GpuResource addEmitterBuffer_;
+	UploadBuffer addEmitterCopyBuffer_;
 	// 追加するエミッターが何個あるか
-	UploadBuffer addParticleCountBuffer_;
-	DescriptorHandle addParticleUAVHandle_;
-	std::vector<EmitterForGPU> emitterForGPUs_;
+	UploadBuffer addEmitterCountBuffer_;
+	DescriptorHandle addEmitterUAVHandle_;
+	std::vector<Emitter> emitterForGPUs_;
 
 
 	UINT particleIndexSize_;

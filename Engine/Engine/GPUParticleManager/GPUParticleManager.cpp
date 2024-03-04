@@ -100,7 +100,7 @@ void GPUParticleManager::Draw(const ViewProjection& viewProjection, CommandConte
 	gpuParticle_->Draw(viewProjection, commandContext);
 }
 
-void GPUParticleManager::CreateParticle(const EmitterForGPU& emitterForGPU, TextureHandle textureHandle) {
+void GPUParticleManager::CreateParticle(const Emitter& emitterForGPU, TextureHandle textureHandle) {
 
 	gpuParticle_->Create(emitterForGPU, textureHandle);
 }

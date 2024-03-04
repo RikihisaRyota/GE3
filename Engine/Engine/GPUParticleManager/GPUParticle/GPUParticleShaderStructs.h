@@ -17,10 +17,25 @@ struct Particle {
 	uint32_t isHit;
 	float aliveTime;
 };
-struct ParticleInfo {
-	float speed;
+
+struct EmitterArea {
+	Vector3 min;
+	Vector3 max;
 };
-struct EmitterForGPU {
+
+struct ScaleAnimation {
+
+};
+
+struct RotateAnimation {
+
+};
+
+struct Velocity3D {
+
+};
+
+struct Emitter {
 	Vector3 min;
 	uint32_t createParticleNum;
 	Vector3 max;
@@ -30,6 +45,7 @@ struct EmitterForGPU {
 	int32_t interval;
 	uint32_t isLoop;
 };
+
 struct CreateParticle {
 	uint32_t emitterIndex;
 	int32_t createParticleNum;

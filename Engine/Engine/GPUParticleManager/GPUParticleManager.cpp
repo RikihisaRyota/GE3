@@ -100,9 +100,8 @@ void GPUParticleManager::Draw(const ViewProjection& viewProjection, CommandConte
 	gpuParticle_->Draw(viewProjection, commandContext);
 }
 
-void GPUParticleManager::CreateParticle(const Emitter& emitterForGPU, TextureHandle textureHandle) {
-
-	gpuParticle_->Create(emitterForGPU, textureHandle);
+void GPUParticleManager::CreateParticle(const Emitter& emitterForGPU) {
+	gpuParticle_->Create(emitterForGPU);
 }
 
 void GPUParticleManager::CreateParticleBuffer() {
@@ -118,16 +117,17 @@ void GPUParticleManager::CreateGraphics() {
 	{
 		graphicsRootSignature_ = std::make_unique<RootSignature>();
 
-		CD3DX12_DESCRIPTOR_RANGE range[1]{};
-		range[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);
+		CD3DX12_DESCRIPTOR_RANGE textureRange[1]{};
+		textureRange[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, graphics->kNumSRVs, 0, 1);
+
 		CD3DX12_DESCRIPTOR_RANGE samplerRanges[1]{};
 		samplerRanges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER, 1, 0);
 
 		CD3DX12_ROOT_PARAMETER rootParameters[ParticleManager::GraphicsSigunature::kGraphicsSigunatureCount]{};
-		rootParameters[ParticleManager::GraphicsSigunature::kParticle].InitAsShaderResourceView(0, 0, D3D12_SHADER_VISIBILITY_VERTEX);
+		rootParameters[ParticleManager::GraphicsSigunature::kParticle].InitAsShaderResourceView(0, 0, D3D12_SHADER_VISIBILITY_ALL);
 		rootParameters[ParticleManager::GraphicsSigunature::kDrawIndex].InitAsShaderResourceView(1, 0, D3D12_SHADER_VISIBILITY_VERTEX);
 		rootParameters[ParticleManager::GraphicsSigunature::kViewProjection].InitAsConstantBufferView(0);
-		rootParameters[ParticleManager::GraphicsSigunature::kTexture].InitAsDescriptorTable(_countof(range), range, D3D12_SHADER_VISIBILITY_PIXEL);
+		rootParameters[ParticleManager::GraphicsSigunature::kTexture].InitAsDescriptorTable(_countof(textureRange), textureRange, D3D12_SHADER_VISIBILITY_PIXEL);
 		rootParameters[ParticleManager::GraphicsSigunature::kSampler].InitAsDescriptorTable(_countof(samplerRanges), samplerRanges, D3D12_SHADER_VISIBILITY_PIXEL);
 
 		D3D12_ROOT_SIGNATURE_DESC desc{};

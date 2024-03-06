@@ -67,7 +67,7 @@ void GPUParticle::AddEmitter(CommandContext& commandContext) {
 	// エミッター追加
 	if (!emitterForGPUs_.empty()) {
 		// リセット
-		addEmitterCopyBuffer_.Copy(nullptr,0);
+		addEmitterCopyBuffer_.Copy(nullptr, 0);
 		addEmitterCopyBuffer_.Copy(emitterForGPUs_.data(), addEmitterCounterOffset_);
 		commandContext.CopyBufferRegion(addEmitterBuffer_, 0, addEmitterCopyBuffer_, 0, addEmitterCounterOffset_);
 		// 追加するエミッターが何個あるか
@@ -75,7 +75,7 @@ void GPUParticle::AddEmitter(CommandContext& commandContext) {
 		addEmitterCountBuffer_.Copy(&emitterCount, sizeof(UINT));
 		// カウンターに追加するパーティクルの個数をセット
 		commandContext.CopyBufferRegion(addEmitterBuffer_, addEmitterCounterOffset_, addEmitterCountBuffer_, 0, sizeof(UINT));
-		
+
 		commandContext.TransitionResource(addEmitterBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 		commandContext.TransitionResource(emitterForGPUBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 
@@ -135,7 +135,7 @@ void GPUParticle::Draw(const ViewProjection& viewProjection, CommandContext& com
 
 		commandContext.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		commandContext.SetGraphicsConstantBuffer(2, viewProjection.constBuff_.GetGPUVirtualAddress());
-		commandContext.SetGraphicsDescriptorTable(3, TextureManager::GetInstance()->GetTexture(texture_).GetSRV());
+		commandContext.SetGraphicsDescriptorTable(3, GraphicsCore::GetInstance()->GetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV).GetStartDescriptorHandle());
 		commandContext.SetGraphicsDescriptorTable(4, SamplerManager::LinearWrap);
 		commandContext.ExecuteIndirect(
 			commandSignature_,
@@ -148,9 +148,7 @@ void GPUParticle::Draw(const ViewProjection& viewProjection, CommandContext& com
 	}
 }
 
-void GPUParticle::Create(const Emitter& emitterForGPU, TextureHandle textureHandle) {
-	emitterForGPU;
-	texture_ = textureHandle;
+void GPUParticle::Create(const Emitter& emitterForGPU) {
 	emitterForGPUs_.emplace_back(emitterForGPU);
 }
 

@@ -148,7 +148,7 @@ void CommandContext::SetComputeConstantBuffer(UINT rootIndex, D3D12_GPU_VIRTUAL_
 }
 
 void CommandContext::SetGraphicsShaderResource(UINT rootIndex, D3D12_GPU_VIRTUAL_ADDRESS address) {
-	commandList_->SetGraphicsRootShaderResourceView(rootIndex,address);
+	commandList_->SetGraphicsRootShaderResourceView(rootIndex, address);
 }
 
 void CommandContext::SetComputeShaderResource(UINT rootIndex, D3D12_GPU_VIRTUAL_ADDRESS address) {
@@ -161,6 +161,10 @@ void CommandContext::SetGraphicsDescriptorTable(UINT rootIndex, D3D12_GPU_DESCRI
 
 void CommandContext::SetComputeDescriptorTable(UINT rootIndex, D3D12_GPU_DESCRIPTOR_HANDLE address) {
 	commandList_->SetComputeRootDescriptorTable(rootIndex, address);
+}
+
+void CommandContext::SetDescriptorHeaps(UINT numDescriptorHeaps, ID3D12DescriptorHeap* descriptorHeaps) {
+	commandList_->SetDescriptorHeaps(numDescriptorHeaps, &descriptorHeaps);
 }
 
 void CommandContext::SetComputeUAV(uint32_t rootParameterIndex, D3D12_GPU_VIRTUAL_ADDRESS bufferLocation) {

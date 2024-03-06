@@ -51,135 +51,136 @@ void GameScene::Initialize() {
 		.time = 0,
 		.interval = 10,
 		.isLoop = true,
+		.textureIndex = TextureManager::GetInstance()->GetTexture(ModelManager::GetInstance()->GetModel(modelHandle_).GetTextureHandle()).GetDescriptorIndex(),
 		};
-		gpuParticleManager_->CreateParticle(emitterForGPU, gpuTexture_);
+		gpuParticleManager_->CreateParticle(emitterForGPU);
 	}
-	// 1
-	{
-		Emitter emitterForGPU = {
-		.min = {0.0f,-5.0f,-20.0f},
-		.createParticleNum = 1 << 10,
-		.max = {10.0f,5.0f,20.0f},
-		.isAlive = true,
-		.position = {-20.0,0.0f,0.0f},
-		.time = 0,
-		.interval = 10,
-		.isLoop = true,
-		};
-		gpuParticleManager_->CreateParticle(emitterForGPU, gpuTexture_);
-	}
-	// 2
-	{
-		Emitter emitterForGPU = {
-		.min = {-0.5f,-1.0f,-0.5f},
-		.createParticleNum = 1 << 10,
-		.max = {0.5f,1.0f,0.5f},
-		.isAlive = true,
-		.position = {0.0,0.0f,0.0f},
-		.time = 0,
-		.interval = 30,
-		.isLoop = true,
-		};
-		gpuParticleManager_->CreateParticle(emitterForGPU, gpuTexture_);
-	}
-	// 3
-	{
-		Emitter emitterForGPU = {
-		.min = {-0.5f,-1.0f,-0.5f},
-		.createParticleNum = 1 << 10,
-		.max = {0.5f,1.0f,0.5f},
-		.isAlive = true,
-		.position = {2.0,0.0f,0.0f},
-		.time = 0,
-		.interval = 60,
-		.isLoop = true,
-		};
-		gpuParticleManager_->CreateParticle(emitterForGPU, gpuTexture_);
-	}
-	// 4
-	{
-		Emitter emitterForGPU = {
-		.min = {-0.5f,-1.0f,-0.5f},
-		.createParticleNum = 1 << 10,
-		.max = {0.5f,1.0f,0.5f},
-		.isAlive = true,
-		.position = {-2.0,0.0f,0.0f},
-		.time = 0,
-		.interval = 60,
-		.isLoop = true,
-		};
-		gpuParticleManager_->CreateParticle(emitterForGPU, gpuTexture_);
-	}
-	// 5
-	{
-		Emitter emitterForGPU = {
-		.min = {-0.5f,-1.0f,-0.5f},
-		.createParticleNum = 1 << 10,
-		.max = {0.5f,1.0f,0.5f},
-		.isAlive = true,
-		.position = {0.0,2.0f,0.0f},
-		.time = 0,
-		.interval = 120,
-		.isLoop = true,
-		};
-		gpuParticleManager_->CreateParticle(emitterForGPU, gpuTexture_);
-	}
-	// 6
-	{
-		Emitter emitterForGPU = {
-		.min = {-0.5f,-1.0f,-0.5f},
-		.createParticleNum = 1 << 10,
-		.max = {0.5f,1.0f,0.5f},
-		.isAlive = true,
-		.position = {0.0,-2.0f,0.0f},
-		.time = 0,
-		.interval = 120,
-		.isLoop = true,
-		};
-		gpuParticleManager_->CreateParticle(emitterForGPU, gpuTexture_);
-	}
-	// 7
-	{
-		Emitter emitterForGPU = {
-		.min = {-0.5f,-1.0f,-0.5f},
-		.createParticleNum = 1 << 10,
-		.max = {0.5f,1.0f,0.5f},
-		.isAlive = true,
-		.position = {0.0,2.0f,0.0f},
-		.time = 0,
-		.interval = 120,
-		.isLoop = true,
-		};
-		gpuParticleManager_->CreateParticle(emitterForGPU, gpuTexture_);
-	}
-	// 8
-	{
-		Emitter emitterForGPU = {
-		.min = {-0.5f,-1.0f,-0.5f},
-		.createParticleNum = 1 << 10,
-		.max = {0.5f,1.0f,0.5f},
-		.isAlive = true,
-		.position = {0.0,-2.0f,0.0f},
-		.time = 0,
-		.interval = 120,
-		.isLoop = true,
-		};
-		gpuParticleManager_->CreateParticle(emitterForGPU, gpuTexture_);
-	}
-	// 9
-	{
-		Emitter emitterForGPU = {
-		.min = {-0.5f,-1.0f,-0.5f},
-		.createParticleNum = 1 << 10,
-		.max = {0.5f,1.0f,0.5f},
-		.isAlive = true,
-		.position = {0.0,2.0f,0.0f},
-		.time = 0,
-		.interval = 120,
-		.isLoop = true,
-		};
-		gpuParticleManager_->CreateParticle(emitterForGPU, gpuTexture_);
-	}
+	//// 1
+	//{
+	//	Emitter emitterForGPU = {
+	//	.min = {0.0f,-5.0f,-20.0f},
+	//	.createParticleNum = 1 << 10,
+	//	.max = {10.0f,5.0f,20.0f},
+	//	.isAlive = true,
+	//	.position = {-20.0,0.0f,0.0f},
+	//	.time = 0,
+	//	.interval = 10,
+	//	.isLoop = true,
+	//	};
+	//	gpuParticleManager_->CreateParticle(emitterForGPU, gpuTexture_);
+	//}
+	//// 2
+	//{
+	//	Emitter emitterForGPU = {
+	//	.min = {-0.5f,-1.0f,-0.5f},
+	//	.createParticleNum = 1 << 10,
+	//	.max = {0.5f,1.0f,0.5f},
+	//	.isAlive = true,
+	//	.position = {0.0,0.0f,0.0f},
+	//	.time = 0,
+	//	.interval = 30,
+	//	.isLoop = true,
+	//	};
+	//	gpuParticleManager_->CreateParticle(emitterForGPU, gpuTexture_);
+	//}
+	//// 3
+	//{
+	//	Emitter emitterForGPU = {
+	//	.min = {-0.5f,-1.0f,-0.5f},
+	//	.createParticleNum = 1 << 10,
+	//	.max = {0.5f,1.0f,0.5f},
+	//	.isAlive = true,
+	//	.position = {2.0,0.0f,0.0f},
+	//	.time = 0,
+	//	.interval = 60,
+	//	.isLoop = true,
+	//	};
+	//	gpuParticleManager_->CreateParticle(emitterForGPU, gpuTexture_);
+	//}
+	//// 4
+	//{
+	//	Emitter emitterForGPU = {
+	//	.min = {-0.5f,-1.0f,-0.5f},
+	//	.createParticleNum = 1 << 10,
+	//	.max = {0.5f,1.0f,0.5f},
+	//	.isAlive = true,
+	//	.position = {-2.0,0.0f,0.0f},
+	//	.time = 0,
+	//	.interval = 60,
+	//	.isLoop = true,
+	//	};
+	//	gpuParticleManager_->CreateParticle(emitterForGPU, gpuTexture_);
+	//}
+	//// 5
+	//{
+	//	Emitter emitterForGPU = {
+	//	.min = {-0.5f,-1.0f,-0.5f},
+	//	.createParticleNum = 1 << 10,
+	//	.max = {0.5f,1.0f,0.5f},
+	//	.isAlive = true,
+	//	.position = {0.0,2.0f,0.0f},
+	//	.time = 0,
+	//	.interval = 120,
+	//	.isLoop = true,
+	//	};
+	//	gpuParticleManager_->CreateParticle(emitterForGPU, gpuTexture_);
+	//}
+	//// 6
+	//{
+	//	Emitter emitterForGPU = {
+	//	.min = {-0.5f,-1.0f,-0.5f},
+	//	.createParticleNum = 1 << 10,
+	//	.max = {0.5f,1.0f,0.5f},
+	//	.isAlive = true,
+	//	.position = {0.0,-2.0f,0.0f},
+	//	.time = 0,
+	//	.interval = 120,
+	//	.isLoop = true,
+	//	};
+	//	gpuParticleManager_->CreateParticle(emitterForGPU, gpuTexture_);
+	//}
+	//// 7
+	//{
+	//	Emitter emitterForGPU = {
+	//	.min = {-0.5f,-1.0f,-0.5f},
+	//	.createParticleNum = 1 << 10,
+	//	.max = {0.5f,1.0f,0.5f},
+	//	.isAlive = true,
+	//	.position = {0.0,2.0f,0.0f},
+	//	.time = 0,
+	//	.interval = 120,
+	//	.isLoop = true,
+	//	};
+	//	gpuParticleManager_->CreateParticle(emitterForGPU, gpuTexture_);
+	//}
+	//// 8
+	//{
+	//	Emitter emitterForGPU = {
+	//	.min = {-0.5f,-1.0f,-0.5f},
+	//	.createParticleNum = 1 << 10,
+	//	.max = {0.5f,1.0f,0.5f},
+	//	.isAlive = true,
+	//	.position = {0.0,-2.0f,0.0f},
+	//	.time = 0,
+	//	.interval = 120,
+	//	.isLoop = true,
+	//	};
+	//	gpuParticleManager_->CreateParticle(emitterForGPU, gpuTexture_);
+	//}
+	//// 9
+	//{
+	//	Emitter emitterForGPU = {
+	//	.min = {-0.5f,-1.0f,-0.5f},
+	//	.createParticleNum = 1 << 10,
+	//	.max = {0.5f,1.0f,0.5f},
+	//	.isAlive = true,
+	//	.position = {0.0,2.0f,0.0f},
+	//	.time = 0,
+	//	.interval = 120,
+	//	.isLoop = true,
+	//	};
+	//	gpuParticleManager_->CreateParticle(emitterForGPU, gpuTexture_);
+	//}
 }
 
 void GameScene::Update() {
@@ -208,8 +209,9 @@ void GameScene::Update() {
 		.time = 0,
 		.interval = 10,
 		.isLoop = false,
+		.textureIndex = TextureManager::GetInstance()->GetTexture(gpuTexture_).GetDescriptorIndex(),
 		};
-		gpuParticleManager_->CreateParticle(emitterForGPU, gpuTexture_);
+		gpuParticleManager_->CreateParticle(emitterForGPU);
 	}
 
 	worldTransform_.UpdateMatrix();

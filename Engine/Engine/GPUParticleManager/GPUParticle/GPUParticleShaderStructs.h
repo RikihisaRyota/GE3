@@ -16,6 +16,7 @@ struct Particle {
 	uint32_t isAlive;
 	uint32_t isHit;
 	float aliveTime;
+	uint32_t textureIndex;
 };
 
 struct EmitterArea {
@@ -44,6 +45,7 @@ struct Emitter {
 	uint32_t time;
 	int32_t interval;
 	uint32_t isLoop;
+	uint32_t textureIndex;
 };
 
 struct CreateParticle {

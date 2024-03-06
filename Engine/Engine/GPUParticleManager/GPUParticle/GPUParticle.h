@@ -43,7 +43,7 @@ public:
 	void ParticleUpdate(CommandContext& commandContext);
 	void Draw(const ViewProjection& viewProjection, CommandContext& commandContext);
 	void SetCommandSignature(ID3D12CommandSignature* commandSignature) { commandSignature_ = commandSignature; }
-	void Create(const Emitter& emitterForGPU, TextureHandle textureHandle);
+	void Create(const Emitter& emitterForGPU);
 
 	void SetEmitter(const Emitter& emitterForGPU);
 private:
@@ -57,6 +57,7 @@ private:
 	void InitializeBuffer();
 	void InitializeEmitter();
 	void InitializeAddEmitter();
+	void InitializeTexture();
 
 	// コマンドシグネイチャ
 	ID3D12CommandSignature* commandSignature_;

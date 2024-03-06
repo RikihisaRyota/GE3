@@ -15,13 +15,14 @@ void Create(uint index, CreateParticle particle)
     Output[index].scale = float3(0.2f, 0.2f, 0.2f);
     Output[index].rotate = float3(0.0f, 0.0f, 0.0f);
     Output[index].translate = gEmitter[particle.emitterNum].position;
-    //Output[index].translate.x += random(gEmitter[particle.emitterNum].min.x, gEmitter[particle.emitterNum].max.x, float(index) * 2.21341f);
-    //Output[index].translate.y += random(gEmitter[particle.emitterNum].min.y, gEmitter[particle.emitterNum].max.y, float(index) * 3.4214f);
-    //Output[index].translate.z += random(gEmitter[particle.emitterNum].min.z, gEmitter[particle.emitterNum].max.z, float(index) * 4.2108124f);
-    //Output[index].velocity = normalize(Output[index].translate);
-        Output[index].isAlive = true;
-        Output[index].isHit = false;
-    }
+    Output[index].textureInidex = gEmitter[particle.emitterNum].textureInidex;
+    Output[index].translate.x += random(gEmitter[particle.emitterNum].min.x, gEmitter[particle.emitterNum].max.x, float(index) * 2.21341f);
+    Output[index].translate.y += random(gEmitter[particle.emitterNum].min.y, gEmitter[particle.emitterNum].max.y, float(index) * 3.4214f);
+    Output[index].translate.z += random(gEmitter[particle.emitterNum].min.z, gEmitter[particle.emitterNum].max.z, float(index) * 4.2108124f);
+    Output[index].velocity = normalize(Output[index].translate);
+    Output[index].isAlive = true;
+    Output[index].isHit = false;
+}
 
 [numthreads(threadBlockSize, 1, 1)]
 void main(uint3 DTid : SV_DispatchThreadID)

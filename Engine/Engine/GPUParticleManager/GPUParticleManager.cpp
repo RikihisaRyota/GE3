@@ -2,12 +2,12 @@
 
 #include <d3dx12.h>
 
+#include "Engine/Graphics/CommandContext.h"
 #include "Engine/Graphics/GraphicsCore.h"
 #include "Engine/Graphics/Helper.h"
 #include "Engine/Graphics/RenderManager.h"
+#include "Engine/Texture/TextureManager.h"
 #include "Engine/ShderCompiler/ShaderCompiler.h"
-#include "Engine/Graphics/CommandContext.h"
-
 namespace ParticleManager {
 	enum SpawnRootSignature {
 		kParticleInfo,
@@ -100,7 +100,12 @@ void GPUParticleManager::Draw(const ViewProjection& viewProjection, CommandConte
 	gpuParticle_->Draw(viewProjection, commandContext);
 }
 
-void GPUParticleManager::CreateParticle(const Emitter& emitterForGPU) {
+void GPUParticleManager::CreateParticle(const Emitter& emitter) {
+	EmitterForGPU emitterForGPU{};
+	emitterForGPU.area = emitter.area;
+	emitterForGPU.frequency = emitter.frequency;
+	emitterForGPU.createParticleNum = emitter.createParticleNum;
+	emitterForGPU.textureIndex = TextureManager::GetInstance()->GetTexture(emitter.textureHandle).GetDescriptorIndex();
 	gpuParticle_->Create(emitterForGPU);
 }
 

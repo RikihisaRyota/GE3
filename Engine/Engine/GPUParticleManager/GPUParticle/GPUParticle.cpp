@@ -148,7 +148,7 @@ void GPUParticle::Draw(const ViewProjection& viewProjection, CommandContext& com
 	}
 }
 
-void GPUParticle::Create(const Emitter& emitterForGPU) {
+void GPUParticle::Create(const EmitterForGPU& emitterForGPU) {
 	emitterForGPUs_.emplace_back(emitterForGPU);
 }
 
@@ -366,7 +366,7 @@ void GPUParticle::InitializeEmitter() {
 
 	// エミッターバッファー
 	auto desc = CD3DX12_RESOURCE_DESC::Buffer(
-		UINT64(sizeof(Emitter) * MaxEmitterNum),
+		UINT64(sizeof(EmitterForGPU) * MaxEmitterNum),
 		D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
 	auto heapProp = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
 	device->CreateCommittedResource(
@@ -444,7 +444,7 @@ void GPUParticle::InitializeAddEmitter() {
 	auto device = GraphicsCore::GetInstance()->GetDevice();
 
 
-	addEmitterSize_ = sizeof(Emitter) * MaxEmitterNum;
+	addEmitterSize_ = sizeof(EmitterForGPU) * MaxEmitterNum;
 	addEmitterCounterOffset_ = AlignForUavCounter(addEmitterSize_);
 
 	auto desc = CD3DX12_RESOURCE_DESC::Buffer(addEmitterCounterOffset_ + sizeof(UINT), D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
@@ -468,7 +468,7 @@ void GPUParticle::InitializeAddEmitter() {
 	uavDesc.ViewDimension = D3D12_UAV_DIMENSION_BUFFER;
 	uavDesc.Buffer.FirstElement = 0;
 	uavDesc.Buffer.NumElements = MaxEmitterNum;
-	uavDesc.Buffer.StructureByteStride = sizeof(Emitter);
+	uavDesc.Buffer.StructureByteStride = sizeof(EmitterForGPU);
 	uavDesc.Buffer.CounterOffsetInBytes = addEmitterCounterOffset_;
 	uavDesc.Buffer.Flags = D3D12_BUFFER_UAV_FLAG_NONE;
 	device->CreateUnorderedAccessView(

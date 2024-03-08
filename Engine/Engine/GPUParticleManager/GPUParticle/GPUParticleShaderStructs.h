@@ -1,13 +1,16 @@
 #pragma once
 #include <d3d12.h>
 
+#include "Engine/Texture/TextureHandle.h"
 #include "Engine/Math/Vector2.h"
 #include "Engine/Math/Vector3.h"
+#include "Engine/Math/Vector4.h"
 
 struct Vertex {
 	Vector3 position;
 	Vector2 texcoord;
 };
+
 struct Particle {
 	Vector3 scale;
 	Vector3 velocity;
@@ -18,10 +21,11 @@ struct Particle {
 	float aliveTime;
 	uint32_t textureIndex;
 };
-
+// hlsli側も変更すること
 struct EmitterArea {
 	Vector3 min;
 	Vector3 max;
+	Vector3 position;
 };
 
 struct ScaleAnimation {
@@ -36,22 +40,48 @@ struct Velocity3D {
 
 };
 
-struct Emitter {
-	Vector3 min;
-	uint32_t createParticleNum;
-	Vector3 max;
-	uint32_t isAlive;
-	Vector3 position;
+struct EmitterColor {
+	Vector4 min;
+	Vector4 max;
+};
+
+struct EmitterFrequency {
 	uint32_t time;
 	int32_t interval;
 	uint32_t isLoop;
+};
+
+struct Emitter {
+	EmitterArea area;
+
+	EmitterColor color;
+	
+	EmitterFrequency frequency;
+
+	uint32_t createParticleNum;
+
+	TextureHandle textureHandle;
+	
+	uint32_t isAlive = true;
+};
+
+struct EmitterForGPU {
+	EmitterArea area;
+
+	EmitterFrequency frequency;
+
+	uint32_t createParticleNum;
+
 	uint32_t textureIndex;
+
+	uint32_t isAlive = true;
 };
 
 struct CreateParticle {
 	uint32_t emitterIndex;
 	int32_t createParticleNum;
 };
+
 struct IndirectCommand {
 	struct SRV {
 		D3D12_GPU_VIRTUAL_ADDRESS particleSRV;
@@ -59,22 +89,4 @@ struct IndirectCommand {
 	};
 	SRV srv;
 	D3D12_DRAW_INDEXED_ARGUMENTS drawIndex;
-};
-
-// ボールデータ
-struct BallBufferData {
-	Vector3 position;
-	float size;
-};
-// ボール
-struct Ball {
-	Vector3 position;
-	Vector3 velocity;
-	float size;
-	bool isAlive;
-	float aliveTime;
-};
-// ボールカウント
-struct BallCount {
-	int ballCount;
 };

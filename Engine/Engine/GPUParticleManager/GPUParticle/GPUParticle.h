@@ -43,7 +43,7 @@ public:
 	void ParticleUpdate(CommandContext& commandContext);
 	void Draw(const ViewProjection& viewProjection, CommandContext& commandContext);
 	void SetCommandSignature(ID3D12CommandSignature* commandSignature) { commandSignature_ = commandSignature; }
-	void Create(const Emitter& emitterForGPU);
+	void Create(const EmitterForGPU& emitterForGPU);
 
 	void SetEmitter(const Emitter& emitterForGPU);
 private:
@@ -57,7 +57,6 @@ private:
 	void InitializeBuffer();
 	void InitializeEmitter();
 	void InitializeAddEmitter();
-	void InitializeTexture();
 
 	// コマンドシグネイチャ
 	ID3D12CommandSignature* commandSignature_;
@@ -93,7 +92,7 @@ private:
 	// 追加するエミッターが何個あるか
 	UploadBuffer addEmitterCountBuffer_;
 	DescriptorHandle addEmitterUAVHandle_;
-	std::vector<Emitter> emitterForGPUs_;
+	std::vector<EmitterForGPU> emitterForGPUs_;
 
 
 	UINT particleIndexSize_;

@@ -82,7 +82,7 @@ struct RotateAnimation {
 
 // パーティクルの移動
 struct Velocity3D {
-	Vector3 velocity;
+	Vector3MinMax range;
 };
 
 // パーティクルの色

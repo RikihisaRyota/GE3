@@ -44,7 +44,9 @@ void Translate(uint index, CreateParticle particle)
 
 void Velocity(uint index, CreateParticle particle)
 {
-    Output[index].velocity = gEmitter[particle.emitterNum].velocity3D.velocity;
+    Output[index].velocity.x = random(gEmitter[particle.emitterNum].velocity3D.range.min.x, gEmitter[particle.emitterNum].velocity3D.range.max.x, float(index) * 1.1423589f);
+    Output[index].velocity.y = random(gEmitter[particle.emitterNum].velocity3D.range.min.y, gEmitter[particle.emitterNum].velocity3D.range.max.y, float(index) * 1.19786457f);
+    Output[index].velocity.z = random(gEmitter[particle.emitterNum].velocity3D.range.min.z, gEmitter[particle.emitterNum].velocity3D.range.max.z, float(index) * 1.36266f);
 }
 
 void Color(uint index, CreateParticle particle)
@@ -58,11 +60,11 @@ void Color(uint index, CreateParticle particle)
 void Create(uint index, CreateParticle particle)
 {
     
-    LifeTime(index,particle);
+    LifeTime(index, particle);
     
-    Scale(index ,particle);
+    Scale(index, particle);
     
-    Rotate(index,particle);
+    Rotate(index, particle);
     
     Translate(index, particle);
     

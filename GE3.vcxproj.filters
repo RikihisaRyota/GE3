@@ -277,6 +277,9 @@
     <ClCompile Include="Engine\Engine\ParticleManager\Particle\Particle.cpp">
       <Filter>Engine\ParticleManager\Particle</Filter>
     </ClCompile>
+    <ClCompile Include="Game\Src\Game\Player\PlayerBullet.cpp">
+      <Filter>Game\Player</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\Engine\WinApp\WinApp.h">
@@ -488,6 +491,9 @@
     </ClInclude>
     <ClInclude Include="Engine\Engine\ParticleManager\ParticleManager.h">
       <Filter>Engine\ParticleManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Src\Game\Player\PlayerBullet.h">
+      <Filter>Game\Player</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

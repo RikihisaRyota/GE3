@@ -25,9 +25,9 @@ PixelShaderOutput main(VertexShaderOutput input)
     PixelShaderOutput output;
     float4 textureColor = input.color * gTexture[gParticle[input.instanceId].textureInidex].Sample(gSampler, input.texcoord);
     output.color = textureColor;
-    if (output.color.a <= 0.5f)
-    {
-        discard;
-    }
+    //if (output.color.a <= 0.5f)
+    //{
+    //    discard;
+    //}
     return output;
 }

@@ -20,16 +20,11 @@ void Player::Initialize() {
 
 void Player::Update() {
 	Move();
-	static float cycle = 60.0f;
-	static float time = 0.0f;
-	// 1フレームでのパラメータ加算値
-	const float kFroatStep = 2.0f * std::numbers::pi_v<float> / cycle;
-	// パラメータを1ステップ分加算
-	time += kFroatStep;
-	// 2πを超えたら0に戻す
-	time = std::fmod(time, 2.0f * std::numbers::pi_v<float>);
-	// 浮遊を座標に反映
-	animationTransform_.translation_.y = (std::sin(time) * 0.05f);
+
+	AnimationUpdate();
+
+	BulletUpdate();
+
 	worldTransform_.UpdateMatrix();
 	animationTransform_.UpdateMatrix();
 #ifdef _DEBUG
@@ -42,6 +37,38 @@ void Player::Update() {
 
 void Player::Draw(const ViewProjection& viewProjection, CommandContext& commandContext) {
 	ModelManager::GetInstance()->Draw(animationTransform_, viewProjection, playerModelHandle_, commandContext);
+	// 弾
+	for (auto& bullet : playerBullets_) {
+		bullet->Draw(viewProjection, commandContext);
+	}
+}
+
+void Player::BulletUpdate() {
+	Shot();
+	// 弾の更新と生存状態の確認
+	auto iter = playerBullets_.begin();
+	while (iter != playerBullets_.end()) {
+		// 弾を更新する
+		(*iter)->Update();
+
+		// 弾が生存していない場合は、リストから削除する
+		if (!(*iter)->GetIsAlive()) {
+			iter = playerBullets_.erase(iter); // 削除して、次の要素を指す
+		}
+		else {
+			++iter; // 次の弾へ移動
+		}
+	}
+}
+
+void Player::Shot() {
+	bulletTime_++;
+	if (Input::GetInstance()->PushKey(DIK_SPACE) && bulletTime_ >= kBulletCoolTime) {
+		bulletTime_ = 0;
+		playerBullets_.emplace_back(std::make_unique<PlayerBullet>());
+		playerBullets_.back()->Create(gpuParticleManager_, MakeTranslateMatrix(worldTransform_.matWorld_) * Vector3(1.0f, 5.0f, 1.0f), Normalize(GetZAxis(MakeRotateXYZMatrix(worldTransform_.rotation_))) * 0.5f, kBulletTime);
+	}
+
 }
 
 void Player::Move() {
@@ -92,6 +119,19 @@ void Player::Move() {
 		worldTransform_.translation_ += vector * 0.2f;
 		PlayerRotate(vector);
 	}
+}
+
+void Player::AnimationUpdate() {
+	static float cycle = 60.0f;
+	static float time = 0.0f;
+	// 1フレームでのパラメータ加算値
+	const float kFroatStep = 2.0f * std::numbers::pi_v<float> / cycle;
+	// パラメータを1ステップ分加算
+	time += kFroatStep;
+	// 2πを超えたら0に戻す
+	time = std::fmod(time, 2.0f * std::numbers::pi_v<float>);
+	// 浮遊を座標に反映
+	animationTransform_.translation_.y = (std::sin(time) * 0.05f);
 }
 
 void Player::PlayerRotate(const Vector3& vector) {

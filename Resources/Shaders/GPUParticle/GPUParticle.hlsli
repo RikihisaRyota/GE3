@@ -86,7 +86,7 @@ struct RotateAnimation
 
 struct Velocity3D
 {
-    float3 velocity;
+    Float3MinMax range;
 };
 
 struct EmitterColor

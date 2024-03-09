@@ -195,6 +195,7 @@
     <ClCompile Include="Engine\Engine\WinApp\WinApp.cpp" />
     <ClCompile Include="Game\Src\Game\FollowCamera\FollowCamera.cpp" />
     <ClCompile Include="Game\Src\Game\Player\Player.cpp" />
+    <ClCompile Include="Game\Src\Game\Player\PlayerBullet.cpp" />
     <ClCompile Include="Game\Src\main.cpp" />
     <ClCompile Include="Game\Src\Scenes\GameScene\GameScene.cpp" />
     <ClCompile Include="Game\Src\Scenes\SceneFactory\SceneFactory.cpp" />
@@ -266,6 +267,7 @@
     <ClInclude Include="Engine\Engine\WinApp\WinApp.h" />
     <ClInclude Include="Game\Src\Game\FollowCamera\FollowCamera.h" />
     <ClInclude Include="Game\Src\Game\Player\Player.h" />
+    <ClInclude Include="Game\Src\Game\Player\PlayerBullet.h" />
     <ClInclude Include="Game\Src\Scenes\BaseScene\BaseScene.h" />
     <ClInclude Include="Game\Src\Scenes\GameScene\GameScene.h" />
     <ClInclude Include="Game\Src\Scenes\SceneFactory\AbstractSceneFactory\AbstractSceneFactory.h" />

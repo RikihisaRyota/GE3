@@ -12,10 +12,15 @@ void main(uint3 DTid : SV_DispatchThreadID)
     uint index = DTid.x;
     if (Input[index].isAlive)
     {
-        Input[index].aliveTime -= 1.0f;
-        Input[index].translate += Input[index].velocity * 0.1f;
+        float t = float(Input[index].particleLifeTime.time) / float(Input[index].particleLifeTime.maxTime);
+        Input[index].particleLifeTime.time++;
+        Input[index].scale = lerp(Input[index].scaleRange.min, Input[index].scaleRange.max, t);
         
-        if (Input[index].aliveTime <= 0.0f)
+        Input[index].rotate += Input[index].rotateVelocity;
+        
+        Input[index].translate += Input[index].velocity;
+        
+        if (Input[index].particleLifeTime.time >= Input[index].particleLifeTime.maxTime)
         {
             Input[index].isAlive = false;
             particleIndexCommands.Append(index);

@@ -101,12 +101,7 @@ void GPUParticleManager::Draw(const ViewProjection& viewProjection, CommandConte
 }
 
 void GPUParticleManager::CreateParticle(const Emitter& emitter) {
-	EmitterForGPU emitterForGPU{};
-	emitterForGPU.area = emitter.area;
-	emitterForGPU.frequency = emitter.frequency;
-	emitterForGPU.createParticleNum = emitter.createParticleNum;
-	emitterForGPU.textureIndex = TextureManager::GetInstance()->GetTexture(emitter.textureHandle).GetDescriptorIndex();
-	gpuParticle_->Create(emitterForGPU);
+	gpuParticle_->Create(emitter);
 }
 
 void GPUParticleManager::CreateParticleBuffer() {

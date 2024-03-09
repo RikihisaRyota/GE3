@@ -43,15 +43,64 @@ void GameScene::Initialize() {
 	// 0
 	{
 		Emitter emitterForGPU = {
-		.min = { -10.0f,-5.0f,-20.0f},
+		.emitterArea{
+				.area{
+					.min = {-5.0f,-5.0f,-5.0f},
+					.max = {5.0f,5.0f,5.0f},
+				},
+				.position = {0.0f,0.0f,0.0f},
+			},
+
+		.scale{
+			.range{
+				.start{
+					.min = {0.1f,0.1f,0.1f},
+					.max = {0.2f,0.2f,0.2f},
+				},
+				.end{
+					.min = {0.4f,0.4f,0.4f},
+					.max = {0.6f,0.6f,0.6f},
+				},
+			},
+		},
+
+		.rotate{
+			.rotate = {0.0f,0.0f,0.3f},
+		},
+
+		.velocity{
+			.velocity = {0.0f,-0.1f,0.0f},
+		},
+
+		.color{
+			.range{
+				.start{
+					.min = {0.8f,0.2f,0.2f,1.0f},
+					.max = {1.0f,0.5f,0.5f,1.0f},
+				},
+				.end{
+					.min = {0.1f,0.2f,0.2f,0.2f},
+					.max = {0.5f,0.2f,0.2f,0.5f},
+				},
+			},
+		},
+
+		.frequency{
+			.interval = 10,
+			.isLoop = true,
+			//.lifeTime = 120,
+		},
+
+		.particleLifeSpan{
+			.range{
+				.min=60,
+				.max=90,
+			}
+		},
+
+		.textureIndex = TextureManager::GetInstance()->GetTexture(gpuTexture_).GetDescriptorIndex(),
+
 		.createParticleNum = 1 << 10,
-		.max = { 0.0f,5.0f,20.0f},
-		.isAlive = true,
-		.position = {20.0,0.0f,0.0f},
-		.time = 0,
-		.interval = 10,
-		.isLoop = true,
-		.textureIndex = TextureManager::GetInstance()->GetTexture(ModelManager::GetInstance()->GetModel(modelHandle_).GetTextureHandle()).GetDescriptorIndex(),
 		};
 		gpuParticleManager_->CreateParticle(emitterForGPU);
 	}
@@ -72,21 +121,21 @@ void GameScene::Update() {
 		followCamera_->Update();
 	}
 	player_->Update();
-	// 0
-	{
-		Emitter emitterForGPU = {
-		.min = { -1.0f,-1.0f,-1.0f},
-		.createParticleNum = 1 << 10,
-		.max = { 1.0f,1.0f,1.0f},
-		.isAlive = true,
-		.position = {player_->GetWorldTransform().translation_},
-		.time = 0,
-		.interval = 10,
-		.isLoop = false,
-		.textureIndex = TextureManager::GetInstance()->GetTexture(gpuTexture_).GetDescriptorIndex(),
-		};
-		gpuParticleManager_->CreateParticle(emitterForGPU);
-	}
+	//// 0
+	//{
+	//	Emitter emitterForGPU = {
+	//	.min = { -1.0f,-1.0f,-1.0f},
+	//	.createParticleNum = 1 << 10,
+	//	.max = { 1.0f,1.0f,1.0f},
+	//	.isAlive = true,
+	//	.position = {player_->GetWorldTransform().translation_},
+	//	.time = 0,
+	//	.interval = 10,
+	//	.isLoop = false,
+	//	.textureIndex = TextureManager::GetInstance()->GetTexture(gpuTexture_).GetDescriptorIndex(),
+	//	};
+	//	gpuParticleManager_->CreateParticle(emitterForGPU);
+	//}
 
 	worldTransform_.UpdateMatrix();
 	ModelManager::GetInstance()->GetModel(modelHandle_).SetMaterialColor(color_);

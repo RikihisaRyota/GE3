@@ -2,36 +2,134 @@
 #define threadBlockSize 1024
 #define emitterSize 100
 
+// Utility
+struct UintMinMax
+{
+    uint min;
+    uint max;
+};
+
+
+struct Float3MinMax
+{
+    float3 min;
+    float3 max;
+};
+
+struct Float4MinMax
+{
+    float4 min;
+    float4 max;
+};
+
+struct Float3StartEnd
+{
+    Float3MinMax start;
+    Float3MinMax end;
+};
+
+struct Float4StartEnd
+{
+    Float4MinMax start;
+    Float4MinMax end;
+};
+//
 struct VertexShaderOutput
 {
     float4 position : SV_POSITION;
     float2 texcoord : TEXCOORD0;
+    float4 color : COLOR;
     uint instanceId : SV_InstanceID;
+};
+
+struct ParticleLifeTime
+{
+    uint time;
+    uint maxTime;
 };
 
 struct Particle
 {
+    Float3MinMax scaleRange;
     float3 scale;
-    float3 velocity;
+
+    float3 rotateVelocity;
     float3 rotate;
+    
     float3 translate;
-    uint isAlive;
-    uint isHit;
-    float aliveTime;
+    float3 velocity;
+    
+    float4 color;
+    
+    ParticleLifeTime particleLifeTime;
+    
     uint textureInidex;
+    
+    uint isAlive;
 };
+
+struct EmitterArea
+{
+    Float3MinMax range;
+    float3 position;
+};
+
+struct ScaleAnimation
+{
+    Float3StartEnd range;
+};
+
+struct RotateAnimation
+{
+    float3 rotate;
+};
+
+struct Velocity3D
+{
+    float3 velocity;
+};
+
+struct EmitterColor
+{
+    Float4StartEnd range;
+};
+
+struct EmitterFrequency
+{
+    uint time;
+    uint interval;
+    uint isLoop;
+    uint lifeTime;
+};
+
+struct ParticleLifeSpan
+{
+    UintMinMax range;
+};
+
 struct Emitter
 {
-    float3 min;
+    EmitterArea area;
+
+    ScaleAnimation scale;
+
+    RotateAnimation rotateAnimation;
+
+    Velocity3D velocity3D;
+
+    EmitterColor color;
+	
+    EmitterFrequency frequency;
+    
+    ParticleLifeSpan particleLifeSpan;
+    
+    uint textureIndex;
+
     uint createParticleNum;
-    float3 max;
+	
     uint isAlive;
-    float3 position;
-    uint time;
-    int interval;
-    uint isLoop;
-    uint textureInidex;
 };
+
 struct CreateParticle
 {
     uint emitterNum;

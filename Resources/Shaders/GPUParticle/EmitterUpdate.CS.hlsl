@@ -11,27 +11,25 @@ void main(uint3 DTid : SV_DispatchThreadID)
     // 生きているエミッターのみ
     if (index < emitterSize && inputEmitter[index].isAlive)
     {
-        inputEmitter[index].time++;
-        
-        if (inputEmitter[index].time >= inputEmitter[index].interval)
+        inputEmitter[index].frequency.time--;
+        inputEmitter[index].frequency.lifeTime--;
+        // 生成
+        if (inputEmitter[index].frequency.time >= 0)
         {
             // 生成
             CreateParticle particle;
             particle.emitterNum = index;
             particle.createParticleNum = inputEmitter[index].createParticleNum;
+            // Interlocked
             InterlockedAdd(createParticleCounter[0], inputEmitter[index].createParticleNum);
             createParticle.Append(particle);
-            // エミッターがループするか
-            if (inputEmitter[index].isLoop)
-            {
-                inputEmitter[index].time = 0;
-            }
-            else
-            {
-                inputEmitter[index].isAlive = false;
-            }
+            inputEmitter[index].frequency.time = inputEmitter[index].frequency.interval;
         }
-
+        // エミッターが死ぬ
+        if (inputEmitter[index].frequency.lifeTime >= 0 && !inputEmitter[index].frequency.isLoop)
+        {
+            inputEmitter[index].isAlive = false;
+        }
     }
 
 }

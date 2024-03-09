@@ -23,7 +23,7 @@ PixelShaderOutput main(VertexShaderOutput input)
 {
     
     PixelShaderOutput output;
-    float4 textureColor = float4(HSVToRGB(float3(random(0.0f, 1.0f, input.instanceId), 1.0f, 0.2f)), 1.0f) * gTexture[gParticle[input.instanceId].textureInidex].Sample(gSampler, input.texcoord);
+    float4 textureColor = input.color * gTexture[gParticle[input.instanceId].textureInidex].Sample(gSampler, input.texcoord);
     output.color = textureColor;
     if (output.color.a <= 0.5f)
     {

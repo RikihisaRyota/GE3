@@ -207,7 +207,7 @@ void GPUParticleManager::CreateEmitter() {
 		desc.pParameters = rootParameters;
 		desc.NumParameters = _countof(rootParameters);
 
-		emitterUpdateComputeRootSignature_->Create(L"GPUParticle AddEmitterCPSO", desc);
+		emitterUpdateComputeRootSignature_->Create(L"EmitterUpdateComputeRootSignature", desc);
 	}
 	// アップデートパイプライン
 	{
@@ -216,7 +216,7 @@ void GPUParticleManager::CreateEmitter() {
 		desc.pRootSignature = *emitterUpdateComputeRootSignature_;
 		auto cs = ShaderCompiler::Compile(L"Resources/Shaders/GPUParticle/EmitterUpdate.CS.hlsl", L"cs_6_0");
 		desc.CS = CD3DX12_SHADER_BYTECODE(cs->GetBufferPointer(), cs->GetBufferSize());
-		emitterUpdateComputePipelineState_->Create(L"GPUParticle AddEmitterCPSO", desc);
+		emitterUpdateComputePipelineState_->Create(L"EmitterUpdateComputePipelineState", desc);
 	}
 }
 

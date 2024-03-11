@@ -7,6 +7,7 @@
 
 #include <wrl.h>
 
+#include "Engine/Graphics/DefaultBuffer.h"
 #include "Engine/Graphics/UploadBuffer.h"
 #include "Engine/Graphics/PipelineState.h"
 #include "Engine/Graphics/RootSignature.h"
@@ -46,12 +47,7 @@ public:
 	void Create(const Emitter& emitterForGPU);
 
 	void SetEmitter(const Emitter& emitterForGPU);
-private:
-	static const UINT ComputeThreadBlockSize = 1024;
-	static const UINT MaxParticleNum = 1 << 25;
-	// hlsli側も変更するように
-	static const UINT MaxEmitterNum = 100;
-
+private
 	void InitializeParticleBuffer();
 	void InitializeUpdateParticle();
 	void InitializeBuffer();

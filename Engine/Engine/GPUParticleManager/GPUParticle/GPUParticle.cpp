@@ -88,7 +88,7 @@ void GPUParticle::AddEmitter(CommandContext& commandContext) {
 
 void GPUParticle::Spawn(CommandContext& commandContext) {
 	if (*createParticleCounter_ != 0 &&
-		*originalCommandCounter_ < MaxParticleNum) {
+		*originalCommandCounter_ < GPUParticleShaderStructs::MaxParticleNum) {
 		commandContext.TransitionResource(particleBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 		commandContext.TransitionResource(emitterForGPUBuffer_, D3D12_RESOURCE_STATE_GENERIC_READ);
 		commandContext.TransitionResource(originalCommandBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
@@ -98,7 +98,7 @@ void GPUParticle::Spawn(CommandContext& commandContext) {
 		commandContext.SetComputeDescriptorTable(2, originalCommandUAVHandle_);
 		commandContext.SetComputeUAV(3, createParticleBuffer_->GetGPUVirtualAddress());
 
-		commandContext.Dispatch(static_cast<UINT>(ceil(*createParticleCounter_ / ComputeThreadBlockSize)), 1, 1);
+		commandContext.Dispatch(static_cast<UINT>(ceil(*createParticleCounter_ / GPUParticleShaderStructs::ComputeThreadBlockSize)), 1, 1);
 		commandContext.CopyBufferRegion(originalCommandCounterBuffer_, 0, originalCommandBuffer_, particleIndexCounterOffset_, sizeof(UINT));
 		originalCommandCounter_ = static_cast<uint32_t*>(originalCommandCounterDate_);
 	}
@@ -118,7 +118,7 @@ void GPUParticle::ParticleUpdate(CommandContext& commandContext) {
 		commandContext.SetComputeDescriptorTable(1, originalCommandUAVHandle_);
 		commandContext.SetComputeDescriptorTable(2, drawIndexCommandUAVHandle_);
 
-		commandContext.Dispatch(static_cast<UINT>(ceil(MaxParticleNum / float(ComputeThreadBlockSize))), 1, 1);
+		commandContext.Dispatch(static_cast<UINT>(ceil(GPUParticleShaderStructs::MaxParticleNum / float(GPUParticleShaderStructs::ComputeThreadBlockSize))), 1, 1);
 
 		UINT64 destInstanceCountArgumentOffset = sizeof(IndirectCommand::SRV) + sizeof(UINT);
 		UINT64 srcInstanceCountArgumentOffset = particleIndexCounterOffset_;
@@ -161,7 +161,7 @@ void GPUParticle::InitializeParticleBuffer() {
 	auto device = GraphicsCore::GetInstance()->GetDevice();
 	{
 		auto desc = CD3DX12_RESOURCE_DESC::Buffer(
-			UINT64(sizeof(Particle) * MaxParticleNum),
+			UINT64(sizeof(Particle) * GPUParticleShaderStructs::MaxParticleNum),
 			D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
 		CD3DX12_HEAP_PROPERTIES heapProps(D3D12_HEAP_TYPE_DEFAULT);
 		device->CreateCommittedResource(
@@ -182,7 +182,7 @@ void GPUParticle::InitializeUpdateParticle() {
 	auto device = GraphicsCore::GetInstance()->GetDevice();
 	auto& commandContext = RenderManager::GetInstance()->GetCommandContext();
 
-	particleIndexSize_ = MaxParticleNum * sizeof(uint32_t);
+	particleIndexSize_ = GPUParticleShaderStructs::MaxParticleNum * sizeof(uint32_t);
 	particleIndexCounterOffset_ = AlignForUavCounter(particleIndexSize_);
 
 	// 何番目のパーティクルが生きているか積み込みよう
@@ -205,7 +205,7 @@ void GPUParticle::InitializeUpdateParticle() {
 	uavDesc.Format = DXGI_FORMAT_UNKNOWN;
 	uavDesc.ViewDimension = D3D12_UAV_DIMENSION_BUFFER;
 	uavDesc.Buffer.FirstElement = 0;
-	uavDesc.Buffer.NumElements = MaxParticleNum;
+	uavDesc.Buffer.NumElements = GPUParticleShaderStructs::MaxParticleNum;
 	uavDesc.Buffer.StructureByteStride = sizeof(uint32_t);
 	uavDesc.Buffer.CounterOffsetInBytes = particleIndexCounterOffset_;
 	uavDesc.Buffer.Flags = D3D12_BUFFER_UAV_FLAG_NONE;
@@ -257,7 +257,7 @@ void GPUParticle::InitializeUpdateParticle() {
 	uavDesc.Format = DXGI_FORMAT_UNKNOWN;
 	uavDesc.ViewDimension = D3D12_UAV_DIMENSION_BUFFER;
 	uavDesc.Buffer.FirstElement = 0;
-	uavDesc.Buffer.NumElements = MaxParticleNum;
+	uavDesc.Buffer.NumElements = GPUParticleShaderStructs::MaxParticleNum;
 	uavDesc.Buffer.StructureByteStride = sizeof(uint32_t);
 	uavDesc.Buffer.CounterOffsetInBytes = particleIndexCounterOffset_;
 	uavDesc.Buffer.Flags = D3D12_BUFFER_UAV_FLAG_NONE;
@@ -326,11 +326,11 @@ void GPUParticle::InitializeBuffer() {
 	commandContext.TransitionResource(originalCommandBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 
 	commandContext.SetComputeUAV(kOriginalBuffer, originalCommandBuffer_->GetGPUVirtualAddress());
-	commandContext.Dispatch(static_cast<UINT>(ceil(MaxParticleNum / float(ComputeThreadBlockSize))), 1, 1);
+	commandContext.Dispatch(static_cast<UINT>(ceil(GPUParticleShaderStructs::MaxParticleNum / float(GPUParticleShaderStructs::ComputeThreadBlockSize))), 1, 1);
 
 	// カウンターを初期化
 	UploadBuffer copyDrawIndexCounterBuffer{};
-	UINT counterNum = MaxParticleNum;
+	UINT counterNum = GPUParticleShaderStructs::MaxParticleNum;
 	copyDrawIndexCounterBuffer.Create(L"copyDrawIndexCounterBuffer", sizeof(counterNum));
 	copyDrawIndexCounterBuffer.Copy(counterNum);
 
@@ -361,12 +361,12 @@ void GPUParticle::InitializeEmitter() {
 	auto graphics = GraphicsCore::GetInstance();
 	auto device = GraphicsCore::GetInstance()->GetDevice();
 
-	emitterIndexSize_ = MaxParticleNum * sizeof(CreateParticle);
+	emitterIndexSize_ = GPUParticleShaderStructs::MaxParticleNum * sizeof(CreateParticle);
 	emitterIndexCounterOffset_ = AlignForUavCounter(emitterIndexSize_);
 
 	// エミッターバッファー
 	auto desc = CD3DX12_RESOURCE_DESC::Buffer(
-		UINT64(sizeof(Emitter) * MaxEmitterNum),
+		UINT64(sizeof(Emitter) * GPUParticleShaderStructs::MaxEmitterNum),
 		D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
 	auto heapProp = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
 	device->CreateCommittedResource(
@@ -398,7 +398,7 @@ void GPUParticle::InitializeEmitter() {
 	uavDesc.Format = DXGI_FORMAT_UNKNOWN;
 	uavDesc.ViewDimension = D3D12_UAV_DIMENSION_BUFFER;
 	uavDesc.Buffer.FirstElement = 0;
-	uavDesc.Buffer.NumElements = MaxEmitterNum;
+	uavDesc.Buffer.NumElements = GPUParticleShaderStructs::MaxEmitterNum;
 	uavDesc.Buffer.StructureByteStride = sizeof(CreateParticle);
 	uavDesc.Buffer.CounterOffsetInBytes = emitterIndexCounterOffset_;
 	uavDesc.Buffer.Flags = D3D12_BUFFER_UAV_FLAG_NONE;
@@ -444,7 +444,7 @@ void GPUParticle::InitializeAddEmitter() {
 	auto device = GraphicsCore::GetInstance()->GetDevice();
 
 
-	addEmitterSize_ = sizeof(Emitter) * MaxEmitterNum;
+	addEmitterSize_ = sizeof(Emitter) * GPUParticleShaderStructs::MaxEmitterNum;
 	addEmitterCounterOffset_ = AlignForUavCounter(addEmitterSize_);
 
 	auto desc = CD3DX12_RESOURCE_DESC::Buffer(addEmitterCounterOffset_ + sizeof(UINT), D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
@@ -467,7 +467,7 @@ void GPUParticle::InitializeAddEmitter() {
 	uavDesc.Format = DXGI_FORMAT_UNKNOWN;
 	uavDesc.ViewDimension = D3D12_UAV_DIMENSION_BUFFER;
 	uavDesc.Buffer.FirstElement = 0;
-	uavDesc.Buffer.NumElements = MaxEmitterNum;
+	uavDesc.Buffer.NumElements = GPUParticleShaderStructs::MaxEmitterNum;
 	uavDesc.Buffer.StructureByteStride = sizeof(Emitter);
 	uavDesc.Buffer.CounterOffsetInBytes = addEmitterCounterOffset_;
 	uavDesc.Buffer.Flags = D3D12_BUFFER_UAV_FLAG_NONE;

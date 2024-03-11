@@ -6,6 +6,14 @@
 #include "Engine/Math/Vector3.h"
 #include "Engine/Math/Vector4.h"
 
+namespace GPUParticleShaderStructs {
+	// hlsli側も変更するように
+	static const UINT ComputeThreadBlockSize = 1024;
+	static const UINT MaxParticleNum = 1 << 25;
+	static const UINT MaxEmitterNum = 100;
+}
+
+
 #pragma region Utility
 struct UintMinMax {
 	uint32_t min;
@@ -53,13 +61,13 @@ struct Particle {
 
 	Vector3 translate;
 	Vector3 velocity;
-	
+
 	Vector4 color;
-	
+
 	ParticleLifeTime particleLifeTime;
-	
+
 	uint32_t textureIndex;
-	
+
 	uint32_t isAlive;
 };
 // hlsli側も変更すること

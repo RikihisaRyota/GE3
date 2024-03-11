@@ -46,7 +46,7 @@ void PlayerBullet::Update() {
 		};
 
 		// サブオブジェクトの位置を更新
-		sub.translation_ = relativePosition;
+		sub.translation_ = MakeRotateXYZMatrix(Normalize(velocity_)) * relativePosition;
 		sub.UpdateMatrix();
 		i++;
 

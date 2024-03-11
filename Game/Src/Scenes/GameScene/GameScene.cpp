@@ -193,73 +193,73 @@ void GameScene::Update() {
 		followCamera_->Update();
 	}
 	player_->Update();
-	// 0
-	{
-		Emitter emitterForGPU = {
-		.emitterArea{
-				.area{
-					.min = {-0.5f,-0.5f,-0.5f},
-					.max = {0.5f,0.5f,0.5f},
-				},
-				.position = MakeTranslateMatrix(player_->GetWorldTransform().matWorld_),
-			},
+	//// 0
+	//{
+	//	Emitter emitterForGPU = {
+	//	.emitterArea{
+	//			.area{
+	//				.min = {-0.5f,-0.5f,-0.5f},
+	//				.max = {0.5f,0.5f,0.5f},
+	//			},
+	//			.position = MakeTranslateMatrix(player_->GetWorldTransform().matWorld_),
+	//		},
 
-		.scale{
-			.range{
-				.start{
-					.min = {0.01f,0.01f,0.01f},
-					.max = {0.01f,0.01f,0.01f},
-				},
-				.end{
-					.min = {0.04f,0.04f,0.04f},
-					.max = {0.04f,0.04f,0.04f},
-				},
-			},
-		},
+	//	.scale{
+	//		.range{
+	//			.start{
+	//				.min = {0.01f,0.01f,0.01f},
+	//				.max = {0.01f,0.01f,0.01f},
+	//			},
+	//			.end{
+	//				.min = {0.04f,0.04f,0.04f},
+	//				.max = {0.04f,0.04f,0.04f},
+	//			},
+	//		},
+	//	},
 
-		.rotate{
-			.rotate = {0.0f,0.0f,0.1f},
-		},
+	//	.rotate{
+	//		.rotate = {0.0f,0.0f,0.1f},
+	//	},
 
-		.velocity{
-			.range{
-				.min = {0.0f,0.0f,0.0f},
-				.max = {0.0f,0.0f,0.0f},
-			}
-		},
+	//	.velocity{
+	//		.range{
+	//			.min = {0.0f,0.0f,0.0f},
+	//			.max = {0.0f,0.0f,0.0f},
+	//		}
+	//	},
 
-		.color{
-			.range{
-				.start{
-					.min = {0.2f,0.2f,0.8f,1.0f},
-					.max = {0.5f,0.5f,1.0f,1.0f},
-				},
-				.end{
-					.min = {0.1f,0.1f,0.1f,1.0f},
-					.max = {0.2f,0.2f,0.5f,1.0f},
-				},
-			},
-		},
+	//	.color{
+	//		.range{
+	//			.start{
+	//				.min = {0.2f,0.2f,0.8f,1.0f},
+	//				.max = {0.5f,0.5f,1.0f,1.0f},
+	//			},
+	//			.end{
+	//				.min = {0.1f,0.1f,0.1f,1.0f},
+	//				.max = {0.2f,0.2f,0.5f,1.0f},
+	//			},
+	//		},
+	//	},
 
-		.frequency{
-			.interval = 10,
-			.isLoop = false,
-			.lifeTime = 10,
-		},
+	//	.frequency{
+	//		.interval = 10,
+	//		.isLoop = false,
+	//		.lifeTime = 10,
+	//	},
 
-		.particleLifeSpan{
-			.range{
-				.min = 5,
-				.max = 120,
-			}
-		},
+	//	.particleLifeSpan{
+	//		.range{
+	//			.min = 5,
+	//			.max = 120,
+	//		}
+	//	},
 
-		.textureIndex = TextureManager::GetInstance()->GetTexture(gpuTexture_).GetDescriptorIndex(),
+	//	.textureIndex = TextureManager::GetInstance()->GetTexture(gpuTexture_).GetDescriptorIndex(),
 
-		.createParticleNum = 1 << 10,
-		};
-		gpuParticleManager_->CreateParticle(emitterForGPU);
-	}
+	//	.createParticleNum = 1 << 10,
+	//	};
+	//	gpuParticleManager_->CreateParticle(emitterForGPU);
+	//}
 
 	worldTransform_.UpdateMatrix();
 	ModelManager::GetInstance()->GetModel(modelHandle_).SetMaterialColor(color_);

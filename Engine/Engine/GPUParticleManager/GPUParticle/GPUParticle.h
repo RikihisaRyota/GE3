@@ -8,6 +8,7 @@
 #include <wrl.h>
 
 #include "Engine/Graphics/DefaultBuffer.h"
+#include "Engine/Graphics/ReadBackBuffer.h"
 #include "Engine/Graphics/UploadBuffer.h"
 #include "Engine/Graphics/PipelineState.h"
 #include "Engine/Graphics/RootSignature.h"
@@ -47,7 +48,7 @@ public:
 	void Create(const Emitter& emitterForGPU);
 
 	void SetEmitter(const Emitter& emitterForGPU);
-private
+private:
 	void InitializeParticleBuffer();
 	void InitializeUpdateParticle();
 	void InitializeBuffer();
@@ -57,33 +58,29 @@ private
 	// コマンドシグネイチャ
 	ID3D12CommandSignature* commandSignature_;
 	// パーティクルの情報
-	GpuResource particleBuffer_;
+	DefaultBuffer particleBuffer_;
 	// パーティクルのIndexをAppend,Consumeするよう
-	GpuResource originalCommandBuffer_;
+	DefaultBuffer originalCommandBuffer_;
 	DescriptorHandle originalCommandUAVHandle_;
 	// パーティクルが何体生きているかをCPU側に伝えるコピー用
-	GpuResource originalCommandCounterBuffer_;
-	uint32_t* originalCommandCounter_;
-	void* originalCommandCounterDate_;
+	ReadBackBuffer originalCommandCounterBuffer_;
 	// 何番目のパーティクルが生きているか積み込みよう(ExecuteIndirect用)
-	GpuResource drawIndexCommandBuffers_;
+	DefaultBuffer drawIndexCommandBuffers_;
 	DescriptorHandle drawIndexCommandUAVHandle_;
 	UploadBuffer resetAppendDrawIndexBufferCounterReset_;
 	// 描画引数用
-	GpuResource drawArgumentBuffer_;
+	DefaultBuffer drawArgumentBuffer_;
 	DescriptorHandle drawArgumentHandle_;
 	// パーティクルのエミッター
-	GpuResource emitterForGPUBuffer_;
+	DefaultBuffer emitterForGPUBuffer_;
 	// エミッターのIndexと何個生成するか
-	GpuResource createParticleBuffer_;
+	DefaultBuffer createParticleBuffer_;
 	DescriptorHandle createParticleUAVHandle_;
 	// 何個生成するか数える用
-	GpuResource createParticleCounterCopyDestBuffer_;
-	GpuResource createParticleCounterCopySrcBuffer_;
-	uint32_t* createParticleCounter_;
-	void* createParticleCounterDate_;
+	ReadBackBuffer createParticleCounterCopyDestBuffer_;
+	DefaultBuffer createParticleCounterCopySrcBuffer_;
 	// AddParticle用
-	GpuResource addEmitterBuffer_;
+	DefaultBuffer addEmitterBuffer_;
 	UploadBuffer addEmitterCopyBuffer_;
 	// 追加するエミッターが何個あるか
 	UploadBuffer addEmitterCountBuffer_;

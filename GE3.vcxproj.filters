@@ -118,6 +118,9 @@
     <Filter Include="Shaders\GPUParticle\Editor">
       <UniqueIdentifier>{2d90315e-63d9-4efa-aadc-964541988008}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\GPUParticleManager\Editor">
+      <UniqueIdentifier>{0e535aab-8521-4205-b863-559f214d291b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine\Engine\Math\MyMath.cpp">
@@ -283,8 +286,15 @@
     <ClCompile Include="Game\Src\Game\Player\PlayerBullet.cpp">
       <Filter>Game\Player</Filter>
     </ClCompile>
-    <ClCompile Include="Engine\Engine\GPUParticleManager\GPUParticle\GPUParticleEditor.cpp" />
-    <ClCompile Include="Engine\Engine\Graphics\DefaultBuffer.cpp" />
+    <ClCompile Include="Engine\Engine\GPUParticleManager\GPUParticle\GPUParticleEditor.cpp">
+      <Filter>Engine\GPUParticleManager\Editor</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Engine\Graphics\DefaultBuffer.cpp">
+      <Filter>Engine\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Engine\Graphics\ReadBackBuffer.cpp">
+      <Filter>Engine\Graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\Engine\WinApp\WinApp.h">
@@ -500,9 +510,14 @@
     <ClInclude Include="Game\Src\Game\Player\PlayerBullet.h">
       <Filter>Game\Player</Filter>
     </ClInclude>
-    <ClInclude Include="Engine\Engine\GPUParticleManager\GPUParticle\GPUParticleEditor.h" />
     <ClInclude Include="Engine\Engine\Graphics\DefaultBuffer.h">
       <Filter>Engine\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Engine\Graphics\ReadBackBuffer.h">
+      <Filter>Engine\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Engine\GPUParticleManager\GPUParticle\GPUParticleEditor.h">
+      <Filter>Engine\GPUParticleManager\Editor</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

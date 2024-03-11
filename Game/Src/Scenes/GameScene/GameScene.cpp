@@ -12,6 +12,7 @@
 
 GameScene::GameScene() {
 	debugCamera_ = std::make_unique<DebugCamera>();
+	gpuParticleEditor_ = std::make_unique<GPUParticleEditor>();
 	gpuParticleManager_ = std::make_unique<GPUParticleManager>();
 	player_ = std::make_unique<Player>();
 	followCamera_ = std::make_unique<FollowCamera>();
@@ -40,6 +41,7 @@ void GameScene::Initialize() {
 	followCamera_->SetTarget(&player_->GetWorldTransform());
 	followCamera_->SetViewProjection(viewProjection_);
 	followCamera_->Initialize();
+	gpuParticleEditor_->Initialize();
 	gpuParticleManager_->Initialize();
 	// 0
 	{
@@ -186,7 +188,7 @@ void GameScene::Update() {
 	ImGui::End();
 #endif // ENABLE_IMGUI
 	gpuParticleManager_->Update(RenderManager::GetInstance()->GetCommandContext());
-
+	gpuParticleEditor_->Update(RenderManager::GetInstance()->GetCommandContext());
 	debugCamera_->Update(viewProjection_);
 
 	if (!debugCamera_->GetIsDebugCamera()) {

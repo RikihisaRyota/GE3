@@ -35,7 +35,6 @@ void DefaultBuffer::Create(const std::wstring& name, size_t bufferSize, D3D12_RE
 
 void DefaultBuffer::Destroy() {
 	if (resource_) {
-		resource_->Unmap(0, nullptr);
 		resource_.Reset();
 	}
 }

@@ -77,6 +77,6 @@ void Create(uint index)
 [numthreads(threadBlockSize, 1, 1)]
 void main( uint3 DTid : SV_DispatchThreadID )
 {
-    uint index = particleIndexCommands.Consume();
-    Create(index);
+    //uint index = particleIndexCommands.Consume();
+    //Create(index);
 }

@@ -3,6 +3,7 @@
 #include <memory>
 
 #include "Engine/GPUParticleManager/GPUParticleManager.h"
+#include "Engine/GPUParticleManager/GPUParticle/GPUParticleEditor.h"
 #include "Engine/DebugCamera/DebugCamera.h"
 #include "Src/Game/DebugCamera/DebugCamera.h"
 #include "Src/Game/Player/Player.h"
@@ -24,6 +25,7 @@ public:
 private:
 	
 	std::unique_ptr<DebugCamera> debugCamera_;
+	std::unique_ptr<GPUParticleEditor> gpuParticleEditor_;
 	std::unique_ptr<GPUParticleManager> gpuParticleManager_;
 	std::unique_ptr<FollowCamera> followCamera_;
 	std::unique_ptr<Player> player_;

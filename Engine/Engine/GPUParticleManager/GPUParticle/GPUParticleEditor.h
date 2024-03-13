@@ -19,11 +19,11 @@ public:
 	void Update(CommandContext& commandContext);
 
 	void Draw(const ViewProjection& viewProjection, CommandContext& commandContext);
-
-	void CreateParticle(const Emitter& emitterForGPU);
 private:
 	void Spawn(CommandContext& commandContext);
 	void ParticleUpdate(CommandContext& commandContext);
+	void EmitterUpdate();
+
 
 	void CreateGraphics();
 	void CreateSpawn();
@@ -36,8 +36,6 @@ private:
 
 	std::unique_ptr<PipelineState> graphicsPipelineState_;
 	std::unique_ptr<RootSignature> graphicsRootSignature_;
-	std::unique_ptr<RootSignature> emitterUpdateComputeRootSignature_;
-	std::unique_ptr<PipelineState> emitterUpdateComputePipelineState_;
 	std::unique_ptr<RootSignature> spawnComputeRootSignature_;
 	std::unique_ptr<PipelineState> spawnComputePipelineState_;
 	std::unique_ptr<RootSignature> updateComputeRootSignature_;
@@ -56,6 +54,9 @@ private:
 	UploadBuffer emitterBuffer_;
 
 	Emitter emitter_;
+	uint32_t emitterLifeTimeMax_ = 60;
+	uint32_t square_ = 10;
+	uint32_t textureIndex_ = 0;
 
 	DefaultBuffer particleBuffer_;
 

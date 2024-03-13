@@ -187,7 +187,7 @@ void GameScene::Update() {
 	ImGui::DragFloat3("scale", &worldTransform_.scale_.x, 0.1f, 0.0f);
 	ImGui::End();
 #endif // ENABLE_IMGUI
-	gpuParticleManager_->Update(RenderManager::GetInstance()->GetCommandContext());
+	//gpuParticleManager_->Update(RenderManager::GetInstance()->GetCommandContext());
 	gpuParticleEditor_->Update(RenderManager::GetInstance()->GetCommandContext());
 	debugCamera_->Update(viewProjection_);
 
@@ -268,8 +268,8 @@ void GameScene::Update() {
 }
 
 void GameScene::Draw(CommandContext& commandContext) {
-	gpuParticleManager_->Draw(*viewProjection_, commandContext);
-
+	//gpuParticleManager_->Draw(*viewProjection_, commandContext);
+	gpuParticleEditor_->Draw(*viewProjection_, commandContext);
 	player_->Draw(*viewProjection_, commandContext);
 
 	ModelManager::GetInstance()->Draw(worldTransform_, *viewProjection_, modelHandle_, commandContext);

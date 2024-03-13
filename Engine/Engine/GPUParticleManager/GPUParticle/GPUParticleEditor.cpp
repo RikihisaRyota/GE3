@@ -1,5 +1,9 @@
 #include "GPUParticleEditor.h"
 
+#include <list>
+#include <string>
+#include <vector>
+
 #include <d3dx12.h>
 
 #include "Engine/Graphics/GraphicsCore.h"
@@ -8,6 +12,8 @@
 #include "Engine/Graphics/RenderManager.h"
 #include "Engine/ShderCompiler/ShaderCompiler.h"
 #include "Engine/Math/ViewProjection.h"
+#include "Engine/ImGui/ImGuiManager.h"
+#include "Engine/Texture/TextureManager.h"
 
 namespace GPUParticleEditorParameter {
 	enum Spawn {
@@ -51,10 +57,13 @@ void GPUParticleEditor::Spawn(CommandContext& commandContext) {
 	if (emitter_.frequency.time <= 0) {
 		commandContext.SetComputeRootSignature(*spawnComputeRootSignature_);
 		commandContext.SetPipelineState(*spawnComputePipelineState_);
+
 		commandContext.SetComputeConstantBuffer(GPUParticleEditorParameter::Spawn::kEmitter, emitterBuffer_->GetGPUVirtualAddress());
 		commandContext.SetComputeUAV(GPUParticleEditorParameter::Spawn::kParticleIndex, particleBuffer_->GetGPUVirtualAddress());
 		commandContext.SetComputeDescriptorTable(GPUParticleEditorParameter::Spawn::kConsumeParticleIndex, originalCommandUAVHandle_);
 		commandContext.Dispatch(static_cast<UINT>(ceil(emitter_.createParticleNum / GPUParticleShaderStructs::ComputeThreadBlockSize)), 1, 1);
+
+		commandContext.CopyBufferRegion(originalCommandCounterBuffer_, 0, originalCommandBuffer_, particleIndexCounterOffset_, sizeof(UINT));
 	}
 }
 
@@ -82,7 +91,93 @@ void GPUParticleEditor::ParticleUpdate(CommandContext& commandContext) {
 	}
 }
 
+void GPUParticleEditor::EmitterUpdate() {
+#pragma region エミッターCPU
+	if (emitter_.frequency.time <= 0) {
+		emitter_.frequency.time = emitter_.frequency.interval;
+	}
+	if (emitter_.frequency.lifeTime) {
+		emitter_.frequency.lifeTime = emitterLifeTimeMax_;
+	}
+	emitter_.frequency.lifeTime--;
+	emitter_.frequency.time--;
+#pragma endregion
+
+
+	ImGui::Begin("Emitter");
+	if (ImGui::TreeNode("Area")) {
+		ImGui::DragFloat3("Position", &emitter_.emitterArea.position.x, 0.1f);
+		ImGui::DragFloat3("Min", &emitter_.emitterArea.area.min.x, 0.1f);
+		ImGui::DragFloat3("Max", &emitter_.emitterArea.area.max.x, 0.1f);
+		ImGui::TreePop();
+	}
+	if (ImGui::TreeNode("Scale")) {
+		ImGui::DragFloat3("StartMin", &emitter_.scale.range.start.min.x, 0.1f);
+		ImGui::DragFloat3("StartMax", &emitter_.scale.range.start.max.x, 0.1f);
+		ImGui::DragFloat3("EndMin", &emitter_.scale.range.end.min.x, 0.1f);
+		ImGui::DragFloat3("EndMax", &emitter_.scale.range.end.max.x, 0.1f);
+		ImGui::TreePop();
+	}
+	if (ImGui::TreeNode("Rotate")) {
+		ImGui::DragFloat3("rotate", &emitter_.rotate.rotate.x, 0.1f);
+		ImGui::TreePop();
+	}
+	if (ImGui::TreeNode("Velocity3D")) {
+		ImGui::DragFloat3("VelocityMin", &emitter_.velocity.range.min.x, 0.1f);
+		ImGui::DragFloat3("VelocityMax", &emitter_.velocity.range.max.x, 0.1f);
+		ImGui::TreePop();
+	}
+	if (ImGui::TreeNode("Color")) {
+		ImGui::DragFloat4("ColorStartMin", &emitter_.color.range.start.min.x, 0.1f, 0.0f, 1.0f);
+		ImGui::DragFloat4("ColorStartMax", &emitter_.color.range.start.max.x, 0.1f, 0.0f, 1.0f);
+		ImGui::DragFloat4("ColorEndMin", &emitter_.color.range.end.min.x, 0.1f, 0.0f, 1.0f);
+		ImGui::DragFloat4("ColorEndMax", &emitter_.color.range.end.max.x, 0.1f, 0.0f, 1.0f);
+		ImGui::TreePop();
+	}
+	if (ImGui::TreeNode("Frequency")) {
+		ImGui::SliderInt("Time", reinterpret_cast<int*>(&emitter_.frequency.time), 0, int(emitter_.frequency.interval));
+		ImGui::DragInt("Interval", reinterpret_cast<int*>(&emitter_.frequency.interval), 1, 0);
+		ImGui::Checkbox("IsLoop", reinterpret_cast<bool*>(&emitter_.frequency.isLoop));
+		ImGui::SliderInt("EmitterLifeTime", reinterpret_cast<int*>(&emitter_.frequency.lifeTime), 0, int(emitterLifeTimeMax_));
+		ImGui::DragInt("EmitterLifeTimeMax", reinterpret_cast<int*>(&emitterLifeTimeMax_), 0, int(emitterLifeTimeMax_));
+		ImGui::TreePop();
+	}
+	if (ImGui::TreeNode("ParticleLife")) {
+		ImGui::DragInt("Max", reinterpret_cast<int*>(&emitter_.particleLifeSpan.range.max), 1, 0);
+		ImGui::DragInt("Min", reinterpret_cast<int*>(&emitter_.particleLifeSpan.range.min), 1, 0);
+		ImGui::TreePop();
+	}
+	if (ImGui::TreeNode("TextureHandle")) {
+		std::list<std::string> stageList;
+		for (int i = 0; i < TextureManager::GetInstance()->GetTextureSize(); i++) {
+			stageList.emplace_back(TextureManager::GetInstance()->GetTexture(i).GetName().string());
+
+		}
+		// std::vector に変換する
+		std::vector<const char*> stageArray;
+		for (const auto& stage : stageList) {
+			stageArray.push_back(stage.c_str());
+		}
+
+		// Combo を使用する
+		if (ImGui::Combo("Texture", reinterpret_cast<int*>(&textureIndex_), stageArray.data(), static_cast<int>(stageArray.size()))) {
+			emitter_.textureIndex = TextureManager::GetInstance()->GetTexture(textureIndex_).GetDescriptorIndex();
+		}
+
+		ImGui::TreePop();
+	}
+	if (ImGui::TreeNode("CreateParticle")) {
+		ImGui::Text("Sum:%d", 1 << square_);
+		ImGui::DragInt("Square", reinterpret_cast<int*>(&square_), 1, 10);
+		emitter_.createParticleNum = 1 << square_;
+		ImGui::TreePop();
+	}
+	ImGui::End();
+	emitterBuffer_.Copy(emitter_);
+}
+
 void GPUParticleEditor::Update(CommandContext& commandContext) {
+	EmitterUpdate();
 	Spawn(commandContext);
 	ParticleUpdate(commandContext);
 }
@@ -105,7 +200,6 @@ void GPUParticleEditor::Draw(const ViewProjection& viewProjection, CommandContex
 		);
 	}
 }
-void GPUParticleEditor::CreateParticle(const Emitter& emitterForGPU) {}
 
 void GPUParticleEditor::CreateGraphics() {
 	auto graphics = GraphicsCore::GetInstance();
@@ -190,7 +284,7 @@ void GPUParticleEditor::CreateSpawn() {
 	auto device = graphics->GetDevice();
 	// アップデートシグネイチャー
 	{
-		emitterUpdateComputeRootSignature_ = std::make_unique<RootSignature>();
+		spawnComputeRootSignature_ = std::make_unique<RootSignature>();
 
 		//	ParticleIndexCommand用（カウンター付きUAVの場合このように宣言）
 		CD3DX12_DESCRIPTOR_RANGE consumeRanges[1]{};
@@ -205,16 +299,16 @@ void GPUParticleEditor::CreateSpawn() {
 		desc.pParameters = rootParameters;
 		desc.NumParameters = _countof(rootParameters);
 
-		emitterUpdateComputeRootSignature_->Create(L"EditorSpawnRootsignature", desc);
+		spawnComputeRootSignature_->Create(L"EditorSpawnRootsignature", desc);
 	}
 	// アップデートパイプライン
 	{
-		emitterUpdateComputePipelineState_ = std::make_unique<PipelineState>();
+		spawnComputePipelineState_ = std::make_unique<PipelineState>();
 		D3D12_COMPUTE_PIPELINE_STATE_DESC desc{};
-		desc.pRootSignature = *emitterUpdateComputeRootSignature_;
+		desc.pRootSignature = *spawnComputeRootSignature_;
 		auto cs = ShaderCompiler::Compile(L"Resources/Shaders/GPUParticle/Editor/EditorEmitterSpaw.hlsl", L"cs_6_0");
 		desc.CS = CD3DX12_SHADER_BYTECODE(cs->GetBufferPointer(), cs->GetBufferSize());
-		emitterUpdateComputePipelineState_->Create(L"EditorEmitterCS", desc);
+		spawnComputePipelineState_->Create(L"EditorEmitterCS", desc);
 	}
 }
 
@@ -264,13 +358,106 @@ void GPUParticleEditor::CreateIndexBuffer() {
 }
 
 void GPUParticleEditor::CreateEmitterBuffer() {
+	emitter_ = {
+		.emitterArea{
+				.area{
+					.min = {-10.0f,-10.0f,-20.0f},
+					.max = {10.0f,10.0f,20.0f},
+				},
+				.position = {0.0f,0.0f,0.0f},
+			},
 
+		.scale{
+			.range{
+				.start{
+					.min = {0.05f,0.05f,0.05f},
+					.max = {0.05f,0.05f,0.05f},
+				},
+				.end{
+					.min = {0.1f,0.1f,0.1f},
+					.max = {0.1f,0.1f,0.1f},
+				},
+			},
+		},
+
+		.rotate{
+			.rotate = {0.0f,0.0f,0.0f},
+		},
+
+		.velocity{
+			.range{
+				.min = {0.0f,0.0f,0.0f},
+				.max = {0.0f,0.0f,0.0f},
+			}
+		},
+
+		.color{
+			.range{
+				.start{
+					.min = {1.0f,1.0f,1.0f,1.0f},
+					.max = {1.0f,1.0f,1.0f,1.0f},
+				},
+				.end{
+					.min = {1.0f,1.0f,1.0f,1.0f},
+					.max = {1.0f,1.0f,1.0f,1.0f},
+				},
+			},
+		},
+
+		.frequency{
+			.interval = 5,
+			.isLoop = true,
+			//.lifeTime = 120,
+		},
+
+		.particleLifeSpan{
+			.range{
+				.min = 60,
+				.max = 60,
+			}
+		},
+
+		.textureIndex = TextureManager::GetInstance()->GetTexture(0).GetDescriptorIndex(),
+
+		.createParticleNum = 1 << 10,
+	};
 	emitterBuffer_.Create(L"EmitterBuffer", sizeof(Emitter));
 	emitterBuffer_.Copy(emitter_);
 }
 
 void GPUParticleEditor::CreateParticleBuffer() {
-	particleBuffer_.Create(L"EditorParticleBuffer", sizeof(Particle) * GPUParticleShaderStructs::MaxParticleNum, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
+	auto graphics = GraphicsCore::GetInstance();
+	auto device = graphics->GetDevice();
+	// アップデートシグネイチャー
+	{
+		updateComputeRootSignature_ = std::make_unique<RootSignature>();
+
+		//	createParticle用
+		CD3DX12_DESCRIPTOR_RANGE addParticleRange[1]{};
+		addParticleRange[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, ParticleManager::EmitterUpdateRootSigunature::kCreateParticleNum, 0);
+
+		CD3DX12_ROOT_PARAMETER rootParameters[ParticleManager::EmitterUpdateRootSigunature::kEmitterUpdateRootSigunatureCount]{};
+		rootParameters[ParticleManager::EmitterUpdateRootSigunature::kEmitterUAV].InitAsUnorderedAccessView(0);
+		rootParameters[ParticleManager::EmitterUpdateRootSigunature::kCreateParticleNum].InitAsDescriptorTable(_countof(addParticleRange), addParticleRange);
+		rootParameters[ParticleManager::EmitterUpdateRootSigunature::kCounterBuffer].InitAsUnorderedAccessView(2);
+
+		D3D12_ROOT_SIGNATURE_DESC desc{};
+		desc.pParameters = rootParameters;
+		desc.NumParameters = _countof(rootParameters);
+
+		updateComputeRootSignature_->Create(L"EditorUpdateComputeRootSignature", desc);
+	}
+	// アップデートパイプライン
+	{
+		updateComputePipelineState_ = std::make_unique<PipelineState>();
+		D3D12_COMPUTE_PIPELINE_STATE_DESC desc{};
+		desc.pRootSignature = *updateComputeRootSignature_;
+		auto cs = ShaderCompiler::Compile(L"Resources/Shaders/GPUParticle/EmitterUpdate.CS.hlsl", L"cs_6_0");
+		desc.CS = CD3DX12_SHADER_BYTECODE(cs->GetBufferPointer(), cs->GetBufferSize());
+		updateComputePipelineState_->Create(L"EditorUpdateComputePipelineState", desc);
+	}
+
+	particleBuffer_.Create(L"EditorParticleBuffer", sizeof(Particle) * 1<<20, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
 }
 
 void GPUParticleEditor::CreateUpdateParticle() {

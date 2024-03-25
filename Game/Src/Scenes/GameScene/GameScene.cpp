@@ -174,7 +174,7 @@ void GameScene::Initialize() {
 
 		.textureIndex = TextureManager::GetInstance()->GetTexture(gpuTexture_).GetDescriptorIndex(),
 
-		.createParticleNum = 1 << 15,
+		.createParticleNum = 1 << 10,
 		};
 		gpuParticleManager_->CreateParticle(emitterForGPU);
 	}

@@ -585,5 +585,8 @@
     <FxCompile Include="Resources\Shaders\GPUParticle\Editor\EditorEmitterSpaw.hlsl">
       <Filter>Shaders\GPUParticle\Editor</Filter>
     </FxCompile>
+    <FxCompile Include="Resources\Shaders\GPUParticle\Editor\EditorParticleUpdate.hlsl">
+      <Filter>Shaders\GPUParticle\Editor</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

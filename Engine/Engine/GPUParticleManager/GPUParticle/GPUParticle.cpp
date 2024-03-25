@@ -126,7 +126,7 @@ void GPUParticle::ParticleUpdate(CommandContext& commandContext) {
 }
 
 void GPUParticle::Draw(const ViewProjection& viewProjection, CommandContext& commandContext) {
-	if (static_cast<uint32_t*>(originalCommandCounterBuffer_.GetCPUData()) != 0) {
+	if (*static_cast<uint32_t*>(originalCommandCounterBuffer_.GetCPUData()) != 0) {
 		commandContext.TransitionResource(particleBuffer_, D3D12_RESOURCE_STATE_GENERIC_READ);
 		commandContext.TransitionResource(drawIndexCommandBuffers_, D3D12_RESOURCE_STATE_GENERIC_READ);
 		commandContext.TransitionResource(drawArgumentBuffer_, D3D12_RESOURCE_STATE_INDIRECT_ARGUMENT);
@@ -199,9 +199,7 @@ void GPUParticle::InitializeUpdateParticle() {
 	resetAppendDrawIndexBufferCounterReset_.Create(L"ResetAppendDrawIndexBufferCounterReset", sizeof(resetValue));
 	resetAppendDrawIndexBufferCounterReset_.Copy(resetValue);
 
-
 	originalCommandCounterBuffer_.Create(L"originalCommandCounterBuffer", sizeof(UINT));
-
 	originalCommandCounterBuffer_.Copy(0);
 
 	// パーティクルのindexをAppend,Consumeするよう

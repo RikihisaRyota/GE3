@@ -9,7 +9,8 @@
 namespace GPUParticleShaderStructs {
 	// hlsli側も変更するように
 	static const UINT ComputeThreadBlockSize = 1024;
-	static const UINT MaxParticleNum = 1 << 25;
+	static const UINT MaxParticleShouldBeSquare = 20;
+	static const UINT MaxParticleNum = 1 << MaxParticleShouldBeSquare;
 	static const UINT MaxEmitterNum = 100;
 }
 

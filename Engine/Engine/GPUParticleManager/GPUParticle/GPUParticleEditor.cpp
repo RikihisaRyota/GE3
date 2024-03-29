@@ -155,7 +155,7 @@ void GPUParticleEditor::Spawn(CommandContext& commandContext) {
 		commandContext.TransitionResource(originalCommandBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 
 		commandContext.SetComputeConstantBuffer(GPUParticleEditorParameter::Spawn::kEmitter, emitterBuffer_.GetGPUVirtualAddress());
-		commandContext.SetComputeUAV(GPUParticleEditorParameter::Spawn::kParticleIndex, particleBuffer_->GetGPUVirtualAddress());
+		commandContext.SetComputeUAV(GPUParticleEditorParameter::Spawn::kParticleIndex, particleBuffer_.GetGPUVirtualAddress());
 		commandContext.SetComputeDescriptorTable(GPUParticleEditorParameter::Spawn::kConsumeParticleIndex, originalCommandUAVHandle_);
 
 		commandContext.Dispatch(static_cast<UINT>(ceil(emitter_.createParticleNum / GPUParticleShaderStructs::ComputeThreadBlockSize)), 1, 1);
@@ -422,7 +422,7 @@ void GPUParticleEditor::CreateEmitterBuffer() {
 		},
 
 		.frequency{
-			.interval = 5,
+			.interval = 1,
 			.isLoop = true,
 			//.lifeTime = 120,
 		},

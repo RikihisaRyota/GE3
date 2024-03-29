@@ -5,6 +5,6 @@ RWStructuredBuffer<uint> particleIndexCommands : register(u0);
 void main(uint3 DTid : SV_DispatchThreadID)
 {
     uint index = DTid.x;
-
+    
     particleIndexCommands[index] = index;
 }

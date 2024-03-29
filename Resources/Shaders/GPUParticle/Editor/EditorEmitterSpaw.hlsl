@@ -57,17 +57,17 @@ void Color(uint index)
 
 void Create(uint index)
 {
-    LifeTime(index);
+    //LifeTime(index);
     
-    Scale(index);
+    //Scale(index);
     
-    Rotate(index);
+    //Rotate(index);
     
-    Translate(index);
+    //Translate(index);
     
-    Velocity(index);
+    //Velocity(index);
     
-    Color(index);
+    //Color(index);
     
     Output[index].textureInidex = gEmitter.textureIndex;
     
@@ -75,8 +75,8 @@ void Create(uint index)
 }
 
 [numthreads(threadBlockSize, 1, 1)]
-void main( uint3 DTid : SV_DispatchThreadID )
+void main(uint3 DTid : SV_DispatchThreadID)
 {
-    //uint index = particleIndexCommands.Consume();
-    //Create(index);
+    uint index = particleIndexCommands.Consume();
+    Create(index);
 }

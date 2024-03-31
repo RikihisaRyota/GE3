@@ -5,15 +5,19 @@
 // Utility
 struct UintMinMax
 {
-    uint min;
-    uint max;
+    uint32_t min;
+    uint32_t max;
+    uint32_t pad1;
+    uint32_t pad2;
 };
 
 
 struct Float3MinMax
 {
     float3 min;
+    uint32_t pad1;
     float3 max;
+    uint32_t pad2;
 };
 
 struct Float4MinMax
@@ -39,13 +43,13 @@ struct VertexShaderOutput
     float4 position : SV_POSITION;
     float2 texcoord : TEXCOORD0;
     float4 color : COLOR;
-    uint instanceId : SV_InstanceID;
+    uint32_t instanceId : SV_InstanceID;
 };
 
 struct ParticleLifeTime
 {
-    uint time;
-    uint maxTime;
+    uint32_t time;
+    uint32_t maxTime;
 };
 
 struct Particle
@@ -63,15 +67,16 @@ struct Particle
     
     ParticleLifeTime particleLifeTime;
     
-    uint textureInidex;
+    uint32_t textureInidex;
     
-    uint isAlive;
+    uint32_t isAlive;
 };
 
 struct EmitterArea
 {
     Float3MinMax range;
     float3 position;
+    uint32_t pad;
 };
 
 struct ScaleAnimation
@@ -82,6 +87,7 @@ struct ScaleAnimation
 struct RotateAnimation
 {
     float3 rotate;
+    uint32_t pad;
 };
 
 struct Velocity3D
@@ -96,10 +102,10 @@ struct EmitterColor
 
 struct EmitterFrequency
 {
-    uint time;
-    uint interval;
-    uint isLoop;
-    uint lifeTime;
+    uint32_t time;
+    uint32_t interval;
+    uint32_t isLoop;
+    uint32_t lifeTime;
 };
 
 struct ParticleLifeSpan
@@ -123,22 +129,26 @@ struct Emitter
     
     ParticleLifeSpan particleLifeSpan;
     
-    uint textureIndex;
+    uint32_t textureIndex;
 
-    uint createParticleNum;
+    uint32_t createParticleNum;
 	
-    uint isAlive;
+    uint32_t isAlive;
+
+    uint32_t pad;
 };
 
 struct CreateParticle
 {
-    uint emitterNum;
-    int createParticleNum;
+    uint32_t emitterNum;
+    int32_t createParticleNum;
 };
 struct EmitterCounterBuffer
 {
-    uint emitterCounter;
-    uint3 pad;
+    uint32_t emitterCounter;
+    uint32_t pad1;
+    uint32_t pad2;
+    uint32_t pad3;
 };
 
 float hash(uint seed)

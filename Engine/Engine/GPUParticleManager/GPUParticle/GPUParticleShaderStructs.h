@@ -19,11 +19,14 @@ namespace GPUParticleShaderStructs {
 struct UintMinMax {
 	uint32_t min;
 	uint32_t max;
+	uint32_t pad[2];
 };
 
 struct Vector3MinMax {
 	Vector3 min;
+	uint32_t pad1;
 	Vector3 max;
+	uint32_t pad2;
 };
 
 struct Vector4MinMax {
@@ -51,6 +54,7 @@ struct Vertex {
 struct ParticleLifeTime {
 	uint32_t time;
 	uint32_t maxTime;
+	uint32_t pad[2];
 };
 
 struct Particle {
@@ -77,6 +81,7 @@ struct Particle {
 struct EmitterArea {
 	Vector3MinMax area;
 	Vector3 position;
+	uint32_t pad;
 };
 
 // パーティクルのスケール
@@ -87,6 +92,7 @@ struct ScaleAnimation {
 // パーティクルの回転	
 struct RotateAnimation {
 	Vector3 rotate;
+	uint32_t pad;
 };
 
 // パーティクルの移動
@@ -133,6 +139,8 @@ struct Emitter {
 	uint32_t createParticleNum;
 
 	uint32_t isAlive = true;
+
+	uint32_t pad;
 };
 
 struct CreateParticle {

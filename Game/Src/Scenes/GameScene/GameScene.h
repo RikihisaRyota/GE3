@@ -11,6 +11,7 @@
 #include "Src/Scenes/BaseScene/BaseScene.h"
 
 #include "Engine/Sprite/SpriteHandle.h"
+#include "Engine/Animation/Animation.h"
 
 class CommandContext;
 class GameScene : public BaseScene {
@@ -36,4 +37,8 @@ private:
 	//int32_t soundHandle_;
 	//int32_t playHandle_;
 	Vector4 color_;
+
+	Animation boxAnimation_;
+	ModelHandle boxAnimationModelHandle_;
+	WorldTransform boxAnimationWorldTransform_;
 };

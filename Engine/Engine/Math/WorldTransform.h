@@ -3,8 +3,10 @@
 
 #include "Matrix4x4.h"
 #include "Vector3.h"
+#include "Quaternion.h"
 
 #include "../Graphics/UploadBuffer.h"
+#include "Engine/Model/ModelHandle.h"
 
 // 定数バッファ用データ構造体
 struct ConstBufferDataWorldTransform {
@@ -14,17 +16,17 @@ struct ConstBufferDataWorldTransform {
 
 struct WorldTransform {
 	// 定数バッファ
-	std::unique_ptr<UploadBuffer> constBuff_;
+	std::unique_ptr<UploadBuffer> constBuff;
 	// マッピング済みアドレス
-	ConstBufferDataWorldTransform* constMap_ = nullptr;
+	ConstBufferDataWorldTransform* constMap = nullptr;
 	// scale
-	Vector3 scale_ = { 1.0f,1.0f,1.0f };
-	// rotatition
-	Vector3 rotation_ = { 0.0f,0.0f,0.0f };
+	Vector3 scale = { 1.0f,1.0f,1.0f };
+	// rotation
+	Quaternion rotate = { 0.0f,0.0f,0.0f,1.0f };
 	// translation
-	Vector3 translation_ = { 0.0f,0.0f,0.0f };
+	Vector3 translate = { 0.0f,0.0f,0.0f };
 	// matWorld
-	Matrix4x4 matWorld_/* = MakeIdentity4x4()*/;
+	Matrix4x4 matWorld/* = MakeIdentity4x4()*/;
 	// 親となるワールド変換へのポインタ
 	const WorldTransform* parent_ = nullptr;
 	/// <summary>
@@ -42,12 +44,12 @@ struct WorldTransform {
 	/// <summary>
 	/// 行列を転送する
 	/// </summary>
-	void TransferMatrix();
+	void TransferMatrix(const ModelHandle& modelHandle = ModelHandle::kMaxModeHandle, uint32_t children = 0);
 	/// <summary>
 	/// 行列を更新する
 	/// </summary>
-	void UpdateMatrix();
-	
+	void UpdateMatrix(const ModelHandle& modelHandle = ModelHandle::kMaxModeHandle, uint32_t children = 0);
+
 	/// <summary>
 	/// メンバ変数の初期化
 	/// </summary>

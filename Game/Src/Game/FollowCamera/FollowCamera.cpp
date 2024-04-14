@@ -7,7 +7,7 @@ void FollowCamera::Initialize() {}
 
 void FollowCamera::Update() {
 	if (target_) {
-		interTarget_ = Lerp(interTarget_, MakeTranslateMatrix(target_->matWorld_), 0.2f);
+		interTarget_ = Lerp(interTarget_, MakeTranslateMatrix(target_->matWorld), 0.2f);
 		GamePad();
 		Keyboard();
 		RotateUpdate();

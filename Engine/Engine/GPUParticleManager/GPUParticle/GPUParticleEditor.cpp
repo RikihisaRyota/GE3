@@ -145,8 +145,8 @@ void GPUParticleEditor::EmitterUpdate() {
 }
 
 void GPUParticleEditor::Spawn(CommandContext& commandContext) {
-	//if (emitter_.frequency.time <= 0 /*&&
-	//	*static_cast<uint32_t*>(originalCommandCounterBuffer_.GetCPUData()) < GPUParticleShaderStructs::MaxParticleNum*/) {
+	if (emitter_.frequency.time <= 0 /*&&
+		*static_cast<uint32_t*>(originalCommandCounterBuffer_.GetCPUData()) < GPUParticleShaderStructs::MaxParticleNum*/) {
 		commandContext.SetComputeRootSignature(*spawnComputeRootSignature_);
 		commandContext.SetPipelineState(*spawnComputePipelineState_);
 
@@ -161,7 +161,7 @@ void GPUParticleEditor::Spawn(CommandContext& commandContext) {
 		commandContext.Dispatch(static_cast<UINT>(ceil(emitter_.createParticleNum / GPUParticleShaderStructs::ComputeThreadBlockSize)), 1, 1);
 		
 		commandContext.CopyBufferRegion(originalCommandCounterBuffer_, 0, originalCommandBuffer_, particleIndexCounterOffset_, sizeof(UINT));
-	//}
+	}
 }
 
 void GPUParticleEditor::ParticleUpdate(CommandContext& commandContext) {
@@ -173,7 +173,7 @@ void GPUParticleEditor::ParticleUpdate(CommandContext& commandContext) {
 
 		commandContext.TransitionResource(particleBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 		commandContext.TransitionResource(originalCommandBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-		commandContext.TransitionResource(drawIndexCommandBuffers_, D3D12_RESOURCE_STATE_GENERIC_READ);
+		commandContext.TransitionResource(drawIndexCommandBuffers_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 
 		commandContext.SetComputeUAV(0, particleBuffer_->GetGPUVirtualAddress());
 		commandContext.SetComputeDescriptorTable(1, originalCommandUAVHandle_);
@@ -387,8 +387,8 @@ void GPUParticleEditor::CreateEmitterBuffer() {
 		.scale{
 			.range{
 				.start{
-					.min = {0.05f,0.05f,0.05f},
-					.max = {0.05f,0.05f,0.05f},
+					.min = {0.5f,0.5f,0.5f},
+					.max = {0.5f,0.5f,0.5f},
 				},
 				.end{
 					.min = {0.1f,0.1f,0.1f},
@@ -429,8 +429,8 @@ void GPUParticleEditor::CreateEmitterBuffer() {
 
 		.particleLifeSpan{
 			.range{
-				.min = 60,
-				.max = 60,
+				.min = 5,
+				.max = 5,
 			}
 		},
 
@@ -524,7 +524,7 @@ void GPUParticleEditor::CreateUpdateParticle() {
 
 	// パーティクルのindexをAppend,Consumeするよう
 	originalCommandBuffer_.Create(
-		L"EditorOriginalCommandBuffer",
+		L"originalCommandBuffer_",
 		particleIndexCounterOffset_ + sizeof(UINT),
 		D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS
 	);

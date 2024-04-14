@@ -9,7 +9,7 @@
 #include "Engine/Math/MyMath.h"
 
 Player::Player() {
-	playerModelHandle_ = ModelManager::GetInstance()->Load("Resources/Models/player");
+	playerModelHandle_ = ModelManager::GetInstance()->Load("Resources/Models/player/player.obj");
 }
 
 void Player::Initialize() {
@@ -66,7 +66,7 @@ void Player::Shot() {
 	if (Input::GetInstance()->PushKey(DIK_SPACE) && bulletTime_ >= kBulletCoolTime) {
 		bulletTime_ = 0;
 		playerBullets_.emplace_back(std::make_unique<PlayerBullet>());
-		playerBullets_.back()->Create(gpuParticleManager_, MakeTranslateMatrix(worldTransform_.matWorld_) * Vector3(1.0f, 5.0f, 1.0f), Normalize(GetZAxis(MakeRotateXYZMatrix(worldTransform_.rotation_))) * 0.5f, kBulletTime);
+		playerBullets_.back()->Create(gpuParticleManager_, MakeTranslateMatrix(worldTransform_.matWorld) * Vector3(1.0f, 5.0f, 1.0f), Normalize(GetZAxis(MakeRotate(worldTransform_.rotate))) * 0.5f, kBulletTime);
 	}
 
 }
@@ -116,7 +116,7 @@ void Player::Move() {
 		Matrix4x4 rotate = MakeRotateYMatrix(viewProjection_->rotation_.y);
 		// オフセットをカメラの回転に合わせて回転させる
 		vector = TransformNormal(vector, rotate);
-		worldTransform_.translation_ += vector * 0.2f;
+		worldTransform_.translate += vector * 0.2f;
 		PlayerRotate(vector);
 	}
 }
@@ -131,9 +131,9 @@ void Player::AnimationUpdate() {
 	// 2πを超えたら0に戻す
 	time = std::fmod(time, 2.0f * std::numbers::pi_v<float>);
 	// 浮遊を座標に反映
-	animationTransform_.translation_.y = (std::sin(time) * 0.05f);
+	animationTransform_.translate.y = (std::sin(time) * 0.05f);
 }
 
 void Player::PlayerRotate(const Vector3& vector) {
-	worldTransform_.rotation_.y = Angle({ 0.0f,0.0f,1.0f }, vector);
+	worldTransform_.rotate.y = Angle({ 0.0f,0.0f,1.0f }, vector);
 }

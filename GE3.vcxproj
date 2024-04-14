@@ -147,6 +147,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Engine\Engine\Animation\Animation.cpp" />
     <ClCompile Include="Engine\Engine\Audio\Audio.cpp" />
     <ClCompile Include="Engine\Engine\DebugCamera\DebugCamera.cpp" />
     <ClCompile Include="Engine\Engine\GPUParticleManager\GPUParticleManager.cpp" />
@@ -155,6 +156,8 @@
     <ClCompile Include="Engine\Engine\Graphics\DefaultBuffer.cpp" />
     <ClCompile Include="Engine\Engine\Graphics\ReadBackBuffer.cpp" />
     <ClCompile Include="Engine\Engine\Lighting\Lighting.cpp" />
+    <ClCompile Include="Engine\Engine\Math\Quaternion.cpp" />
+    <ClCompile Include="Engine\Engine\Model\ModelHandle.cpp" />
     <ClCompile Include="Engine\Engine\ParticleManager\ParticleManager.cpp" />
     <ClCompile Include="Engine\Engine\ParticleManager\Particle\Particle.cpp" />
     <ClCompile Include="Engine\Engine\Sprite\Sprite.cpp" />
@@ -207,6 +210,7 @@
     <ClCompile Include="Game\Src\Scenes\Transition\Transition.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Engine\Engine\Animation\Animation.h" />
     <ClInclude Include="Engine\Engine\Audio\Audio.h" />
     <ClInclude Include="Engine\Engine\Audio\SoundHandle\SoundHandle.h" />
     <ClInclude Include="Engine\Engine\DebugCamera\DebugCamera.h" />
@@ -217,6 +221,7 @@
     <ClInclude Include="Engine\Engine\Graphics\DefaultBuffer.h" />
     <ClInclude Include="Engine\Engine\Graphics\ReadBackBuffer.h" />
     <ClInclude Include="Engine\Engine\Lighting\Lighting.h" />
+    <ClInclude Include="Engine\Engine\Math\Quaternion.h" />
     <ClInclude Include="Engine\Engine\Math\Random.h" />
     <ClInclude Include="Engine\Engine\ParticleManager\ParticleManager.h" />
     <ClInclude Include="Engine\Engine\ParticleManager\ParticleShaderStruct.h" />

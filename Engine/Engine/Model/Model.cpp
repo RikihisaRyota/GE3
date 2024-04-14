@@ -20,23 +20,23 @@ void Model::Create(const std::filesystem::path& modelPath) {
 
 void Model::SetMaterialColor(const Vector4& color) {
 	material_->color = color;
-	materialBuffer_.Copy(material_,sizeof(Material));
+	materialBuffer_.Copy(material_, sizeof(Material));
 }
 
 void Model::LoadFile(const std::filesystem::path& modelPath) {
 	name_ = modelPath.stem();
-
-	std::string path = modelPath.string() + "/" + modelPath.stem().string() + ".obj";
 
 	std::vector<Vertex> vertexPos; //!< 構築するModelData
 	std::vector<uint32_t> indices;
 
 	Assimp::Importer importer{};
 
-	const aiScene* scene = importer.ReadFile(path.c_str(),
+	const aiScene* scene = importer.ReadFile(modelPath.string(),
 		aiProcess_Triangulate |
 		aiProcess_FlipUVs);
 	assert(scene->HasMeshes()); // メッシュがないものは対応しない
+	Vector3 minIndex{ FLT_MAX ,FLT_MAX ,FLT_MAX }, maxIndex{ FLT_MIN ,FLT_MIN ,FLT_MIN };
+
 	// メッシュ解析
 	for (uint32_t meshIndex = 0; meshIndex < scene->mNumMeshes; ++meshIndex) {
 		aiMesh* mesh = scene->mMeshes[meshIndex];
@@ -50,6 +50,12 @@ void Model::LoadFile(const std::filesystem::path& modelPath) {
 			aiVector3D& normal = mesh->mNormals[vertexIndex];
 			Vertex vertex{};
 			vertex.position = { position.x,position.y,position.z };
+			minIndex.x = (std::min)(minIndex.x, position.x);
+			minIndex.y = (std::min)(minIndex.y, position.y);
+			minIndex.z = (std::min)(minIndex.z, position.z);
+			maxIndex.x = (std::max)(maxIndex.x, position.x);
+			maxIndex.y = (std::max)(maxIndex.y, position.y);
+			maxIndex.z = (std::max)(maxIndex.z, position.z);
 			vertex.normal = { normal.x,normal.y,normal.z };
 			vertex.texcoord = { texcoord.x,texcoord.y };
 			vertex.position.x *= -1.0f;
@@ -68,16 +74,19 @@ void Model::LoadFile(const std::filesystem::path& modelPath) {
 
 		meshDatas_.emplace_back(std::make_unique<MeshData>());
 		auto& currentModelData = meshDatas_.back();
+		currentModelData->rootNode = ReadNode(scene->mRootNode);
 		currentModelData->meshes_ = new Mesh();
+		currentModelData->vertices = vertexPos;
 		currentModelData->meshes_->indexCount = uint32_t(indices.size());
-
-		currentModelData->indexBuffer_.Create(modelPath.stem().wstring() + L"IndexBuffer", indices.size() * sizeof(indices[0]));
-		currentModelData->indexBuffer_.Copy(indices.data(), indices.size() * sizeof(indices[0]));
-		currentModelData->ibView_.BufferLocation = currentModelData->indexBuffer_.GetGPUVirtualAddress();
-		currentModelData->ibView_.SizeInBytes = UINT(currentModelData->indexBuffer_.GetBufferSize());
-		currentModelData->ibView_.Format = DXGI_FORMAT_R32_UINT;
+		currentModelData->meshes_->min = minIndex;
+		currentModelData->meshes_->max = maxIndex;
+		currentModelData->indexBuffer.Create(name_.wstring() + L"IndexBuffer", indices.size() * sizeof(indices[0]));
+		currentModelData->indexBuffer.Copy(indices.data(), indices.size() * sizeof(indices[0]));
+		currentModelData->ibView.BufferLocation = currentModelData->indexBuffer.GetGPUVirtualAddress();
+		currentModelData->ibView.SizeInBytes = UINT(currentModelData->indexBuffer.GetBufferSize());
+		currentModelData->ibView.Format = DXGI_FORMAT_R32_UINT;
 	}
-	vertexBuffer_.Create(modelPath.stem().wstring() + L"VertexBuffer", vertexPos.size() * sizeof(vertexPos[0]));
+	vertexBuffer_.Create(name_.wstring() + L"VertexBuffer", vertexPos.size() * sizeof(vertexPos[0]));
 	vertexBuffer_.Copy(vertexPos.data(), vertexPos.size() * sizeof(vertexPos[0]));
 	vbView_.BufferLocation = vertexBuffer_.GetGPUVirtualAddress();
 	vbView_.SizeInBytes = UINT(vertexBuffer_.GetBufferSize());
@@ -89,11 +98,29 @@ void Model::LoadFile(const std::filesystem::path& modelPath) {
 		if (material->GetTextureCount(aiTextureType_DIFFUSE) != 0) {
 			aiString textureFilePath;
 			material->GetTexture(aiTextureType_DIFFUSE, 0, &textureFilePath);
-			textureHandle_ = (TextureManager::GetInstance()->Load(modelPath / textureFilePath.C_Str()));
+			textureHandle_ = (TextureManager::GetInstance()->Load((modelPath.parent_path().string() + "/" + textureFilePath.C_Str())));
 			material_ = new Material();
 			material_->color = { 1.0f,1.0f,1.0f,1.0f };
 			materialBuffer_.Create(modelPath.stem().wstring() + L"materialBuffer", sizeof(Material));
 			materialBuffer_.Copy(material_, sizeof(Material));
 		}
 	}
+}
+
+Model::Node Model::ReadNode(aiNode* node) {
+	Node result{};
+	aiMatrix4x4 aiLocalMatrix = node->mTransformation;
+	aiLocalMatrix.Transpose();
+	for (uint32_t x = 0; x < 4; x++) {
+		for (uint32_t y = 0; y < 4; y++) {
+			result.localMatrix.m[x][y] = aiLocalMatrix[x][y];
+		}
+	}
+
+	result.name = node->mName.C_Str();
+	result.children.resize(node->mNumChildren);
+	for (uint32_t childIndex = 0; childIndex < node->mNumChildren; ++childIndex) {
+		result.children[childIndex] = ReadNode(node->mChildren[childIndex]);
+	}
+	return result;
 }

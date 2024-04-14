@@ -12,27 +12,34 @@
 
 GameScene::GameScene() {
 	debugCamera_ = std::make_unique<DebugCamera>();
-	gpuParticleEditor_ = std::make_unique<GPUParticleEditor>();
+	//gpuParticleEditor_ = std::make_unique<GPUParticleEditor>();
 	gpuParticleManager_ = std::make_unique<GPUParticleManager>();
 	player_ = std::make_unique<Player>();
 	followCamera_ = std::make_unique<FollowCamera>();
 
-	modelHandle_ = ModelManager::GetInstance()->Load("Resources/Models/Ball");
-	terrainHandle_ = ModelManager::GetInstance()->Load("Resources/Models/terrain");
+	modelHandle_ = ModelManager::GetInstance()->Load("Resources/Models/Ball/Ball.obj");
+	terrainHandle_ = ModelManager::GetInstance()->Load("Resources/Models/terrain/terrain.obj");
 
 	gpuTexture_ = TextureManager::GetInstance()->Load("Resources/Images/GPUParticle.png");
 	color_ = { 1.0f,1.0f,1.0f,1.0 };
 	/*soundHandle_ = Audio::GetInstance()->SoundLoadWave("play.wav");
 	playHandle_ = Audio::GetInstance()->SoundPlayLoopStart(soundHandle_);*/
 
+	boxAnimation_.LoadAnimationFile("Resources/Models/AnimatedCube/AnimatedCube.gltf");
+	boxAnimationModelHandle_ = ModelManager::GetInstance()->Load("Resources/Models/AnimatedCube/AnimatedCube.gltf");
+
+	boxAnimationWorldTransform_.Initialize();
+	worldTransform_.Initialize();
+
+	//gpuParticleEditor_->Initialize();
+	gpuParticleManager_->Initialize();
 }
 
 GameScene::~GameScene() {}
 
 void GameScene::Initialize() {
-	//Audio::GetInstance()->SoundPlayLoopStart(playHandle_);
-	worldTransform_.Initialize();
 
+	//Audio::GetInstance()->SoundPlayLoopStart(playHandle_);
 
 	player_->SetViewProjection(viewProjection_);
 	player_->SetGPUParticleManager(gpuParticleManager_.get());
@@ -41,8 +48,6 @@ void GameScene::Initialize() {
 	followCamera_->SetTarget(&player_->GetWorldTransform());
 	followCamera_->SetViewProjection(viewProjection_);
 	followCamera_->Initialize();
-	gpuParticleEditor_->Initialize();
-	gpuParticleManager_->Initialize();
 	// 0
 	{
 		Emitter emitterForGPU = {
@@ -73,16 +78,16 @@ void GameScene::Initialize() {
 
 		.velocity{
 			.range{
-				.min={-0.1f,0.1f,-0.1f},
-				.max={0.1f,0.5f,0.1f},
+				.min = {-0.1f,0.1f,-0.1f},
+				.max = {0.1f,0.5f,0.1f},
 			}
 		},
 
 		.color{
 			.range{
 				.start{
-					.min = {0.8f,0.2f,0.2f,1.0f},
-					.max = {1.0f,0.5f,0.5f,1.0f},
+					.min = {0.2f,0.5f,0.5f,1.0f},
+					.max = {0.5f,1.0f,1.0f,1.0f},
 				},
 				.end{
 					.min = {0.1f,0.2f,0.2f,0.2f},
@@ -92,15 +97,15 @@ void GameScene::Initialize() {
 		},
 
 		.frequency{
-			.interval = 10,
+			.interval = 1,
 			.isLoop = true,
 			//.lifeTime = 120,
 		},
 
 		.particleLifeSpan{
 			.range{
-				.min=60,
-				.max=90,
+				.min = 60,
+				.max = 90,
 			}
 		},
 
@@ -112,85 +117,87 @@ void GameScene::Initialize() {
 	}
 
 	// 0
-	{
-		Emitter emitterForGPU = {
-		.emitterArea{
-				.area{
-					.min = {-10.0f,-10.0f,-20.0f},
-					.max = {10.0f,10.0f,20.0f},
-				},
-				.position = {40.0f,0.0f,0.0f},
-			},
+	//{
+	//	Emitter emitterForGPU = {
+	//	.emitterArea{
+	//			.area{
+	//				.min = {-10.0f,-10.0f,-20.0f},
+	//				.max = {10.0f,10.0f,20.0f},
+	//			},
+	//			.position = {40.0f,0.0f,0.0f},
+	//		},
 
-		.scale{
-			.range{
-				.start{
-					.min = {0.01f,0.01f,0.01f},
-					.max = {0.05f,0.05f,0.05f},
-				},
-				.end{
-					.min = {0.1f,0.1f,0.1f},
-					.max = {0.1f,0.1f,0.1f},
-				},
-			},
-		},
+	//	.scale{
+	//		.range{
+	//			.start{
+	//				.min = {0.01f,0.01f,0.01f},
+	//				.max = {0.05f,0.05f,0.05f},
+	//			},
+	//			.end{
+	//				.min = {0.1f,0.1f,0.1f},
+	//				.max = {0.1f,0.1f,0.1f},
+	//			},
+	//		},
+	//	},
 
-		.rotate{
-			.rotate = {0.0f,0.0f,0.3f},
-		},
+	//	.rotate{
+	//		.rotate = {0.0f,0.0f,0.3f},
+	//	},
 
-		.velocity{
-			.range{
-				.min = {0.0f,0.0f,0.0f},
-				.max = {0.0f,0.0f,0.0f},
-			}
-		},
+	//	.velocity{
+	//		.range{
+	//			.min = {0.0f,0.0f,0.0f},
+	//			.max = {0.0f,0.0f,0.0f},
+	//		}
+	//	},
 
-		.color{
-			.range{
-				.start{
-					.min = {0.5f,0.5f,0.5f,1.0f},
-					.max = {0.5f,0.5f,0.5f,1.0f},
-				},
-				.end{
-					.min = {0.01f,0.01f,0.01f,0.01f},
-					.max = {0.01f,0.01f,0.01f,0.01f},
-				},
-			},
-		},
+	//	.color{
+	//		.range{
+	//			.start{
+	//				.min = {0.5f,0.5f,0.5f,1.0f},
+	//				.max = {0.5f,0.5f,0.5f,1.0f},
+	//			},
+	//			.end{
+	//				.min = {0.01f,0.01f,0.01f,0.01f},
+	//				.max = {0.01f,0.01f,0.01f,0.01f},
+	//			},
+	//		},
+	//	},
 
-		.frequency{
-			.interval = 5,
-			.isLoop = true,
-			//.lifeTime = 120,
-		},
+	//	.frequency{
+	//		.interval = 5,
+	//		.isLoop = true,
+	//		//.lifeTime = 120,
+	//	},
 
-		.particleLifeSpan{
-			.range{
-				.min = 5,
-				.max = 90,
-			}
-		},
+	//	.particleLifeSpan{
+	//		.range{
+	//			.min = 5,
+	//			.max = 90,
+	//		}
+	//	},
 
-		.textureIndex = TextureManager::GetInstance()->GetTexture(gpuTexture_).GetDescriptorIndex(),
+	//	.textureIndex = TextureManager::GetInstance()->GetTexture(gpuTexture_).GetDescriptorIndex(),
 
-		.createParticleNum = 1 << 10,
-		};
-		gpuParticleManager_->CreateParticle(emitterForGPU);
-	}
+	//	.createParticleNum = 1 << 10,
+	//	};
+	//	gpuParticleManager_->CreateParticle(emitterForGPU);
+	//}
 }
 
 void GameScene::Update() {
 
 #ifdef ENABLE_IMGUI
 	ImGui::Begin("Sphere");
-	ImGui::DragFloat3("scale", &worldTransform_.scale_.x, 0.1f, 0.0f);
+	ImGui::DragFloat3("scale", &worldTransform_.scale.x, 0.1f, 0.0f);
 	ImGui::End();
 #endif // ENABLE_IMGUI
-	//gpuParticleManager_->Update(RenderManager::GetInstance()->GetCommandContext());
-	gpuParticleEditor_->Update(RenderManager::GetInstance()->GetCommandContext());
+	gpuParticleManager_->Update(RenderManager::GetInstance()->GetCommandContext());
+	//gpuParticleEditor_->Update(RenderManager::GetInstance()->GetCommandContext());
 	debugCamera_->Update(viewProjection_);
 
+	boxAnimation_.Update(boxAnimationWorldTransform_, true, boxAnimationModelHandle_, 0);
+	boxAnimationWorldTransform_.UpdateMatrix();
 	if (!debugCamera_->GetIsDebugCamera()) {
 		followCamera_->Update();
 	}
@@ -201,11 +208,13 @@ void GameScene::Update() {
 }
 
 void GameScene::Draw(CommandContext& commandContext) {
-	//gpuParticleManager_->Draw(*viewProjection_, commandContext);
-	gpuParticleEditor_->Draw(*viewProjection_, commandContext);
+	gpuParticleManager_->Draw(*viewProjection_, commandContext);
+	//gpuParticleEditor_->Draw(*viewProjection_, commandContext);
 	player_->Draw(*viewProjection_, commandContext);
 
-	ModelManager::GetInstance()->Draw(worldTransform_, *viewProjection_, modelHandle_, commandContext);
+	ModelManager::GetInstance()->Draw(boxAnimationWorldTransform_, *viewProjection_, boxAnimationModelHandle_, commandContext);
+
+	//ModelManager::GetInstance()->Draw(worldTransform_, *viewProjection_, modelHandle_, commandContext);
 
 	ModelManager::GetInstance()->Draw(worldTransform_, *viewProjection_, terrainHandle_, commandContext);
 }

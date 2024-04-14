@@ -57,17 +57,17 @@ void Color(uint index)
 
 void Create(uint index)
 {
-    //LifeTime(index);
+    LifeTime(index);
     
-    //Scale(index);
+    Scale(index);
     
-    //Rotate(index);
+    Rotate(index);
     
-    //Translate(index);
+    Translate(index);
     
-    //Velocity(index);
+    Velocity(index);
     
-    //Color(index);
+    Color(index);
     
     Output[index].textureInidex = gEmitter.textureIndex;
     

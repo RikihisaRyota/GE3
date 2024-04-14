@@ -9,14 +9,28 @@
 #include "ViewProjection.h"
 #include "Vector4.h"
 #include "Vector2.h"
+#include "Quaternion.h"
 
 
+Quaternion IdentityQuaternion();
+Quaternion Conjugation(const Quaternion& quaternion);
+Quaternion Normalize(const Quaternion& quaternion);
+Quaternion Inverse(const Quaternion& quaternion);
+Quaternion Add(const Quaternion& p1, const Quaternion& p2);
+Quaternion Multiply(const Quaternion& p1, const Quaternion& p2);
+Quaternion Multiply(const Quaternion& p1, float scalar);
+float Norm(const Quaternion& quaternion);
+Quaternion Slerp(const Quaternion& q0, const Quaternion& q1, float t);
+// 任意軸回転(Quaternion)
+Quaternion MakeRotateAxisAngleQuaternion(const Vector3& axis, float angle);
+Quaternion MakeRotateQuaternion(const Vector3& from, const Vector3 to);
 // ベクトル変換
 Vector3 TransformNormal(const Vector3& v, const Matrix4x4& m);
 
 Matrix4x4 NotTransform(const Matrix4x4& matrix);
 
 Vector3 Lerp(const Vector3& start, const Vector3& end, float t);
+Quaternion Lerp(const Quaternion& start, const Quaternion& end, float t);
 float Lerp(float start, float end, float t);
 
 Vector3 Slerp(const Vector3& start, const Vector3& end, float t);
@@ -24,6 +38,7 @@ Vector3 Slerp(const Vector3& start, const Vector3& end, float t);
 float Distance(const Vector3& v1, const Vector3& v2);
 
 float Dot(const Vector3& a, const Vector3& b);
+float Dot(const Quaternion& p1, const Quaternion& p2);
 
 Vector3 Subtract(const Vector3& v1, const Vector3& v2);
 
@@ -64,9 +79,11 @@ Matrix4x4 MakeRotateYMatrix(float radian);
 Matrix4x4 MakeRotateZMatrix(float radian);
 //4,全部
 Matrix4x4 MakeRotateXYZMatrix(const Vector3& rotation);
+Matrix4x4 MakeRotate(const Quaternion& q);
 
 // 3次元アフィン変換
 Matrix4x4 MakeAffineMatrix(const Vector3& scale, const Vector3& rotate, const Vector3& translate);
+Matrix4x4 MakeAffineMatrix(const Vector3& scale, const Quaternion& rotate, const Vector3& translate);
 //1,透視投影行列
 Matrix4x4 MakePerspectiveFovMatrix(float fovY, float aspectRatio, float nearClip, float farClip);
 //2,正射影行列

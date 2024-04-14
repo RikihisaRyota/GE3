@@ -14,7 +14,7 @@ void PlayerBullet::Create(GPUParticleManager* GPUParticleManager, const Vector3&
 	gpuParticleManager_ = GPUParticleManager;
 	
 	worldTransform_.Initialize();
-	worldTransform_.translation_ = position;
+	worldTransform_.translate = position;
 	
 	for (auto& sub : secondBullet_) {
 		sub.Initialize();
@@ -31,8 +31,8 @@ void PlayerBullet::Update() {
 	if (time_ <= 0) {
 		isAlive_ = false;
 	}
-	worldTransform_.translation_ += velocity_;
-	worldTransform_.rotation_.z += 0.1f;
+	worldTransform_.translate += velocity_;
+	worldTransform_.rotate.z += 0.1f;
 	worldTransform_.UpdateMatrix();
 	for (int i = 0; auto & sub : secondBullet_) {
 		float angle = 2.0f * std::numbers::pi_v<float> * i / kNumSubBullet;
@@ -46,7 +46,7 @@ void PlayerBullet::Update() {
 		};
 
 		// サブオブジェクトの位置を更新
-		sub.translation_ = MakeRotateXYZMatrix(Normalize(velocity_)) * relativePosition;
+		sub.translate = MakeRotateXYZMatrix(Normalize(velocity_)) * relativePosition;
 		sub.UpdateMatrix();
 		i++;
 
@@ -56,7 +56,7 @@ void PlayerBullet::Update() {
 					.min = {-0.1f,-0.1f,-0.1f},
 					.max = {0.1f,0.1f,0.1f},
 				},
-				.position = {MakeTranslateMatrix(sub.matWorld_)},
+				.position = {MakeTranslateMatrix(sub.matWorld)},
 			},
 
 		.scale{
@@ -124,7 +124,7 @@ void PlayerBullet::Update() {
 					.min = {-0.5f,-0.5f,-0.5f},
 					.max = {0.5f,0.5f,0.5f},
 				},
-				.position = {MakeTranslateMatrix(worldTransform_.matWorld_)},
+				.position = {MakeTranslateMatrix(worldTransform_.matWorld)},
 			},
 
 		.scale{

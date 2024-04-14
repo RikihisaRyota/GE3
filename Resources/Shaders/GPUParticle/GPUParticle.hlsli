@@ -7,8 +7,7 @@ struct UintMinMax
 {
     uint32_t min;
     uint32_t max;
-    uint32_t pad1;
-    uint32_t pad2;
+    uint32_t2 pad;
 };
 
 

@@ -121,8 +121,8 @@ void ModelManager::Draw(const WorldTransform& worldTransform, const ViewProjecti
 	commandContext.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	commandContext.SetVertexBuffer(0, models_.at(modelHandle)->GetVBView());
 	for (auto& modelData : models_.at(modelHandle)->GetMeshData()) {
-		commandContext.SetIndexBuffer(modelData->ibView_);
-		commandContext.SetGraphicsConstantBuffer(Parameter::RootParameter::WorldTransform, worldTransform.constBuff_.get()->GetGPUVirtualAddress());
+		commandContext.SetIndexBuffer(modelData->ibView);
+		commandContext.SetGraphicsConstantBuffer(Parameter::RootParameter::WorldTransform, worldTransform.constBuff.get()->GetGPUVirtualAddress());
 		commandContext.SetGraphicsConstantBuffer(Parameter::RootParameter::ViewProjection, viewProjection.constBuff_.GetGPUVirtualAddress());
 		commandContext.SetGraphicsConstantBuffer(Parameter::RootParameter::DirectionLight, Lighting::GetInstance()->GetDirectionLightBuffer().GetGPUVirtualAddress());
 		commandContext.SetGraphicsConstantBuffer(Parameter::RootParameter::PointLight, Lighting::GetInstance()->GetPointLightBuffer().GetGPUVirtualAddress());

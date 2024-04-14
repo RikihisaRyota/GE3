@@ -106,12 +106,6 @@
     <Filter Include="Engine\ParticleManager\Particle">
       <UniqueIdentifier>{afbab9c0-ccb2-4fbe-aae9-72ed3ddbc534}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Engine\Math\ImGui">
-      <UniqueIdentifier>{b18b82c8-98da-4545-8479-c61f74d7771e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Engine\Math\ImGui\Model">
-      <UniqueIdentifier>{86444217-c6c3-45f6-a45b-6e1e9f887a2d}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Shaders\Particle">
       <UniqueIdentifier>{20a8c2b7-8c5e-4ee2-9705-b5e41b3532ba}</UniqueIdentifier>
     </Filter>
@@ -120,6 +114,15 @@
     </Filter>
     <Filter Include="Engine\GPUParticleManager\Editor">
       <UniqueIdentifier>{0e535aab-8521-4205-b863-559f214d291b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Animation">
+      <UniqueIdentifier>{e49b32b9-814e-43eb-8786-d67740349047}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Model">
+      <UniqueIdentifier>{86444217-c6c3-45f6-a45b-6e1e9f887a2d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\ImGui">
+      <UniqueIdentifier>{b18b82c8-98da-4545-8479-c61f74d7771e}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -130,7 +133,7 @@
       <Filter>Engine\ConvertString</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Engine\ImGui\ImGuiManager.cpp">
-      <Filter>Engine\Math\ImGui</Filter>
+      <Filter>Engine\ImGui</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Engine\Input\Input.cpp">
       <Filter>Engine\Input</Filter>
@@ -224,7 +227,7 @@
     </ClCompile>
     <ClCompile Include="Game\Src\main.cpp" />
     <ClCompile Include="Engine\Engine\Model\Model.cpp">
-      <Filter>Engine\Math\ImGui\Model</Filter>
+      <Filter>Engine\Model</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Engine\Texture\Texture.cpp">
       <Filter>Engine\Texture</Filter>
@@ -233,7 +236,7 @@
       <Filter>Engine\Texture</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Engine\Model\ModelManager.cpp">
-      <Filter>Engine\Math\ImGui\Model</Filter>
+      <Filter>Engine\Model</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Engine\Audio\Audio.cpp">
       <Filter>Engine\Audio</Filter>
@@ -295,13 +298,22 @@
     <ClCompile Include="Engine\Engine\Graphics\ReadBackBuffer.cpp">
       <Filter>Engine\Graphics</Filter>
     </ClCompile>
+    <ClCompile Include="Engine\Engine\Animation\Animation.cpp">
+      <Filter>Engine\Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Engine\Model\ModelHandle.cpp">
+      <Filter>Engine\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Engine\Math\Quaternion.cpp">
+      <Filter>Engine\Math</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\Engine\WinApp\WinApp.h">
       <Filter>Engine\WinApp</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Engine\ImGui\ImGuiManager.h">
-      <Filter>Engine\Math\ImGui</Filter>
+      <Filter>Engine\ImGui</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Engine\ConvertString\ConvertString.h">
       <Filter>Engine\ConvertString</Filter>
@@ -421,7 +433,7 @@
       <Filter>Engine\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Engine\Model\Model.h">
-      <Filter>Engine\Math\ImGui\Model</Filter>
+      <Filter>Engine\Model</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Engine\Texture\Texture.h">
       <Filter>Engine\Texture</Filter>
@@ -433,10 +445,10 @@
       <Filter>Engine\Texture</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Engine\Model\ModelHandle.h">
-      <Filter>Engine\Math\ImGui\Model</Filter>
+      <Filter>Engine\Model</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Engine\Model\ModelManager.h">
-      <Filter>Engine\Math\ImGui\Model</Filter>
+      <Filter>Engine\Model</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Engine\Audio\Audio.h">
       <Filter>Engine\Audio</Filter>
@@ -518,6 +530,12 @@
     </ClInclude>
     <ClInclude Include="Engine\Engine\GPUParticleManager\GPUParticle\GPUParticleEditor.h">
       <Filter>Engine\GPUParticleManager\Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Engine\Animation\Animation.h">
+      <Filter>Engine\Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Engine\Math\Quaternion.h">
+      <Filter>Engine\Math</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

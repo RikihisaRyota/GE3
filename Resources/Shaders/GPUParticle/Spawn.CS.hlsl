@@ -77,10 +77,12 @@ void Create(uint index, CreateParticle particle)
     Output[index].isAlive = true;
 }
 
+
 [numthreads(threadBlockSize, 1, 1)]
 void main(uint3 DTid : SV_DispatchThreadID)
 {
     int index = particleIndexCommands.Consume();
+
     CreateParticle particle;
     if (index >= 0)
     {
@@ -100,4 +102,5 @@ void main(uint3 DTid : SV_DispatchThreadID)
         }
         Create(index, particle);
     }
+    
 }

@@ -31,7 +31,7 @@ Vector3 Lerp(const Vector3& start, const Vector3& end, float t) {
 	return start + ((end - start) * t);
 }
 
-Quaternion Lerp(const Quaternion& start, const Quaternion& end, float t) {
+Quaternion SLerp(const Quaternion& start, const Quaternion& end, float t) {
 	return Quaternion{
 		   start.x + t * (end.x - start.x),
 		   start.y + t * (end.y - start.y),
@@ -1080,6 +1080,55 @@ Quaternion MakeRotateQuaternion(const Vector3& from, const Vector3 to) {
 	result.w = std::cos(halfCos);
 
 	return result;
+}
+
+Quaternion MakeFromOrthonormal(const Vector3& x, const Vector3& y, const Vector3& z) {
+	float trace = x.x + y.y + z.z;
+	if (trace > 0.0f) {
+		float s = std::sqrt(trace + 1.0f) * 0.5f;
+		Quaternion result{};
+		result.w = s;
+		s = 0.25f / s;
+		result.x = (y.z - z.y) * s;
+		result.y = (z.x - x.z) * s;
+		result.z = (x.y - y.x) * s;
+		return result;
+	}
+	else if (x.x > y.y && x.x > z.z) {
+		float s = std::sqrt(1.0f + x.x - y.y - z.z) * 0.5f;
+		Quaternion result{};
+		result.x = s;
+		s = 0.25f / s;
+		result.y = (x.y + y.x) * s;
+		result.z = (z.x + x.z) * s;
+		result.w = (y.z - z.y) * s;
+		return result;
+	}
+	else if (y.y > z.z) {
+		float s = std::sqrt(1.0f - x.x + y.y - z.z) * 0.5f;
+		Quaternion result{};
+		result.y = s;
+		s = 0.25f / s;
+		result.x = (x.y + y.x) * s;
+		result.z = (y.z + z.y) * s;
+		result.w = (z.x - x.z) * s;
+		return result;
+	}
+	Quaternion result{};
+	float s = std::sqrt(1.0f - x.x - y.y + z.z) * 0.5f;
+	result.z = s;
+	s = 0.25f / s;
+	result.x = (z.x + x.z) * s;
+	result.y = (y.z + z.y) * s;
+	result.w = (x.y - y.x) * s;
+	return result;
+}
+
+Quaternion MakeLookRotation(const Vector3& direction, const Vector3& up) {
+	Vector3 z = Normalize(direction);
+	Vector3 x = Normalize(Cross(up, z));
+	Vector3 y = Cross(z, x);
+	return MakeFromOrthonormal(x, y, z);
 }
 
 Vector3 RotateVector(const Vector3& vector, const Quaternion& quaternion) {

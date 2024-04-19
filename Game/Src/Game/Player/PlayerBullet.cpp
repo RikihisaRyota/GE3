@@ -50,7 +50,7 @@ void PlayerBullet::Update() {
 		sub.UpdateMatrix();
 		i++;
 
-		Emitter emitterForGPU = {
+		GPUParticleShaderStructs::Emitter emitterForGPU = {
 		.emitterArea{
 				.area{
 					.min = {-0.1f,-0.1f,-0.1f},
@@ -118,7 +118,7 @@ void PlayerBullet::Update() {
 	// 弾本体
 	// 0
 	{
-		Emitter emitterForGPU = {
+		GPUParticleShaderStructs::Emitter emitterForGPU = {
 		.emitterArea{
 				.area{
 					.min = {-0.5f,-0.5f,-0.5f},

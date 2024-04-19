@@ -8,11 +8,8 @@
 #include "Engine/Math/Vector3.h"
 #include "Engine/Math/Quaternion.h"
 #include "Engine/Math/WorldTransform.h"
-
-
-class ModelManager;
-class ModelHandle;
-struct WorldTransform;
+#include "Engine/Model/Model.h"
+#include "Engine/Animation/Skeleton.h"
 
 template <typename tValue>
 struct  Keyframe {
@@ -46,3 +43,4 @@ struct Animation {
 
 Vector3 CalculateValue(const AnimationCurve<Vector3>& keyframes, float time);
 Quaternion CalculateValue(const AnimationCurve<Quaternion>& keyframes, float time);
+void ApplyAnimation(Skeleton& skeleton, const Animation& animation, float animationTime);

@@ -125,8 +125,8 @@ void ParticleManager::Initialize() {
 #pragma region インスタンシング生成
 	for (size_t i = 0; i < kNumInstancing; i++) {
 		auto device = GraphicsCore::GetInstance()->GetDevice();
-		Emitter* emitter = new Emitter();
-		ParticleMotion* particleMotion = new ParticleMotion();
+		CPUParticleShaderStructs::Emitter* emitter = new CPUParticleShaderStructs::Emitter();
+		CPUParticleShaderStructs::ParticleMotion* particleMotion = new CPUParticleShaderStructs::ParticleMotion();
 		Instancing* instancing = new Instancing();
 
 
@@ -136,7 +136,7 @@ void ParticleManager::Initialize() {
 
 		//instancing->textureHandle = 0;
 
-		instancing->instancingBuff.Create(L"instancing->instancingBuff", sizeof(ParticleForGPU) * instancing->maxInstance);
+		instancing->instancingBuff.Create(L"instancing->instancingBuff", sizeof(CPUParticleShaderStructs::ParticleForGPU) * instancing->maxInstance);
 		//instancing->instancingBuff.Copy(instancing->instancingDate, sizeof(ParticleForGPU) * instancing->maxInstance);
 
 		// シェーダーリソースビュー
@@ -147,7 +147,7 @@ void ParticleManager::Initialize() {
 		desc.Buffer.FirstElement = 0;
 		desc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
 		desc.Buffer.NumElements = instancing->maxInstance;
-		desc.Buffer.StructureByteStride = sizeof(ParticleForGPU);
+		desc.Buffer.StructureByteStride = sizeof(CPUParticleShaderStructs::ParticleForGPU);
 
 		instancing->descriptorHandle = GraphicsCore::GetInstance()->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 		device->CreateShaderResourceView(instancing->instancingBuff, &desc, instancing->descriptorHandle);
@@ -222,7 +222,7 @@ void ParticleManager::Shutdown() {
 	instancing_.clear();
 }
 
-void ParticleManager::AddParticle(Emitter* emitter, ParticleMotion* particleMotion, TextureHandle textureHandle) {
+void ParticleManager::AddParticle(CPUParticleShaderStructs::Emitter* emitter, CPUParticleShaderStructs::ParticleMotion* particleMotion, TextureHandle textureHandle) {
 	for (auto& instancing : instancing_) {
 		if (!instancing->isAlive) {
 			instancing->particle->Reset();

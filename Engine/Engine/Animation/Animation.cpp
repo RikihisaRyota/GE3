@@ -79,6 +79,17 @@ Quaternion CalculateValue(const AnimationCurve<Quaternion>& keyframes, float tim
 	return (*keyframes.keyframe.rbegin()).value;
 }
 
+void ApplyAnimation(Skeleton& skeleton, const Animation& animation, float animationTime) {
+	for (auto& joint : skeleton.joints) {
+		if (auto it = animation.nodeAnimations.find(joint.name);it!=animation.nodeAnimations.end()) {
+			const NodeAnimation& rootNodeAnimation = (*it).second;
+			joint.transform.translate = CalculateValue(rootNodeAnimation.translate,animationTime);
+			joint.transform.rotate = CalculateValue(rootNodeAnimation.rotate,animationTime);
+			joint.transform.scale = CalculateValue(rootNodeAnimation.scale,animationTime);
+		}
+	}
+}
+
 void Animation::LoadAnimationFile(const std::filesystem::path& directoryPath) {
 	Assimp::Importer importer;
 	const aiScene* scene = importer.ReadFile(directoryPath.string(), 0);

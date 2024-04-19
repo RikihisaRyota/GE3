@@ -45,9 +45,9 @@ public:
 	void ParticleUpdate(CommandContext& commandContext);
 	void Draw(const ViewProjection& viewProjection, CommandContext& commandContext);
 	void SetCommandSignature(ID3D12CommandSignature* commandSignature) { commandSignature_ = commandSignature; }
-	void Create(const Emitter& emitterForGPU);
+	void Create(const GPUParticleShaderStructs::Emitter& emitterForGPU);
 
-	void SetEmitter(const Emitter& emitterForGPU);
+	void SetEmitter(const GPUParticleShaderStructs::Emitter& emitterForGPU);
 private:
 	void InitializeParticleBuffer();
 	void InitializeUpdateParticle();
@@ -85,7 +85,7 @@ private:
 	// 追加するエミッターが何個あるか
 	UploadBuffer addEmitterCountBuffer_;
 	DescriptorHandle addEmitterUAVHandle_;
-	std::vector<Emitter> emitterForGPUs_;
+	std::vector<GPUParticleShaderStructs::Emitter> emitterForGPUs_;
 
 
 	UINT particleIndexSize_;

@@ -24,13 +24,14 @@ Quaternion Slerp(const Quaternion& q0, const Quaternion& q1, float t);
 // 任意軸回転(Quaternion)
 Quaternion MakeRotateAxisAngleQuaternion(const Vector3& axis, float angle);
 Quaternion MakeRotateQuaternion(const Vector3& from, const Vector3 to);
+Quaternion MakeFromOrthonormal(const Vector3& x, const Vector3& y, const Vector3& z);
+Quaternion MakeLookRotation(const Vector3& direction, const Vector3& up = { 0.0f,1.0f,0.0f });
 // ベクトル変換
 Vector3 TransformNormal(const Vector3& v, const Matrix4x4& m);
 
 Matrix4x4 NotTransform(const Matrix4x4& matrix);
 
 Vector3 Lerp(const Vector3& start, const Vector3& end, float t);
-Quaternion Lerp(const Quaternion& start, const Quaternion& end, float t);
 float Lerp(float start, float end, float t);
 
 Vector3 Slerp(const Vector3& start, const Vector3& end, float t);

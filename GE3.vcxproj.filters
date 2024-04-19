@@ -124,6 +124,15 @@
     <Filter Include="Engine\ImGui">
       <UniqueIdentifier>{b18b82c8-98da-4545-8479-c61f74d7771e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Game\Boss">
+      <UniqueIdentifier>{db4218b4-4c7c-46be-893c-13f2072396cc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\Boss\BossModelManager">
+      <UniqueIdentifier>{01527da4-9cf2-4800-9303-ba0a2ff51aab}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\PostEffect">
+      <UniqueIdentifier>{c7ccfac3-abab-4d8f-bcc4-a0368184fccb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine\Engine\Math\MyMath.cpp">
@@ -307,6 +316,10 @@
     <ClCompile Include="Engine\Engine\Math\Quaternion.cpp">
       <Filter>Engine\Math</Filter>
     </ClCompile>
+    <ClCompile Include="Engine\Engine\Graphics\PostEffect.cpp">
+      <Filter>Engine\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Engine\Animation\Skeleton.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\Engine\WinApp\WinApp.h">
@@ -537,6 +550,18 @@
     <ClInclude Include="Engine\Engine\Math\Quaternion.h">
       <Filter>Engine\Math</Filter>
     </ClInclude>
+    <ClInclude Include="Game\Src\Game\Boss\Boss.h">
+      <Filter>Game\Boss</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Src\Game\Boss\BossModel\BossModelManager.h">
+      <Filter>Game\Boss\BossModelManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Engine\Graphics\PostEffect.h">
+      <Filter>Engine\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Engine\Animation\Skeleton.h">
+      <Filter>Engine\Animation</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Externals\Imgui\LICENSE.txt">
@@ -558,6 +583,12 @@
     </None>
     <None Include="Resources\Shaders\GPUParticle\GPUParticle.hlsli">
       <Filter>Shaders\GPUParticle</Filter>
+    </None>
+    <None Include="Resources\Shaders\Fullscreen.hlsli">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Resources\Shaders\PostEffect\PostEffect.hlsli">
+      <Filter>Shaders\PostEffect</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -605,6 +636,15 @@
     </FxCompile>
     <FxCompile Include="Resources\Shaders\GPUParticle\Editor\EditorParticleUpdate.hlsl">
       <Filter>Shaders\GPUParticle\Editor</Filter>
+    </FxCompile>
+    <FxCompile Include="Resources\Shaders\PostEffect\PostEffect.PS.hlsl">
+      <Filter>Shaders\PostEffect</Filter>
+    </FxCompile>
+    <FxCompile Include="Resources\Shaders\PostEffect\PostEffect.VS.hlsl">
+      <Filter>Shaders\PostEffect</Filter>
+    </FxCompile>
+    <FxCompile Include="Resources\Shaders\Fullscreen.VS.hlsl">
+      <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

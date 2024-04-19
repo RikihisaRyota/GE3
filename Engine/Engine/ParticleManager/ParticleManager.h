@@ -24,7 +24,7 @@ public:
 		// ワールドトランスフォームマトリックスリソース
 		UploadBuffer instancingBuff;
 		// ワールドトランスフォーム
-		ParticleForGPU* instancingDate = nullptr;
+		CPUParticleShaderStructs::ParticleForGPU* instancingDate = nullptr;
 		DescriptorHandle descriptorHandle;
 		bool isAlive;
 	};
@@ -38,7 +38,7 @@ public:
 	void Update();
 	void Draw(CommandContext& commandContext, const ViewProjection& viewProjection);
 	void Shutdown();
-	void AddParticle(Emitter* emitter, ParticleMotion* particleMotion, TextureHandle textureHandle);
+	void AddParticle(CPUParticleShaderStructs::Emitter* emitter, CPUParticleShaderStructs::ParticleMotion* particleMotion, TextureHandle textureHandle);
 private:
 	static const size_t kNumInstancing = 100;
 	static bool CompareParticles(const Instancing* a, const Instancing* b) {

@@ -100,7 +100,7 @@ void GPUParticleManager::Draw(const ViewProjection& viewProjection, CommandConte
 	gpuParticle_->Draw(viewProjection, commandContext);
 }
 
-void GPUParticleManager::CreateParticle(const Emitter& emitter) {
+void GPUParticleManager::CreateParticle(const GPUParticleShaderStructs::Emitter& emitter) {
 	gpuParticle_->Create(emitter);
 }
 
@@ -149,7 +149,7 @@ void GPUParticleManager::CreateGraphics() {
 		D3D12_COMMAND_SIGNATURE_DESC commandSignatureDesc{};
 		commandSignatureDesc.pArgumentDescs = argumentDescs;
 		commandSignatureDesc.NumArgumentDescs = _countof(argumentDescs);
-		commandSignatureDesc.ByteStride = sizeof(IndirectCommand);
+		commandSignatureDesc.ByteStride = sizeof(GPUParticleShaderStructs::IndirectCommand);
 		auto result = device->CreateCommandSignature(&commandSignatureDesc, *graphicsRootSignature_, IID_PPV_ARGS(&commandSignature_));
 		commandSignature_->SetName(L"commandSignature");
 		assert(SUCCEEDED(result));

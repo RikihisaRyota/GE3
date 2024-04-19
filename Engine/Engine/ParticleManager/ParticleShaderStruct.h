@@ -6,89 +6,94 @@
 #include "Engine/Math/Vector3.h"
 #include "Engine/Math/Vector4.h"
 
-struct ParticleForGPU {
-    Matrix4x4 matWorld;
-    Vector4 color;
-};
+namespace CPUParticleShaderStructs {
 
-struct ParticleScale {
-    Vector3 startScale;
-    Vector3 interimScale;
-    Vector3 endScale;
-    Vector3 currentScale;
-};
 
-struct ParticleRotate {
-    Vector3 addRotate;
-    Vector3 currentRotate;
-};
+	struct ParticleForGPU {
+		Matrix4x4 matWorld;
+		Vector4 color;
+	};
 
-struct ParticleColor {
-    Vector4 startColor;
-    Vector4 endColor;
-    Vector4 currentColor;
-};
+	struct ParticleScale {
+		Vector3 startScale;
+		Vector3 interimScale;
+		Vector3 endScale;
+		Vector3 currentScale;
+	};
 
-struct ParticleAngel {
-    float start;
-    float end;
-    float current;
-};
+	struct ParticleRotate {
+		Vector3 addRotate;
+		Vector3 currentRotate;
+	};
 
-struct ParticleAliveTime {
-    int32_t maxTime;
-    int32_t time;
-    int32_t randomRange;
-};
+	struct ParticleColor {
+		Vector4 startColor;
+		Vector4 endColor;
+		Vector4 currentColor;
+	};
 
-struct ParticleVelocity {
-    float speed;
-    Vector3 velocity;
-    float randomRange;
-};
+	struct ParticleAngel {
+		float start;
+		float end;
+		float current;
+	};
 
-struct ParticleSpawn {
-    Vector3 position;
-    float rangeX;
-    float rangeY;
-};
+	struct ParticleAliveTime {
+		int32_t maxTime;
+		int32_t time;
+		int32_t randomRange;
+	};
 
-struct ParticleRandomScale {
-    Vector3 startRandomRange;
-    Vector3 interimRandomRange;
-    Vector3 endRandomRange;
-};
+	struct ParticleVelocity {
+		float speed;
+		Vector3 velocity;
+		float randomRange;
+	};
 
-struct EmitterColor{
-    Vector4 startColor_;
-    Vector4 startBeginMinRandomColor_;
-    Vector4 startBeginMaxRandomColor_;
+	struct ParticleSpawn {
+		Vector3 position;
+		float rangeX;
+		float rangeY;
+	};
 
-    Vector4 endColor_;
-    Vector4 endBeginMinRandomColor_;
-    Vector4 endBeginMaxRandomColor_;
-};
+	struct ParticleRandomScale {
+		Vector3 startRandomRange;
+		Vector3 interimRandomRange;
+		Vector3 endRandomRange;
+	};
 
-struct Emitter {
-    ParticleSpawn spawn;
-    ParticleAngel angle;
-    ParticleRandomScale randomScale;
-    ParticleScale scale;
-    EmitterColor color;
-    int32_t inOnce;
-    int32_t flameInterval;
-    int32_t aliveTime;
-    bool isAlive;
-};
+	struct EmitterColor {
+		Vector4 startColor_;
+		Vector4 startBeginMinRandomColor_;
+		Vector4 startBeginMaxRandomColor_;
 
-struct ParticleMotion {
-    ParticleScale scale;
-    ParticleRotate rotate;
-    Vector3 position;
-    ParticleVelocity velocity;
-    Vector3 acceleration_;
-    ParticleColor  color;
-    ParticleAliveTime aliveTime;
-    bool isAlive;
-    ParticleForGPU constantBuff;
-};
+		Vector4 endColor_;
+		Vector4 endBeginMinRandomColor_;
+		Vector4 endBeginMaxRandomColor_;
+	};
+
+	struct Emitter {
+		ParticleSpawn spawn;
+		ParticleAngel angle;
+		ParticleRandomScale randomScale;
+		ParticleScale scale;
+		EmitterColor color;
+		int32_t inOnce;
+		int32_t flameInterval;
+		int32_t aliveTime;
+		bool isAlive;
+	};
+
+	struct ParticleMotion {
+		ParticleScale scale;
+		ParticleRotate rotate;
+		Vector3 position;
+		ParticleVelocity velocity;
+		Vector3 acceleration_;
+		ParticleColor  color;
+		ParticleAliveTime aliveTime;
+		bool isAlive;
+		ParticleForGPU constantBuff;
+	};
+
+}

@@ -9,19 +9,19 @@
 
 class Particle {
 	struct ParticleWorldTransform {
-		ParticleMotion motion;
+		CPUParticleShaderStructs::ParticleMotion motion;
 		Vector3 scale;
 		Vector3 rotate;
 		Vector3 transform;
-		ParticleForGPU constantDate;
+		CPUParticleShaderStructs::ParticleForGPU constantDate;
 		void UpdateMatrix();
 	};
 public:
-	void Initialize(Emitter* emitter, ParticleMotion* particleMotion);
+	void Initialize(CPUParticleShaderStructs::Emitter* emitter, CPUParticleShaderStructs::ParticleMotion* particleMotion);
 	void Update();
 	void Reset();
 
-	ParticleForGPU GetParticleForGPU(size_t num) { return particleWorldTransform_.at(num)->constantDate; }
+	CPUParticleShaderStructs::ParticleForGPU GetParticleForGPU(size_t num) { return particleWorldTransform_.at(num)->constantDate; }
 	uint32_t GetAliveParticle() { return numAliveParticle_; }
 	bool GetIsAlive() { return isAlive_; }
 private:
@@ -32,7 +32,7 @@ private:
 	bool isAlive_;
 	uint32_t numAliveParticle_;
 	int32_t flameInterval_;
-	ParticleMotion* originalParticle_;
-	Emitter* emitter_;
+	CPUParticleShaderStructs::ParticleMotion* originalParticle_;
+	CPUParticleShaderStructs::Emitter* emitter_;
 	std::vector<ParticleWorldTransform*> particleWorldTransform_;
 };

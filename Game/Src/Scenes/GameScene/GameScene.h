@@ -12,6 +12,7 @@
 
 #include "Engine/Sprite/SpriteHandle.h"
 #include "Engine/Animation/Animation.h"
+#include "Engine/Animation/Skeleton.h"
 
 class CommandContext;
 class GameScene : public BaseScene {
@@ -38,7 +39,10 @@ private:
 	//int32_t playHandle_;
 	Vector4 color_;
 
-	Animation boxAnimation_;
-	ModelHandle boxAnimationModelHandle_;
-	WorldTransform boxAnimationWorldTransform_;
+	Animation animation_;
+	Skeleton skeleton_;
+	float animationTime_;
+
+	ModelHandle animationModelHandle_;
+	std::vector<WorldTransform> animationWorldTransform_;
 };

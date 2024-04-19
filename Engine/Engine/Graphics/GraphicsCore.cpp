@@ -55,7 +55,7 @@ void GraphicsCore::CreateDevice() {
 		//デバックレイヤーを有効化する
 		debugController->EnableDebugLayer();
 		//更にGPU側でもチェックを行うようにする
-		//debugController->SetEnableGPUBasedValidation(TRUE);
+		debugController->SetEnableGPUBasedValidation(TRUE);
 	}
 #endif
 	// DXGIファクトリーの生成

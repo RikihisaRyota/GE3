@@ -34,8 +34,6 @@ private:
 	void AnimationUpdate();
 	void PlayerRotate(const Vector3& vector);
 
-
-
 	void BulletUpdate();
 	void Shot();
 

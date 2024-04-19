@@ -59,6 +59,12 @@ void GPUParticleEditor::Initialize() {
 	CreateBuffer();
 }
 
+void GPUParticleEditor::Update(CommandContext& commandContext) {
+	EmitterUpdate();
+	Spawn(commandContext);
+	ParticleUpdate(commandContext);
+}
+
 void GPUParticleEditor::EmitterUpdate() {
 #pragma region エミッターCPU
 	if (emitter_.frequency.time <= 0) {
@@ -141,7 +147,7 @@ void GPUParticleEditor::EmitterUpdate() {
 		ImGui::TreePop();
 	}
 	ImGui::End();
-	emitterBuffer_.Copy(&emitter_, sizeof(Emitter));
+	emitterBuffer_.Copy(&emitter_, sizeof(GPUParticleShaderStructs::Emitter));
 }
 
 void GPUParticleEditor::Spawn(CommandContext& commandContext) {
@@ -181,24 +187,21 @@ void GPUParticleEditor::ParticleUpdate(CommandContext& commandContext) {
 
 		commandContext.Dispatch(static_cast<UINT>(ceil(GPUParticleShaderStructs::MaxParticleNum / float(GPUParticleShaderStructs::ComputeThreadBlockSize))), 1, 1);
 
-		UINT64 destInstanceCountArgumentOffset = sizeof(IndirectCommand::SRV) + sizeof(UINT);
+		UINT64 destInstanceCountArgumentOffset = sizeof(GPUParticleShaderStructs::IndirectCommand::SRV) + sizeof(UINT);
 		UINT64 srcInstanceCountArgumentOffset = particleIndexCounterOffset_;
 
 		commandContext.CopyBufferRegion(drawArgumentBuffer_, destInstanceCountArgumentOffset, drawIndexCommandBuffers_, srcInstanceCountArgumentOffset, sizeof(UINT));
 	}
 }
 
-void GPUParticleEditor::Update(CommandContext& commandContext) {
-	EmitterUpdate();
-	Spawn(commandContext);
-	ParticleUpdate(commandContext);
-}
-
 void GPUParticleEditor::Draw(const ViewProjection& viewProjection, CommandContext& commandContext) {
 	if (*static_cast<uint32_t*>(originalCommandCounterBuffer_.GetCPUData()) != 0) {
 		commandContext.SetGraphicsRootSignature(*graphicsRootSignature_);
 		commandContext.SetPipelineState(*graphicsPipelineState_);
+
 		commandContext.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		commandContext.SetVertexBuffer(0, vbView_);
+		commandContext.SetIndexBuffer(ibView_);
 
 		commandContext.TransitionResource(particleBuffer_, D3D12_RESOURCE_STATE_GENERIC_READ);
 		commandContext.TransitionResource(drawIndexCommandBuffers_, D3D12_RESOURCE_STATE_GENERIC_READ);
@@ -258,7 +261,7 @@ void GPUParticleEditor::CreateGraphics() {
 		D3D12_COMMAND_SIGNATURE_DESC commandSignatureDesc{};
 		commandSignatureDesc.pArgumentDescs = argumentDescs;
 		commandSignatureDesc.NumArgumentDescs = _countof(argumentDescs);
-		commandSignatureDesc.ByteStride = sizeof(IndirectCommand);
+		commandSignatureDesc.ByteStride = sizeof(GPUParticleShaderStructs::IndirectCommand);
 		auto result = device->CreateCommandSignature(&commandSignatureDesc, *graphicsRootSignature_, IID_PPV_ARGS(&commandSignature_));
 		commandSignature_->SetName(L"EditorCommandSignature");
 		assert(SUCCEEDED(result));
@@ -346,7 +349,7 @@ void GPUParticleEditor::CreateIndexBuffer() {
 
 		size_t sizeIB = sizeof(Vertex) * vertices.size();
 
-		vertexBuffer_.Create(L"EditorGPUParticleVertexBuffer", sizeIB);
+		vertexBuffer_.Create(L"GPUParticleVertexBuffer", sizeIB);
 
 		vertexBuffer_.Copy(vertices.data(), sizeIB);
 
@@ -356,14 +359,14 @@ void GPUParticleEditor::CreateIndexBuffer() {
 	}
 	// インデックスバッファ
 	{
-		std::vector<uint32_t>indices = {
+		std::vector<uint16_t>indices = {
 		0, 1, 3,
 		2, 0, 3,
 		};
 
-		size_t sizeIB = sizeof(uint32_t) * indices.size();
+		size_t sizeIB = sizeof(uint16_t) * indices.size();
 
-		indexBuffer_.Create(L"EditorGPUParticleIndexBuffer", sizeIB);
+		indexBuffer_.Create(L"GPUParticleIndexBuffer", sizeIB);
 
 		indexBuffer_.Copy(indices.data(), sizeIB);
 
@@ -438,8 +441,8 @@ void GPUParticleEditor::CreateEmitterBuffer() {
 
 		.createParticleNum = 1 << 10,
 	};
-	emitterBuffer_.Create(L"EmitterBuffer", sizeof(Emitter));
-	emitterBuffer_.Copy(&emitter_, sizeof(Emitter));
+	emitterBuffer_.Create(L"EmitterBuffer", sizeof(GPUParticleShaderStructs::Emitter));
+	emitterBuffer_.Copy(&emitter_, sizeof(GPUParticleShaderStructs::Emitter));
 }
 
 void GPUParticleEditor::CreateParticleBuffer() {
@@ -478,7 +481,7 @@ void GPUParticleEditor::CreateParticleBuffer() {
 
 	particleBuffer_.Create(
 		L"EditorParticleBuffer", 
-		UINT64(sizeof(Particle) * GPUParticleShaderStructs::MaxParticleNum),
+		UINT64(sizeof(GPUParticleShaderStructs::Particle) * GPUParticleShaderStructs::MaxParticleNum),
 		D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
 }
 
@@ -547,7 +550,7 @@ void GPUParticleEditor::CreateUpdateParticle() {
 	// Draw引数用バッファー
 	drawArgumentBuffer_.Create(
 		L"EditorDrawArgumentBuffer",
-		sizeof(IndirectCommand)
+		sizeof(GPUParticleShaderStructs::IndirectCommand)
 	);
 
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
@@ -555,7 +558,7 @@ void GPUParticleEditor::CreateUpdateParticle() {
 	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
 	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 	srvDesc.Buffer.NumElements = 1;
-	srvDesc.Buffer.StructureByteStride = sizeof(IndirectCommand);
+	srvDesc.Buffer.StructureByteStride = sizeof(GPUParticleShaderStructs::IndirectCommand);
 	srvDesc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
 	drawArgumentHandle_ = graphics->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 	device->CreateShaderResourceView(
@@ -608,8 +611,8 @@ void GPUParticleEditor::CreateBuffer() {
 	commandContext.CopyBufferRegion(originalCommandBuffer_, particleIndexCounterOffset_, copyDrawIndexCounterBuffer, 0, sizeof(UINT));
 
 	UploadBuffer drawCopyBuffer{};
-	drawCopyBuffer.Create(L"EditorCopy", sizeof(IndirectCommand));
-	IndirectCommand tmp{};
+	drawCopyBuffer.Create(L"EditorCopy", sizeof(GPUParticleShaderStructs::IndirectCommand));
+	GPUParticleShaderStructs::IndirectCommand tmp{};
 	tmp.srv.particleSRV = particleBuffer_->GetGPUVirtualAddress();
 	tmp.srv.drawIndexSRV = drawIndexCommandBuffers_->GetGPUVirtualAddress();
 	tmp.drawIndex.IndexCountPerInstance = UINT(6);
@@ -617,7 +620,7 @@ void GPUParticleEditor::CreateBuffer() {
 	tmp.drawIndex.BaseVertexLocation = 0;
 	tmp.drawIndex.StartIndexLocation = 0;
 	tmp.drawIndex.StartInstanceLocation = 0;
-	drawCopyBuffer.Copy(&tmp, sizeof(IndirectCommand));
+	drawCopyBuffer.Copy(&tmp, sizeof(GPUParticleShaderStructs::IndirectCommand));
 	commandContext.CopyBuffer(drawArgumentBuffer_, drawCopyBuffer);
 	// コピー
 	commandContext.Close();

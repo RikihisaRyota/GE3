@@ -24,7 +24,7 @@ public:
 
 	void Draw(const ViewProjection& viewProjection,CommandContext& commandContext);
 
-	void CreateParticle(const Emitter& emitterForGPU);
+	void CreateParticle(const GPUParticleShaderStructs::Emitter& emitterForGPU);
 
 private:
 	void CreateParticleBuffer();

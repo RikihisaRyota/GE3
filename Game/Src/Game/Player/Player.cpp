@@ -135,5 +135,5 @@ void Player::AnimationUpdate() {
 }
 
 void Player::PlayerRotate(const Vector3& vector) {
-	worldTransform_.rotate.y = Angle({ 0.0f,0.0f,1.0f }, vector);
+	worldTransform_.rotate = Slerp( worldTransform_.rotate, MakeLookRotation({ vector.x,0.0f,vector.z }),0.1f);
 }

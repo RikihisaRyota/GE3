@@ -2,7 +2,7 @@
 
 #include "Engine/Math/MyMath.h"
 
-void Particle::Initialize(Emitter* emitter, ParticleMotion* particleMotion) {
+void Particle::Initialize(CPUParticleShaderStructs::Emitter* emitter, CPUParticleShaderStructs::ParticleMotion* particleMotion) {
 	emitter_ = emitter;
 	originalParticle_ = particleMotion;
 	flameInterval_ = emitter->flameInterval;

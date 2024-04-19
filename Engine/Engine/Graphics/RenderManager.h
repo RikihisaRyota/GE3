@@ -5,6 +5,7 @@
 #include "DepthBuffer.h"
 #include "GraphicsCore.h"
 #include "SwapChain.h"
+#include "PostEffect.h"
 
 class RenderManager {
 
@@ -35,4 +36,6 @@ private:
 
 	DXGI_FORMAT mainColorBufferFormat_;
 	DXGI_FORMAT mainDepthBufferFormat_;
+
+	PostEffect postEffect_;
 };

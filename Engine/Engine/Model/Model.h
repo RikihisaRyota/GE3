@@ -1,8 +1,10 @@
 #pragma once
-#include <filesystem>
 #include <cstdint>
+#include <filesystem>
 #include <vector>
+#include <map>
 #include <memory>
+#include <optional>
 
 #include <d3d12.h>
 
@@ -15,10 +17,11 @@
 #include "Engine/Math/Vector3.h"
 #include "Engine/Math/Vector2.h"
 #include "Engine/Math/Matrix4x4.h"
+#include "Engine/Math/Quaternion.h"
 
 struct aiNode;
 class Model {
-private:
+public:
 	struct Mesh {
 		uint32_t indexCount;
 		Vector3 min;
@@ -34,18 +37,45 @@ private:
 		Vector3 normal;
 		Vector2 texcoord;
 	};
+
+	struct EulerTransform {
+		Vector3 scale;
+		Vector3 rotate;
+		Vector3 translate;
+	};
+
+	struct QuaternionTransform {
+		Vector3 scale;
+		Quaternion rotate;
+		Vector3 translate;
+	};
+
 	struct Node {
+		QuaternionTransform transform;
 		Matrix4x4 localMatrix;
 		std::string name;
 		std::vector<Node> children;
 	};
+
+	struct VertexWeightData {
+		float weight;
+		uint32_t vertexWeights;
+	};
+
+	struct JointWeightData {
+		Matrix4x4 inverseBindPoseMatrix;
+		std::vector<VertexWeightData> vertexWeights;
+	};
+
 	struct MeshData {
+		std::map<std::string, JointWeightData> skinClusterData;
 		UploadBuffer indexBuffer{};
 		D3D12_INDEX_BUFFER_VIEW ibView{};
 		Mesh* meshes_{};
 		std::vector<Vertex> vertices;
 		Node rootNode;
 	};
+
 public:
 
 	void Create(const std::filesystem::path& modelPath);
@@ -58,6 +88,7 @@ public:
 private:
 	void LoadFile(const std::filesystem::path& modelPath);
 	Node ReadNode(aiNode* node);
+	
 	std::vector<std::unique_ptr<MeshData>> meshDatas_;
 
 	UploadBuffer vertexBuffer_;

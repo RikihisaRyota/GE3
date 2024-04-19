@@ -34,9 +34,9 @@ void RenderManager::Initialize() {
 	mainColorBuffer_.SetClearColor(clearColor);
 	mainColorBuffer_.Create(L"mainColorBuffer", swapChainBuffer.GetWidth(), swapChainBuffer.GetHeight(), mainColorBufferFormat_);
 
-
 	mainDepthBuffer_.Create(L"mainDepthBuffer", swapChainBuffer.GetWidth(), swapChainBuffer.GetHeight(), mainDepthBufferFormat_);
 
+	postEffect_.Initialize(mainColorBuffer_);
 	// ImGUi初期化
 	ImGuiManager::GetInstance()->Initialize(window->GetHwnd(), swapChain_.GetColorBuffer().GetFormat());
 }
@@ -51,19 +51,26 @@ void RenderManager::Reset() {
 
 void RenderManager::BeginRender() {
 	auto& commandContext = commandContexts_[swapChain_.GetBufferIndex()];
-	auto& swapChainColorBuffer = swapChain_.GetColorBuffer();
 
-	commandContext.TransitionResource(swapChainColorBuffer, D3D12_RESOURCE_STATE_RENDER_TARGET);
+	commandContext.TransitionResource(mainColorBuffer_, D3D12_RESOURCE_STATE_RENDER_TARGET);
 	commandContext.TransitionResource(mainDepthBuffer_, D3D12_RESOURCE_STATE_DEPTH_WRITE);
-	commandContext.SetRenderTarget(swapChainColorBuffer.GetRTV(), mainDepthBuffer_.GetDSV());
-	commandContext.ClearColor(swapChainColorBuffer);
+	commandContext.SetRenderTarget(mainColorBuffer_.GetRTV(), mainDepthBuffer_.GetDSV());
+	commandContext.ClearColor(mainColorBuffer_);
 	commandContext.ClearDepth(mainDepthBuffer_);
-	commandContext.SetViewportAndScissorRect(0, 0, swapChainColorBuffer.GetWidth(), swapChainColorBuffer.GetHeight());
+	commandContext.SetViewportAndScissorRect(0, 0, mainColorBuffer_.GetWidth(), mainColorBuffer_.GetHeight());
 }
 
 void RenderManager::EndRender() {
 	auto& commandContext = commandContexts_[swapChain_.GetBufferIndex()];
 	auto& swapChainColorBuffer = swapChain_.GetColorBuffer();
+
+	commandContext.TransitionResource(swapChainColorBuffer, D3D12_RESOURCE_STATE_RENDER_TARGET);
+	commandContext.SetRenderTarget(swapChainColorBuffer.GetRTV());
+	commandContext.ClearColor(swapChainColorBuffer);
+	commandContext.SetViewportAndScissorRect(0, 0, swapChainColorBuffer.GetWidth(), swapChainColorBuffer.GetHeight());
+
+	postEffect_.Render(commandContext,mainColorBuffer_);
+
 	// ImGuiを描画
 	auto imguiManager = ImGuiManager::GetInstance();
 	imguiManager->Render(commandContext);

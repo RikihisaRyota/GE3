@@ -2,7 +2,7 @@
 
 #include <d3dx12.h>
 
-#include "Engine/Lighting/Lighting.h"
+#include "Engine/Animation/Skinning.h"
 #include "Engine/Graphics/CommandContext.h"
 #include "Engine/Graphics/Helper.h"
 #include "Engine/Graphics/SamplerManager.h"
@@ -10,9 +10,12 @@
 #include "Engine/Math/ViewProjection.h"
 #include "Engine/Math/WorldTransform.h"
 #include "Engine/Texture/TextureManager.h"
+#include "Engine/Lighting/Lighting.h"
 
 std::unique_ptr<RootSignature> ModelManager::rootSignature_;
 std::unique_ptr<PipelineState> ModelManager::pipelineState_;
+std::unique_ptr<RootSignature> ModelManager::skinningRootSignature_;
+std::unique_ptr<PipelineState> ModelManager::skinningPipelineState_;
 
 namespace Parameter {
 	enum RootParameter {
@@ -25,6 +28,17 @@ namespace Parameter {
 		Sampler,
 		Count,
 	};
+	enum SkinningRootParameter {
+		SkinningWorldTransform,
+		SkinningViewProjection,
+		SkinningMaterial,
+		SkinningDirectionLight,
+		SkinningPointLight,
+		SkinningSkinning,
+		SkinningTexture,
+		SkinningSampler,
+		SkinningCount,
+	};
 }
 
 ModelManager* ModelManager::GetInstance() {
@@ -35,6 +49,8 @@ ModelManager* ModelManager::GetInstance() {
 void ModelManager::CreatePipeline(DXGI_FORMAT rtvFormat, DXGI_FORMAT dsvFormat) {
 	pipelineState_ = std::make_unique<PipelineState>();
 	rootSignature_ = std::make_unique<RootSignature>();
+	skinningRootSignature_ = std::make_unique<RootSignature>();
+	skinningPipelineState_ = std::make_unique<PipelineState>();
 	{
 		CD3DX12_DESCRIPTOR_RANGE range[1]{};
 		range[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);
@@ -88,11 +104,69 @@ void ModelManager::CreatePipeline(DXGI_FORMAT rtvFormat, DXGI_FORMAT dsvFormat) 
 		desc.SampleDesc.Count = 1;
 		pipelineState_->Create(L"Model PipelineState", desc);
 	}
+	{
+		CD3DX12_DESCRIPTOR_RANGE range[1]{};
+		range[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);
+		CD3DX12_DESCRIPTOR_RANGE samplerRanges[1]{};
+		samplerRanges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER, 1, 0);
+
+		CD3DX12_ROOT_PARAMETER rootParameters[Parameter::SkinningRootParameter::SkinningCount]{};
+		rootParameters[Parameter::SkinningRootParameter::SkinningWorldTransform].InitAsConstantBufferView(0);
+		rootParameters[Parameter::SkinningRootParameter::SkinningViewProjection].InitAsConstantBufferView(1);
+		rootParameters[Parameter::SkinningRootParameter::SkinningMaterial].InitAsConstantBufferView(2);
+		rootParameters[Parameter::SkinningRootParameter::SkinningDirectionLight].InitAsConstantBufferView(3);
+		rootParameters[Parameter::SkinningRootParameter::SkinningPointLight].InitAsConstantBufferView(4);
+		rootParameters[Parameter::SkinningRootParameter::SkinningTexture].InitAsDescriptorTable(_countof(range), range);
+		rootParameters[Parameter::SkinningRootParameter::SkinningSkinning].InitAsShaderResourceView(1);
+		rootParameters[Parameter::SkinningRootParameter::SkinningSampler].InitAsDescriptorTable(_countof(samplerRanges), samplerRanges);
+
+		D3D12_ROOT_SIGNATURE_DESC desc{};
+		desc.pParameters = rootParameters;
+		desc.NumParameters = _countof(rootParameters);
+		desc.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
+
+		skinningRootSignature_->Create(L"SkinningModel RootSignature", desc);
+	}
+	{
+		D3D12_GRAPHICS_PIPELINE_STATE_DESC desc{};
+		desc.pRootSignature = *skinningRootSignature_;
+
+		D3D12_INPUT_ELEMENT_DESC inputElements[] = {
+			{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+			{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+			{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+			{ "WEIGHT", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+			{ "INDEX", 0, DXGI_FORMAT_R32G32B32A32_SINT, 1, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+		};
+
+		D3D12_INPUT_LAYOUT_DESC inputLayoutDesc{};
+		inputLayoutDesc.pInputElementDescs = inputElements;
+		inputLayoutDesc.NumElements = _countof(inputElements);
+		desc.InputLayout = inputLayoutDesc;
+
+		auto vs = ShaderCompiler::Compile(L"Resources/Shaders/SkinningObject3D.VS.hlsl", L"vs_6_0");
+		auto ps = ShaderCompiler::Compile(L"Resources/Shaders/Model.PS.hlsl", L"ps_6_0");
+
+		desc.VS = CD3DX12_SHADER_BYTECODE(vs->GetBufferPointer(), vs->GetBufferSize());
+		desc.PS = CD3DX12_SHADER_BYTECODE(ps->GetBufferPointer(), ps->GetBufferSize());
+		desc.BlendState = Helper::BlendAlpha;
+		desc.DepthStencilState = Helper::DepthStateReadWrite;
+		desc.RasterizerState = Helper::RasterizerDefault;
+		desc.NumRenderTargets = 1;
+		desc.RTVFormats[0] = rtvFormat;
+		desc.DSVFormat = dsvFormat;
+		desc.SampleMask = D3D12_DEFAULT_SAMPLE_MASK;
+		desc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+		desc.SampleDesc.Count = 1;
+		skinningPipelineState_->Create(L"SkinningModel PipelineState", desc);
+	}
 }
 
 void ModelManager::DestroyPipeline() {
 	rootSignature_.reset();
 	pipelineState_.reset();
+	skinningRootSignature_.reset();
+	skinningPipelineState_.reset();
 }
 
 ModelHandle ModelManager::Load(const std::filesystem::path path) {
@@ -129,6 +203,29 @@ void ModelManager::Draw(const WorldTransform& worldTransform, const ViewProjecti
 		commandContext.SetGraphicsConstantBuffer(Parameter::RootParameter::Material, models_.at(modelHandle)->GetMaterialBuffer().GetGPUVirtualAddress());
 		commandContext.SetGraphicsDescriptorTable(Parameter::RootParameter::Texture, TextureManager::GetInstance()->GetTexture(models_.at(modelHandle)->GetTextureHandle()).GetSRV());
 		commandContext.SetGraphicsDescriptorTable(Parameter::RootParameter::Sampler, SamplerManager::LinearWrap);
-		commandContext.DrawIndexed(modelData->meshes_->indexCount);
+		commandContext.DrawIndexed(modelData->meshes->indexCount);
+	}
+}
+
+void ModelManager::Draw(const WorldTransform& worldTransform, const SkinCluster& skinning, const ViewProjection& viewProjection, const ModelHandle& modelHandle, CommandContext& commandContext) {
+	commandContext.SetGraphicsRootSignature(*skinningRootSignature_);
+	commandContext.SetPipelineState(*skinningPipelineState_);
+	commandContext.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	D3D12_VERTEX_BUFFER_VIEW vbvs[2] = {
+		models_.at(modelHandle)->GetVBView(),
+		skinning.influenceBufferView
+	};
+	commandContext.SetVertexBuffer(0,2, vbvs);
+	for (auto& modelData : models_.at(modelHandle)->GetMeshData()) {
+		commandContext.SetIndexBuffer(modelData->ibView);
+		commandContext.SetGraphicsConstantBuffer(Parameter::SkinningRootParameter::SkinningWorldTransform, worldTransform.constBuff.get()->GetGPUVirtualAddress());
+		commandContext.SetGraphicsConstantBuffer(Parameter::SkinningRootParameter::SkinningViewProjection, viewProjection.constBuff_.GetGPUVirtualAddress());
+		commandContext.SetGraphicsConstantBuffer(Parameter::SkinningRootParameter::SkinningDirectionLight, Lighting::GetInstance()->GetDirectionLightBuffer().GetGPUVirtualAddress());
+		commandContext.SetGraphicsConstantBuffer(Parameter::SkinningRootParameter::SkinningPointLight, Lighting::GetInstance()->GetPointLightBuffer().GetGPUVirtualAddress());
+		commandContext.SetGraphicsConstantBuffer(Parameter::SkinningRootParameter::SkinningMaterial, models_.at(modelHandle)->GetMaterialBuffer().GetGPUVirtualAddress());
+		commandContext.SetGraphicsShaderResource(Parameter::SkinningRootParameter::SkinningSkinning, skinning.paletteResource.GetGPUVirtualAddress());
+		commandContext.SetGraphicsDescriptorTable(Parameter::SkinningRootParameter::SkinningTexture, TextureManager::GetInstance()->GetTexture(models_.at(modelHandle)->GetTextureHandle()).GetSRV());
+		commandContext.SetGraphicsDescriptorTable(Parameter::SkinningRootParameter::SkinningSampler, SamplerManager::LinearWrap);
+		commandContext.DrawIndexed(modelData->meshes->indexCount);
 	}
 }

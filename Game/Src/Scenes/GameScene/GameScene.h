@@ -13,6 +13,7 @@
 #include "Engine/Sprite/SpriteHandle.h"
 #include "Engine/Animation/Animation.h"
 #include "Engine/Animation/Skeleton.h"
+#include "Engine/Animation/Skinning.h"
 
 class CommandContext;
 class GameScene : public BaseScene {
@@ -27,8 +28,8 @@ public:
 private:
 	
 	std::unique_ptr<DebugCamera> debugCamera_;
-	std::unique_ptr<GPUParticleEditor> gpuParticleEditor_;
-	std::unique_ptr<GPUParticleManager> gpuParticleManager_;
+	//std::unique_ptr<GPUParticleEditor> gpuParticleEditor_;
+	//std::unique_ptr<GPUParticleManager> gpuParticleManager_;
 	std::unique_ptr<FollowCamera> followCamera_;
 	std::unique_ptr<Player> player_;
 	TextureHandle gpuTexture_;
@@ -41,8 +42,9 @@ private:
 
 	Animation animation_;
 	Skeleton skeleton_;
+	SkinCluster skinCluster_;
 	float animationTime_;
 
 	ModelHandle animationModelHandle_;
-	std::vector<WorldTransform> animationWorldTransform_;
+	WorldTransform animationWorldTransform_;
 };

@@ -24,8 +24,8 @@ struct Skeleton {
 	std::map<std::string, int32_t> jointMap;
 	std::vector<Joint> joints;
 
+	void CreateSkeleton(const Model::Node& rootNode);
 	void Update();
 };
 
-Skeleton CreateSkeleton(const Model::Node& rootNode);
 int32_t CreateJoint(const Model::Node& node, const std::optional<int32_t>& parent, std::vector<Joint>& joints);

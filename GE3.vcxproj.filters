@@ -320,6 +320,7 @@
       <Filter>Engine\Graphics</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Engine\Animation\Skeleton.cpp" />
+    <ClCompile Include="Engine\Engine\Animation\Skinning.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\Engine\WinApp\WinApp.h">
@@ -562,6 +563,9 @@
     <ClInclude Include="Engine\Engine\Animation\Skeleton.h">
       <Filter>Engine\Animation</Filter>
     </ClInclude>
+    <ClInclude Include="Engine\Engine\Animation\Skinning.h">
+      <Filter>Engine\Animation</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Externals\Imgui\LICENSE.txt">
@@ -645,6 +649,9 @@
     </FxCompile>
     <FxCompile Include="Resources\Shaders\Fullscreen.VS.hlsl">
       <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Resources\Shaders\SkinningObject3D.VS.hlsl">
+      <Filter>Shaders\Model</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

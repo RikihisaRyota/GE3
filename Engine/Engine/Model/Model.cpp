@@ -38,17 +38,19 @@ void Model::LoadFile(const std::filesystem::path& modelPath) {
 		aiProcess_FlipUVs);
 	assert(scene->HasMeshes()); // メッシュがないものは対応しない
 
-	meshDatas_.emplace_back(std::make_unique<MeshData>());
-	auto& currentModelData = meshDatas_.back();
 
 	Vector3 minIndex{ FLT_MAX ,FLT_MAX ,FLT_MAX }, maxIndex{ FLT_MIN ,FLT_MIN ,FLT_MIN };
 
 	// メッシュ解析
 	for (uint32_t meshIndex = 0; meshIndex < scene->mNumMeshes; ++meshIndex) {
+		meshData_.emplace_back(std::make_unique<MeshData>());
+		auto& currentModelData = meshData_.back();
+
 		aiMesh* mesh = scene->mMeshes[meshIndex];
+
 		assert(mesh->HasNormals()); // 法線がないMeshは今回は未対応
 		assert(mesh->HasTextureCoords(0)); // TexcoordがないMeshは今回は未対応
-		
+
 		// 頂点データを解析
 		for (uint32_t vertexIndex = 0; vertexIndex < mesh->mNumVertices; ++vertexIndex) {
 			aiVector3D& position = mesh->mVertices[vertexIndex];
@@ -98,11 +100,11 @@ void Model::LoadFile(const std::filesystem::path& modelPath) {
 		}
 
 		currentModelData->rootNode = ReadNode(scene->mRootNode);
-		currentModelData->meshes_ = new Mesh();
 		currentModelData->vertices = vertexPos;
-		currentModelData->meshes_->indexCount = uint32_t(indices.size());
-		currentModelData->meshes_->min = minIndex;
-		currentModelData->meshes_->max = maxIndex;
+		currentModelData->meshes = new Mesh();
+		currentModelData->meshes->indexCount = uint32_t(indices.size());
+		currentModelData->meshes->min = minIndex;
+		currentModelData->meshes->max = maxIndex;
 		currentModelData->indexBuffer.Create(name_.wstring() + L"IndexBuffer", indices.size() * sizeof(indices[0]));
 		currentModelData->indexBuffer.Copy(indices.data(), indices.size() * sizeof(indices[0]));
 		currentModelData->ibView.BufferLocation = currentModelData->indexBuffer.GetGPUVirtualAddress();

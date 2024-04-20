@@ -1,4 +1,5 @@
 #pragma once
+
 #include <cstdint>
 #include <filesystem>
 #include <vector>
@@ -59,7 +60,7 @@ public:
 
 	struct VertexWeightData {
 		float weight;
-		uint32_t vertexWeights;
+		uint32_t vertexIndex;
 	};
 
 	struct JointWeightData {
@@ -71,7 +72,7 @@ public:
 		std::map<std::string, JointWeightData> skinClusterData;
 		UploadBuffer indexBuffer{};
 		D3D12_INDEX_BUFFER_VIEW ibView{};
-		Mesh* meshes_{};
+		Mesh* meshes{};
 		std::vector<Vertex> vertices;
 		Node rootNode;
 	};
@@ -80,7 +81,7 @@ public:
 
 	void Create(const std::filesystem::path& modelPath);
 	const std::filesystem::path& GetName() const { return name_; }
-	const std::vector<std::unique_ptr<MeshData>>& GetMeshData() const { return meshDatas_; }
+	const std::vector<std::unique_ptr<MeshData>>& GetMeshData() const { return meshData_; }
 	const D3D12_VERTEX_BUFFER_VIEW GetVBView()const { return vbView_; }
 	const TextureHandle GetTextureHandle()const { return textureHandle_; }
 	const UploadBuffer& GetMaterialBuffer()const { return materialBuffer_; }
@@ -89,7 +90,7 @@ private:
 	void LoadFile(const std::filesystem::path& modelPath);
 	Node ReadNode(aiNode* node);
 	
-	std::vector<std::unique_ptr<MeshData>> meshDatas_;
+	std::vector<std::unique_ptr<MeshData>> meshData_;
 
 	UploadBuffer vertexBuffer_;
 	D3D12_VERTEX_BUFFER_VIEW vbView_{};

@@ -52,7 +52,7 @@
 Vector3 CalculateValue(const AnimationCurve<Vector3>& keyframes, float time) {
 	assert(!keyframes.keyframe.empty());
 	for (uint32_t index = 0; index < keyframes.keyframe.size() - 1; ++index) {
-		uint32_t nextIndex = index;
+		uint32_t nextIndex = index + 1;
 		// indexとnextIndexが範囲内か
 		if (keyframes.keyframe[index].time <= time && time <= keyframes.keyframe[nextIndex].time) {
 			// 範囲内に補正

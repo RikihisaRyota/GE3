@@ -27,13 +27,10 @@ GameScene::GameScene() {
 
 	animationModelHandle_ = ModelManager::GetInstance()->Load("Resources/Models/Walk/walk.gltf");
 	animation_.LoadAnimationFile("Resources/Models/Walk/walk.gltf");
-	skeleton_ = CreateSkeleton(ModelManager::GetInstance()->GetModel(animationModelHandle_).GetMeshData().at(0)->rootNode);
-	for (uint32_t i = 0; i < skeleton_.joints.size(); i++) {
-		WorldTransform animationWorldTransform{};
-		animationWorldTransform.Initialize();
-		animationWorldTransform_.push_back(std::move(animationWorldTransform));
-	}
-	animationModelHandle_ = ModelManager::GetInstance()->Load("Resources/Models/AnimatedCube/animatedCube.gltf");
+	skeleton_.CreateSkeleton(ModelManager::GetInstance()->GetModel(animationModelHandle_).GetMeshData().at(0)->rootNode);
+	skinCluster_.CreateSkinCluster(skeleton_, animationModelHandle_);
+
+	animationWorldTransform_.Initialize();;
 	animationTime_ = 0.0f;
 	worldTransform_.Initialize();
 
@@ -48,7 +45,7 @@ void GameScene::Initialize() {
 	//Audio::GetInstance()->SoundPlayLoopStart(playHandle_);
 
 	player_->SetViewProjection(viewProjection_);
-	player_->SetGPUParticleManager(gpuParticleManager_.get());
+	//player_->SetGPUParticleManager(gpuParticleManager_.get());
 	player_->Initialize();
 
 	followCamera_->SetTarget(&player_->GetWorldTransform());
@@ -203,17 +200,14 @@ void GameScene::Update() {
 	//gpuParticleEditor_->Update(RenderManager::GetInstance()->GetCommandContext());
 	debugCamera_->Update(viewProjection_);
 
-	static const float kCycle = 120.0f;
+	static const float kCycle = 60.0f;
 	animationTime_ += 1.0f;
 	animationTime_ = std::fmodf(animationTime_, kCycle);
 	ApplyAnimation(skeleton_, animation_, animationTime_ / kCycle);
-	//animation_.Update(animationWorldTransform_, true, aimationModelHandle_, 0);
 	skeleton_.Update();
-	for (uint32_t i = 0; auto& transform : animationWorldTransform_) {
-		transform.matWorld = skeleton_.joints.at(i).skeletonSpaceMatrix;
-		transform.TransferMatrix();
-		i++;
-	}
+	skinCluster_.Update(skeleton_);
+
+	animationWorldTransform_.TransferMatrix();
 
 	if (!debugCamera_->GetIsDebugCamera()) {
 		followCamera_->Update();
@@ -228,9 +222,8 @@ void GameScene::Draw(CommandContext& commandContext) {
 	//gpuParticleManager_->Draw(*viewProjection_, commandContext);
 	//gpuParticleEditor_->Draw(*viewProjection_, commandContext);
 	player_->Draw(*viewProjection_, commandContext);
-	for (auto& transform : animationWorldTransform_) {
-		ModelManager::GetInstance()->Draw(transform, *viewProjection_, animationModelHandle_, commandContext);
-	}
+
+	ModelManager::GetInstance()->Draw(animationWorldTransform_, skinCluster_, *viewProjection_, animationModelHandle_, commandContext);
 
 	//ModelManager::GetInstance()->Draw(worldTransform_, *viewProjection_, modelHandle_, commandContext);
 

@@ -3,16 +3,6 @@
 #include "Engine/Model/Model.h"
 #include "Engine/Math/MyMath.h"
 
-Skeleton CreateSkeleton(const Model::Node& rootNode) {
-	Skeleton skeleton{};
-	skeleton.root = CreateJoint(rootNode, {}, skeleton.joints);
-	for (const Joint& joint : skeleton.joints) {
-		skeleton.jointMap.emplace(joint.name, joint.index);
-	}
-	skeleton.Update();
-	return skeleton;
-}
-
 int32_t CreateJoint(const Model::Node& node, const std::optional<int32_t>& parent, std::vector<Joint>& joints) {
 	Joint joint{};
 	joint.name = node.name;
@@ -27,6 +17,14 @@ int32_t CreateJoint(const Model::Node& node, const std::optional<int32_t>& paren
 		joints.at(joint.index).children.emplace_back(childIndex);
 	}
 	return joint.index;
+}
+
+void Skeleton::CreateSkeleton(const Model::Node& rootNode) {
+	root = CreateJoint(rootNode, {}, joints);
+	for (const Joint& joint : joints) {
+		jointMap.emplace(joint.name, joint.index);
+	}
+	Update();
 }
 
 void Skeleton::Update() {

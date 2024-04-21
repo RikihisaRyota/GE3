@@ -36,8 +36,8 @@ private:
 	ModelHandle modelHandle_;
 	ModelHandle terrainHandle_;
 	WorldTransform worldTransform_;
-	//int32_t soundHandle_;
-	//int32_t playHandle_;
+	int32_t soundHandle_;
+	int32_t playHandle_;
 	Vector4 color_;
 
 	Animation animation_;

@@ -1,11 +1,20 @@
 #pragma once
 
+#include <mfapi.h>
+#include <mfidl.h>
+#include <mfreadwrite.h>
 #include <xaudio2.h>
 #include <wrl.h>
+
+#include <filesystem>
 
 #include <fstream>
 #include <vector>
 
+#pragma comment(lib, "Mf.lib")
+#pragma comment(lib, "mfplat.lib")
+#pragma comment(lib, "Mfreadwrite.lib")
+#pragma comment(lib, "mfuuid.lib")
 
 class Audio {
 public:
@@ -14,7 +23,7 @@ public:
     // チャンクヘッダ
     struct ChunkHearder {
         char id[4]; // チャンク毎のID
-        int32_t size; // チャンクファイル
+        size_t size; // チャンクファイル
     };
     // RIFFヘッダチャンク
     struct RiffHeader {
@@ -34,7 +43,7 @@ public:
         // バッファの先頭アドレス
         std::vector<BYTE> pBuffer;
         // バッファのサイズ
-        uint32_t bufferSize;
+        size_t bufferSize;
     };
 public:
     static Audio* GetInstance();
@@ -61,6 +70,7 @@ public:
     /// <param name="filename"></param>
     /// <returns></returns>
     int32_t SoundLoadWave(const std::string& fileName);
+    int32_t SoundLoad(const std::filesystem::path& fileName);
 
     void StopSound(int32_t playHandle);
     void SetPitch(int32_t playHandle, float pitch);

@@ -22,8 +22,8 @@ GameScene::GameScene() {
 
 	gpuTexture_ = TextureManager::GetInstance()->Load("Resources/Images/GPUParticle.png");
 	color_ = { 1.0f,1.0f,1.0f,1.0 };
-	/*soundHandle_ = Audio::GetInstance()->SoundLoadWave("play.wav");
-	playHandle_ = Audio::GetInstance()->SoundPlayLoopStart(soundHandle_);*/
+	soundHandle_ = Audio::GetInstance()->SoundLoad("Resources/Audios/walk.mp3");
+	playHandle_ = Audio::GetInstance()->SoundPlayLoopStart(soundHandle_);
 
 	animationModelHandle_ = ModelManager::GetInstance()->Load("Resources/Models/Walk/walk.gltf");
 	animation_.LoadAnimationFile("Resources/Models/Walk/walk.gltf");

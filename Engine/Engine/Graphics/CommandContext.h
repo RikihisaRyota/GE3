@@ -18,6 +18,7 @@ public:
 	void Reset();
 
 	void TransitionResource(GpuResource& resource, D3D12_RESOURCE_STATES newState);
+	void UAVBarrier(GpuResource& resource);
 	void FlushResourceBarriers();
 
 	void CopyBuffer(GpuResource& dest, GpuResource& src);

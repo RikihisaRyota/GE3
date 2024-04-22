@@ -12,6 +12,7 @@ namespace ParticleManager {
 	enum SpawnRootSignature {
 		kParticleInfo,
 		kEmitterSRV,
+		//kEmitterCount,
 		kOutputCommand,
 		kCreateParticle,
 
@@ -299,6 +300,7 @@ void GPUParticleManager::CreateSpawn() {
 		CD3DX12_ROOT_PARAMETER rootParameters[ParticleManager::SpawnRootSignature::kSpawnRootSignatureCount]{};
 		rootParameters[ParticleManager::SpawnRootSignature::kParticleInfo].InitAsUnorderedAccessView(0);
 		rootParameters[ParticleManager::SpawnRootSignature::kEmitterSRV].InitAsShaderResourceView(0);
+		//rootParameters[ParticleManager::SpawnRootSignature::kEmitterCount].InitAsConstantBufferView(0);
 		rootParameters[ParticleManager::SpawnRootSignature::kOutputCommand].InitAsDescriptorTable(_countof(consumeRanges), consumeRanges);
 		rootParameters[ParticleManager::SpawnRootSignature::kCreateParticle].InitAsUnorderedAccessView(2);
 		D3D12_ROOT_SIGNATURE_DESC desc{};

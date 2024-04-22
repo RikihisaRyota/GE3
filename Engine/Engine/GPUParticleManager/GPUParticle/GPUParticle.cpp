@@ -89,7 +89,7 @@ void GPUParticle::Spawn(CommandContext& commandContext) {
 	if (*static_cast<uint32_t*>(createParticleCounterCopyDestBuffer_.GetCPUData()) != 0 &&
 		*static_cast<uint32_t*>(originalCommandCounterBuffer_.GetCPUData()) < GPUParticleShaderStructs::MaxParticleNum) {
 		commandContext.TransitionResource(particleBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-		//D3D12_RESOURCE_UAV_BARRIER;
+		commandContext.UAVBarrier(particleBuffer_);
 		commandContext.TransitionResource(emitterForGPUBuffer_, D3D12_RESOURCE_STATE_GENERIC_READ);
 		commandContext.TransitionResource(originalCommandBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 		commandContext.TransitionResource(createParticleBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
@@ -112,6 +112,7 @@ void GPUParticle::ParticleUpdate(CommandContext& commandContext) {
 		commandContext.CopyBufferRegion(drawIndexCommandBuffers_, particleIndexCounterOffset_, resetAppendDrawIndexBufferCounterReset_, 0, sizeof(UINT));
 
 		commandContext.TransitionResource(particleBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+		commandContext.UAVBarrier(particleBuffer_);
 		commandContext.TransitionResource(originalCommandBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 		commandContext.TransitionResource(drawIndexCommandBuffers_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 
@@ -315,7 +316,7 @@ void GPUParticle::InitializeEmitter() {
 	auto graphics = GraphicsCore::GetInstance();
 	auto device = GraphicsCore::GetInstance()->GetDevice();
 
-	emitterIndexSize_ = GPUParticleShaderStructs::MaxParticleNum * sizeof(GPUParticleShaderStructs::CreateParticle);
+	emitterIndexSize_ = GPUParticleShaderStructs::MaxEmitterNum * sizeof(GPUParticleShaderStructs::CreateParticle);
 	emitterIndexCounterOffset_ = AlignForUavCounter(emitterIndexSize_);
 
 	// エミッターバッファー

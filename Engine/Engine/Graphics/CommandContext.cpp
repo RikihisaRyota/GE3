@@ -65,6 +65,15 @@ void CommandContext::TransitionResource(GpuResource& resource, D3D12_RESOURCE_ST
 	}
 }
 
+void CommandContext::UAVBarrier(GpuResource& resource) {
+	D3D12_RESOURCE_BARRIER& barrierDesc = resourceBarriers_[numResourceBarriers_++];
+	barrierDesc.Type = D3D12_RESOURCE_BARRIER_TYPE_UAV;
+	barrierDesc.UAV.pResource= resource.GetResource();
+	if (numResourceBarriers_ >= kMaxNumResourceBarriers_) {
+		FlushResourceBarriers();
+	}
+}
+
 void CommandContext::FlushResourceBarriers() {
 	if (numResourceBarriers_ > 0) {
 		commandList_->ResourceBarrier(numResourceBarriers_, resourceBarriers_);

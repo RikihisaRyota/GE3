@@ -8,7 +8,7 @@
 
 namespace GPUParticleShaderStructs {
 	// hlsli側も変更するように
-	static const UINT ComputeThreadBlockSize = 1024;
+	static const UINT ComputeThreadBlockSize = 1;
 	static const UINT MaxParticleShouldBeSquare = 15;
 	static const UINT MaxParticleNum = 1 << MaxParticleShouldBeSquare;
 	static const UINT MaxEmitterNum = 100;
@@ -56,24 +56,64 @@ namespace GPUParticleShaderStructs {
 		uint32_t pad[2];
 	};
 
-	struct Particle {
-		Vector3MinMax scaleRange;
-		Vector3 scale;
+	/*struct Particle {
+		struct Float3StartEnd {
+			struct Float3MinMax {
+				float32_t3 min;
+				uint32_t pad1;
+				float32_t3 max;
+				uint32_t pad2;
+			} start , end;
+		} scaleRange;
+	 struct ParticleLifeTime
+		{
+			uint32_t time;
+			uint32_t maxTime;
+			uint32_t2 pad;
+		}particleLifeTime;
+	  float32_t4 color;
+	  
+	  float32_t3 scale;
+	  uint32_t textureInidex;
+	  
+	  float32_t3 rotateVelocity;
+	  uint32_t isAlive;
+	  
+	  float32_t3 rotate;
+	  uint32_t pad1;
+	  
+	  float32_t3 translate;
+	  uint32_t pad2;
+	  
+	  float32_t3 velocity;
+	  uint32_t pad3;
+	};*/
 
-		Vector3 rotateVelocity;
-		Vector3 rotate;
+	/*struct Particle {
+		struct Float3MinMax {
+			float3 min;
+			uint pad1;
+			float3 max;
+			uint pad2;
+		} scaleRange;
+		struct ParticleLifeTime {
+			uint time;
+			uint maxTime;
+			uint2 pad;
+		} particleLifeTime;
+		float4 color;
+		float3 scale;
+		uint textureInidex;
+		float3 rotateVelocity;
+		uint isAlive;
+		float3 rotate;
+		uint pad1;
+		float3 translate;
+		uint pad2;
+		float3 velocity;
+		uint pad3;
+	} Element;*/
 
-		Vector3 translate;
-		Vector3 velocity;
-
-		Vector4 color;
-
-		ParticleLifeTime particleLifeTime;
-
-		uint32_t textureIndex;
-
-		uint32_t isAlive;
-	};
 	// hlsli側も変更すること
 
 	// エミッターの生成範囲と生成場所

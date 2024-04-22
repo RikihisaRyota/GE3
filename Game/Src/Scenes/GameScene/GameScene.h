@@ -29,7 +29,7 @@ private:
 	
 	std::unique_ptr<DebugCamera> debugCamera_;
 	//std::unique_ptr<GPUParticleEditor> gpuParticleEditor_;
-	//std::unique_ptr<GPUParticleManager> gpuParticleManager_;
+	std::unique_ptr<GPUParticleManager> gpuParticleManager_;
 	std::unique_ptr<FollowCamera> followCamera_;
 	std::unique_ptr<Player> player_;
 	TextureHandle gpuTexture_;

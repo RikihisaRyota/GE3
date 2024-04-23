@@ -10,6 +10,7 @@ void main( uint3 DTid : SV_DispatchThreadID )
     uint index = DTid.x;
     if (!origalEmiiter[index].isAlive)
     {
-        origalEmiiter[index] = addEmitter.Consume();
+        Emitter emitter=addEmitter.Consume();
+        origalEmiiter[index] = emitter;
     }
 }

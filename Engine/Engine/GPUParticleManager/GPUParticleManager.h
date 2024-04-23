@@ -43,6 +43,8 @@ private:
 	std::unique_ptr<PipelineState> emitterUpdateComputePipelineState_;
 	std::unique_ptr<RootSignature> addEmitterComputeRootSignature_;
 	std::unique_ptr<PipelineState> addEmitterComputePipelineState_;
+	std::unique_ptr<RootSignature> appendEmitterComputeRootSignature_;
+	std::unique_ptr<PipelineState> appendEmitterComputePipelineState_;
 	std::unique_ptr<RootSignature> updateComputeRootSignature_;
 	std::unique_ptr<PipelineState> updateComputePipelineState_;
 	Microsoft::WRL::ComPtr<ID3D12CommandSignature> commandSignature_;

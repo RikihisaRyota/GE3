@@ -41,6 +41,7 @@ public:
 	void Initialize();
 	void Spawn(CommandContext& commandContext);
 	void EmitterUpdate(CommandContext& commandContext);
+	void AppendEmitter(CommandContext& commandContext);
 	void AddEmitter(CommandContext& commandContext);
 	void ParticleUpdate(CommandContext& commandContext);
 	void Draw(const ViewProjection& viewProjection, CommandContext& commandContext);
@@ -75,6 +76,7 @@ private:
 	DefaultBuffer emitterForGPUBuffer_;
 	// エミッターのIndexと何個生成するか
 	DefaultBuffer createParticleBuffer_;
+	UploadBuffer resetCreateParticleBuffer_;
 	DescriptorHandle createParticleUAVHandle_;
 	// 何個生成するか数える用
 	ReadBackBuffer createParticleCounterCopyDestBuffer_;

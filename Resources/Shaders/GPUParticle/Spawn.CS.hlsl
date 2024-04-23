@@ -88,28 +88,20 @@ void Create(uint index,  uint32_t emitterIndex)
 [numthreads(threadBlockSize, 1, 1)]
 void main(uint3 DTid : SV_DispatchThreadID)
 {
-    int index = particleIndexCommands.Consume();
-
-    if (index >= 0)
+    for (int i = 0; i < emitterSize; i++)
     {
-    
-        for (int i = 0; i < emitterSize; i++)
-        {
         // ここで同期処理をしたい
         // 並列処理で複数のスレットがcreateParticle[i].createParticleNumの計算を行っていて
         // 現在のcreateParticle[i].createParticleNum の中身を知りたい
         // createParticle[i].createParticleNum の値を安全に読み取る
-            InterlockedAdd(createParticle[i].createParticleNum, -1);
-            int32_t createNum=createParticle[i].createParticleNum; 
-           
-            if (createNum > 0)
-            {
+        InterlockedAdd(createParticle[i].createParticleNum, -1);
+        int32_t createNum=createParticle[i].createParticleNum; 
+        if (createNum > 0)
+        {
+                int index = particleIndexCommands.Consume();
                 uint32_t emitterIndex = createParticle[i].emitterNum;
                 Create(index, emitterIndex);
                 break;
-            }
         }
-       
     }
-    
 }

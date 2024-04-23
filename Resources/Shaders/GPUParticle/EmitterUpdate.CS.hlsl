@@ -23,13 +23,10 @@ void main(uint3 DTid : SV_DispatchThreadID)
             createParticle.Append(particle);
             if(inputEmitter[index].frequency.isLoop){
                 inputEmitter[index].frequency.time = inputEmitter[index].frequency.interval;
+            }else{
+                inputEmitter[index].isAlive = false;
             }
-        }
-        // エミッターが死ぬ
-        if (inputEmitter[index].frequency.lifeTime <= 0 && !inputEmitter[index].frequency.isLoop)
-        {
-            inputEmitter[index].isAlive = false;
-        }else{
+        } else {
             inputEmitter[index].frequency.time--;
             inputEmitter[index].frequency.lifeTime--;
         }

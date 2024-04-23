@@ -33,6 +33,13 @@ namespace ParticleManager {
 
 		kAddEmitterRootSigunatureCount,
 	};
+	
+	enum  AppendEmitterRootSigunature {
+		kSRVEmitter,
+		kAppendEmitter,
+
+		kAppendEmitterRootSigunatureCount,
+	};
 
 	enum ParticleUpdateRootSigunature {
 		kParticleBuffer,
@@ -73,6 +80,10 @@ void GPUParticleManager::Initialize() {
 }
 
 void GPUParticleManager::Update(CommandContext& commandContext) {
+
+	commandContext.SetComputeRootSignature(*appendEmitterComputeRootSignature_);
+	commandContext.SetPipelineState(*appendEmitterComputePipelineState_);
+	gpuParticle_->AddEmitter(commandContext);
 
 	commandContext.SetComputeRootSignature(*addEmitterComputeRootSignature_);
 	commandContext.SetPipelineState(*addEmitterComputePipelineState_);
@@ -251,6 +262,31 @@ void GPUParticleManager::CreateAddEmitter() {
 		desc.CS = CD3DX12_SHADER_BYTECODE(cs->GetBufferPointer(), cs->GetBufferSize());
 		addEmitterComputePipelineState_->Create(L"GPUParticle AddEmitterUpdateCPSO", desc);
 	}
+	// アップデートシグネイチャー
+	{
+		appendEmitterComputeRootSignature_ = std::make_unique<RootSignature>();
+
+		//	createParticle用
+		CD3DX12_ROOT_PARAMETER rootParameters[ParticleManager::AppendEmitterRootSigunature::kAppendEmitterRootSigunatureCount]{};
+		rootParameters[ParticleManager::AppendEmitterRootSigunature::kSRVEmitter].InitAsShaderResourceView(0);
+		rootParameters[ParticleManager::AppendEmitterRootSigunature::kAppendEmitter].InitAsUnorderedAccessView(0);
+
+		D3D12_ROOT_SIGNATURE_DESC desc{};
+		desc.pParameters = rootParameters;
+		desc.NumParameters = _countof(rootParameters);
+
+		appendEmitterComputeRootSignature_->Create(L"GPUParticle AppendEmitterUpdateCPSO", desc);
+	}
+	// アップデートパイプライン
+	{
+		appendEmitterComputePipelineState_ = std::make_unique<PipelineState>();
+		D3D12_COMPUTE_PIPELINE_STATE_DESC desc{};
+		desc.pRootSignature = *addEmitterComputeRootSignature_;
+		auto cs = ShaderCompiler::Compile(L"Resources/Shaders/GPUParticle/AppendEmitter.CS.hlsl", L"cs_6_0");
+		desc.CS = CD3DX12_SHADER_BYTECODE(cs->GetBufferPointer(), cs->GetBufferSize());
+		appendEmitterComputePipelineState_->Create(L"GPUParticle AppendEmitterUpdateCPSO", desc);
+	}
+
 }
 
 void GPUParticleManager::CreateUpdate() {

@@ -24,7 +24,8 @@ void main(uint3 DTid : SV_DispatchThreadID)
         {
             Input[index].isAlive = false;
             particleIndexCommands.Append(index);
+        }else{
+            outputDrawIndexCommands.Append(index);
         }
-        outputDrawIndexCommands.Append(index);
     }
 }

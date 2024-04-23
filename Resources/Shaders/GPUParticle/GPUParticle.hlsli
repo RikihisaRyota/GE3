@@ -1,5 +1,5 @@
 
-#define threadBlockSize 1
+#define threadBlockSize 1024
 #define emitterSize 100
 
 // Utility
@@ -150,9 +150,7 @@ struct CreateParticle
 struct EmitterCounterBuffer
 {
     uint32_t emitterCounter;
-    uint32_t pad1;
-    uint32_t pad2;
-    uint32_t pad3;
+    uint32_t3 pad;
 };
 
 float hash(uint seed)

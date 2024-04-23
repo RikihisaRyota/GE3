@@ -653,5 +653,8 @@
     <FxCompile Include="Resources\Shaders\SkinningObject3D.VS.hlsl">
       <Filter>Shaders\Model</Filter>
     </FxCompile>
+    <FxCompile Include="Resources\Shaders\GPUParticle\AppendEmitter.hlsl">
+      <Filter>Shaders\GPUParticle\Editor</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

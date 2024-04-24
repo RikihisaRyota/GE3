@@ -196,12 +196,12 @@ void PlayerBullet::Update() {
 		.scale{
 			.range{
 				.start{
-					.min = {0.01f,0.01f,0.01f},
-					.max = {0.01f,0.01f,0.01f},
+					.min = {0.1f,0.1f,0.1f},
+					.max = {0.1f,0.1f,0.1f},
 				},
 				.end{
-					.min = {0.01f,0.01f,0.01f},
-					.max = {0.01f,0.01f,0.01f},
+					.min = {0.1f,0.1f,0.1f},
+					.max = {0.1f,0.1f,0.1f},
 				},
 			},
 		},
@@ -238,14 +238,14 @@ void PlayerBullet::Update() {
 
 		.particleLifeSpan{
 			.range{
-				.min = 2,
-				.max = 5,
+				.min = 10,
+				.max = 15,
 			}
 		},
 
 		.textureIndex = TextureManager::GetInstance()->GetTexture(gpuTexture_).GetDescriptorIndex(),
 
-		.createParticleNum = 1 << 10,
+		.createParticleNum = 1 << 5,
 		};
 		gpuParticleManager_->CreateParticle(emitterForGPU);
 	}

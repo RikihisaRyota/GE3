@@ -51,76 +51,76 @@ void GameScene::Initialize() {
 	followCamera_->SetTarget(&player_->GetWorldTransform());
 	followCamera_->SetViewProjection(viewProjection_);
 	followCamera_->Initialize();
-	//// 0
-	//{
-	//	GPUParticleShaderStructs::Emitter emitterForGPU = {
-	//   .emitterArea{
-	//		   .area{
-	//			   .min = {-1.0f,-5.0f,-5.0f},
-	//			   .max = {1.0f,5.0f,5.0f},
-	//		   },
-	//		   .position = {0.0f,0.0f,0.0f},
-	//	   },
+	// 0
+	{
+		GPUParticleShaderStructs::Emitter emitterForGPU = {
+	   .emitterArea{
+			   .area{
+				   .min = {-1.0f,-5.0f,-5.0f},
+				   .max = {1.0f,5.0f,5.0f},
+			   },
+			   .position = {0.0f,0.0f,0.0f},
+		   },
 
-	//   .scale{
-	//	   .range{
-	//		   .start{
-	//			   .min = {0.05f,0.05f,0.05f},
-	//			   .max = {0.08f,0.08f,0.08f},
-	//		   },
-	//		   .end{
-	//			   .min = {0.01f,0.01f,0.01f},
-	//			   .max = {0.03f,0.03f,0.03f},
-	//		   },
-	//	   },
-	//   },
+	   .scale{
+		   .range{
+			   .start{
+				   .min = {0.05f,0.05f,0.05f},
+				   .max = {0.08f,0.08f,0.08f},
+			   },
+			   .end{
+				   .min = {0.01f,0.01f,0.01f},
+				   .max = {0.03f,0.03f,0.03f},
+			   },
+		   },
+	   },
 
-	//   .rotate{
-	//	   .rotate = {0.0f,0.0f,0.0f},
-	//   },
+	   .rotate{
+		   .rotate = {0.0f,0.0f,0.0f},
+	   },
 
-	//   .velocity{
-	//	   .range{
-	//		   .min = {0.0f,0.1f,0.0f},
-	//		   .max = {0.0f,0.2f,0.0f},
-	//	   }
-	//   },
+	   .velocity{
+		   .range{
+			   .min = {0.0f,0.1f,0.0f},
+			   .max = {0.0f,0.2f,0.0f},
+		   }
+	   },
 
-	//   .color{
-	//	   .range{
-	//		   .start{
-	//			   .min = {0.5f,0.0f,0.0f,1.0f},
-	//			   .max = {0.8f,0.0f,0.0f,1.0f},
-	//		   },
-	//		   .end{
-	//			   .min = {0.0f,0.0f,0.5f,1.0f},
-	//			   .max = {0.0f,0.0f,0.8f,1.0f},
-	//		   },
-	//	   },
-	//   },
+	   .color{
+		   .range{
+			   .start{
+				   .min = {0.5f,0.0f,0.0f,1.0f},
+				   .max = {0.8f,0.0f,0.0f,1.0f},
+			   },
+			   .end{
+				   .min = {0.0f,0.0f,0.5f,1.0f},
+				   .max = {0.0f,0.0f,0.8f,1.0f},
+			   },
+		   },
+	   },
 
-	//   .frequency{
-	//	   .interval = 1,
-	//	   .isLoop = true,
-	//	   //.lifeTime = 120,
-	//   },
+	   .frequency{
+		   .interval = 5,
+		   .isLoop = true,
+		   //.lifeTime = 120,
+	   },
 
-	//   .particleLifeSpan{
-	//	   .range{
-	//		   .min = 15,
-	//		   .max = 30,
-	//	   }
-	//   },
+	   .particleLifeSpan{
+		   .range{
+			   .min = 15,
+			   .max = 30,
+		   }
+	   },
 
-	//   .textureIndex = TextureManager::GetInstance()->GetTexture(ModelManager::GetInstance()->GetModel(modelHandle_).GetTextureHandle()).GetDescriptorIndex(),
+	   .textureIndex = TextureManager::GetInstance()->GetTexture(ModelManager::GetInstance()->GetModel(modelHandle_).GetTextureHandle()).GetDescriptorIndex(),
 
-	//   .createParticleNum = 1 << 10,
-	//	};
+	   .createParticleNum = 1 << 10,
+		};
 
-	//	gpuParticleManager_->CreateParticle(emitterForGPU);
-	//}
+		gpuParticleManager_->CreateParticle(emitterForGPU);
+	}
 
-	//// 0
+	// 0
 	//{
 	//	GPUParticleShaderStructs::Emitter emitterForGPU = {
 	//   .emitterArea{

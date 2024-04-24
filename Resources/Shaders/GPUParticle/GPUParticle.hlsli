@@ -1,5 +1,5 @@
 
-#define threadBlockSize 1024
+#define threadBlockSize 8
 #define emitterSize 100
 
 // Utility

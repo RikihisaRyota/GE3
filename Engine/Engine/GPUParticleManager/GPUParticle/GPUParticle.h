@@ -83,6 +83,7 @@ private:
 	DefaultBuffer createParticleCounterCopySrcBuffer_;
 	// AddParticle用
 	DefaultBuffer addEmitterBuffer_;
+	UploadBuffer resetAddEmitterBuffer_;
 	UploadBuffer addEmitterCopyBuffer_;
 	// 追加するエミッターが何個あるか
 	UploadBuffer addEmitterCountBuffer_;

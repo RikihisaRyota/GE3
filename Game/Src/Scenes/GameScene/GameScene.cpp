@@ -196,8 +196,7 @@ void GameScene::Update() {
 	ImGui::DragFloat3("scale", &worldTransform_.scale.x, 0.1f, 0.0f);
 	ImGui::End();
 #endif // ENABLE_IMGUI
-	gpuParticleManager_->Update(RenderManager::GetInstance()->GetCommandContext());
-	//gpuParticleEditor_->Update(RenderManager::GetInstance()->GetCommandContext());
+
 	debugCamera_->Update(viewProjection_);
 
 	static const float kCycle = 60.0f;
@@ -216,6 +215,9 @@ void GameScene::Update() {
 
 	worldTransform_.UpdateMatrix();
 	ModelManager::GetInstance()->GetModel(modelHandle_).SetMaterialColor(color_);
+
+	gpuParticleManager_->Update(RenderManager::GetInstance()->GetCommandContext());
+	//gpuParticleEditor_->Update(RenderManager::GetInstance()->GetCommandContext());
 }
 
 void GameScene::Draw(CommandContext& commandContext) {

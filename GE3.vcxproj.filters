@@ -654,7 +654,7 @@
       <Filter>Shaders\Model</Filter>
     </FxCompile>
     <FxCompile Include="Resources\Shaders\GPUParticle\AppendEmitter.hlsl">
-      <Filter>Shaders\GPUParticle\Editor</Filter>
+      <Filter>Shaders\GPUParticle</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

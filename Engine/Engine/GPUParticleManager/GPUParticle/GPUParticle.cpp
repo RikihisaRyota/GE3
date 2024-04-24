@@ -49,39 +49,35 @@ void GPUParticle::AppendEmitter(CommandContext& commandContext) {
 	// エミッター追加
 	if (!emitterForGPUs_.empty()) {
 		// リセット
-		addEmitterCopyBuffer_.Copy(nullptr, 0);
+		commandContext.CopyBufferRegion(addEmitterBuffer_, addEmitterCounterOffset_, resetAppendDrawIndexBufferCounterReset_, 0, sizeof(UINT));
+		uint32_t reset = 0;
+		addEmitterCopyBuffer_.Copy(nullptr);
 		size_t emitterCount = emitterForGPUs_.size();
 		size_t copySize = sizeof(GPUParticleShaderStructs::Emitter) * emitterCount;
 		addEmitterCopyBuffer_.Copy(emitterForGPUs_.data(), copySize);
-		commandContext.CopyBufferRegion(addEmitterBuffer_, 0, addEmitterCopyBuffer_, 0, copySize);
 
 		commandContext.TransitionResource(addEmitterCopyBuffer_, D3D12_RESOURCE_STATE_GENERIC_READ);
 		commandContext.TransitionResource(addEmitterBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+		commandContext.UAVBarrier(addEmitterBuffer_);
 
 		commandContext.SetComputeShaderResource(0, addEmitterCopyBuffer_->GetGPUVirtualAddress());
 		commandContext.SetComputeDescriptorTable(1, addEmitterUAVHandle_);
-		commandContext.Dispatch(emitterCount, 1, 1);
+		commandContext.Dispatch(uint32_t(emitterCount), 1, 1);
+
+		commandContext.CopyBufferRegion(createEmitterBuffer_, 0, addEmitterBuffer_, addEmitterCounterOffset_, sizeof(UINT));
+		
 	}
 }
 void GPUParticle::AddEmitter(CommandContext& commandContext) {
 	// エミッター追加
 	if (!emitterForGPUs_.empty()) {
-		//// リセット
-		//addEmitterCopyBuffer_.Copy(nullptr, 0);
-		//size_t copySize = sizeof(GPUParticleShaderStructs::Emitter) * emitterForGPUs_.size();
-		//addEmitterCopyBuffer_.Copy(emitterForGPUs_.data(), copySize);
-		//commandContext.CopyBufferRegion(addEmitterBuffer_, 0, addEmitterCopyBuffer_, 0, copySize);
-		//// 追加するエミッターが何個あるか
-		//UINT emitterCount = (static_cast<UINT>(emitterForGPUs_.size()));
-		//addEmitterCountBuffer_.Copy(&emitterCount, sizeof(UINT));
-		//// カウンターに追加するパーティクルの個数をセット
-		//commandContext.CopyBufferRegion(addEmitterBuffer_, addEmitterCounterOffset_, addEmitterCountBuffer_, 0, sizeof(UINT));
-
 		commandContext.TransitionResource(addEmitterBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 		commandContext.TransitionResource(emitterForGPUBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+		commandContext.TransitionResource(createEmitterBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 
 		commandContext.SetComputeDescriptorTable(0, addEmitterUAVHandle_);
 		commandContext.SetComputeUAV(1, emitterForGPUBuffer_->GetGPUVirtualAddress());
+		commandContext.SetComputeUAV(2, createEmitterBuffer_->GetGPUVirtualAddress());
 		commandContext.Dispatch(1, 1, 1);
 		emitterForGPUs_.clear();
 	}
@@ -420,4 +416,8 @@ void GPUParticle::InitializeAddEmitter() {
 
 	addEmitterCountBuffer_.Create(L"AddEmitterCounterBuffer", sizeof(UINT));
 	addEmitterCountBuffer_.Copy(0);
+
+	createEmitterBuffer_.Create(L"createEmitterBuffer_", 
+		sizeof(UINT),
+		D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
 }

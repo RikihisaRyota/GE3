@@ -88,6 +88,7 @@ private:
 	UploadBuffer addEmitterCountBuffer_;
 	DescriptorHandle addEmitterUAVHandle_;
 	std::vector<GPUParticleShaderStructs::Emitter> emitterForGPUs_;
+	DefaultBuffer createEmitterBuffer_;
 
 
 	UINT particleIndexSize_;

@@ -13,28 +13,30 @@
 #include "Engine/Math/Matrix4x4.h"
 #include "Engine/Model/ModelHandle.h"
 
-static const uint32_t kNumMaxInfluence = 4;
+namespace Animation {
+	static const uint32_t kNumMaxInfluence = 4;
 
-struct VertexInfluence {
-	std::array<float, kNumMaxInfluence> weights;
-	std::array<int32_t, kNumMaxInfluence> jointIndices;
-};
+	struct VertexInfluence {
+		std::array<float, kNumMaxInfluence> weights;
+		std::array<int32_t, kNumMaxInfluence> jointIndices;
+	};
 
-struct WellForGPU {
-	Matrix4x4 skeletonSpaceMatrix;
-	Matrix4x4 skeletonSpaceInverseTransposeMatrix;
-};
-struct SkinCluster {
-	std::vector<Matrix4x4> inverseBindPoseMatrices;
+	struct WellForGPU {
+		Matrix4x4 skeletonSpaceMatrix;
+		Matrix4x4 skeletonSpaceInverseTransposeMatrix;
+	};
+	struct SkinCluster {
+		std::vector<Matrix4x4> inverseBindPoseMatrices;
 
-	UploadBuffer influenceResource;
-	D3D12_VERTEX_BUFFER_VIEW influenceBufferView;
-	std::span<VertexInfluence> mappedInfluence;
+		UploadBuffer influenceResource;
+		D3D12_VERTEX_BUFFER_VIEW influenceBufferView;
+		std::span<VertexInfluence> mappedInfluence;
 
-	UploadBuffer paletteResource;
-	std::span<WellForGPU> mappedPalette;
-	DescriptorHandle paletteHandle;
+		UploadBuffer paletteResource;
+		std::span<WellForGPU> mappedPalette;
+		DescriptorHandle paletteHandle;
 
-	void Update(const Skeleton& skeleton);
-	void CreateSkinCluster(const Skeleton& skeleton,const ModelHandle& modelHandle);
-};
+		void Update(const Skeleton& skeleton);
+		void CreateSkinCluster(const Skeleton& skeleton, const ModelHandle& modelHandle);
+	};
+}

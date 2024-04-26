@@ -85,6 +85,7 @@ public:
 	const D3D12_VERTEX_BUFFER_VIEW GetVBView()const { return vbView_; }
 	const TextureHandle GetTextureHandle()const { return textureHandle_; }
 	const UploadBuffer& GetMaterialBuffer()const { return materialBuffer_; }
+	const std::filesystem::path& GetPath()const { return path_; }
 	void SetMaterialColor(const Vector4& color);
 private:
 	void LoadFile(const std::filesystem::path& modelPath);
@@ -98,4 +99,5 @@ private:
 	Material* material_;
 	UploadBuffer materialBuffer_;
 	std::filesystem::path name_;
+	std::filesystem::path path_;
 };

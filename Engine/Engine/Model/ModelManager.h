@@ -7,13 +7,13 @@
 #include "Engine/Graphics/RootSignature.h"
 #include "Engine/Graphics/PipelineState.h"
 
+#include "Engine/Animation/Animation.h"
 #include "ModelHandle.h"
 #include "Model.h"
 
 class CommandContext;
 struct WorldTransform;
 struct ViewProjection;
-struct SkinCluster;
 class ModelManager {
 public:
 	static ModelManager* GetInstance();
@@ -25,7 +25,7 @@ public:
 	Model& GetModel(const ModelHandle& modelHandle) { return *models_[modelHandle.index_]; }
 
 	void Draw(const WorldTransform& worldTransform,const ViewProjection& viewProjection, const ModelHandle& modelHandle, CommandContext& commandContext);
-	void Draw(const WorldTransform& worldTransform, const SkinCluster& skinning,const ViewProjection& viewProjection, const ModelHandle& modelHandle, CommandContext& commandContext);
+	void Draw(const WorldTransform& worldTransform, const Animation::Animation& skinning,const ViewProjection& viewProjection, const ModelHandle& modelHandle, CommandContext& commandContext);
 private:
 	static std::unique_ptr<PipelineState> pipelineState_;
 	static std::unique_ptr<RootSignature> rootSignature_;

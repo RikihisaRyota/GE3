@@ -25,10 +25,8 @@ GameScene::GameScene() {
 	soundHandle_ = Audio::GetInstance()->SoundLoad("Resources/Audios/walk.mp3");
 	playHandle_ = Audio::GetInstance()->SoundPlayLoopStart(soundHandle_);
 
-	animationModelHandle_ = ModelManager::GetInstance()->Load("Resources/Models/Walk/walk.gltf");
-	animation_.LoadAnimationFile("Resources/Models/Walk/walk.gltf");
-	skeleton_.CreateSkeleton(ModelManager::GetInstance()->GetModel(animationModelHandle_).GetMeshData().at(0)->rootNode);
-	skinCluster_.CreateSkinCluster(skeleton_, animationModelHandle_);
+	animationModelHandle_ = ModelManager::GetInstance()->Load("Resources/Models/Player/player.gltf");
+	animation_.Initialize(animationModelHandle_);
 
 	animationWorldTransform_.Initialize();;
 	animationTime_ = 0.0f;
@@ -202,9 +200,7 @@ void GameScene::Update() {
 	static const float kCycle = 60.0f;
 	animationTime_ += 1.0f;
 	animationTime_ = std::fmodf(animationTime_, kCycle);
-	ApplyAnimation(skeleton_, animation_, animationTime_ / kCycle);
-	skeleton_.Update();
-	skinCluster_.Update(skeleton_);
+	animation_.Update(animationTime_/ kCycle);
 
 	animationWorldTransform_.TransferMatrix();
 
@@ -224,7 +220,7 @@ void GameScene::Draw(CommandContext& commandContext) {
 	
 	player_->Draw(*viewProjection_, commandContext);
 
-	ModelManager::GetInstance()->Draw(animationWorldTransform_, skinCluster_, *viewProjection_, animationModelHandle_, commandContext);
+	ModelManager::GetInstance()->Draw(animationWorldTransform_, animation_, *viewProjection_, animationModelHandle_, commandContext);
 
 	//ModelManager::GetInstance()->Draw(worldTransform_, *viewProjection_, modelHandle_, commandContext);
 

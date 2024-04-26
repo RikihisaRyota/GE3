@@ -26,6 +26,7 @@ void Model::SetMaterialColor(const Vector4& color) {
 }
 
 void Model::LoadFile(const std::filesystem::path& modelPath) {
+	path_ = modelPath;
 	name_ = modelPath.stem();
 
 	std::vector<Vertex> vertexPos; //!< 構築するModelData

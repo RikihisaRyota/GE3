@@ -9,6 +9,7 @@
 
 #include "Engine/GPUParticleManager/GPUParticleManager.h"
 #include "PlayerBullet.h"
+#include "Engine/Animation/Animation.h"
 
 
 class CommandContext;
@@ -43,6 +44,8 @@ private:
 	ModelHandle playerModelHandle_;
 	WorldTransform worldTransform_;
 	WorldTransform animationTransform_;
+	Animation::Animation animation_;
+	float animationTime_;
 
 	uint32_t bulletTime_;
 	std::list<std::unique_ptr<PlayerBullet>> playerBullets_;

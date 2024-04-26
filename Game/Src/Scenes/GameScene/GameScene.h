@@ -40,9 +40,7 @@ private:
 	int32_t playHandle_;
 	Vector4 color_;
 
-	Animation animation_;
-	Skeleton skeleton_;
-	SkinCluster skinCluster_;
+	Animation::Animation animation_;
 	float animationTime_;
 
 	ModelHandle animationModelHandle_;

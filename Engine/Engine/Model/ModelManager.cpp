@@ -2,7 +2,6 @@
 
 #include <d3dx12.h>
 
-#include "Engine/Animation/Skinning.h"
 #include "Engine/Graphics/CommandContext.h"
 #include "Engine/Graphics/Helper.h"
 #include "Engine/Graphics/SamplerManager.h"
@@ -207,13 +206,13 @@ void ModelManager::Draw(const WorldTransform& worldTransform, const ViewProjecti
 	}
 }
 
-void ModelManager::Draw(const WorldTransform& worldTransform, const SkinCluster& skinning, const ViewProjection& viewProjection, const ModelHandle& modelHandle, CommandContext& commandContext) {
+void ModelManager::Draw(const WorldTransform& worldTransform, const Animation::Animation& skinning, const ViewProjection& viewProjection, const ModelHandle& modelHandle, CommandContext& commandContext) {
 	commandContext.SetGraphicsRootSignature(*skinningRootSignature_);
 	commandContext.SetPipelineState(*skinningPipelineState_);
 	commandContext.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	D3D12_VERTEX_BUFFER_VIEW vbvs[2] = {
 		models_.at(modelHandle)->GetVBView(),
-		skinning.influenceBufferView
+		skinning.skinCluster.influenceBufferView
 	};
 	commandContext.SetVertexBuffer(0,2, vbvs);
 	for (auto& modelData : models_.at(modelHandle)->GetMeshData()) {
@@ -223,7 +222,7 @@ void ModelManager::Draw(const WorldTransform& worldTransform, const SkinCluster&
 		commandContext.SetGraphicsConstantBuffer(Parameter::SkinningRootParameter::SkinningDirectionLight, Lighting::GetInstance()->GetDirectionLightBuffer().GetGPUVirtualAddress());
 		commandContext.SetGraphicsConstantBuffer(Parameter::SkinningRootParameter::SkinningPointLight, Lighting::GetInstance()->GetPointLightBuffer().GetGPUVirtualAddress());
 		commandContext.SetGraphicsConstantBuffer(Parameter::SkinningRootParameter::SkinningMaterial, models_.at(modelHandle)->GetMaterialBuffer().GetGPUVirtualAddress());
-		commandContext.SetGraphicsShaderResource(Parameter::SkinningRootParameter::SkinningSkinning, skinning.paletteResource.GetGPUVirtualAddress());
+		commandContext.SetGraphicsShaderResource(Parameter::SkinningRootParameter::SkinningSkinning, skinning.skinCluster.paletteResource.GetGPUVirtualAddress());
 		commandContext.SetGraphicsDescriptorTable(Parameter::SkinningRootParameter::SkinningTexture, TextureManager::GetInstance()->GetTexture(models_.at(modelHandle)->GetTextureHandle()).GetSRV());
 		commandContext.SetGraphicsDescriptorTable(Parameter::SkinningRootParameter::SkinningSampler, SamplerManager::LinearWrap);
 		commandContext.DrawIndexed(modelData->meshes->indexCount);

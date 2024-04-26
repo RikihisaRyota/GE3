@@ -10,37 +10,48 @@
 #include "Engine/Math/WorldTransform.h"
 #include "Engine/Model/Model.h"
 #include "Engine/Animation/Skeleton.h"
+#include "Engine/Animation/Skinning.h"
 
-template <typename tValue>
-struct  Keyframe {
-	tValue value;
-	float time;
-};
+namespace Animation {
+	template <typename tValue>
+	struct  Keyframe {
+		tValue value;
+		float time;
+	};
 
-using KeyframeVector3 = Keyframe<Vector3>;
-using KeyframeQuaternion = Keyframe<Quaternion>;
+	using KeyframeVector3 = Keyframe<Vector3>;
+	using KeyframeQuaternion = Keyframe<Quaternion>;
 
-template <typename tValue>
-struct AnimationCurve {
-	std::vector<Keyframe<tValue>> keyframe;
-};
+	template <typename tValue>
+	struct AnimationCurve {
+		std::vector<Keyframe<tValue>> keyframe;
+	};
 
-struct NodeAnimation {
-	AnimationCurve<Vector3> translate;
-	AnimationCurve<Quaternion> rotate;
-	AnimationCurve<Vector3> scale;
-};
+	struct NodeAnimation {
+		AnimationCurve<Vector3> translate;
+		AnimationCurve<Quaternion> rotate;
+		AnimationCurve<Vector3> scale;
+	};
 
-struct Animation {
-	void LoadAnimationFile(const std::filesystem::path& directoryPath);
-	void Update(WorldTransform& worldTransform, bool isLoop, const ModelHandle& modelHandle, uint32_t children);
-	std::map<std::string, NodeAnimation> nodeAnimations;
-	// 単位は秒
-	float duration;
-	float animationTime;
-	std::string name;
-};
+	struct AnimationDesc {
+		void LoadAnimationFile(const std::filesystem::path& directoryPath);
+		void Update(WorldTransform& worldTransform, bool isLoop, const ModelHandle& modelHandle, uint32_t children);
+		std::map<std::string, NodeAnimation> nodeAnimations;
+		// 単位は秒
+		float duration;
+		float animationTime;
+		std::string name;
+	};
 
-Vector3 CalculateValue(const AnimationCurve<Vector3>& keyframes, float time);
-Quaternion CalculateValue(const AnimationCurve<Quaternion>& keyframes, float time);
-void ApplyAnimation(Skeleton& skeleton, const Animation& animation, float animationTime);
+	struct Animation {
+		AnimationDesc animation;
+		Skeleton skeleton;
+		SkinCluster skinCluster;
+		void Initialize(const ModelHandle& modelHandle);
+		void Update(float time);
+	};
+
+	Vector3 CalculateValue(const AnimationCurve<Vector3>& keyframes, float time);
+	Quaternion CalculateValue(const AnimationCurve<Quaternion>& keyframes, float time);
+	void ApplyAnimation(Skeleton& skeleton, const AnimationDesc& animation, float animationTime);
+}

@@ -1,0 +1,73 @@
+{
+    "name": "scene",
+    "objects": [
+        {
+            "type": "MESH",
+            "name": "Floor"
+        },
+        {
+            "type": "MESH",
+            "name": "FireBarCenter"
+        },
+        {
+            "type": "MESH",
+            "name": "振り子バー"
+        },
+        {
+            "type": "MESH",
+            "name": "BossLowerAttack"
+        },
+        {
+            "type": "MESH",
+            "name": "BossInsideAttackTrigger"
+        },
+        {
+            "type": "MESH",
+            "name": "BossHookAttack"
+        },
+        {
+            "type": "MESH",
+            "name": "Floor.001"
+        },
+        {
+            "type": "MESH",
+            "name": "FireBarCenter.001"
+        },
+        {
+            "type": "MESH",
+            "name": "FireBarCenter.002"
+        },
+        {
+            "type": "MESH",
+            "name": "Floor.002"
+        },
+        {
+            "type": "MESH",
+            "name": "振り子バー.001"
+        },
+        {
+            "type": "MESH",
+            "name": "振り子バー.002"
+        },
+        {
+            "type": "MESH",
+            "name": "立方体"
+        },
+        {
+            "type": "MESH",
+            "name": "立方体.001"
+        },
+        {
+            "type": "MESH",
+            "name": "BossHookAttack.001"
+        },
+        {
+            "type": "MESH",
+            "name": "BossInsideAttackTrigger.001"
+        },
+        {
+            "type": "MESH",
+            "name": "BossLowerAttack.001"
+        }
+    ]
+}

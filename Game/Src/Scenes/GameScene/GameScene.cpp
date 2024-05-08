@@ -54,8 +54,8 @@ void GameScene::Initialize() {
 		GPUParticleShaderStructs::Emitter emitterForGPU = {
 	   .emitterArea{
 			   .area{
-				   .min = {-1.0f,-5.0f,-5.0f},
-				   .max = {1.0f,5.0f,5.0f},
+				   .min = {-30.0f,-30.0f,-30.0f},
+				   .max = {30.0f,30.0f,30.0f},
 			   },
 			   .position = {0.0f,0.0f,0.0f},
 		   },
@@ -63,12 +63,12 @@ void GameScene::Initialize() {
 	   .scale{
 		   .range{
 			   .start{
-				   .min = {0.05f,0.05f,0.05f},
-				   .max = {0.08f,0.08f,0.08f},
+				   .min = {0.1f,0.1f,0.1f},
+				   .max = {0.2f,0.2f,0.2f},
 			   },
 			   .end{
-				   .min = {0.01f,0.01f,0.01f},
-				   .max = {0.03f,0.03f,0.03f},
+				   .min = {0.02f,0.02f,0.02f},
+				   .max = {0.01f,0.01f,0.01f},
 			   },
 		   },
 	   },
@@ -79,40 +79,40 @@ void GameScene::Initialize() {
 
 	   .velocity{
 		   .range{
-			   .min = {0.0f,0.1f,0.0f},
-			   .max = {0.0f,0.2f,0.0f},
+			   .min = {-0.05f,-0.05f,-0.05f},
+			   .max = {0.05f,0.0f,0.05f},
 		   }
 	   },
 
 	   .color{
 		   .range{
 			   .start{
-				   .min = {0.5f,0.0f,0.0f,1.0f},
-				   .max = {0.8f,0.0f,0.0f,1.0f},
+				   .min = {1.0f,1.0f,1.0f,1.0f},
+				   .max = {1.0f,1.0f,1.0f,1.0f},
 			   },
 			   .end{
-				   .min = {0.0f,0.0f,0.5f,1.0f},
-				   .max = {0.0f,0.0f,0.8f,1.0f},
+				   .min = {0.5f,0.5f,0.5f,1.0f},
+				   .max = {0.5f,0.5f,0.5f,1.0f},
 			   },
 		   },
 	   },
 
 	   .frequency{
-		   .interval = 5,
+		   .interval = 1,
 		   .isLoop = true,
 		   //.lifeTime = 120,
 	   },
 
 	   .particleLifeSpan{
 		   .range{
-			   .min = 15,
+			   .min = 10,
 			   .max = 30,
 		   }
 	   },
 
-	   .textureIndex = TextureManager::GetInstance()->GetTexture(ModelManager::GetInstance()->GetModel(modelHandle_).GetTextureHandle()).GetDescriptorIndex(),
+	   .textureIndex = TextureManager::GetInstance()->GetTexture(gpuTexture_).GetDescriptorIndex(),
 
-	   .createParticleNum = 1 << 10,
+	   .createParticleNum = 1 << 15,
 		};
 
 		gpuParticleManager_->CreateParticle(emitterForGPU);

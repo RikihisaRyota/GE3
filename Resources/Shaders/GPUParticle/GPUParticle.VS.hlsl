@@ -10,6 +10,7 @@ struct ViewProjection
     float4x4 projection; // プロジェクション変換行列
     float4x4 inverseView; // プロジェクション変換行列
     float3 cameraPos; // カメラのワールド座標
+    float32_t pad;
 };
 ConstantBuffer<ViewProjection> gViewProjection : register(b0);
 

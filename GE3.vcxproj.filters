@@ -133,6 +133,9 @@
     <Filter Include="Shaders\PostEffect">
       <UniqueIdentifier>{c7ccfac3-abab-4d8f-bcc4-a0368184fccb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\LevelDataLoader">
+      <UniqueIdentifier>{ddd7afd3-abd8-4b86-8d08-9648753c374a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine\Engine\Math\MyMath.cpp">
@@ -321,6 +324,7 @@
     </ClCompile>
     <ClCompile Include="Engine\Engine\Animation\Skeleton.cpp" />
     <ClCompile Include="Engine\Engine\Animation\Skinning.cpp" />
+    <ClCompile Include="LevelDataLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\Engine\WinApp\WinApp.h">
@@ -565,6 +569,9 @@
     </ClInclude>
     <ClInclude Include="Engine\Engine\Animation\Skinning.h">
       <Filter>Engine\Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelDataLoader.h">
+      <Filter>Engine\LevelDataLoader</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

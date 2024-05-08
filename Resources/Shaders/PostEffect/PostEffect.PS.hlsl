@@ -16,23 +16,12 @@ float Random(float2 coord)
 
 PixelShaderOutPut main(VertexShaderOutPut input)
 {
-    // グローエフェクトの閾値
-    float glowThreshold = 0.3f;
-    // グローエフェクトの強度
-    float glowIntensity = 1.2f;
-
-    float saturation = 2.0f;
-    float contrast = 1.5f;
-
-    float motionBlurAmount = 0.02f;
-    
     PixelShaderOutPut output;
     float32_t2 samplePoint = input.texcoord;
     float32_t4 textureColor=tex.Sample(smp, input.texcoord);
     output.color = textureColor;
-    output.color.rgb = Grayscale(textureColor.rgb);
-    //float4 textureColor = output.color;
-	//output.color.rgb = Smoothing(samplePoint,tex,smp);
+    //output.color.rgb = Grayscale(textureColor.rgb);
+    //output.color.rgb = Smoothing(samplePoint,tex,smp);
     
     //float2 center = float2(0.5f, 0.5f); // 画面中央
     //float radius = clamp(gTime.time,0.0f,1.0f); // 円の半径
@@ -47,10 +36,6 @@ PixelShaderOutPut main(VertexShaderOutPut input)
     //    // 円の外側
     //    output.color = float4(1.0f, 1.0f, 1.0f, 1.0f);
     //}
-    //// モーションブラー
-    //float2 motionBlurOffset = float2(sin(input.texcoord.y * motionBlurAmount), cos(input.texcoord.x * motionBlurAmount));
-    //output.color = tex.Sample(smp, motionBlurOffset);
-    //float4 textureColor = output.color;
     // 反転
     //output.color.rgb = (1.0f - output.color.r, 1.0f - output.color.g, 1.0f - output.color.b);
     // 白黒
@@ -76,28 +61,6 @@ PixelShaderOutPut main(VertexShaderOutPut input)
     //output.color.rgb -= (1 - steped) * abs(sin(input.texcoord.y * 50.0 + gTime.time * 1.0)) * 0.05;
     //output.color.rgb -= (1 - steped) * abs(sin(input.texcoord.y * 100.0 - gTime.time * 2.0)) * 0.08;
     //output.color.rgb += steped * 0.1;
-    // ビネット
-    //float vignette = length(float2(0.5, 0.5) - input.texcoord);
-    //vignette = clamp(vignette - 0.2, 0, 1);
-    //output.color.rgb -= vignette;
-    //// ブルーム
-    //float luminance = (textureColor.r + textureColor.g + textureColor.b) / 3.0f;
-    //
-    //// グローエフェクト
-    //if (luminance > glowThreshold)
-    //{
-    //    output.color += textureColor * glowIntensity;
-    //}
-    //
-    //// 彩度とコントラストの調整
-    //float3 color = saturate((textureColor.rgb - 0.5f) * contrast + 0.5f) * saturation;
-    //output.color += float4(color, textureColor.a);
-    //
-    //
-    //
-    // カラーグレーディング
-    //float4 gradedColor = textureColor;
-    // gradedColor.rgb *= float3(0.1f, 0.1f, 0.6f); // 例として青みを強調
-    //.color += gradedColor;
+
     return output;
 }

@@ -12,6 +12,7 @@
 
 void Texture::CreateFromWICFile(const std::filesystem::path& path) {
 	// TextureデータをCPUにロード
+	name_ = path.stem();
 	DirectX::ScratchImage mipImage = LoadTexture(path);
 
 	const DirectX::TexMetadata& metadata = mipImage.GetMetadata();

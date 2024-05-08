@@ -90,6 +90,8 @@ void main(uint3 DTid : SV_DispatchThreadID)
 {
     for (int i = 0; i < emitterSize; i++)
     {
+        if(createParticle[i].createParticleNum > 0){
+
         // ここで同期処理をしたい
         // 並列処理で複数のスレットがcreateParticle[i].createParticleNumの計算を行っていて
         // 現在のcreateParticle[i].createParticleNum の中身を知りたい
@@ -102,6 +104,7 @@ void main(uint3 DTid : SV_DispatchThreadID)
                 uint32_t emitterIndex = createParticle[i].emitterNum;
                 Create(index, emitterIndex);
                 break;
+        }
         }
     }
 }

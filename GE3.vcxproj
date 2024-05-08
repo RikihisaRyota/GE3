@@ -211,6 +211,7 @@
     <ClCompile Include="Game\Src\Scenes\SceneManager\SceneManager.cpp" />
     <ClCompile Include="Game\Src\Scenes\TitleScene\TitleScene.cpp" />
     <ClCompile Include="Game\Src\Scenes\Transition\Transition.cpp" />
+    <ClCompile Include="LevelDataLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\Engine\Animation\Animation.h" />
@@ -294,6 +295,7 @@
     <ClInclude Include="Game\Src\Scenes\SceneManager\SceneManager.h" />
     <ClInclude Include="Game\Src\Scenes\TitleScene\TitleScene.h" />
     <ClInclude Include="Game\Src\Scenes\Transition\Transition.h" />
+    <ClInclude Include="LevelDataLoader.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="Externals\Imgui\LICENSE.txt" />

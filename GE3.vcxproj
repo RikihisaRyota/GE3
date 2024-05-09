@@ -152,6 +152,7 @@
     <ClCompile Include="Engine\Engine\Animation\Skinning.cpp" />
     <ClCompile Include="Engine\Engine\Audio\Audio.cpp" />
     <ClCompile Include="Engine\Engine\DebugCamera\DebugCamera.cpp" />
+    <ClCompile Include="Engine\Engine\DrawLine\DrawLine.cpp" />
     <ClCompile Include="Engine\Engine\GPUParticleManager\GPUParticleManager.cpp" />
     <ClCompile Include="Engine\Engine\GPUParticleManager\GPUParticle\GPUParticle.cpp" />
     <ClCompile Include="Engine\Engine\GPUParticleManager\GPUParticle\GPUParticleEditor.cpp" />
@@ -220,6 +221,7 @@
     <ClInclude Include="Engine\Engine\Audio\Audio.h" />
     <ClInclude Include="Engine\Engine\Audio\SoundHandle\SoundHandle.h" />
     <ClInclude Include="Engine\Engine\DebugCamera\DebugCamera.h" />
+    <ClInclude Include="Engine\Engine\DrawLine\DrawLine.h" />
     <ClInclude Include="Engine\Engine\GPUParticleManager\GPUParticleManager.h" />
     <ClInclude Include="Engine\Engine\GPUParticleManager\GPUParticle\GPUParticle.h" />
     <ClInclude Include="Engine\Engine\GPUParticleManager\GPUParticle\GPUParticleEditor.h" />
@@ -306,6 +308,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="Resources\Shaders\DrawLine\DrawLine.hlsli">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </None>
     <None Include="Resources\Shaders\Fullscreen.hlsli">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Demo|x64'">true</ExcludedFromBuild>
@@ -339,6 +344,18 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <FxCompile Include="Resources\Shaders\DrawLine\DrawLine.PS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Demo|x64'">Pixel</ShaderType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="Resources\Shaders\DrawLine\DrawLine.VS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Demo|x64'">Vertex</ShaderType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </FxCompile>
     <FxCompile Include="Resources\Shaders\Fullscreen.VS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>

@@ -60,7 +60,7 @@ private:
 	// インデックスバッファビュー
 	D3D12_INDEX_BUFFER_VIEW ibView_{};
 	// 頂点インデックスデータ
-	std::vector<uint16_t> indices_;
+	std::vector<uint32_t> indices_;
 #pragma endregion
 #pragma region 
 	std::vector<Instancing*> instancing_;

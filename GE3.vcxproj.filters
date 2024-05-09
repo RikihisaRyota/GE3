@@ -136,6 +136,12 @@
     <Filter Include="Engine\LevelDataLoader">
       <UniqueIdentifier>{ddd7afd3-abd8-4b86-8d08-9648753c374a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\DrawLine">
+      <UniqueIdentifier>{f203ac2a-5606-451d-bf9e-dbe065ae037e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\DrawLine">
+      <UniqueIdentifier>{b72203fc-2389-49db-b947-e5a2a4f80fec}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine\Engine\Math\MyMath.cpp">
@@ -325,6 +331,9 @@
     <ClCompile Include="Engine\Engine\Animation\Skeleton.cpp" />
     <ClCompile Include="Engine\Engine\Animation\Skinning.cpp" />
     <ClCompile Include="LevelDataLoader.cpp" />
+    <ClCompile Include="Engine\Engine\DrawLine\DrawLine.cpp">
+      <Filter>Engine\DrawLine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\Engine\WinApp\WinApp.h">
@@ -573,6 +582,9 @@
     <ClInclude Include="LevelDataLoader.h">
       <Filter>Engine\LevelDataLoader</Filter>
     </ClInclude>
+    <ClInclude Include="Engine\Engine\DrawLine\DrawLine.h">
+      <Filter>Engine\DrawLine</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Externals\Imgui\LICENSE.txt">
@@ -600,6 +612,9 @@
     </None>
     <None Include="Resources\Shaders\PostEffect\PostEffect.hlsli">
       <Filter>Shaders\PostEffect</Filter>
+    </None>
+    <None Include="Resources\Shaders\DrawLine\DrawLine.hlsli">
+      <Filter>Shaders\DrawLine</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -662,6 +677,12 @@
     </FxCompile>
     <FxCompile Include="Resources\Shaders\GPUParticle\AppendEmitter.hlsl">
       <Filter>Shaders\GPUParticle</Filter>
+    </FxCompile>
+    <FxCompile Include="Resources\Shaders\DrawLine\DrawLine.PS.hlsl">
+      <Filter>Shaders\DrawLine</Filter>
+    </FxCompile>
+    <FxCompile Include="Resources\Shaders\DrawLine\DrawLine.VS.hlsl">
+      <Filter>Shaders\DrawLine</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

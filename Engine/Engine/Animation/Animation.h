@@ -49,6 +49,7 @@ namespace Animation {
 		SkinCluster skinCluster;
 		void Initialize(const ModelHandle& modelHandle);
 		void Update(float time);
+		void Draw(const WorldTransform& worldTransform);
 	};
 
 	Vector3 CalculateValue(const AnimationCurve<Vector3>& keyframes, float time);

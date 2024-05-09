@@ -1,6 +1,7 @@
 #include "GameScene.h"
 
 #include "Engine/Audio/Audio.h"
+#include "Engine/DrawLine/DrawLine.h"
 #include "Engine/Graphics/CommandContext.h"
 #include "Engine/Graphics/RenderManager.h"
 #include "Engine//Math/MyMath.h"
@@ -33,13 +34,13 @@ GameScene::GameScene() {
 	worldTransform_.Initialize();
 
 	//gpuParticleEditor_->Initialize();
-	gpuParticleManager_->Initialize();
+	//gpuParticleManager_->Initialize();
 }
 
 GameScene::~GameScene() {}
 
 void GameScene::Initialize() {
-
+	//DrawLine::GetInstance()->SetLine({ -10.0f,1.0f,0.0f }, { 10.0f,1.0f,0.0f }, { 0.0f,1.0f,0.0f,1.0f });
 	//Audio::GetInstance()->SoundPlayLoopStart(playHandle_);
 
 	player_->SetViewProjection(viewProjection_);
@@ -115,7 +116,7 @@ void GameScene::Initialize() {
 	   .createParticleNum = 1 << 15,
 		};
 
-		gpuParticleManager_->CreateParticle(emitterForGPU);
+		//gpuParticleManager_->CreateParticle(emitterForGPU);
 	}
 
 	// 0
@@ -194,6 +195,10 @@ void GameScene::Update() {
 	ImGui::DragFloat3("scale", &worldTransform_.scale.x, 0.1f, 0.0f);
 	ImGui::End();
 #endif // ENABLE_IMGUI
+	DrawLine::GetInstance()->SetLine({ -10.0f,0.0f,0.0f }, { 10.0f,0.0f,0.0f }, { 1.0f,1.0f,1.0f,1.0f });
+	//DrawLine::GetInstance()->SetLine({ -10.0f,1.0f,0.0f }, { 10.0f,1.0f,0.0f }, { 0.0f,1.0f,0.0f,1.0f });
+	//DrawLine::GetInstance()->SetLine({ -10.0f,1.0f,0.0f }, { 10.0f,1.0f,0.0f }, { 0.0f,1.0f,0.0f,1.0f });
+	//DrawLine::GetInstance()->SetLine({ -10.0f,1.0f,0.0f }, { 10.0f,1.0f,0.0f }, { 0.0f,1.0f,0.0f,1.0f });
 
 	debugCamera_->Update(viewProjection_);
 
@@ -212,21 +217,21 @@ void GameScene::Update() {
 	worldTransform_.UpdateMatrix();
 	ModelManager::GetInstance()->GetModel(modelHandle_).SetMaterialColor(color_);
 
-	gpuParticleManager_->Update(RenderManager::GetInstance()->GetCommandContext());
+	//gpuParticleManager_->Update(RenderManager::GetInstance()->GetCommandContext());
 	//gpuParticleEditor_->Update(RenderManager::GetInstance()->GetCommandContext());
 }
 
 void GameScene::Draw(CommandContext& commandContext) {
 	
-	player_->Draw(*viewProjection_, commandContext);
+	//player_->Draw(*viewProjection_, commandContext);
 
-	ModelManager::GetInstance()->Draw(animationWorldTransform_, animation_, *viewProjection_, animationModelHandle_, commandContext);
+	//ModelManager::GetInstance()->Draw(animationWorldTransform_, animation_, *viewProjection_, animationModelHandle_, commandContext);
 
 	//ModelManager::GetInstance()->Draw(worldTransform_, *viewProjection_, modelHandle_, commandContext);
 
-	ModelManager::GetInstance()->Draw(worldTransform_, *viewProjection_, terrainHandle_, commandContext);
+	//ModelManager::GetInstance()->Draw(worldTransform_, *viewProjection_, terrainHandle_, commandContext);
 
-	gpuParticleManager_->Draw(*viewProjection_, commandContext);
+	//gpuParticleManager_->Draw(*viewProjection_, commandContext);
 	//gpuParticleEditor_->Draw(*viewProjection_, commandContext);
 }
 

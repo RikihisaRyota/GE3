@@ -9,7 +9,7 @@
 #include "Engine/Math/MyMath.h"
 
 Player::Player() {
-	playerModelHandle_ = ModelManager::GetInstance()->Load("Resources/Models/Player/player.gltf");
+	playerModelHandle_ = ModelManager::GetInstance()->Load("Resources/Models/Walk/walk.gltf");
 	animation_.Initialize(playerModelHandle_);
 }
 
@@ -37,7 +37,8 @@ void Player::Update() {
 }
 
 void Player::Draw(const ViewProjection& viewProjection, CommandContext& commandContext) {
-	ModelManager::GetInstance()->Draw(animationTransform_, animation_, *viewProjection_, playerModelHandle_, commandContext);
+	//ModelManager::GetInstance()->Draw(animationTransform_, animation_, *viewProjection_, playerModelHandle_, commandContext);
+	//animation_.Draw(animationTransform_);
 	// 弾
 	for (auto& bullet : playerBullets_) {
 		bullet->Draw(viewProjection, commandContext);

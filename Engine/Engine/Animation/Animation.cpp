@@ -8,6 +8,9 @@
 
 #include "Engine/Math/MyMath.h"
 #include "Engine/Model/ModelManager.h"
+#include "Engine/DrawLine/DrawLine.h"
+#include "Engine/Math/MyMath.h"
+
 
 namespace Animation {
 	Vector3 CalculateValue(const AnimationCurve<Vector3>& keyframes, float time) {
@@ -111,6 +114,21 @@ namespace Animation {
 		ApplyAnimation(skeleton, animation, time);
 		skeleton.Update();
 		skinCluster.Update(skeleton);
+	}
+
+	void Animation::Draw(const WorldTransform& worldTransform) {
+		auto drawLine = DrawLine::GetInstance();
+		for (auto& joint : skeleton.joints) {
+			joint.localMatrix = MakeAffineMatrix(joint.transform.scale, joint.transform.rotate, joint.transform.translate);
+			if (joint.parent) {
+				joint.skeletonSpaceMatrix = joint.localMatrix * skeleton.joints.at(*joint.parent).skeletonSpaceMatrix;
+				
+				drawLine->SetLine(MakeTranslateMatrix(Mul(joint.skeletonSpaceMatrix, worldTransform.matWorld)), MakeTranslateMatrix((skeleton.joints.at(*joint.parent).skeletonSpaceMatrix,worldTransform.matWorld)),{0.0f,1.0f,0.0f,1.0f});
+			}
+			else {
+				joint.skeletonSpaceMatrix = joint.localMatrix;
+			}
+		}
 	}
 
 }

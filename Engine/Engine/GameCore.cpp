@@ -3,6 +3,7 @@
 #include <memory>
 
 #include "Audio/Audio.h"
+#include "DrawLine/DrawLine.h"
 #include "Engine/Lighting/Lighting.h"
 #include "Engine/ParticleManager/ParticleManager.h"
 #include "Graphics/RenderManager.h"
@@ -25,6 +26,7 @@ namespace GameCore {
 	Lighting* lighting = nullptr;
 	ParticleManager* particleManager = nullptr;
 	ViewProjection* viewProjection = nullptr;
+	DrawLine* drawLine = nullptr;
 	void Initialize() {
 		winApp = WinApp::GetInstance();
 		winApp->CreateGameWindow(L"LE2A_24_リキヒサ_リョウタ");
@@ -48,6 +50,9 @@ namespace GameCore {
 
 		viewProjection = new ViewProjection();
 		viewProjection->Initialize();
+
+		drawLine = DrawLine::GetInstance();
+		drawLine->Initialize();
 
 		sceneManager = SceneManager::GetInstance();
 		sceneFactory = new SceneFactory();
@@ -84,6 +89,8 @@ namespace GameCore {
 
 		particleManager->Draw(renderManager->GetCommandContext(),*viewProjection);
 
+		drawLine->Draw(renderManager->GetCommandContext(), *viewProjection);
+		
 		renderManager->EndRender();
 
 		renderManager->Reset();

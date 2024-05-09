@@ -59,6 +59,10 @@ void DrawLine::SetLine(const Vector3& start, const Vector3& end, const Vector4& 
 	vertices_.emplace_back(Vertex({ end.x,end.y,end.z}, { color }));
 }
 
+void DrawLine::SetLine(const Vector3& line, const Vector4& color) {
+	vertices_.emplace_back(Vertex({ line.x,line.y,line.z }, { color }));
+}
+
 void DrawLine::CreateRootSignature() {
 	rootSignature_ = std::make_unique<RootSignature>();
 

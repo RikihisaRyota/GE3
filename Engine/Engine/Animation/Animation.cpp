@@ -119,14 +119,13 @@ namespace Animation {
 	void Animation::Draw(const WorldTransform& worldTransform) {
 		auto drawLine = DrawLine::GetInstance();
 		for (auto& joint : skeleton.joints) {
-			joint.localMatrix = MakeAffineMatrix(joint.transform.scale, joint.transform.rotate, joint.transform.translate);
+			drawLine->SetLine(Transform(joint.transform.translate, Mul(joint.skeletonSpaceMatrix, worldTransform.matWorld)), { 0.0f,1.0f,0.0f,1.0f });
+
 			if (joint.parent) {
-				joint.skeletonSpaceMatrix = joint.localMatrix * skeleton.joints.at(*joint.parent).skeletonSpaceMatrix;
-				
-				drawLine->SetLine(MakeTranslateMatrix(Mul(joint.skeletonSpaceMatrix, worldTransform.matWorld)), MakeTranslateMatrix((skeleton.joints.at(*joint.parent).skeletonSpaceMatrix,worldTransform.matWorld)),{0.0f,1.0f,0.0f,1.0f});
+				drawLine->SetLine(Transform(skeleton.joints.at(*joint.parent).transform.translate, Mul(joint.skeletonSpaceMatrix, worldTransform.matWorld)), { 0.0f,1.0f,0.0f,1.0f });
 			}
 			else {
-				joint.skeletonSpaceMatrix = joint.localMatrix;
+				drawLine->SetLine(Transform(joint.transform.translate, Mul(joint.skeletonSpaceMatrix, worldTransform.matWorld)), { 0.0f,1.0f,0.0f,1.0f });
 			}
 		}
 	}

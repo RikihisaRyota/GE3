@@ -24,6 +24,7 @@ public:
 	void Reset();
 	
 	void SetLine(const Vector3& start,const Vector3& end,const Vector4& color);
+	void SetLine(const Vector3& line,const Vector4& color);
 private:
 	static const UINT kMaxLineCount = 4096;
 	

@@ -131,6 +131,13 @@ void Model::LoadFile(const std::filesystem::path& modelPath) {
 			materialBuffer_.Copy(material_, sizeof(Material));
 		}
 	}
+	if (!textureHandle_.IsValid()) {
+		textureHandle_ = TextureManager::GetInstance()->Load("Resources/Images/white1x1.png");
+		material_ = new Material();
+		material_->color = { 1.0f,1.0f,1.0f,1.0f };
+		materialBuffer_.Create(modelPath.stem().wstring() + L"materialBuffer", sizeof(Material));
+		materialBuffer_.Copy(material_, sizeof(Material));
+	}
 }
 
 Model::Node Model::ReadNode(aiNode* node) {

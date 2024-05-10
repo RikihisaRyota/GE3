@@ -33,7 +33,7 @@ void WorldTransform::TransferMatrix(const ModelHandle& modelHandle, uint32_t chi
 	else {
 		constMap->matWorld = matWorld;
 	}
-	constMap->inverseMatWorld = Inverse(matWorld);
+	constMap->inverseMatWorld = Transpose(Inverse(matWorld));
 	Map();
 }
 

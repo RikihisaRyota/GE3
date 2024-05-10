@@ -334,6 +334,7 @@
     <ClCompile Include="Engine\Engine\DrawLine\DrawLine.cpp">
       <Filter>Engine\DrawLine</Filter>
     </ClCompile>
+    <ClCompile Include="Game\Src\Game\Boss\Boss.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\Engine\WinApp\WinApp.h">

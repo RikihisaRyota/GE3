@@ -37,7 +37,7 @@ void Player::Update() {
 }
 
 void Player::Draw(const ViewProjection& viewProjection, CommandContext& commandContext) {
-	//ModelManager::GetInstance()->Draw(animationTransform_, animation_, *viewProjection_, playerModelHandle_, commandContext);
+	ModelManager::GetInstance()->Draw(animationTransform_, animation_, *viewProjection_, playerModelHandle_, commandContext);
 	animation_.Draw(animationTransform_);
 	// 弾
 	for (auto& bullet : playerBullets_) {

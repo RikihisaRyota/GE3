@@ -7,6 +7,7 @@
 #include "Engine/DebugCamera/DebugCamera.h"
 #include "Src/Game/DebugCamera/DebugCamera.h"
 #include "Src/Game/Player/Player.h"
+#include "Src/Game/Boss/Boss.h"
 #include "Src/Game/FollowCamera/FollowCamera.h"
 #include "Src/Scenes/BaseScene/BaseScene.h"
 
@@ -31,7 +32,12 @@ private:
 	//std::unique_ptr<GPUParticleEditor> gpuParticleEditor_;
 	std::unique_ptr<GPUParticleManager> gpuParticleManager_;
 	std::unique_ptr<FollowCamera> followCamera_;
+	
 	std::unique_ptr<Player> player_;
+	std::unique_ptr<Boss> boss_;
+
+
+
 	TextureHandle gpuTexture_;
 	ModelHandle modelHandle_;
 	ModelHandle terrainHandle_;

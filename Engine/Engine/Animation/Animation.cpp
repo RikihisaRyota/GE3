@@ -68,7 +68,7 @@ namespace Animation {
 			for (uint32_t keyIndex = 0; keyIndex < nodeAnimationAssimp->mNumPositionKeys; ++keyIndex) {
 				aiVectorKey& keyAssimp = nodeAnimationAssimp->mPositionKeys[keyIndex];
 				KeyframeVector3 keyframe{};
-				keyframe.time = float(keyAssimp.mTime / animationAssimp->mTicksPerSecond);
+				keyframe.time = float(keyAssimp.mTime / animationAssimp->mDuration);
 				keyframe.value = { -keyAssimp.mValue.x,keyAssimp.mValue.y,keyAssimp.mValue.z };
 				nodeAnimation.translate.keyframe.emplace_back(keyframe);
 			}
@@ -76,7 +76,7 @@ namespace Animation {
 			for (uint32_t keyIndex = 0; keyIndex < nodeAnimationAssimp->mNumRotationKeys; ++keyIndex) {
 				aiQuatKey& keyAssimp = nodeAnimationAssimp->mRotationKeys[keyIndex];
 				KeyframeQuaternion keyframe{};
-				keyframe.time = float(keyAssimp.mTime / animationAssimp->mTicksPerSecond);
+				keyframe.time = float(keyAssimp.mTime / animationAssimp->mDuration);
 				// 右手から左手にするためにyとz反転
 				keyframe.value = { keyAssimp.mValue.x, -keyAssimp.mValue.y,-keyAssimp.mValue.z,  keyAssimp.mValue.w };
 				nodeAnimation.rotate.keyframe.emplace_back(keyframe);
@@ -85,7 +85,7 @@ namespace Animation {
 			for (uint32_t keyIndex = 0; keyIndex < nodeAnimationAssimp->mNumScalingKeys; ++keyIndex) {
 				aiVectorKey& keyAssimp = nodeAnimationAssimp->mScalingKeys[keyIndex];
 				KeyframeVector3 keyframe{};
-				keyframe.time = float(keyAssimp.mTime / animationAssimp->mTicksPerSecond);
+				keyframe.time = float(keyAssimp.mTime / animationAssimp->mDuration);
 				keyframe.value = { keyAssimp.mValue.x,keyAssimp.mValue.y,keyAssimp.mValue.z };
 				nodeAnimation.scale.keyframe.emplace_back(keyframe);
 			}
@@ -93,7 +93,7 @@ namespace Animation {
 	}
 
 	void AnimationDesc::Update(WorldTransform& worldTransform, bool isLoop, const ModelHandle& modelHandle, uint32_t children) {
-		animationTime += 1.0f / 60.0f;
+		animationTime += 1.0f / duration;
 		animationTime = std::clamp(animationTime, 0.0f, duration);
 		if (isLoop) {
 			animationTime = std::fmod(animationTime, duration);

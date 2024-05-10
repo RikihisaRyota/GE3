@@ -203,6 +203,7 @@
     <ClCompile Include="Engine\Engine\Texture\Texture.cpp" />
     <ClCompile Include="Engine\Engine\Texture\TextureManager.cpp" />
     <ClCompile Include="Engine\Engine\WinApp\WinApp.cpp" />
+    <ClCompile Include="Game\Src\Game\Boss\Boss.cpp" />
     <ClCompile Include="Game\Src\Game\FollowCamera\FollowCamera.cpp" />
     <ClCompile Include="Game\Src\Game\Player\Player.cpp" />
     <ClCompile Include="Game\Src\Game\Player\PlayerBullet.cpp" />

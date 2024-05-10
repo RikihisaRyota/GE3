@@ -16,6 +16,7 @@ GameScene::GameScene() {
 	//gpuParticleEditor_ = std::make_unique<GPUParticleEditor>();
 	gpuParticleManager_ = std::make_unique<GPUParticleManager>();
 	player_ = std::make_unique<Player>();
+	boss_ = std::make_unique<Boss>();
 	followCamera_ = std::make_unique<FollowCamera>();
 
 	modelHandle_ = ModelManager::GetInstance()->Load("Resources/Models/Ball/Ball.obj");
@@ -46,6 +47,7 @@ void GameScene::Initialize() {
 	player_->SetViewProjection(viewProjection_);
 	player_->SetGPUParticleManager(gpuParticleManager_.get());
 	player_->Initialize();
+	boss_->Initialize();
 
 	followCamera_->SetTarget(&player_->GetWorldTransform());
 	followCamera_->SetViewProjection(viewProjection_);
@@ -205,7 +207,7 @@ void GameScene::Update() {
 	static const float kCycle = 60.0f;
 	animationTime_ += 1.0f;
 	animationTime_ = std::fmodf(animationTime_, kCycle);
-	animation_.Update(animationTime_/ kCycle);
+	//animation_.Update(animationTime_/ kCycle);
 
 	animationWorldTransform_.TransferMatrix();
 
@@ -213,6 +215,7 @@ void GameScene::Update() {
 		followCamera_->Update();
 	}
 	player_->Update();
+	boss_->Update();
 
 	worldTransform_.UpdateMatrix();
 	ModelManager::GetInstance()->GetModel(modelHandle_).SetMaterialColor(color_);
@@ -224,6 +227,7 @@ void GameScene::Update() {
 void GameScene::Draw(CommandContext& commandContext) {
 	
 	player_->Draw(*viewProjection_, commandContext);
+	boss_->Draw(*viewProjection_, commandContext);
 
 	//ModelManager::GetInstance()->Draw(animationWorldTransform_, animation_, *viewProjection_, animationModelHandle_, commandContext);
 

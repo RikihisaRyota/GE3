@@ -25,8 +25,8 @@ void Boss::Update() {
 
 void Boss::Draw(const ViewProjection& viewProjection, CommandContext& commandContext) {
 	ModelManager::GetInstance()->Draw(animationTransform_, animation_, viewProjection, bossModelHandle_, commandContext);
-	//ModelManager::GetInstance()->Draw(animationTransform_,  viewProjection, bossModelHandle_, commandContext);
-	animation_.Draw(animationTransform_);
+	//animation_.DrawBox(animationTransform_,viewProjection);
+	animation_.DrawLine(animationTransform_);
 }
 
 void Boss::UpdateTransform() {

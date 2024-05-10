@@ -188,7 +188,31 @@ Matrix4x4 Mul(const Matrix4x4& m1, const Matrix4x4& m2) {
 
 	return mat;
 }
+Matrix4x4 Mul(const Vector3& vec1, const Matrix4x4& m1) {
+	Matrix4x4 result;
 
+	result.m[0][0] = vec1.x * m1.m[0][0];
+	result.m[0][1] = vec1.x * m1.m[0][1];
+	result.m[0][2] = vec1.x * m1.m[0][2];
+	result.m[0][3] = vec1.x * m1.m[0][3];
+
+	result.m[1][0] = vec1.y * m1.m[1][0];
+	result.m[1][1] = vec1.y * m1.m[1][1];
+	result.m[1][2] = vec1.y * m1.m[1][2];
+	result.m[1][3] = vec1.y * m1.m[1][3];
+
+	result.m[2][0] = vec1.z * m1.m[2][0];
+	result.m[2][1] = vec1.z * m1.m[2][1];
+	result.m[2][2] = vec1.z * m1.m[2][2];
+	result.m[2][3] = vec1.z * m1.m[2][3];
+
+	result.m[3][0] = m1.m[3][0];
+	result.m[3][1] = m1.m[3][1];
+	result.m[3][2] = m1.m[3][2];
+	result.m[3][3] = m1.m[3][3];
+
+	return result;
+}
 Matrix4x4 Mul(const float scaler, const Matrix4x4& m2) {
 	Matrix4x4 mat;
 	mat.m[0][0] = scaler * m2.m[0][0], mat.m[0][1] = scaler * m2.m[0][1],

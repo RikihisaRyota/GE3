@@ -8,6 +8,7 @@
 #include "Engine/Math/Vector3.h"
 #include "Engine/Math/Quaternion.h"
 #include "Engine/Math/WorldTransform.h"
+#include "Engine/Math/ViewProjection.h"
 #include "Engine/Model/Model.h"
 #include "Engine/Animation/Skeleton.h"
 #include "Engine/Animation/Skinning.h"
@@ -49,7 +50,10 @@ namespace Animation {
 		SkinCluster skinCluster;
 		void Initialize(const ModelHandle& modelHandle);
 		void Update(float time);
-		void Draw(const WorldTransform& worldTransform);
+		void DrawLine(const WorldTransform& worldTransform);
+		void DrawBox(const WorldTransform& worldTransform, const ViewProjection& viewProjection);
+		std::vector<WorldTransform> debugBox_;
+		ModelHandle debugBoxModelHandle_;
 	};
 
 	Vector3 CalculateValue(const AnimationCurve<Vector3>& keyframes, float time);

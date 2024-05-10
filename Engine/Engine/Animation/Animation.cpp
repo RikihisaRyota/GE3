@@ -10,7 +10,7 @@
 #include "Engine/Model/ModelManager.h"
 #include "Engine/DrawLine/DrawLine.h"
 #include "Engine/Math/MyMath.h"
-
+#include "Engine/Graphics/RenderManager.h"
 
 namespace Animation {
 	Vector3 CalculateValue(const AnimationCurve<Vector3>& keyframes, float time) {
@@ -108,6 +108,13 @@ namespace Animation {
 		animation.LoadAnimationFile(ModelManager::GetInstance()->GetModel(modelHandle).GetPath());
 		skeleton.CreateSkeleton(ModelManager::GetInstance()->GetModel(modelHandle).GetMeshData().at(0)->rootNode);
 		skinCluster.CreateSkinCluster(skeleton, modelHandle);
+
+		debugBoxModelHandle_ = ModelManager::GetInstance()->Load("Resources/Models/Box1x1/box1x1.gltf");
+		for (auto& joint : skeleton.joints) {
+			debugBox_.emplace_back(WorldTransform());
+			debugBox_.back().Initialize();
+		}
+
 	}
 
 	void Animation::Update(float time) {
@@ -116,17 +123,28 @@ namespace Animation {
 		skinCluster.Update(skeleton);
 	}
 
-	void Animation::Draw(const WorldTransform& worldTransform) {
+	void Animation::DrawLine(const WorldTransform& worldTransform) {
 		auto drawLine = DrawLine::GetInstance();
 		for (auto& joint : skeleton.joints) {
-			drawLine->SetLine(Transform(joint.transform.translate, Mul(joint.skeletonSpaceMatrix, worldTransform.matWorld)), { 0.0f,1.0f,0.0f,1.0f });
+			drawLine->SetLine(MakeTranslateMatrix(Mul(joint.skeletonSpaceMatrix, worldTransform.matWorld)), { 0.0f,1.0f,0.0f,1.0f });
 
 			if (joint.parent) {
-				drawLine->SetLine(Transform(skeleton.joints.at(*joint.parent).transform.translate, Mul(joint.skeletonSpaceMatrix, worldTransform.matWorld)), { 0.0f,1.0f,0.0f,1.0f });
+				drawLine->SetLine(MakeTranslateMatrix(Mul(skeleton.joints.at(*joint.parent).skeletonSpaceMatrix, worldTransform.matWorld)), { 0.0f,1.0f,0.0f,1.0f });
 			}
 			else {
-				drawLine->SetLine(Transform(joint.transform.translate, Mul(joint.skeletonSpaceMatrix, worldTransform.matWorld)), { 0.0f,1.0f,0.0f,1.0f });
+				drawLine->SetLine(MakeTranslateMatrix(Mul(joint.skeletonSpaceMatrix, worldTransform.matWorld)), { 0.0f,1.0f,0.0f,1.0f });
 			}
+		}
+	}
+	void Animation::DrawBox(const WorldTransform& worldTransform, const ViewProjection& viewProjection) {
+		auto drawBox = ModelManager::GetInstance();
+		auto renderManager = RenderManager::GetInstance();
+		for (uint32_t i = 0; auto & joint : skeleton.joints) {
+
+			debugBox_.at(i).matWorld = Mul(joint.skeletonSpaceMatrix, worldTransform.matWorld);
+			debugBox_.at(i).TransferMatrix();
+			drawBox->Draw(debugBox_.at(i), viewProjection, debugBoxModelHandle_, renderManager->GetCommandContext());
+			i++;
 		}
 	}
 

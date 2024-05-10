@@ -55,6 +55,7 @@ Matrix4x4 Add(const Matrix4x4& m1, const Matrix4x4& m2);
 Matrix4x4 Sub(const Matrix4x4& m1, const Matrix4x4& m2);
 // 3,行列の積
 Matrix4x4 Mul(const Matrix4x4& m1, const Matrix4x4& m2);
+Matrix4x4 Mul(const Vector3& m1, const Matrix4x4& m2);
 // 3,行列の積(スカラー倍)
 Matrix4x4 Mul(const float scaler, const Matrix4x4& m2);
 // 4,逆行列

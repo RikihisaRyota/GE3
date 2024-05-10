@@ -103,12 +103,11 @@ void DrawLine::CreatePipelineState() {
 	auto ps = ShaderCompiler::Compile(L"Resources/Shaders/DrawLine/DrawLine.PS.hlsl", L"ps_6_0");
 	desc.VS = CD3DX12_SHADER_BYTECODE(vs->GetBufferPointer(), vs->GetBufferSize());
 	desc.PS = CD3DX12_SHADER_BYTECODE(ps->GetBufferPointer(), ps->GetBufferSize());
-	desc.BlendState = Helper::BlendDisable;
+	desc.BlendState = Helper::BlendAlpha;
 	desc.DepthStencilState = Helper::DepthStateDisabled;
 	desc.RasterizerState = Helper::RasterizerNoCull;
 	desc.NumRenderTargets = 1;
 	desc.RTVFormats[0] = RenderManager::GetInstance()->GetRenderTargetFormat();
-	desc.DSVFormat = RenderManager::GetInstance()->GetDepthFormat();
 	desc.SampleMask = D3D12_DEFAULT_SAMPLE_MASK;
 	desc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE;
 	desc.SampleDesc.Count = 1;

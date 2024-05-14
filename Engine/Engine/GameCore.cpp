@@ -47,7 +47,6 @@ namespace GameCore {
 
 		SpriteManager::CreatePipeline(renderManager->GetRenderTargetFormat(), renderManager->GetDepthFormat());
 
-
 		viewProjection = new ViewProjection();
 		viewProjection->Initialize();
 
@@ -64,7 +63,6 @@ namespace GameCore {
 
 		particleManager = ParticleManager::GetInstance();
 		particleManager->Initialize();
-
 	}
 
 	bool BeginFrame() {

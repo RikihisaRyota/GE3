@@ -7,14 +7,26 @@
 #include "Engine/Model/ModelManager.h"
 #include "Engine/Input/Input.h"
 #include "Engine/Math/MyMath.h"
+#include "Engine/Collision/CollisionAttribute.h"
 
 Player::Player() {
 	playerModelHandle_ = ModelManager::GetInstance()->Load("Resources/Models/Walk/walk.gltf");
 	animation_.Initialize(playerModelHandle_);
+
 }
 
 void Player::Initialize() {
 	worldTransform_.Initialize();
+#pragma region コライダー
+	collider_ = new OBBCollider();
+	collider_->SetName("Player");
+	collider_->SetCenter(MakeTranslateMatrix(worldTransform_.matWorld));
+	collider_->SetOrientation(worldTransform_.rotate);
+	collider_->SetSize({ 1.0f,2.0f,1.0f });
+	collider_->SetCollisionAttribute(CollisionAttribute::Player);
+	collider_->SetCollisionMask(~CollisionAttribute::Player);
+	collider_->SetIsActive(true);
+#pragma endregion
 	animationTransform_.Initialize();
 	animationTransform_.parent_ = &worldTransform_;
 }
@@ -26,8 +38,7 @@ void Player::Update() {
 
 	BulletUpdate();
 
-	worldTransform_.UpdateMatrix();
-	animationTransform_.UpdateMatrix();
+	UpdateTransform();
 #ifdef _DEBUG
 	/*ImGui::Begin("Player");
 	ImGui::DragFloat3("position",&worldTransform_.translation_.x,0.1f);
@@ -40,6 +51,7 @@ void Player::Draw(const ViewProjection& viewProjection, CommandContext& commandC
 	ModelManager::GetInstance()->Draw(animationTransform_, animation_, *viewProjection_, playerModelHandle_, commandContext);
 	//animation_.DrawBox(animationTransform_,viewProjection);
 	animation_.DrawLine(animationTransform_);
+	collider_->DrawCollision(viewProjection,{1.0f,0.5f,0.0f,1.0f});
 	// 弾
 	for (auto& bullet : playerBullets_) {
 		bullet->Draw(viewProjection, commandContext);
@@ -72,6 +84,14 @@ void Player::Shot() {
 		playerBullets_.back()->Create(gpuParticleManager_, MakeTranslateMatrix(worldTransform_.matWorld) * Vector3(1.0f, 5.0f, 1.0f), Normalize(GetZAxis(MakeRotate(worldTransform_.rotate))) * 0.5f, kBulletTime);
 	}
 
+}
+
+void Player::UpdateTransform() {
+	worldTransform_.UpdateMatrix();
+	collider_->SetCenter(MakeTranslateMatrix(worldTransform_.matWorld));
+	collider_->SetOrientation(worldTransform_.rotate);
+	collider_->SetSize({ 1.0f,2.0f,1.0f });
+	animationTransform_.UpdateMatrix();
 }
 
 void Player::Move() {
@@ -121,7 +141,7 @@ void Player::Move() {
 		vector = TransformNormal(vector, rotate);
 		worldTransform_.translate += vector * 0.2f;
 		PlayerRotate(vector);
-		
+
 		animationTime_ += 1.0f;
 	}
 }
@@ -143,5 +163,5 @@ void Player::AnimationUpdate() {
 }
 
 void Player::PlayerRotate(const Vector3& vector) {
-	worldTransform_.rotate = Slerp( worldTransform_.rotate, MakeLookRotation({ vector.x,0.0f,vector.z }),0.1f);
+	worldTransform_.rotate = Slerp(worldTransform_.rotate, MakeLookRotation({ vector.x,0.0f,vector.z }), 0.1f);
 }

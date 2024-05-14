@@ -10,6 +10,7 @@
 #include "Engine/GPUParticleManager/GPUParticleManager.h"
 #include "PlayerBullet.h"
 #include "Engine/Animation/Animation.h"
+#include "Engine/Collision/Collider.h"
 
 
 class CommandContext;
@@ -30,6 +31,8 @@ private:
 	static const uint32_t kBulletTime = 120;
 	static const uint32_t kBulletCoolTime = 15;
 
+	void UpdateTransform();
+
 	void Move();
 	
 	void AnimationUpdate();
@@ -41,8 +44,11 @@ private:
 	ViewProjection* viewProjection_;
 	GPUParticleManager* gpuParticleManager_;
 
-	ModelHandle playerModelHandle_;
 	WorldTransform worldTransform_;
+
+	OBBCollider* collider_;
+
+	ModelHandle playerModelHandle_;
 	WorldTransform animationTransform_;
 	Animation::Animation animation_;
 	float animationTime_;

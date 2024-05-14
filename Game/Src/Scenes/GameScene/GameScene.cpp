@@ -10,6 +10,7 @@
 #include "Engine/Texture/TextureManager.h"
 #include "Engine/ImGui/ImGuiManager.h"
 #include "Engine/Sprite/SpriteManager.h"
+#include "Engine/Collision/CollisionManager.h"
 
 GameScene::GameScene() {
 	debugCamera_ = std::make_unique<DebugCamera>();
@@ -222,6 +223,8 @@ void GameScene::Update() {
 
 	//gpuParticleManager_->Update(RenderManager::GetInstance()->GetCommandContext());
 	//gpuParticleEditor_->Update(RenderManager::GetInstance()->GetCommandContext());
+
+	CollisionManager::GetInstance()->Collision();
 }
 
 void GameScene::Draw(CommandContext& commandContext) {

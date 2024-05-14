@@ -127,9 +127,6 @@
     <Filter Include="Game\Boss">
       <UniqueIdentifier>{db4218b4-4c7c-46be-893c-13f2072396cc}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Game\Boss\BossModelManager">
-      <UniqueIdentifier>{01527da4-9cf2-4800-9303-ba0a2ff51aab}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Shaders\PostEffect">
       <UniqueIdentifier>{c7ccfac3-abab-4d8f-bcc4-a0368184fccb}</UniqueIdentifier>
     </Filter>
@@ -141,6 +138,9 @@
     </Filter>
     <Filter Include="Shaders\DrawLine">
       <UniqueIdentifier>{b72203fc-2389-49db-b947-e5a2a4f80fec}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Collision">
+      <UniqueIdentifier>{2321653d-7470-4d1e-8994-455522403408}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -328,13 +328,27 @@
     <ClCompile Include="Engine\Engine\Graphics\PostEffect.cpp">
       <Filter>Engine\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Engine\Engine\Animation\Skeleton.cpp" />
-    <ClCompile Include="Engine\Engine\Animation\Skinning.cpp" />
-    <ClCompile Include="LevelDataLoader.cpp" />
     <ClCompile Include="Engine\Engine\DrawLine\DrawLine.cpp">
       <Filter>Engine\DrawLine</Filter>
     </ClCompile>
-    <ClCompile Include="Game\Src\Game\Boss\Boss.cpp" />
+    <ClCompile Include="Engine\Engine\Collision\Collider.cpp">
+      <Filter>Engine\Collision</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Src\Game\Boss\Boss.cpp">
+      <Filter>Game\Boss</Filter>
+    </ClCompile>
+    <ClCompile Include="LevelDataLoader.cpp">
+      <Filter>Engine\LevelDataLoader</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Engine\Animation\Skeleton.cpp">
+      <Filter>Engine\Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Engine\Animation\Skinning.cpp">
+      <Filter>Engine\Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Engine\Collision\CollisionManager.cpp">
+      <Filter>Engine\Collision</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\Engine\WinApp\WinApp.h">
@@ -568,9 +582,6 @@
     <ClInclude Include="Game\Src\Game\Boss\Boss.h">
       <Filter>Game\Boss</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Src\Game\Boss\BossModel\BossModelManager.h">
-      <Filter>Game\Boss\BossModelManager</Filter>
-    </ClInclude>
     <ClInclude Include="Engine\Engine\Graphics\PostEffect.h">
       <Filter>Engine\Graphics</Filter>
     </ClInclude>
@@ -585,6 +596,15 @@
     </ClInclude>
     <ClInclude Include="Engine\Engine\DrawLine\DrawLine.h">
       <Filter>Engine\DrawLine</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Engine\Collision\Collider.h">
+      <Filter>Engine\Collision</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Engine\Collision\CollisionManager.h">
+      <Filter>Engine\Collision</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Engine\Collision\CollisionAttribute.h">
+      <Filter>Engine\Collision</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

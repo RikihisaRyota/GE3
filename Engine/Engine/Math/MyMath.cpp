@@ -778,17 +778,17 @@ OBB OBBSetRotate(const OBB& Obb, const Vector3& rotate) {// 回転行列を生�
 	// 回転行列から軸を抽出
 	OBB obb = Obb;
 
-	obb.orientations_[0].x = rotateMatrix.m[0][0];
-	obb.orientations_[0].y = rotateMatrix.m[0][1];
-	obb.orientations_[0].z = rotateMatrix.m[0][2];
+	obb.orientations[0].x = rotateMatrix.m[0][0];
+	obb.orientations[0].y = rotateMatrix.m[0][1];
+	obb.orientations[0].z = rotateMatrix.m[0][2];
 
-	obb.orientations_[1].x = rotateMatrix.m[1][0];
-	obb.orientations_[1].y = rotateMatrix.m[1][1];
-	obb.orientations_[1].z = rotateMatrix.m[1][2];
+	obb.orientations[1].x = rotateMatrix.m[1][0];
+	obb.orientations[1].y = rotateMatrix.m[1][1];
+	obb.orientations[1].z = rotateMatrix.m[1][2];
 
-	obb.orientations_[2].x = rotateMatrix.m[2][0];
-	obb.orientations_[2].y = rotateMatrix.m[2][1];
-	obb.orientations_[2].z = rotateMatrix.m[2][2];
+	obb.orientations[2].x = rotateMatrix.m[2][0];
+	obb.orientations[2].y = rotateMatrix.m[2][1];
+	obb.orientations[2].z = rotateMatrix.m[2][2];
 
 	return obb;
 }
@@ -800,38 +800,38 @@ OBB OBBSetRotate(const OBB& Obb, const Vector3& rotate, const Vector3& rotate1) 
 	// 回転行列から軸を抽出
 	OBB obb = Obb;
 
-	obb.orientations_[0].x = rotateMatrix.m[0][0];
-	obb.orientations_[0].y = rotateMatrix.m[0][1];
-	obb.orientations_[0].z = rotateMatrix.m[0][2];
+	obb.orientations[0].x = rotateMatrix.m[0][0];
+	obb.orientations[0].y = rotateMatrix.m[0][1];
+	obb.orientations[0].z = rotateMatrix.m[0][2];
 
-	obb.orientations_[1].x = rotateMatrix.m[1][0];
-	obb.orientations_[1].y = rotateMatrix.m[1][1];
-	obb.orientations_[1].z = rotateMatrix.m[1][2];
+	obb.orientations[1].x = rotateMatrix.m[1][0];
+	obb.orientations[1].y = rotateMatrix.m[1][1];
+	obb.orientations[1].z = rotateMatrix.m[1][2];
 
-	obb.orientations_[2].x = rotateMatrix.m[2][0];
-	obb.orientations_[2].y = rotateMatrix.m[2][1];
-	obb.orientations_[2].z = rotateMatrix.m[2][2];
+	obb.orientations[2].x = rotateMatrix.m[2][0];
+	obb.orientations[2].y = rotateMatrix.m[2][1];
+	obb.orientations[2].z = rotateMatrix.m[2][2];
 
 	return obb;
 }
 
 Matrix4x4 OBBMakeWorldMatrix(const OBB& obb) {
 	Matrix4x4 result;
-	result.m[0][0] = obb.orientations_[0].x;
-	result.m[0][1] = obb.orientations_[0].y;
-	result.m[0][2] = obb.orientations_[0].z;
+	result.m[0][0] = obb.orientations[0].x;
+	result.m[0][1] = obb.orientations[0].y;
+	result.m[0][2] = obb.orientations[0].z;
 
-	result.m[1][0] = obb.orientations_[1].x;
-	result.m[1][1] = obb.orientations_[1].y;
-	result.m[1][2] = obb.orientations_[1].z;
+	result.m[1][0] = obb.orientations[1].x;
+	result.m[1][1] = obb.orientations[1].y;
+	result.m[1][2] = obb.orientations[1].z;
 
-	result.m[2][0] = obb.orientations_[2].x;
-	result.m[2][1] = obb.orientations_[2].y;
-	result.m[2][2] = obb.orientations_[2].z;
+	result.m[2][0] = obb.orientations[2].x;
+	result.m[2][1] = obb.orientations[2].y;
+	result.m[2][2] = obb.orientations[2].z;
 
-	result.m[3][0] = obb.center_.x;
-	result.m[3][1] = obb.center_.y;
-	result.m[3][2] = obb.center_.z;
+	result.m[3][0] = obb.center.x;
+	result.m[3][1] = obb.center.y;
+	result.m[3][2] = obb.center.z;
 	return result;
 }
 
@@ -905,20 +905,20 @@ Vector3 CubicCatmullRom(const Vector3& Position0, const Vector3& Position1, cons
 
 void OBBIndex(const OBB& obb, std::vector<Vector3>& output_vertices) {
 	std::vector<Vector3> vertices = {
-		{-obb.size_},
-		{+obb.size_.x, -obb.size_.y, -obb.size_.z},
-		{+obb.size_.x, -obb.size_.y, +obb.size_.z},
-		{-obb.size_.x, -obb.size_.y, +obb.size_.z},
-		{-obb.size_.x, +obb.size_.y, -obb.size_.z},
-		{+obb.size_.x, +obb.size_.y, -obb.size_.z},
-		{obb.size_},
-		{-obb.size_.x, +obb.size_.y, +obb.size_.z},
+		{-obb.size},
+		{+obb.size.x, -obb.size.y, -obb.size.z},
+		{+obb.size.x, -obb.size.y, +obb.size.z},
+		{-obb.size.x, -obb.size.y, +obb.size.z},
+		{-obb.size.x, +obb.size.y, -obb.size.z},
+		{+obb.size.x, +obb.size.y, -obb.size.z},
+		{obb.size},
+		{-obb.size.x, +obb.size.y, +obb.size.z},
 	};
 
-	Matrix4x4 rotateMatrix = SetRotate(obb.orientations_);
+	Matrix4x4 rotateMatrix = SetRotate(obb.orientations);
 	for (auto& vertex : vertices) {
 		vertex = Transform(vertex, rotateMatrix);
-		vertex = vertex + obb.center_;
+		vertex = vertex + obb.center;
 	}
 	output_vertices = vertices;
 }

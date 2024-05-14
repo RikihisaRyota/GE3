@@ -13,11 +13,11 @@ struct Vector3 final {
 	float Length() const { return std::sqrt(x * x + y * y + z * z); }
 
 	// ベクトルの正規化を行う関数
-	void Normalize() {
-		float length = Length();
-		x /= length;
-		y /= length;
-		z /= length;
+	Vector3 Normalized() {
+		return *this / Length();
+	}
+	Vector3& Normalize() {
+		return (*this = Normalized());
 	}
 	// 加算演算子のオーバーロード
 	Vector3 operator+(const Vector3& other) const {

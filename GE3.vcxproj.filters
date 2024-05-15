@@ -349,6 +349,7 @@
     <ClCompile Include="Engine\Engine\Collision\CollisionManager.cpp">
       <Filter>Engine\Collision</Filter>
     </ClCompile>
+    <ClCompile Include="Engine\Engine\Math\Vector3.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\Engine\WinApp\WinApp.h">

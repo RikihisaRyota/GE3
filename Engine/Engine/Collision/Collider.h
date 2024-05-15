@@ -33,6 +33,7 @@ public:
 	void SetCollisionMask(uint32_t mask) { collisionMask_ = mask; }
 	void SetIsActive(bool isActive) { isActive_ = isActive; }
 	void SetName(const std::string& name) { name_ = name; }
+	const std::string& GetName()const { return name_; }
 
 	void OnCollision(const ColliderDesc& colliderDesc);
 
@@ -49,7 +50,7 @@ protected:
 };
 
 class OBBCollider :
-	public Collider{
+	public Collider {
 public:
 	bool IsCollision(Collider* other, ColliderDesc& desc) override;
 	bool IsCollision(OBBCollider* other, ColliderDesc& desc) override;

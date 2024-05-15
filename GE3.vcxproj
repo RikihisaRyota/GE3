@@ -163,6 +163,7 @@
     <ClCompile Include="Engine\Engine\Graphics\ReadBackBuffer.cpp" />
     <ClCompile Include="Engine\Engine\Lighting\Lighting.cpp" />
     <ClCompile Include="Engine\Engine\Math\Quaternion.cpp" />
+    <ClCompile Include="Engine\Engine\Math\Vector3.cpp" />
     <ClCompile Include="Engine\Engine\Model\ModelHandle.cpp" />
     <ClCompile Include="Engine\Engine\ParticleManager\ParticleManager.cpp" />
     <ClCompile Include="Engine\Engine\ParticleManager\Particle\Particle.cpp" />

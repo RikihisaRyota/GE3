@@ -4,6 +4,7 @@
 /// <summary>
 /// 3次元ベクトル
 /// </summary>
+struct Matrix4x4;
 struct Vector3 final {
 	float x;
 	float y;
@@ -94,4 +95,7 @@ struct Vector3 final {
 	}
 
 	Vector3 operator-() { return Vector3(-x, -y, -z); }
+
+	// Matrix4x4との乗算演算子のオーバーロード
+	Vector3 operator*(const Matrix4x4& mat) const;
 };

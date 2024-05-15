@@ -232,11 +232,11 @@ void GameScene::Draw(CommandContext& commandContext) {
 	player_->Draw(*viewProjection_, commandContext);
 	boss_->Draw(*viewProjection_, commandContext);
 
-	ModelManager::GetInstance()->Draw(animationWorldTransform_, animation_, *viewProjection_, animationModelHandle_, commandContext);
+	//ModelManager::GetInstance()->Draw(animationWorldTransform_, animation_, *viewProjection_, animationModelHandle_, commandContext);
 
-	ModelManager::GetInstance()->Draw(worldTransform_, *viewProjection_, modelHandle_, commandContext);
+	//ModelManager::GetInstance()->Draw(worldTransform_, *viewProjection_, modelHandle_, commandContext);
 
-	ModelManager::GetInstance()->Draw(worldTransform_, *viewProjection_, terrainHandle_, commandContext);
+	//ModelManager::GetInstance()->Draw(worldTransform_, *viewProjection_, terrainHandle_, commandContext);
 
 	//gpuParticleManager_->Draw(*viewProjection_, commandContext);
 	//gpuParticleEditor_->Draw(*viewProjection_, commandContext);

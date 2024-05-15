@@ -13,25 +13,30 @@ Player::Player() {
 	playerModelHandle_ = ModelManager::GetInstance()->Load("Resources/Models/Walk/walk.gltf");
 	animation_.Initialize(playerModelHandle_);
 
-}
-
-void Player::Initialize() {
 	worldTransform_.Initialize();
+	animationTransform_.Initialize();
 #pragma region コライダー
 	collider_ = new OBBCollider();
 	collider_->SetName("Player");
-	collider_->SetCenter(MakeTranslateMatrix(worldTransform_.matWorld));
+	auto& mesh = ModelManager::GetInstance()->GetModel(playerModelHandle_).GetMeshData().at(0);
+	Vector3 modelSize = mesh->meshes->max - mesh->meshes->min; 
+	collider_->SetCenter(MakeTranslateMatrix(worldTransform_.matWorld)+Vector3(0.0f, modelSize.y * 0.5f,0.0f));
 	collider_->SetOrientation(worldTransform_.rotate);
-	collider_->SetSize({ 1.0f,2.0f,1.0f });
+	collider_->SetSize({ modelSize.x * worldTransform_.scale.x,modelSize.y * worldTransform_.scale.y,modelSize.z * worldTransform_.scale.z });
+	collider_->SetCallback([this](const ColliderDesc& collisionInfo) { OnCollision(collisionInfo); });
 	collider_->SetCollisionAttribute(CollisionAttribute::Player);
 	collider_->SetCollisionMask(~CollisionAttribute::Player);
 	collider_->SetIsActive(true);
 #pragma endregion
-	animationTransform_.Initialize();
+}
+
+void Player::Initialize() {
 	animationTransform_.parent_ = &worldTransform_;
+	UpdateTransform();
 }
 
 void Player::Update() {
+	colliderColor_ = { 0.0f,0.0f,1.0f,1.0f };
 	Move();
 
 	AnimationUpdate();
@@ -51,7 +56,7 @@ void Player::Draw(const ViewProjection& viewProjection, CommandContext& commandC
 	ModelManager::GetInstance()->Draw(animationTransform_, animation_, *viewProjection_, playerModelHandle_, commandContext);
 	//animation_.DrawBox(animationTransform_,viewProjection);
 	animation_.DrawLine(animationTransform_);
-	collider_->DrawCollision(viewProjection,{1.0f,0.5f,0.0f,1.0f});
+	collider_->DrawCollision(viewProjection,colliderColor_);
 	// 弾
 	for (auto& bullet : playerBullets_) {
 		bullet->Draw(viewProjection, commandContext);
@@ -86,11 +91,28 @@ void Player::Shot() {
 
 }
 
+void Player::OnCollision(const ColliderDesc& desc) {
+	if (desc.collider->GetName() == "Boss") {
+		// ワールド空間の押し出しベクトル
+		Vector3 pushVector = desc.normal * desc.depth;
+		auto parent = worldTransform_.parent_;
+		if (parent) {
+			pushVector = Inverse(parent->rotate) * pushVector;
+		}
+		worldTransform_.translate += pushVector;
+
+		UpdateTransform();
+		colliderColor_ = { 1.0f,0.0f,0.0f,1.0f };
+	}
+}
+
 void Player::UpdateTransform() {
 	worldTransform_.UpdateMatrix();
-	collider_->SetCenter(MakeTranslateMatrix(worldTransform_.matWorld));
+	auto& mesh = ModelManager::GetInstance()->GetModel(playerModelHandle_).GetMeshData().at(0);
+	Vector3 modelSize = mesh->meshes->max - mesh->meshes->min; 
+	collider_->SetCenter(MakeTranslateMatrix(worldTransform_.matWorld) + Vector3(0.0f, modelSize.y * 0.5f, 0.0f));
 	collider_->SetOrientation(worldTransform_.rotate);
-	collider_->SetSize({ 1.0f,2.0f,1.0f });
+	collider_->SetSize({ modelSize.x * worldTransform_.scale.x,modelSize.y * worldTransform_.scale.y,modelSize.z * worldTransform_.scale.z });
 	animationTransform_.UpdateMatrix();
 }
 
@@ -134,13 +156,13 @@ void Player::Move() {
 	}
 	// 移動量に速さを反映
 	if (vector != Vector3(0.0f, 0.0f, 0.0f)) {
-		vector.Normalize();
+		vector.Normalized();
 		// 回転行列生成
 		Matrix4x4 rotate = MakeRotateYMatrix(viewProjection_->rotation_.y);
 		// オフセットをカメラの回転に合わせて回転させる
 		vector = TransformNormal(vector, rotate);
 		worldTransform_.translate += vector * 0.2f;
-		PlayerRotate(vector);
+		PlayerRotate(vector.Normalized());
 
 		animationTime_ += 1.0f;
 	}
@@ -162,6 +184,11 @@ void Player::AnimationUpdate() {
 	animation_.Update(animationTime_ / kCycle);
 }
 
-void Player::PlayerRotate(const Vector3& vector) {
-	worldTransform_.rotate = Slerp(worldTransform_.rotate, MakeLookRotation({ vector.x,0.0f,vector.z }), 0.1f);
+void Player::PlayerRotate(const Vector3& move) {
+	worldTransform_.rotate = Slerp(worldTransform_.rotate, MakeLookRotation({ move.x,0.0f,move.z }), 0.1f);
+	/*Vector3 vector = Conjugation(worldTransform_.rotate) * move;
+	if (Dot(Vector3(0.0f,0.0f,1.0f), vector) < 0.999f) {
+		Quaternion diff = MakeRotateQuaternion(Vector3(0.0f,0.0f,1.0f), vector);
+		worldTransform_.rotate= Slerp( Quaternion::identity, diff,0.1f) * worldTransform_.rotate;
+	}*/
 }

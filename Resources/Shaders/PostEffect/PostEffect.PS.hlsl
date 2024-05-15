@@ -20,8 +20,8 @@ PixelShaderOutPut main(VertexShaderOutPut input)
     float32_t2 samplePoint = input.texcoord;
     float32_t4 textureColor=tex.Sample(smp, input.texcoord);
     output.color = textureColor;
-    output.color.rgb = Sepia(textureColor.rgb);
-    output.color.rgb += Vignette(textureColor.rgb,samplePoint);
+    //output.color.rgb = Sepia(textureColor.rgb);
+    //output.color.rgb += Vignette(textureColor.rgb,samplePoint);
     //output.color.rgb = Grayscale(textureColor.rgb);
     //output.color.rgb = Smoothing(samplePoint,tex,smp);
     

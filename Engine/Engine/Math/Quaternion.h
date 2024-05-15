@@ -3,11 +3,11 @@
 #include "Vector3.h"
 
 struct Quaternion {
-	static const Quaternion identity;
-	float x;
-	float y;
-	float z;
-	float w;
+    static const Quaternion identity;
+    float x;
+    float y;
+    float z;
+    float w;
 
     inline constexpr Vector3 GetRight() const noexcept {
         float yw = y * w, zw = z * w;
@@ -67,4 +67,16 @@ struct Quaternion {
         return Quaternion{ x * scalar, y * scalar, z * scalar, w * scalar };
     }
 
+    // Inverse of the quaternion
+    Quaternion Inverse() const {
+        float norm = x * x + y * y + z * z + w * w;
+        return Quaternion{ -x / norm, -y / norm, -z / norm, w / norm };
+    }
+
+    // Quaternion * Vector3 のオーバーロード
+    Vector3 operator*(const Vector3& vec) const {
+        Quaternion vecQuat{ vec.x, vec.y, vec.z, 0.0f };
+        Quaternion resQuat = (*this) * vecQuat * Inverse();
+        return Vector3{ resQuat.x, resQuat.y, resQuat.z };
+    }
 };

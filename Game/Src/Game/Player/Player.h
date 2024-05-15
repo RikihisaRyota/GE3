@@ -40,6 +40,7 @@ private:
 
 	void BulletUpdate();
 	void Shot();
+	void OnCollision(const ColliderDesc& desc);
 
 	ViewProjection* viewProjection_;
 	GPUParticleManager* gpuParticleManager_;
@@ -52,6 +53,8 @@ private:
 	WorldTransform animationTransform_;
 	Animation::Animation animation_;
 	float animationTime_;
+
+	Vector4 colliderColor_;
 
 	uint32_t bulletTime_;
 	std::list<std::unique_ptr<PlayerBullet>> playerBullets_;

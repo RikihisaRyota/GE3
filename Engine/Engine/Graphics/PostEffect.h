@@ -19,11 +19,5 @@ public:
 private:
 	RootSignature rootSignature_;
 	PipelineState pipelineState_;
-	ColorBuffer* sourceTexture_;
-
-	UploadBuffer vertexBuffer_;
-	D3D12_VERTEX_BUFFER_VIEW vbView_{};
-
-	UploadBuffer indexBuffer_;
-	D3D12_INDEX_BUFFER_VIEW ibView_{};
+	ColorBuffer temporaryBuffer_;
 };

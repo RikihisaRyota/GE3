@@ -89,7 +89,7 @@ namespace GameCore {
 
 		drawLine->Draw(renderManager->GetCommandContext(), *viewProjection);
 		
-		renderManager->EndRender();
+		renderManager->EndRender(*viewProjection);
 
 		renderManager->Reset();
 

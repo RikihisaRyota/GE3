@@ -43,14 +43,8 @@ void PostEffect::Initialize(const ColorBuffer& target) {
 
 		desc.pRootSignature = rootSignature_;
 
-		//D3D12_INPUT_ELEMENT_DESC inputElements[] = {
-		//	{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-		//	{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-		//};
 		D3D12_INPUT_LAYOUT_DESC inputLayoutDesc{};
-		//inputLayoutDesc.pInputElementDescs = inputElements;
 		inputLayoutDesc.pInputElementDescs = nullptr;
-		//inputLayoutDesc.NumElements = _countof(inputElements);
 		inputLayoutDesc.NumElements = 0;
 		desc.InputLayout = inputLayoutDesc;
 
@@ -58,7 +52,7 @@ void PostEffect::Initialize(const ColorBuffer& target) {
 		auto ps = ShaderCompiler::Compile(L"Resources/Shaders/PostEffect/PostEffect.PS.hlsl", L"ps_6_0");
 		desc.VS = CD3DX12_SHADER_BYTECODE(vs->GetBufferPointer(), vs->GetBufferSize());
 		desc.PS = CD3DX12_SHADER_BYTECODE(ps->GetBufferPointer(), ps->GetBufferSize());
-		desc.BlendState = Helper::BlendAdditive;
+		desc.BlendState = Helper::BlendAlpha;
 		desc.DepthStencilState = Helper::DepthStateRead;
 		desc.RasterizerState = Helper::RasterizerNoCull;
 		desc.NumRenderTargets = 1;
@@ -68,15 +62,26 @@ void PostEffect::Initialize(const ColorBuffer& target) {
 		desc.SampleDesc.Count = 1;
 		pipelineState_.Create(L"PostEffectPipeLine", desc);
 	}
+	{
+		temporaryBuffer_.Create(L"PostEffectTempBuffer", target.GetWidth(), target.GetHeight(), target.GetFormat());
+	
+	}
 }
 
 void PostEffect::Render(CommandContext& commandContext, ColorBuffer& texture) {
-	commandContext.TransitionResource(texture, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+	commandContext.TransitionResource(temporaryBuffer_, D3D12_RESOURCE_STATE_RENDER_TARGET);
+	commandContext.SetRenderTarget(temporaryBuffer_.GetRTV());
+	commandContext.ClearColor(temporaryBuffer_);
+	commandContext.SetViewportAndScissorRect(0, 0, temporaryBuffer_.GetWidth(), temporaryBuffer_.GetHeight());
+
 	commandContext.SetGraphicsRootSignature(rootSignature_);
 	commandContext.SetPipelineState(pipelineState_);
 
 	commandContext.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	
+
+	commandContext.TransitionResource(texture, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 	commandContext.SetGraphicsDescriptorTable(RootParameter::kTexture, texture.GetSRV());
 	commandContext.Draw(3);
+
+	commandContext.CopyBuffer(texture, temporaryBuffer_);
 }

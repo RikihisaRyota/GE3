@@ -142,6 +142,12 @@
     <Filter Include="Engine\Collision">
       <UniqueIdentifier>{2321653d-7470-4d1e-8994-455522403408}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shaders\OutLine">
+      <UniqueIdentifier>{3fc6c689-4e30-41ca-99f3-64c9a1d4c4f6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\GaussianFilter">
+      <UniqueIdentifier>{d56aa862-523a-4e50-b241-69630f0e2635}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine\Engine\Math\MyMath.cpp">
@@ -350,6 +356,13 @@
       <Filter>Engine\Collision</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Engine\Math\Vector3.cpp" />
+    <ClCompile Include="Engine\Engine\Graphics\Outline.cpp">
+      <Filter>Engine\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Engine\Graphics\GaussianFilter.cpp">
+      <Filter>Engine\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Engine\Graphics\RadialBlur.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\Engine\WinApp\WinApp.h">
@@ -607,6 +620,15 @@
     <ClInclude Include="Engine\Engine\Collision\CollisionAttribute.h">
       <Filter>Engine\Collision</Filter>
     </ClInclude>
+    <ClInclude Include="Engine\Engine\Graphics\Outline.h">
+      <Filter>Engine\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Engine\Graphics\GaussianFilter.h">
+      <Filter>Engine\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Engine\Graphics\RadialBlur.h">
+      <Filter>Engine\Graphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Externals\Imgui\LICENSE.txt">
@@ -637,6 +659,9 @@
     </None>
     <None Include="Resources\Shaders\DrawLine\DrawLine.hlsli">
       <Filter>Shaders\DrawLine</Filter>
+    </None>
+    <None Include="Resources\Shaders\Outline\LuminanceBasedOutline.hlsli">
+      <Filter>Shaders\OutLine</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -705,6 +730,15 @@
     </FxCompile>
     <FxCompile Include="Resources\Shaders\DrawLine\DrawLine.VS.hlsl">
       <Filter>Shaders\DrawLine</Filter>
+    </FxCompile>
+    <FxCompile Include="Resources\Shaders\Outline\LuminanceBasedOutline.PS.hlsl">
+      <Filter>Shaders\OutLine</Filter>
+    </FxCompile>
+    <FxCompile Include="Resources\Shaders\GaussianFilter\GaussianFilter.PS.hlsl">
+      <Filter>Shaders\GaussianFilter</Filter>
+    </FxCompile>
+    <FxCompile Include="Resources\Shaders\Fullscreen.PS.hlsl">
+      <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

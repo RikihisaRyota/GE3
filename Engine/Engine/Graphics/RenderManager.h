@@ -6,7 +6,10 @@
 #include "GraphicsCore.h"
 #include "SwapChain.h"
 #include "PostEffect.h"
+#include "Outline.h"
+#include "GaussianFilter.h"
 
+struct ViewProjection;
 class RenderManager {
 
 public:
@@ -15,7 +18,7 @@ public:
 	void Initialize();
 	void Reset();
 	void BeginRender();
-	void EndRender();
+	void EndRender(const ViewProjection& viewProjection);
 	void Shutdown();
 
 	CommandContext& GetCommandContext() { return commandContexts_[swapChain_.GetBufferIndex()]; }
@@ -38,4 +41,9 @@ private:
 	DXGI_FORMAT mainDepthBufferFormat_;
 
 	PostEffect postEffect_;
+	Outline outLine_;
+	GaussianFilter gaussianFilter_;
+
+	PipelineState pipelineState_;
+	RootSignature rootSignature_;
 };

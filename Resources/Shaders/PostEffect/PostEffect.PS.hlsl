@@ -1,17 +1,17 @@
 #include "../Fullscreen.hlsli"
 #include "PostEffect.hlsli"
 
-Texture2D<float4> tex : register(t0); // 0番スロットに設定されたテクスチャ
+Texture2D<float32_t4> tex : register(t0); // 0番スロットに設定されたテクスチャ
 SamplerState smp : register(s0); // 0番スロットに設定されたサンプラー
 
 struct PixelShaderOutPut
 {
-    float4 color : SV_TARGET0;
+    float32_t4 color : SV_TARGET0;
 };
 
-float Random(float2 coord)
+float32_t Random(float32_t2 coord)
 {
-    return frac(sin(dot(coord, float2(8.7819, 3.255))) * 437.645);
+    return frac(sin(dot(coord, float32_t2(8.7819, 3.255))) * 437.645);
 }
 
 PixelShaderOutPut main(VertexShaderOutPut input)

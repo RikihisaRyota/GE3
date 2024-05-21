@@ -6,6 +6,7 @@
 #include "Engine/Graphics/Helper.h"
 #include "Engine/Graphics/RenderManager.h"
 #include "Engine/ShderCompiler/ShaderCompiler.h"
+#include "Engine/ImGui/ImGuiManager.h"
 
 void RadialBlur::Initialize(const ColorBuffer& target) {
 	auto graphics = GraphicsCore::GetInstance();
@@ -15,6 +16,7 @@ void RadialBlur::Initialize(const ColorBuffer& target) {
 		textureRange[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);
 
 		CD3DX12_ROOT_PARAMETER rootParameters[RootParameter::kCount]{};
+		rootParameters[RootParameter::kDesc].InitAsConstantBufferView(0);
 		rootParameters[RootParameter::kTexture].InitAsDescriptorTable(_countof(textureRange), textureRange, D3D12_SHADER_VISIBILITY_PIXEL);
 
 		CD3DX12_STATIC_SAMPLER_DESC staticSampler(
@@ -34,7 +36,7 @@ void RadialBlur::Initialize(const ColorBuffer& target) {
 		desc.NumStaticSamplers = 1;
 		desc.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
 
-		rootSignature_.Create(L"GaussianFilterRootSigunature", desc);
+		rootSignature_.Create(L"RadialBlurRootSigunature", desc);
 	}
 
 	{
@@ -48,7 +50,7 @@ void RadialBlur::Initialize(const ColorBuffer& target) {
 		desc.InputLayout = inputLayoutDesc;
 
 		auto vs = ShaderCompiler::Compile(L"Resources/Shaders/Fullscreen.VS.hlsl", L"vs_6_0");
-		auto ps = ShaderCompiler::Compile(L"Resources/Shaders/GaussianFilter/GaussianFilter.PS.hlsl", L"ps_6_0");
+		auto ps = ShaderCompiler::Compile(L"Resources/Shaders/RadialBlur/RadialBlur.PS.hlsl", L"ps_6_0");
 		desc.VS = CD3DX12_SHADER_BYTECODE(vs->GetBufferPointer(), vs->GetBufferSize());
 		desc.PS = CD3DX12_SHADER_BYTECODE(ps->GetBufferPointer(), ps->GetBufferSize());
 		desc.BlendState = Helper::BlendAlpha;
@@ -59,15 +61,19 @@ void RadialBlur::Initialize(const ColorBuffer& target) {
 		desc.SampleMask = D3D12_DEFAULT_SAMPLE_MASK;
 		desc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 		desc.SampleDesc.Count = 1;
-		pipelineState_.Create(L"GaussianFilterPipeLine", desc);
+		pipelineState_.Create(L"RadialBlurPipeLine", desc);
 	}
 	{
-		temporaryBuffer_.Create(L"GaussianFilterTempBuffer", target.GetWidth(), target.GetHeight(), target.GetFormat());
-
+		temporaryBuffer_.Create(L"RadialBlurTempBuffer", target.GetWidth(), target.GetHeight(), target.GetFormat());
+		desc_.center = { 0.5f,0.5f };
+		desc_.blurWidth = 0.01f;
+		descBuffer_.Create(L"RadialBlurDescBuffer", sizeof(Desc));
+		descBuffer_.Copy(&desc_, sizeof(Desc));
 	}
 }
 
 void RadialBlur::Render(CommandContext& commandContext, ColorBuffer& texture) {
+	descBuffer_.Copy(&desc_, sizeof(Desc));
 	commandContext.TransitionResource(temporaryBuffer_, D3D12_RESOURCE_STATE_RENDER_TARGET);
 	commandContext.SetRenderTarget(temporaryBuffer_.GetRTV());
 	commandContext.ClearColor(temporaryBuffer_);
@@ -80,7 +86,22 @@ void RadialBlur::Render(CommandContext& commandContext, ColorBuffer& texture) {
 
 	commandContext.TransitionResource(texture, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 	commandContext.SetGraphicsDescriptorTable(RootParameter::kTexture, texture.GetSRV());
+	commandContext.SetGraphicsConstantBuffer(RootParameter::kDesc, descBuffer_.GetGPUVirtualAddress());
 	commandContext.Draw(3);
 
 	commandContext.CopyBuffer(texture, temporaryBuffer_);
+}
+
+void RadialBlur::DrawImGui() {
+#ifdef ENABLE_IMGUI
+	if (ImGui::Begin("RenderManager")) {
+
+		if (ImGui::TreeNode("RadialBlur")) {
+			ImGui::DragFloat2("Center", &desc_.center.x, 0.01f, 0.0f, 1.0f);
+			ImGui::DragFloat("BlurWidth", &desc_.blurWidth, 0.01f, 0.0f, 1.0f);
+			ImGui::TreePop();
+		}
+		ImGui::End();
+	}
+#endif // ENABLE_IMGUI
 }

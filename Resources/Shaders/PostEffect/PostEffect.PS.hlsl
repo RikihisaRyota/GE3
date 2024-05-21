@@ -19,7 +19,7 @@ PixelShaderOutPut main(VertexShaderOutPut input)
     PixelShaderOutPut output;
     float32_t2 samplePoint = input.texcoord;
     float32_t4 textureColor=tex.Sample(smp, input.texcoord);
-    output.color = textureColor;
+    output.color = Random(input.texcoord);
     //output.color.rgb = Sepia(textureColor.rgb);
     //output.color.rgb += Vignette(textureColor.rgb,samplePoint);
     //output.color.rgb = Grayscale(textureColor.rgb);

@@ -148,6 +148,12 @@
     <Filter Include="Shaders\GaussianFilter">
       <UniqueIdentifier>{d56aa862-523a-4e50-b241-69630f0e2635}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shaders\RadialBlur">
+      <UniqueIdentifier>{e2bb2d93-0608-4790-83e2-ffa312670899}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\Dissolve">
+      <UniqueIdentifier>{eda4e936-91d2-473f-be86-3418b6800cb6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine\Engine\Math\MyMath.cpp">
@@ -363,6 +369,7 @@
       <Filter>Engine\Graphics</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Engine\Graphics\RadialBlur.cpp" />
+    <ClCompile Include="Engine\Engine\Graphics\Dissolve.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\Engine\WinApp\WinApp.h">
@@ -629,6 +636,9 @@
     <ClInclude Include="Engine\Engine\Graphics\RadialBlur.h">
       <Filter>Engine\Graphics</Filter>
     </ClInclude>
+    <ClInclude Include="Engine\Engine\Graphics\Dissolve.h">
+      <Filter>Engine\Graphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Externals\Imgui\LICENSE.txt">
@@ -739,6 +749,12 @@
     </FxCompile>
     <FxCompile Include="Resources\Shaders\Fullscreen.PS.hlsl">
       <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Resources\Shaders\RadialBlur\RadialBlur.PS.hlsl">
+      <Filter>Shaders\RadialBlur</Filter>
+    </FxCompile>
+    <FxCompile Include="Resources\Shaders\Dissolve\Dissolve.PS.hlsl">
+      <Filter>Shaders\Dissolve</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

@@ -8,18 +8,26 @@
 #include "PostEffect.h"
 #include "Outline.h"
 #include "GaussianFilter.h"
+#include "RadialBlur.h"
+#include "Dissolve.h"
 
 struct ViewProjection;
 class RenderManager {
 
 public:
 	static RenderManager* GetInstance();
-	
+
 	void Initialize();
 	void Reset();
 	void BeginRender();
 	void EndRender(const ViewProjection& viewProjection);
 	void Shutdown();
+
+	PostEffect& GetPostEffect() { return postEffect_; }
+	Outline& GetOutline() { return  outLine_; }
+	GaussianFilter& GetGaussianFilter() { return gaussianFilter_; }
+	RadialBlur& GetRadialBlur() { return radialBlur_; }
+	Dissolve& GetDissolve() { return dissolve_; }
 
 	CommandContext& GetCommandContext() { return commandContexts_[swapChain_.GetBufferIndex()]; }
 	SwapChain& GetSwapChain() { return swapChain_; }
@@ -43,6 +51,8 @@ private:
 	PostEffect postEffect_;
 	Outline outLine_;
 	GaussianFilter gaussianFilter_;
+	RadialBlur radialBlur_;
+	Dissolve dissolve_;
 
 	PipelineState pipelineState_;
 	RootSignature rootSignature_;

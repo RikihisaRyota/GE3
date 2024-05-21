@@ -102,6 +102,10 @@ void RenderManager::Initialize() {
 	outLine_.Initialize(mainColorBuffer_,mainDepthBuffer_);
 
 	gaussianFilter_.Initialize(mainColorBuffer_);
+
+	radialBlur_.Initialize(mainColorBuffer_);
+
+	dissolve_.Initialize(mainColorBuffer_);
 	// ImGUi初期化
 	ImGuiManager::GetInstance()->Initialize(window->GetHwnd(), swapChain_.GetColorBuffer().GetFormat());
 }
@@ -132,6 +136,8 @@ void RenderManager::EndRender(const ViewProjection& viewProjection) {
 	//outLine_.Render(commandContext, mainColorBuffer_, mainDepthBuffer_, viewProjection);
 	//postEffect_.Render(commandContext,mainColorBuffer_ );
 	//gaussianFilter_.Render(commandContext, mainColorBuffer_);
+	//radialBlur_.Render(commandContext, mainColorBuffer_);
+	//dissolve_.Render(commandContext, mainColorBuffer_);
 
 	commandContext.TransitionResource(swapChainColorBuffer, D3D12_RESOURCE_STATE_RENDER_TARGET);
 	commandContext.SetRenderTarget(swapChainColorBuffer.GetRTV());

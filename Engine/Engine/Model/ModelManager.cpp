@@ -24,6 +24,7 @@ namespace Parameter {
 		DirectionLight,
 		PointLight,
 		Texture,
+		EnvironmentalMap,
 		Sampler,
 		Count,
 	};
@@ -35,6 +36,7 @@ namespace Parameter {
 		SkinningPointLight,
 		SkinningSkinning,
 		SkinningTexture,
+		SkinningEnvironmentalMap,
 		SkinningSampler,
 		SkinningCount,
 	};
@@ -53,6 +55,8 @@ void ModelManager::CreatePipeline(DXGI_FORMAT rtvFormat, DXGI_FORMAT dsvFormat) 
 	{
 		CD3DX12_DESCRIPTOR_RANGE range[1]{};
 		range[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);
+		CD3DX12_DESCRIPTOR_RANGE environmentalMap[1]{};
+		environmentalMap[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 1);
 		CD3DX12_DESCRIPTOR_RANGE samplerRanges[1]{};
 		samplerRanges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER, 1, 0);
 
@@ -63,6 +67,7 @@ void ModelManager::CreatePipeline(DXGI_FORMAT rtvFormat, DXGI_FORMAT dsvFormat) 
 		rootParameters[Parameter::RootParameter::DirectionLight].InitAsConstantBufferView(3);
 		rootParameters[Parameter::RootParameter::PointLight].InitAsConstantBufferView(4);
 		rootParameters[Parameter::RootParameter::Texture].InitAsDescriptorTable(_countof(range), range);
+		rootParameters[Parameter::RootParameter::EnvironmentalMap].InitAsDescriptorTable(_countof(environmentalMap), environmentalMap);
 		rootParameters[Parameter::RootParameter::Sampler].InitAsDescriptorTable(_countof(samplerRanges), samplerRanges);
 
 		D3D12_ROOT_SIGNATURE_DESC desc{};
@@ -106,6 +111,8 @@ void ModelManager::CreatePipeline(DXGI_FORMAT rtvFormat, DXGI_FORMAT dsvFormat) 
 	{
 		CD3DX12_DESCRIPTOR_RANGE range[1]{};
 		range[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);
+		CD3DX12_DESCRIPTOR_RANGE environmentalMap[1]{};
+		environmentalMap[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 1);
 		CD3DX12_DESCRIPTOR_RANGE samplerRanges[1]{};
 		samplerRanges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER, 1, 0);
 
@@ -116,7 +123,8 @@ void ModelManager::CreatePipeline(DXGI_FORMAT rtvFormat, DXGI_FORMAT dsvFormat) 
 		rootParameters[Parameter::SkinningRootParameter::SkinningDirectionLight].InitAsConstantBufferView(3);
 		rootParameters[Parameter::SkinningRootParameter::SkinningPointLight].InitAsConstantBufferView(4);
 		rootParameters[Parameter::SkinningRootParameter::SkinningTexture].InitAsDescriptorTable(_countof(range), range);
-		rootParameters[Parameter::SkinningRootParameter::SkinningSkinning].InitAsShaderResourceView(1);
+		rootParameters[Parameter::SkinningRootParameter::SkinningEnvironmentalMap].InitAsDescriptorTable(_countof(environmentalMap), environmentalMap);
+		rootParameters[Parameter::SkinningRootParameter::SkinningSkinning].InitAsShaderResourceView(2);
 		rootParameters[Parameter::SkinningRootParameter::SkinningSampler].InitAsDescriptorTable(_countof(samplerRanges), samplerRanges);
 
 		D3D12_ROOT_SIGNATURE_DESC desc{};
@@ -201,6 +209,8 @@ void ModelManager::Draw(const WorldTransform& worldTransform, const ViewProjecti
 		commandContext.SetGraphicsConstantBuffer(Parameter::RootParameter::PointLight, Lighting::GetInstance()->GetPointLightBuffer().GetGPUVirtualAddress());
 		commandContext.SetGraphicsConstantBuffer(Parameter::RootParameter::Material, models_.at(modelHandle)->GetMaterialBuffer().GetGPUVirtualAddress());
 		commandContext.SetGraphicsDescriptorTable(Parameter::RootParameter::Texture, TextureManager::GetInstance()->GetTexture(models_.at(modelHandle)->GetTextureHandle()).GetSRV());
+		/// いったん決め打ち
+		commandContext.SetGraphicsDescriptorTable(Parameter::RootParameter::EnvironmentalMap, TextureManager::GetInstance()->GetTexture(TextureManager::GetInstance()->Load("Resources/Images/Skybox/rostock_laage_airport_4k.dds")).GetSRV());
 		commandContext.SetGraphicsDescriptorTable(Parameter::RootParameter::Sampler, SamplerManager::LinearWrap);
 		commandContext.DrawIndexed(modelData->meshes->indexCount);
 	}
@@ -222,8 +232,10 @@ void ModelManager::Draw(const WorldTransform& worldTransform, const Animation::A
 		commandContext.SetGraphicsConstantBuffer(Parameter::SkinningRootParameter::SkinningDirectionLight, Lighting::GetInstance()->GetDirectionLightBuffer().GetGPUVirtualAddress());
 		commandContext.SetGraphicsConstantBuffer(Parameter::SkinningRootParameter::SkinningPointLight, Lighting::GetInstance()->GetPointLightBuffer().GetGPUVirtualAddress());
 		commandContext.SetGraphicsConstantBuffer(Parameter::SkinningRootParameter::SkinningMaterial, models_.at(modelHandle)->GetMaterialBuffer().GetGPUVirtualAddress());
-		commandContext.SetGraphicsShaderResource(Parameter::SkinningRootParameter::SkinningSkinning, skinning.skinCluster.paletteResource.GetGPUVirtualAddress());
 		commandContext.SetGraphicsDescriptorTable(Parameter::SkinningRootParameter::SkinningTexture, TextureManager::GetInstance()->GetTexture(models_.at(modelHandle)->GetTextureHandle()).GetSRV());
+		/// いったん決め打ち
+		commandContext.SetGraphicsDescriptorTable(Parameter::SkinningRootParameter::SkinningEnvironmentalMap, TextureManager::GetInstance()->GetTexture(TextureManager::GetInstance()->Load("Resources/Images/Skybox/rostock_laage_airport_4k.dds")).GetSRV());
+		commandContext.SetGraphicsShaderResource(Parameter::SkinningRootParameter::SkinningSkinning, skinning.skinCluster.paletteResource.GetGPUVirtualAddress());
 		commandContext.SetGraphicsDescriptorTable(Parameter::SkinningRootParameter::SkinningSampler, SamplerManager::LinearWrap);
 		commandContext.DrawIndexed(modelData->meshes->indexCount);
 	}

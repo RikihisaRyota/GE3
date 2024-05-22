@@ -19,8 +19,8 @@ Player::Player() {
 	collider_ = new OBBCollider();
 	collider_->SetName("Player");
 	auto& mesh = ModelManager::GetInstance()->GetModel(playerModelHandle_).GetMeshData().at(0);
-	Vector3 modelSize = mesh->meshes->max - mesh->meshes->min; 
-	collider_->SetCenter(MakeTranslateMatrix(worldTransform_.matWorld)+Vector3(0.0f, modelSize.y * 0.5f,0.0f));
+	Vector3 modelSize = mesh->meshes->max - mesh->meshes->min;
+	collider_->SetCenter(MakeTranslateMatrix(worldTransform_.matWorld) + Vector3(0.0f, modelSize.y * 0.5f, 0.0f));
 	collider_->SetOrientation(worldTransform_.rotate);
 	collider_->SetSize({ modelSize.x * worldTransform_.scale.x,modelSize.y * worldTransform_.scale.y,modelSize.z * worldTransform_.scale.z });
 	collider_->SetCallback([this](const ColliderDesc& collisionInfo) { OnCollision(collisionInfo); });
@@ -31,6 +31,8 @@ Player::Player() {
 }
 
 void Player::Initialize() {
+	worldTransform_.Reset();
+	animationTransform_.Reset();
 	animationTransform_.parent_ = &worldTransform_;
 	UpdateTransform();
 }
@@ -45,9 +47,16 @@ void Player::Update() {
 
 	UpdateTransform();
 #ifdef _DEBUG
-	/*ImGui::Begin("Player");
-	ImGui::DragFloat3("position",&worldTransform_.translation_.x,0.1f);
-	ImGui::End();*/
+	ImGui::Begin("InGame");
+	if (ImGui::TreeNode("Player")) {
+		ImGui::DragFloat3("position", &worldTransform_.translate.x, 0.1f);
+		auto& material = ModelManager::GetInstance()->GetModel(playerModelHandle_).GetMaterialData();
+		ImGui::DragFloat4("color", &material.color.x, 0.1f,0.0f,1.0f);
+		ImGui::DragFloat("environmentCoefficient", &material.environmentCoefficient, 0.1f,0.0f,1.0f);
+		
+		ImGui::TreePop();
+	}
+	ImGui::End();
 #endif // _DEBUG
 
 }
@@ -56,7 +65,7 @@ void Player::Draw(const ViewProjection& viewProjection, CommandContext& commandC
 	ModelManager::GetInstance()->Draw(animationTransform_, animation_, *viewProjection_, playerModelHandle_, commandContext);
 	//animation_.DrawBox(animationTransform_,viewProjection);
 	animation_.DrawLine(animationTransform_);
-	collider_->DrawCollision(viewProjection,colliderColor_);
+	collider_->DrawCollision(viewProjection, colliderColor_);
 	// 弾
 	for (auto& bullet : playerBullets_) {
 		bullet->Draw(viewProjection, commandContext);
@@ -109,7 +118,7 @@ void Player::OnCollision(const ColliderDesc& desc) {
 void Player::UpdateTransform() {
 	worldTransform_.UpdateMatrix();
 	auto& mesh = ModelManager::GetInstance()->GetModel(playerModelHandle_).GetMeshData().at(0);
-	Vector3 modelSize = mesh->meshes->max - mesh->meshes->min; 
+	Vector3 modelSize = mesh->meshes->max - mesh->meshes->min;
 	collider_->SetCenter(MakeTranslateMatrix(worldTransform_.matWorld) + Vector3(0.0f, modelSize.y * 0.5f, 0.0f));
 	collider_->SetOrientation(worldTransform_.rotate);
 	collider_->SetSize({ modelSize.x * worldTransform_.scale.x,modelSize.y * worldTransform_.scale.y,modelSize.z * worldTransform_.scale.z });

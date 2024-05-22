@@ -6,9 +6,10 @@
 #include "Engine/GPUParticleManager/GPUParticle/GPUParticleEditor.h"
 #include "Engine/DebugCamera/DebugCamera.h"
 #include "Src/Game/DebugCamera/DebugCamera.h"
-#include "Src/Game/Player/Player.h"
 #include "Src/Game/Boss/Boss.h"
 #include "Src/Game/FollowCamera/FollowCamera.h"
+#include "Src/Game/Player/Player.h"
+#include "Src/Game/Skybox/Skybox.h"
 #include "Src/Scenes/BaseScene/BaseScene.h"
 
 #include "Engine/Sprite/SpriteHandle.h"
@@ -35,6 +36,7 @@ private:
 	
 	std::unique_ptr<Player> player_;
 	std::unique_ptr<Boss> boss_;
+	std::unique_ptr<Skybox> skybox_;
 
 
 

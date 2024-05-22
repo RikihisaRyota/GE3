@@ -1,44 +1,44 @@
 struct VertexShaderOutput
 {
-    float4 position : SV_POSITION;
-    float3 normal : NORMAL0;
-    float2 texcoord : TEXCOORD0;
+    float32_t4 position : SV_POSITION;
+    float32_t3 normal : NORMAL0;
+    float32_t2 texcoord : TEXCOORD0;
 };
 
 struct WorldTransform
 {
-    float4x4 world;
-    float4x4 inverseMatWorld;
+    float32_t4x4 world;
+    float32_t4x4 inverseMatWorld;
 };
 
 struct ViewProjection
 {
-    float4x4 view;
-    float4x4 projection;
-    float4x4 inverseView;
-    float3 cameraPos;
+    float32_t4x4 view;
+    float32_t4x4 projection;
+    float32_t4x4 inverseView;
+    float32_t3 cameraPos;
 };
-
 struct Material
 {
-    float4 color;
+    float32_t4 color;
+    float32_t environmentCoefficient;
 };
 
 struct DirectionLight
 {
-    float4 color;
-    float3 direction;
-    float intensity;
-    float sharpness;
+    float32_t4 color;
+    float32_t3 direction;
+    float32_t intensity;
+    float32_t sharpness;
 };
 
 struct PointLight
 {
-    float4 color;
-    float3 position;
-    float intensity;
-    float radius;
-    float decay;
-    float sharpness;
-    float pad;
+    float32_t4 color;
+    float32_t3 position;
+    float32_t intensity;
+    float32_t radius;
+    float32_t decay;
+    float32_t sharpness;
+    float32_t pad;
 };

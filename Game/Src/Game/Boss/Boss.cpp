@@ -28,9 +28,10 @@ Boss::Boss() {
 }
 
 void Boss::Initialize() {
+	worldTransform_.Reset();
+	worldTransform_.translate.z = 5.0f;
+	animationTransform_.Reset();
 	animationTransform_.parent_ = &worldTransform_;
-	worldTransform_.translate = { 0.0f,0.0f,5.0f };
-	worldTransform_.rotate = MakeRotateAxisAngleQuaternion(Vector3(0.0f, 1.0f, 0.0f), DegToRad(28.0f));
 	UpdateTransform();
 }
 

@@ -42,6 +42,4 @@ private:
 	D3D12_VERTEX_BUFFER_VIEW vbView_{};
 	// 頂点データ配列
 	std::vector<Vertex> vertices_;
-
-	uint32_t drawCount_;
 };

@@ -19,6 +19,8 @@ GameScene::GameScene() {
 	player_ = std::make_unique<Player>();
 	boss_ = std::make_unique<Boss>();
 	followCamera_ = std::make_unique<FollowCamera>();
+	skybox_ = std::make_unique<Skybox>();
+
 
 	modelHandle_ = ModelManager::GetInstance()->Load("Resources/Models/Ball/Ball.obj");
 	terrainHandle_ = ModelManager::GetInstance()->Load("Resources/Models/terrain/terrain.obj");
@@ -49,6 +51,8 @@ void GameScene::Initialize() {
 	player_->SetGPUParticleManager(gpuParticleManager_.get());
 	player_->Initialize();
 	boss_->Initialize();
+
+	skybox_->Initialize();
 
 	followCamera_->SetTarget(&player_->GetWorldTransform());
 	followCamera_->SetViewProjection(viewProjection_);
@@ -197,6 +201,8 @@ void GameScene::Update() {
 	//DrawLine::GetInstance()->SetLine({ -10.0f,1.0f,0.0f }, { 10.0f,1.0f,0.0f }, { 0.0f,1.0f,0.0f,1.0f });
 	//DrawLine::GetInstance()->SetLine({ -10.0f,1.0f,0.0f }, { 10.0f,1.0f,0.0f }, { 0.0f,1.0f,0.0f,1.0f });
 
+	skybox_->Update();
+
 	debugCamera_->Update(viewProjection_);
 
 	static const float kCycle = 60.0f;
@@ -234,6 +240,8 @@ void GameScene::Draw(CommandContext& commandContext) {
 
 	//gpuParticleManager_->Draw(*viewProjection_, commandContext);
 	//gpuParticleEditor_->Draw(*viewProjection_, commandContext);
+
+	skybox_->Draw(commandContext,*viewProjection_);
 }
 
 void GameScene::Finalize() {}

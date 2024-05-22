@@ -17,7 +17,7 @@ void Texture::CreateFromWICFile(const std::filesystem::path& path) {
 
 	const DirectX::TexMetadata& metadata = mipImage.GetMetadata();
 
-	CreateResource(metadata,path);
+	CreateResource(metadata, path);
 
 	UploadTextureData(mipImage);
 
@@ -46,8 +46,9 @@ DirectX::ScratchImage Texture::LoadTexture(const std::filesystem::path& path) {
 	DirectX::ScratchImage mipImages{};
 	if (DirectX::IsCompressed(image.GetMetadata().format)) {
 		mipImages = std::move(image);
-	}else{
-	hr = DirectX::GenerateMipMaps(image.GetImages(), image.GetImageCount(), image.GetMetadata(), DirectX::TEX_FILTER_SRGB, 4, mipImages);
+	}
+	else {
+		hr = DirectX::GenerateMipMaps(image.GetImages(), image.GetImageCount(), image.GetMetadata(), DirectX::TEX_FILTER_SRGB, 4, mipImages);
 	}
 	assert(SUCCEEDED(hr));
 
@@ -55,7 +56,7 @@ DirectX::ScratchImage Texture::LoadTexture(const std::filesystem::path& path) {
 }
 
 void Texture::CreateResource(const DirectX::TexMetadata& metadata, const std::filesystem::path& path) {
-	
+
 	desc_.Width = UINT(metadata.width);// Textureの幅
 	desc_.Height = UINT(metadata.height);// Textureの高さ
 	desc_.MipLevels = UINT16(metadata.mipLevels);// mipmapの数
@@ -100,7 +101,7 @@ void Texture::UploadTextureData(const DirectX::ScratchImage& mipImages) {
 	commandContext.TransitionResource(*this, D3D12_RESOURCE_STATE_COPY_DEST);
 	commandContext.FlushResourceBarriers();
 
-	UpdateSubresources(commandContext,resource_.Get(), intermediateResource.GetResource(), 0, 0, UINT(subResources.size()), subResources.data());
+	UpdateSubresources(commandContext, resource_.Get(), intermediateResource.GetResource(), 0, 0, UINT(subResources.size()), subResources.data());
 
 	commandContext.TransitionResource(*this, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 	commandContext.Close();
@@ -116,11 +117,18 @@ void Texture::CreateView(const DirectX::TexMetadata& metadata) {
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
 	srvDesc.Format = metadata.format;
 	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-	
-	
-	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D; // 2Dテクスチャ
-	srvDesc.Texture2D.MipLevels = UINT(metadata.mipLevels);
+
+	if (metadata.IsCubemap()) {
+		srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE;
+		srvDesc.TextureCube.MostDetailedMip = 0;
+		srvDesc.TextureCube.MipLevels = UINT_MAX;
+		srvDesc.TextureCube.ResourceMinLODClamp = 0.0f;
+	}
+	else {
+		srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D; // 2Dテクスチャ
+		srvDesc.Texture2D.MipLevels = UINT(metadata.mipLevels);
+	}
 	srvHandle_ = graphics->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 	descriptorIndex_ = graphics->GetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV).GetFreeDescriptors();
-	device->CreateShaderResourceView(resource_.Get(), &srvDesc,srvHandle_);
+	device->CreateShaderResourceView(resource_.Get(), &srvDesc, srvHandle_);
 }

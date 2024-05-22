@@ -50,7 +50,6 @@ void DrawLine::Draw(CommandContext& commandContext, const ViewProjection& viewPr
 }
 
 void DrawLine::Reset() {
-	drawCount_ = 0;
 	vertices_.clear();
 }
 

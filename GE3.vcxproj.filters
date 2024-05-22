@@ -154,6 +154,12 @@
     <Filter Include="Shaders\Dissolve">
       <UniqueIdentifier>{eda4e936-91d2-473f-be86-3418b6800cb6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Game\Skybox">
+      <UniqueIdentifier>{3ce6abf8-802c-4164-9588-82e744864977}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\Skybox">
+      <UniqueIdentifier>{60edc69e-7abd-4337-b768-4caab8d747ae}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine\Engine\Math\MyMath.cpp">
@@ -370,6 +376,7 @@
     </ClCompile>
     <ClCompile Include="Engine\Engine\Graphics\RadialBlur.cpp" />
     <ClCompile Include="Engine\Engine\Graphics\Dissolve.cpp" />
+    <ClCompile Include="Game\Src\Game\Skybox\Skybox.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\Engine\WinApp\WinApp.h">
@@ -639,6 +646,9 @@
     <ClInclude Include="Engine\Engine\Graphics\Dissolve.h">
       <Filter>Engine\Graphics</Filter>
     </ClInclude>
+    <ClInclude Include="Game\Src\Game\Skybox\Skybox.h">
+      <Filter>Game\Skybox</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Externals\Imgui\LICENSE.txt">
@@ -672,6 +682,9 @@
     </None>
     <None Include="Resources\Shaders\Outline\LuminanceBasedOutline.hlsli">
       <Filter>Shaders\OutLine</Filter>
+    </None>
+    <None Include="Resources\Shaders\Skybox\Skybox.hlsli">
+      <Filter>Shaders\Skybox</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -755,6 +768,12 @@
     </FxCompile>
     <FxCompile Include="Resources\Shaders\Dissolve\Dissolve.PS.hlsl">
       <Filter>Shaders\Dissolve</Filter>
+    </FxCompile>
+    <FxCompile Include="Resources\Shaders\Skybox\Skybox.PS.hlsl">
+      <Filter>Shaders\Skybox</Filter>
+    </FxCompile>
+    <FxCompile Include="Resources\Shaders\Skybox\Skybox.VS.hlsl">
+      <Filter>Shaders\Skybox</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

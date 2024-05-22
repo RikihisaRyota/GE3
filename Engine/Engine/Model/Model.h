@@ -31,6 +31,7 @@ public:
 
 	struct Material {
 		Vector4 color;
+		float environmentCoefficient;
 	};
 
 	struct Vertex {
@@ -85,6 +86,7 @@ public:
 	const D3D12_VERTEX_BUFFER_VIEW GetVBView()const { return vbView_; }
 	const TextureHandle GetTextureHandle()const { return textureHandle_; }
 	const UploadBuffer& GetMaterialBuffer()const { return materialBuffer_; }
+	Material& GetMaterialData() { return *material_; }
 	const std::filesystem::path& GetPath()const { return path_; }
 	void SetMaterialColor(const Vector4& color);
 private:

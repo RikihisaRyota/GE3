@@ -63,10 +63,9 @@ struct Particle
     float32_t3 scale;
     uint32_t textureInidex;
 
-    float32_t3 rotateVelocity;
+    float32_t rotateVelocity;
+    float32_t rotate;
     uint32_t isAlive;
-
-    float32_t3 rotate;
     uint32_t pad1;
     
     float32_t3 translate;
@@ -76,11 +75,22 @@ struct Particle
     uint32_t pad3;    
 };
 
-struct EmitterArea
+struct EmitterAABB
 {
     Float3MinMax range;
+};
+
+struct EmitterSphere
+{
+    float32_t radius;
+    float32_t3 pad;
+};
+
+struct EmitterArea{
+    EmitterAABB aabb;
+    EmitterSphere sphere;
     float32_t3 position;
-    uint32_t pad;
+    uint32_t type;
 };
 
 struct ScaleAnimation
@@ -90,8 +100,8 @@ struct ScaleAnimation
 
 struct RotateAnimation
 {
-    float32_t3 rotate;
-    uint32_t pad;
+    float32_t rotate;
+    uint32_t3 pad;
 };
 
 struct Velocity3D
@@ -153,25 +163,37 @@ struct EmitterCounterBuffer
     uint32_t3 pad;
 };
 
-float hash(uint seed)
+float sdSphere(float32_t3 p, float32_t s )
 {
-    seed = (seed ^ 61u) ^ (seed >> 16u);
-    seed *= 9u;
-    seed = seed ^ (seed >> 4u);
-    seed *= 0x27d4eb2d;
-    seed = seed ^ (seed >> 15u);
-    return float(seed) / float(0x7FFFFFFF);
+  return length(p)-s;
 }
 
-float random(float min, float max, float seed)
-{
-    float range = max - min;
-    return min + (hash(uint(seed))) * 0.5f * range;
+
+uint32_t randInt(uint32_t seed) {
+    seed ^= seed << 13;
+    seed ^= seed >> 17;
+	seed ^= seed << 5;
+    return seed;
 }
 
-float randomRange(float2 uv, float seed)
+uint32_t setSeed(uint32_t seed) {
+    seed = randInt(seed); 
+    seed = randInt(seed); 
+    seed = randInt(seed); 
+    return seed ;
+}
+
+float32_t randFloat(inout uint32_t seed) {
+    seed = setSeed(seed);
+    return frac(float32_t(randInt(seed)) / float32_t(0xFFFFFFFFu));
+}
+
+float32_t  randomRange(float32_t min, float max,inout uint32_t  seed) {
+    return lerp(min, max, randFloat(seed));
+}
+float32_t random(float32_t2 uv, float32_t seed)
 {
-    return frac(sin(dot(uv, float2(12.9898f, 78.233f)) + seed) * 43758.5453);
+    return frac(sin(dot(uv, float32_t2(12.9898f, 78.233f)) + seed) * 43758.5453);
 
 }
 

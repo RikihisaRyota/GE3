@@ -54,42 +54,49 @@ namespace Animation {
 		}
 	}
 
-	void AnimationDesc::LoadAnimationFile(const std::filesystem::path& directoryPath) {
+	std::vector<AnimationDesc> LoadAnimationFile(const std::filesystem::path& directoryPath) {
 		Assimp::Importer importer;
 		const aiScene* scene = importer.ReadFile(directoryPath.string(), 0);
 		// アニメーションがない
 		assert(scene->mNumAnimations != 0);
-		aiAnimation* animationAssimp = scene->mAnimations[0];
-		duration = float(animationAssimp->mDuration / animationAssimp->mTicksPerSecond);
-		for (uint32_t channelIndex = 0; channelIndex < animationAssimp->mNumChannels; ++channelIndex) {
-			aiNodeAnim* nodeAnimationAssimp = animationAssimp->mChannels[channelIndex];
-			NodeAnimation& nodeAnimation = nodeAnimations[nodeAnimationAssimp->mNodeName.C_Str()];
-			// translate
-			for (uint32_t keyIndex = 0; keyIndex < nodeAnimationAssimp->mNumPositionKeys; ++keyIndex) {
-				aiVectorKey& keyAssimp = nodeAnimationAssimp->mPositionKeys[keyIndex];
-				KeyframeVector3 keyframe{};
-				keyframe.time = float(keyAssimp.mTime / animationAssimp->mDuration);
-				keyframe.value = { -keyAssimp.mValue.x,keyAssimp.mValue.y,keyAssimp.mValue.z };
-				nodeAnimation.translate.keyframe.emplace_back(keyframe);
+		std::vector<AnimationDesc> animationDescs{};
+		for (uint32_t i = 0; i < scene->mNumAnimations; ++i) {
+			AnimationDesc desc{};
+			aiAnimation* animationAssimp = scene->mAnimations[i];
+			desc.name = scene->mAnimations[i]->mName.C_Str();
+			desc.duration = float(animationAssimp->mDuration / animationAssimp->mTicksPerSecond);
+			for (uint32_t channelIndex = 0; channelIndex < animationAssimp->mNumChannels; ++channelIndex) {
+				aiNodeAnim* nodeAnimationAssimp = animationAssimp->mChannels[channelIndex];
+				NodeAnimation& nodeAnimation = desc.nodeAnimations[nodeAnimationAssimp->mNodeName.C_Str()];
+				// translate
+				for (uint32_t keyIndex = 0; keyIndex < nodeAnimationAssimp->mNumPositionKeys; ++keyIndex) {
+					aiVectorKey& keyAssimp = nodeAnimationAssimp->mPositionKeys[keyIndex];
+					KeyframeVector3 keyframe{};
+					keyframe.time = float(keyAssimp.mTime / animationAssimp->mDuration);
+					keyframe.value = { -keyAssimp.mValue.x,keyAssimp.mValue.y,keyAssimp.mValue.z };
+					nodeAnimation.translate.keyframe.emplace_back(keyframe);
+				}
+				// rotate
+				for (uint32_t keyIndex = 0; keyIndex < nodeAnimationAssimp->mNumRotationKeys; ++keyIndex) {
+					aiQuatKey& keyAssimp = nodeAnimationAssimp->mRotationKeys[keyIndex];
+					KeyframeQuaternion keyframe{};
+					keyframe.time = float(keyAssimp.mTime / animationAssimp->mDuration);
+					// 右手から左手にするためにyとz反転
+					keyframe.value = { keyAssimp.mValue.x, -keyAssimp.mValue.y,-keyAssimp.mValue.z,  keyAssimp.mValue.w };
+					nodeAnimation.rotate.keyframe.emplace_back(keyframe);
+				}
+				// scale
+				for (uint32_t keyIndex = 0; keyIndex < nodeAnimationAssimp->mNumScalingKeys; ++keyIndex) {
+					aiVectorKey& keyAssimp = nodeAnimationAssimp->mScalingKeys[keyIndex];
+					KeyframeVector3 keyframe{};
+					keyframe.time = float(keyAssimp.mTime / animationAssimp->mDuration);
+					keyframe.value = { keyAssimp.mValue.x,keyAssimp.mValue.y,keyAssimp.mValue.z };
+					nodeAnimation.scale.keyframe.emplace_back(keyframe);
+				}
 			}
-			// rotate
-			for (uint32_t keyIndex = 0; keyIndex < nodeAnimationAssimp->mNumRotationKeys; ++keyIndex) {
-				aiQuatKey& keyAssimp = nodeAnimationAssimp->mRotationKeys[keyIndex];
-				KeyframeQuaternion keyframe{};
-				keyframe.time = float(keyAssimp.mTime / animationAssimp->mDuration);
-				// 右手から左手にするためにyとz反転
-				keyframe.value = { keyAssimp.mValue.x, -keyAssimp.mValue.y,-keyAssimp.mValue.z,  keyAssimp.mValue.w };
-				nodeAnimation.rotate.keyframe.emplace_back(keyframe);
-			}
-			// scale
-			for (uint32_t keyIndex = 0; keyIndex < nodeAnimationAssimp->mNumScalingKeys; ++keyIndex) {
-				aiVectorKey& keyAssimp = nodeAnimationAssimp->mScalingKeys[keyIndex];
-				KeyframeVector3 keyframe{};
-				keyframe.time = float(keyAssimp.mTime / animationAssimp->mDuration);
-				keyframe.value = { keyAssimp.mValue.x,keyAssimp.mValue.y,keyAssimp.mValue.z };
-				nodeAnimation.scale.keyframe.emplace_back(keyframe);
-			}
+			animationDescs.emplace_back(desc);
 		}
+		return animationDescs;
 	}
 
 	void AnimationDesc::Update(WorldTransform& worldTransform, bool isLoop, const ModelHandle& modelHandle, uint32_t children) {
@@ -104,8 +111,19 @@ namespace Animation {
 		worldTransform.scale = CalculateValue(rootAnimation.scale, animationTime);
 	}
 
+	AnimationHandle Animation::GetAnimationHandle(const std::string& name) {
+		for (uint32_t index=0; auto & animation : animations) {
+			if (animation.name == name) {
+				return index;
+			}
+			index++;
+		}
+		assert(0);
+		return 0;
+	}
+
 	void Animation::Initialize(const ModelHandle& modelHandle) {
-		animation.LoadAnimationFile(ModelManager::GetInstance()->GetModel(modelHandle).GetPath());
+		animations = LoadAnimationFile(ModelManager::GetInstance()->GetModel(modelHandle).GetPath());
 		skeleton.CreateSkeleton(ModelManager::GetInstance()->GetModel(modelHandle).GetMeshData().at(0)->rootNode);
 		skinCluster.CreateSkinCluster(skeleton, modelHandle);
 
@@ -117,8 +135,8 @@ namespace Animation {
 
 	}
 
-	void Animation::Update(float time) {
-		ApplyAnimation(skeleton, animation, time);
+	void Animation::Update(const AnimationHandle& handle,float time) {
+		ApplyAnimation(skeleton, animations.at(handle), time);
 		skeleton.Update();
 		skinCluster.Update(skeleton);
 	}

@@ -45,13 +45,15 @@ public:
 	void AddEmitter(CommandContext& commandContext);
 	void ParticleUpdate(CommandContext& commandContext);
 	void Draw(const ViewProjection& viewProjection, CommandContext& commandContext);
-	void SetCommandSignature(ID3D12CommandSignature* commandSignature) { commandSignature_ = commandSignature; }
+	void SetDrawCommandSignature(ID3D12CommandSignature* commandSignature) { commandSignature_ = commandSignature; }
+	void SetSpawnCommandSignature(ID3D12CommandSignature* commandSignature) { spawnCommandSignature_ = commandSignature; }
 	void Create(const GPUParticleShaderStructs::Emitter& emitterForGPU);
 
 	void SetEmitter(const GPUParticleShaderStructs::Emitter& emitterForGPU);
 private:
 	void InitializeParticleBuffer();
 	void InitializeUpdateParticle();
+	void InitializeSpawnBuffer();
 	void InitializeBuffer();
 	void InitializeEmitter();
 	void InitializeAddEmitter();
@@ -78,8 +80,9 @@ private:
 	DefaultBuffer createParticleBuffer_;
 	UploadBuffer resetCreateParticleBuffer_;
 	DescriptorHandle createParticleUAVHandle_;
+	DefaultBuffer spawnArgumentBuffer_;
+	ID3D12CommandSignature* spawnCommandSignature_;
 	// 何個生成するか数える用
-	ReadBackBuffer createParticleCounterCopyDestBuffer_;
 	DefaultBuffer createParticleCounterCopySrcBuffer_;
 	// AddParticle用
 	DefaultBuffer addEmitterBuffer_;

@@ -35,7 +35,6 @@ namespace Animation {
 	};
 
 	struct AnimationDesc {
-		void LoadAnimationFile(const std::filesystem::path& directoryPath);
 		void Update(WorldTransform& worldTransform, bool isLoop, const ModelHandle& modelHandle, uint32_t children);
 		std::map<std::string, NodeAnimation> nodeAnimations;
 		// 単位は秒
@@ -43,15 +42,35 @@ namespace Animation {
 		float animationTime;
 		std::string name;
 	};
+	std::vector<AnimationDesc> LoadAnimationFile(const std::filesystem::path& directoryPath);
+
+	class AnimationHandle {
+	public:
+		static const ModelHandle kMaxModeHandle;
+
+		// デフォルトのコンストラクタを追加
+		AnimationHandle() = default;
+		// size_t からの暗黙の型変換を行う関数を追加
+		AnimationHandle(size_t value) : index_(value) {}
+
+		operator size_t () const { return index_; }
+		bool IsValid() const { return index_ != ((size_t)-1); }
+	private:
+		size_t index_ = ((size_t)-1);
+	};
+
 
 	struct Animation {
-		AnimationDesc animation;
+		std::vector<AnimationDesc> animations;
 		Skeleton skeleton;
 		SkinCluster skinCluster;
+		AnimationHandle GetAnimationHandle(const std::string& name);
+		
 		void Initialize(const ModelHandle& modelHandle);
-		void Update(float time);
+		void Update(const AnimationHandle& handle,float time);
 		void DrawLine(const WorldTransform& worldTransform);
 		void DrawBox(const WorldTransform& worldTransform, const ViewProjection& viewProjection);
+
 		std::vector<WorldTransform> debugBox_;
 		ModelHandle debugBoxModelHandle_;
 	};

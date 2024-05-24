@@ -77,7 +77,8 @@ void GPUParticleManager::Initialize() {
 	CreateGraphics();
 	CreateAddEmitter();
 	CreateIndexBuffer();
-	gpuParticle_->SetCommandSignature(commandSignature_.Get());
+	gpuParticle_->SetDrawCommandSignature(commandSignature_.Get());
+	gpuParticle_->SetSpawnCommandSignature(spawnCommandSignature_.Get());
 }
 
 void GPUParticleManager::Update(CommandContext& commandContext) {
@@ -357,6 +358,19 @@ void GPUParticleManager::CreateSpawn() {
 		auto cs = ShaderCompiler::Compile(L"Resources/Shaders/GPUParticle/Spawn.CS.hlsl", L"cs_6_0");
 		desc.CS = CD3DX12_SHADER_BYTECODE(cs->GetBufferPointer(), cs->GetBufferSize());
 		spawnComputePipelineState_->Create(L"GPUParticle SpawnCPSO", desc);
+	}
+	// コマンドシグネイチャ
+	{
+		D3D12_INDIRECT_ARGUMENT_DESC argumentDescs[1] = {};
+		argumentDescs[0].Type = D3D12_INDIRECT_ARGUMENT_TYPE_DISPATCH;
+
+		D3D12_COMMAND_SIGNATURE_DESC commandSignatureDesc{};
+		commandSignatureDesc.pArgumentDescs = argumentDescs;
+		commandSignatureDesc.NumArgumentDescs = _countof(argumentDescs);
+		commandSignatureDesc.ByteStride = sizeof(D3D12_DISPATCH_ARGUMENTS);
+		auto result = device->CreateCommandSignature(&commandSignatureDesc, nullptr, IID_PPV_ARGS(&spawnCommandSignature_));
+		spawnCommandSignature_->SetName(L"spawnCommandSignature");
+		assert(SUCCEEDED(result));
 	}
 }
 

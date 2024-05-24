@@ -71,10 +71,12 @@ namespace GPUParticleShaderStructs {
 		float4 color;
 		float3 scale;
 		uint textureInidex;
-		float3 rotateVelocity;
+
+		float32_t rotateVelocity;
 		uint isAlive;
-		float3 rotate;
+		float32_t rotate;
 		uint pad1;
+
 		float3 translate;
 		uint pad2;
 		float3 velocity;
@@ -86,12 +88,15 @@ namespace GPUParticleShaderStructs {
 		Vector3MinMax scaleRange;
 		ParticleLifeTime particleLifeTime;
 		Vector4 color;
+
 		Vector3 scale;
 		uint32_t textureInidex;
-		Vector3 rotateVelocity;
+		
+		float rotateVelocity;
 		uint32_t isAlive;
-		Vector3 rotate;
+		float rotate;
 		uint32_t pad1;
+		
 		Vector3 translate;
 		uint32_t pad2;
 		Vector3 velocity;
@@ -101,11 +106,23 @@ namespace GPUParticleShaderStructs {
 	// hlsli側も変更すること
 
 	// エミッターの生成範囲と生成場所
-	struct EmitterArea {
+	struct EmitterAABB {
 		Vector3MinMax area;
-		Vector3 position;
-		uint32_t pad;
 	};
+
+	struct EmitterSphere {
+		float radius;
+		Vector3 pad;
+	};
+
+	struct EmitterArea {
+		EmitterAABB aabb;
+		EmitterSphere sphere;
+		Vector3 position;
+		uint32_t type;
+	};
+
+	// エミッターの生成範囲と生成場所
 
 	// パーティクルのスケール
 	struct ScaleAnimation {
@@ -114,8 +131,8 @@ namespace GPUParticleShaderStructs {
 
 	// パーティクルの回転	
 	struct RotateAnimation {
-		Vector3 rotate;
-		uint32_t pad;
+		float rotate;
+		uint32_t pad[3];
 	};
 
 	// パーティクルの移動

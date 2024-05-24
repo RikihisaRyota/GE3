@@ -9,7 +9,7 @@
 Boss::Boss() {
 	bossModelHandle_ = ModelManager::GetInstance()->Load("Resources/Models/Boss/boss.gltf");
 	animation_.Initialize(bossModelHandle_);
-
+	twoHandedAttackHandle_ = animation_.GetAnimationHandle("twoHandedAttack");
 #pragma region コライダー
 	collider_ = new OBBCollider();
 	collider_->SetName("Boss");
@@ -40,7 +40,7 @@ void Boss::Update() {
 	static const float kCycle = 360.0f;
 	animationTime_ += 1.0f;
 	animationTime_ = std::fmodf(animationTime_, kCycle);
-	animation_.Update(animationTime_ / kCycle);
+	animation_.Update(twoHandedAttackHandle_,animationTime_ / kCycle);
 	UpdateTransform();
 }
 

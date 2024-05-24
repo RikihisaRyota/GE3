@@ -12,15 +12,15 @@ void PlayerBullet::Create(GPUParticleManager* GPUParticleManager, const Vector3&
 	modelHandle_ = ModelManager::GetInstance()->Load("Resources/Models/Ball");
 	gpuTexture_ = TextureManager::GetInstance()->Load("Resources/Images/GPUParticle.png");
 	gpuParticleManager_ = GPUParticleManager;
-	
+
 	worldTransform_.Initialize();
 	worldTransform_.translate = position;
-	
+
 	for (auto& sub : secondBullet_) {
 		sub.Initialize();
 		sub.parent_ = &worldTransform_;
 	}
-	worldTransform_.UpdateMatrix();     
+	worldTransform_.UpdateMatrix();
 	velocity_ = velocity;
 	time_ = time;
 	isAlive_ = true;
@@ -35,7 +35,7 @@ void PlayerBullet::Update() {
 	//worldTransform_.rotate.z += 0.1f;
 	worldTransform_.UpdateMatrix();
 	for (int i = 0; auto & sub : secondBullet_) {
-		float angle = 2.0f * std::numbers::pi_v<float> * i / kNumSubBullet;
+		float angle = 2.0f * std::numbers::pi_v<float> *i / kNumSubBullet;
 		float radius = 2.0f; // 衛星の半径
 
 		// サブオブジェクトの相対的な位置を計算
@@ -52,11 +52,14 @@ void PlayerBullet::Update() {
 
 		GPUParticleShaderStructs::Emitter emitterForGPU = {
 		.emitterArea{
-				.area{
-					.min = {-0.1f,-0.1f,-0.1f},
-					.max = {0.1f,0.1f,0.1f},
+				.aabb{
+					.area{
+						.min = {-0.1f,-0.1f,-0.1f},
+						.max = {0.1f,0.1f,0.1f},
+					},
 				},
 				.position = {MakeTranslateMatrix(sub.matWorld)},
+				.type = 0,
 			},
 
 		.scale{
@@ -73,7 +76,7 @@ void PlayerBullet::Update() {
 		},
 
 		.rotate{
-			.rotate = {0.0f,0.0f,0.3f},
+			.rotate = 0.3f,
 		},
 
 		.velocity{

@@ -180,7 +180,7 @@
 					}
 				}
 			],
-			"name":"\u30a2\u30fc\u30de\u30c1\u30e5\u30a2Action",
+			"name":"walk",
 			"samplers":[
 				{
 					"input":7,

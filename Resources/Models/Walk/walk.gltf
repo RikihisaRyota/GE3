@@ -2746,7 +2746,7 @@
 					}
 				}
 			],
-			"name":"Armature|mixamo.com|Layer0",
+			"name":"walk",
 			"samplers":[
 				{
 					"input":7,

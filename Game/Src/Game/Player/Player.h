@@ -42,6 +42,8 @@ private:
 	void Shot();
 	void OnCollision(const ColliderDesc& desc);
 
+	void GPUParticleSpawn();
+
 	ViewProjection* viewProjection_;
 	GPUParticleManager* gpuParticleManager_;
 
@@ -52,6 +54,7 @@ private:
 	ModelHandle playerModelHandle_;
 	WorldTransform animationTransform_;
 	Animation::Animation animation_;
+	Animation::AnimationHandle walkHandle_;
 	float animationTime_;
 
 	Vector4 colliderColor_;

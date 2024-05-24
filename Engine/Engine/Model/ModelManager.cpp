@@ -182,12 +182,12 @@ ModelHandle ModelManager::Load(const std::filesystem::path path) {
 	auto iter = std::find_if(models_.begin(), models_.end(), [&](const auto& model) { return model->GetName() == path.stem(); });
 	// 読み込み済み
 	if (iter != models_.end()) {
-		handle.index_ = std::distance(models_.begin(), iter);
+		handle = std::distance(models_.begin(), iter);
 		return handle;
 	}
 
 	// 最後尾に読み込む
-	handle.index_ = models_.size();
+	handle = models_.size();
 
 	auto model = std::make_unique<Model>();
 	model->Create(path);

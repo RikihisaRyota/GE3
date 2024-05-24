@@ -12,7 +12,7 @@
 Player::Player() {
 	playerModelHandle_ = ModelManager::GetInstance()->Load("Resources/Models/Walk/walk.gltf");
 	animation_.Initialize(playerModelHandle_);
-
+	walkHandle_ = animation_.GetAnimationHandle("walk");
 	worldTransform_.Initialize();
 	animationTransform_.Initialize();
 #pragma region コライダー
@@ -46,6 +46,8 @@ void Player::Update() {
 	BulletUpdate();
 
 	UpdateTransform();
+
+	GPUParticleSpawn();
 #ifdef _DEBUG
 	ImGui::Begin("InGame");
 	if (ImGui::TreeNode("Player")) {
@@ -62,7 +64,7 @@ void Player::Update() {
 }
 
 void Player::Draw(const ViewProjection& viewProjection, CommandContext& commandContext) {
-	ModelManager::GetInstance()->Draw(animationTransform_, animation_, *viewProjection_, playerModelHandle_, commandContext);
+	//ModelManager::GetInstance()->Draw(animationTransform_, animation_, *viewProjection_, playerModelHandle_, commandContext);
 	//animation_.DrawBox(animationTransform_,viewProjection);
 	animation_.DrawLine(animationTransform_);
 	collider_->DrawCollision(viewProjection, colliderColor_);
@@ -112,6 +114,88 @@ void Player::OnCollision(const ColliderDesc& desc) {
 
 		UpdateTransform();
 		colliderColor_ = { 1.0f,0.0f,0.0f,1.0f };
+	}
+}
+
+void Player::GPUParticleSpawn() {
+	for (auto& joint : animation_.skeleton.joints) {
+		if (!joint.parent.has_value()) {
+			continue;
+		}
+		Matrix4x4 worldMatrix = joint.skeletonSpaceMatrix * worldTransform_.matWorld;
+		Matrix4x4 parentMatrix = animation_.skeleton.joints.at(*joint.parent).skeletonSpaceMatrix * worldTransform_.matWorld;
+
+		Vector3 worldPos = MakeTranslateMatrix(worldMatrix);
+		Vector3 parentPos = MakeTranslateMatrix(parentMatrix);
+		Vector3 born = (worldPos - parentPos);
+		// 0
+		{
+			GPUParticleShaderStructs::Emitter emitterForGPU = {
+		   .emitterArea{
+				   .sphere{
+						.radius = born.Length(),
+					},
+					.position{worldPos},
+					.type = 1,
+			   },
+
+		   .scale{
+			   .range{
+				   .start{
+					   .min = {0.1f,0.1f,0.1f},
+					   .max = {0.2f,0.2f,0.2f},
+				   },
+				   .end{
+					   .min = {0.02f,0.02f,0.02f},
+					   .max = {0.01f,0.01f,0.01f},
+				   },
+			   },
+		   },
+
+		   .rotate{
+			   .rotate = 0.0f,
+		   },
+
+		   .velocity{
+			   .range{
+				   .min = {-0.05f,-0.05f,-0.05f},
+				   .max = {0.05f,0.0f,0.05f},
+			   }
+		   },
+
+		   .color{
+			   .range{
+				   .start{
+					   .min = {1.0f,0.0f,0.0f,1.0f},
+					   .max = {1.0f,0.0f,0.0f,1.0f},
+				   },
+				   .end{
+					   .min = {0.2f,0.0f,0.0f,1.0f},
+					   .max = {0.2f,0.0f,0.0f,1.0f},
+				   },
+			   },
+		   },
+
+		   .frequency{
+			   .interval = 1,
+			   .isLoop = false,
+			   //.lifeTime = 120,
+		   },
+
+		   .particleLifeSpan{
+			   .range{
+				   .min = 1,
+				   .max = 2,
+			   }
+		   },
+
+		   .textureIndex = 0,
+
+		   .createParticleNum = 1 << 10,
+			};
+
+			gpuParticleManager_->CreateParticle(emitterForGPU);
+		}
 	}
 }
 
@@ -190,7 +274,7 @@ void Player::AnimationUpdate() {
 	//animationTransform_.translate.y = (std::sin(time) * 0.05f);
 	static const float kCycle = 30.0f;
 	animationTime_ = std::fmodf(animationTime_, kCycle);
-	animation_.Update(animationTime_ / kCycle);
+	animation_.Update(walkHandle_,animationTime_ / kCycle);
 }
 
 void Player::PlayerRotate(const Vector3& move) {

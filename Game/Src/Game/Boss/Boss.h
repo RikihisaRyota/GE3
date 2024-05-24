@@ -23,6 +23,7 @@ private:
 
 	ModelHandle bossModelHandle_;
 	Animation::Animation animation_;
+	Animation::AnimationHandle twoHandedAttackHandle_;
 	float animationTime_;
 	WorldTransform animationTransform_;
 

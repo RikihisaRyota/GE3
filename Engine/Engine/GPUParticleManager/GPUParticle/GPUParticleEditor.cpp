@@ -80,9 +80,19 @@ void GPUParticleEditor::EmitterUpdate() {
 
 	ImGui::Begin("Emitter");
 	if (ImGui::TreeNode("Area")) {
+		if (ImGui::TreeNode("AABB")) {
+			ImGui::DragFloat3("Min", &emitter_.emitterArea.aabb.area.min.x, 0.1f);
+			ImGui::DragFloat3("Max", &emitter_.emitterArea.aabb.area.max.x, 0.1f);
+			ImGui::TreePop();
+		}
+		if (ImGui::TreeNode("Sphere")) {
+			ImGui::DragFloat("Radius", &emitter_.emitterArea.sphere.radius, 0.1f);
+			ImGui::TreePop();
+		}
 		ImGui::DragFloat3("Position", &emitter_.emitterArea.position.x, 0.1f);
-		ImGui::DragFloat3("Min", &emitter_.emitterArea.area.min.x, 0.1f);
-		ImGui::DragFloat3("Max", &emitter_.emitterArea.area.max.x, 0.1f);
+		int type = emitter_.emitterArea.type;
+		ImGui::DragInt("Type", &type);
+		emitter_.emitterArea.type = type;
 		ImGui::TreePop();
 	}
 	if (ImGui::TreeNode("Scale")) {
@@ -93,7 +103,7 @@ void GPUParticleEditor::EmitterUpdate() {
 		ImGui::TreePop();
 	}
 	if (ImGui::TreeNode("Rotate")) {
-		ImGui::DragFloat3("rotate", &emitter_.rotate.rotate.x, 0.1f);
+		ImGui::DragFloat("rotate", &emitter_.rotate.rotate, 0.1f);
 		ImGui::TreePop();
 	}
 	if (ImGui::TreeNode("Velocity3D")) {
@@ -165,7 +175,7 @@ void GPUParticleEditor::Spawn(CommandContext& commandContext) {
 		commandContext.SetComputeDescriptorTable(GPUParticleEditorParameter::Spawn::kConsumeParticleIndex, originalCommandUAVHandle_);
 
 		commandContext.Dispatch(static_cast<UINT>(ceil(emitter_.createParticleNum / GPUParticleShaderStructs::ComputeThreadBlockSize)), 1, 1);
-		
+
 		commandContext.CopyBufferRegion(originalCommandCounterBuffer_, 0, originalCommandBuffer_, particleIndexCounterOffset_, sizeof(UINT));
 	}
 }
@@ -205,7 +215,7 @@ void GPUParticleEditor::Draw(const ViewProjection& viewProjection, CommandContex
 
 		commandContext.TransitionResource(particleBuffer_, D3D12_RESOURCE_STATE_GENERIC_READ);
 		commandContext.TransitionResource(drawIndexCommandBuffers_, D3D12_RESOURCE_STATE_GENERIC_READ);
-		commandContext.TransitionResource(drawArgumentBuffer_, D3D12_RESOURCE_STATE_INDIRECT_ARGUMENT);	
+		commandContext.TransitionResource(drawArgumentBuffer_, D3D12_RESOURCE_STATE_INDIRECT_ARGUMENT);
 
 		commandContext.SetGraphicsConstantBuffer(2, viewProjection.constBuff_.GetGPUVirtualAddress());
 		commandContext.SetGraphicsDescriptorTable(3, GraphicsCore::GetInstance()->GetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV).GetStartDescriptorHandle());
@@ -380,11 +390,18 @@ void GPUParticleEditor::CreateIndexBuffer() {
 void GPUParticleEditor::CreateEmitterBuffer() {
 	emitter_ = {
 		.emitterArea{
-				.area{
-					.min = {-10.0f,-10.0f,-20.0f},
-					.max = {10.0f,10.0f,20.0f},
+				.aabb{
+					.area{
+						.min = {-10.0f,-10.0f,-20.0f},
+						.max = {10.0f,10.0f,20.0f},
+					},
+				},
+				.sphere{
+					.radius = 10.0f,
 				},
 				.position = {0.0f,0.0f,0.0f},
+				.type = 0,
+
 			},
 
 		.scale{
@@ -401,7 +418,7 @@ void GPUParticleEditor::CreateEmitterBuffer() {
 		},
 
 		.rotate{
-			.rotate = {0.0f,0.0f,0.0f},
+			.rotate = 0.0f,
 		},
 
 		.velocity{
@@ -466,7 +483,7 @@ void GPUParticleEditor::CreateParticleBuffer() {
 		D3D12_ROOT_SIGNATURE_DESC desc{};
 		desc.pParameters = rootParameters;
 		desc.NumParameters = _countof(rootParameters);
-		
+
 		updateComputeRootSignature_->Create(L"EditorParticleUpdateComputeRootSignature", desc);
 	}
 	// アップデートパイプライン
@@ -480,7 +497,7 @@ void GPUParticleEditor::CreateParticleBuffer() {
 	}
 
 	particleBuffer_.Create(
-		L"EditorParticleBuffer", 
+		L"EditorParticleBuffer",
 		UINT64(sizeof(GPUParticleShaderStructs::Particle) * GPUParticleShaderStructs::MaxParticleNum),
 		D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
 }

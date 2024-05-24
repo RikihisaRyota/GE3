@@ -48,6 +48,7 @@ private:
 	std::unique_ptr<RootSignature> updateComputeRootSignature_;
 	std::unique_ptr<PipelineState> updateComputePipelineState_;
 	Microsoft::WRL::ComPtr<ID3D12CommandSignature> commandSignature_;
+	Microsoft::WRL::ComPtr<ID3D12CommandSignature> spawnCommandSignature_;
 
 	UploadBuffer vertexBuffer_;
 	D3D12_VERTEX_BUFFER_VIEW vbView_{};

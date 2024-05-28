@@ -21,15 +21,16 @@ void main(uint3 DTid : SV_DispatchThreadID)
             // Interlocked
             InterlockedAdd(createParticleCounter[0], inputEmitter[index].createParticleNum);
             createParticle.Append(particle);
-            if(inputEmitter[index].frequency.isLoop){
-                inputEmitter[index].frequency.time = inputEmitter[index].frequency.interval;
+            inputEmitter[index].frequency.time = inputEmitter[index].frequency.interval;
+        } else {
+            inputEmitter[index].frequency.time--;
+        }
+        if(!inputEmitter[index].frequency.isLoop){
+            if(inputEmitter[index].frequency.lifeTime > 0){
+                inputEmitter[index].frequency.lifeTime--;
             }else{
                 inputEmitter[index].isAlive = false;
             }
-        } else {
-            inputEmitter[index].frequency.time--;
-            inputEmitter[index].frequency.lifeTime--;
         }
     }
-
 }

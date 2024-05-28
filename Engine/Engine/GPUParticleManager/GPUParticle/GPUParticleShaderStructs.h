@@ -11,7 +11,7 @@ namespace GPUParticleShaderStructs {
 	static const UINT ComputeThreadBlockSize = 8;
 	static const UINT MaxParticleShouldBeSquare = 20;
 	static const UINT MaxParticleNum = 1 << MaxParticleShouldBeSquare;
-	static const UINT MaxEmitterNum = 100;
+	static const UINT MaxEmitterNum = 1024;
 
 
 #pragma region Utility
@@ -59,28 +59,28 @@ namespace GPUParticleShaderStructs {
 	struct Particle {
 		struct Float3MinMax {
 			float3 min;
-			uint pad1;
+			uint32_t pad1;
 			float3 max;
-			uint pad2;
+			uint32_t pad2;
 		} scaleRange;
 		struct ParticleLifeTime {
-			uint time;
-			uint maxTime;
-			uint2 pad;
+			uint32_t time;
+			uint32_t maxTime;
+			uint32_t2 pad;
 		} particleLifeTime;
-		float4 color;
-		float3 scale;
-		uint textureInidex;
+		float32_t4 color;
+		float32_t3 scale;
+		uint32_t textureInidex;
 
 		float32_t rotateVelocity;
-		uint isAlive;
+		uint32_t isAlive;
 		float32_t rotate;
-		uint pad1;
+		uint32_t pad1;
 
 		float3 translate;
-		uint pad2;
+		uint32_t pad2;
 		float3 velocity;
-		uint pad3;
+		uint32_t pad3;
 	} Element;
 	*/
 

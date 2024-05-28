@@ -52,11 +52,8 @@ void PlayerBullet::Update() {
 
 		GPUParticleShaderStructs::Emitter emitterForGPU = {
 		.emitterArea{
-				.aabb{
-					.area{
-						.min = {-0.1f,-0.1f,-0.1f},
-						.max = {0.1f,0.1f,0.1f},
-					},
+				.sphere{
+					.radius=worldTransform_.scale.x,	
 				},
 				.position = {MakeTranslateMatrix(sub.matWorld)},
 				.type = 0,
@@ -102,7 +99,7 @@ void PlayerBullet::Update() {
 		.frequency{
 			.interval = 0,
 			.isLoop = false,
-			.lifeTime = 0,
+			//.lifeTime = 0,
 		},
 
 		.particleLifeSpan{
@@ -118,74 +115,74 @@ void PlayerBullet::Update() {
 		};
 		gpuParticleManager_->CreateParticle(emitterForGPU);
 	}
-	//// 弾本体
-	//// 0
-	//{
-	//	GPUParticleShaderStructs::Emitter emitterForGPU = {
-	//	.emitterArea{
-	//			.area{
-	//				.min = {-0.5f,-0.5f,-0.5f},
-	//				.max = {0.5f,0.5f,0.5f},
-	//			},
-	//			.position = {MakeTranslateMatrix(worldTransform_.matWorld)},
-	//		},
+	// 弾本体
+	// 0
+	{
+		GPUParticleShaderStructs::Emitter emitterForGPU = {
+		.emitterArea{
+				.sphere{
+					.radius = worldTransform_.scale.x,
+				},
+				.position = {MakeTranslateMatrix(worldTransform_.matWorld)},
+				.type = 1,
+		},
 
-	//	.scale{
-	//		.range{
-	//			.start{
-	//				.min = {0.5f,0.5f,0.5f},
-	//				.max = {0.5f,0.5f,0.5f},
-	//			},
-	//			.end{
-	//				.min = {0.1f,0.1f,0.1f},
-	//				.max = {0.1f,0.1f,0.1f},
-	//			},
-	//		},
-	//	},
+		.scale{
+			.range{
+				.start{
+					.min = {0.5f,0.5f,0.5f},
+					.max = {0.5f,0.5f,0.5f},
+				},
+				.end{
+					.min = {0.1f,0.1f,0.1f},
+					.max = {0.1f,0.1f,0.1f},
+				},
+			},
+		},
 
-	//	.rotate{
-	//		.rotate = {0.0f,0.0f,0.0f},
-	//	},
+		.rotate{
+			.rotate = 0.0f,
+		},
 
-	//	.velocity{
-	//		.range{
-	//			.min = {-0.3f,-0.3f,-0.3f},
-	//			.max = {0.3f,0.3f,0.3f},
-	//		}
-	//	},
+		.velocity{
+			.range{
+				.min = {-0.3f,-0.3f,-0.3f},
+				.max = {0.3f,0.3f,0.3f},
+			}
+		},
 
-	//	.color{
-	//		.range{
-	//			.start{
-	//				.min = {0.5f,0.2f,0.1f,1.0f},
-	//				.max = {0.8f,0.4f,0.2f,1.0f},
-	//			},
-	//			.end{
-	//				.min = {0.8f,0.1f,0.1f,0.1f},
-	//				.max = {0.9f,0.15f,0.1f,0.1f},
-	//			},
-	//		},
-	//	},
+		.color{
+			.range{
+				.start{
+					.min = {0.5f,0.2f,0.1f,1.0f},
+					.max = {0.8f,0.4f,0.2f,1.0f},
+				},
+				.end{
+					.min = {0.8f,0.1f,0.1f,0.1f},
+					.max = {0.9f,0.15f,0.1f,0.1f},
+				},
+			},
+		},
 
-	//	.frequency{
-	//		.interval = 0,
-	//		.isLoop = false,
-	//		.lifeTime = 0,
-	//	},
+		.frequency{
+			.interval = 0,
+			.isLoop = false,
+			.lifeTime = 0,
+		},
 
-	//	.particleLifeSpan{
-	//		.range{
-	//			.min = 10,
-	//			.max = 15,
-	//		}
-	//	},
+		.particleLifeSpan{
+			.range{
+				.min = 10,
+				.max = 15,
+			}
+		},
 
-	//	.textureIndex = TextureManager::GetInstance()->GetTexture(gpuTexture_).GetDescriptorIndex(),
+		.textureIndex = TextureManager::GetInstance()->GetTexture(gpuTexture_).GetDescriptorIndex(),
 
-	//	.createParticleNum = 1 << 5,
-	//	};
-	//	gpuParticleManager_->CreateParticle(emitterForGPU);
-	//}
+		.createParticleNum = 1 << 5,
+		};
+		gpuParticleManager_->CreateParticle(emitterForGPU);
+	}
 }
 
 void PlayerBullet::Draw(const ViewProjection& viewProjection, CommandContext& commandContext) {

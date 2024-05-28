@@ -1,6 +1,6 @@
 
 #define threadBlockSize 8
-#define emitterSize 100
+#define emitterSize 1024
 
 // Utility
 struct UintMinMax

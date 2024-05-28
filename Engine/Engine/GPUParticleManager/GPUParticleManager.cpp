@@ -1,5 +1,8 @@
 #include "GPUParticleManager.h"
 
+#include <chrono>
+#include <ctime>
+
 #include <d3dx12.h>
 
 #include "Engine/Graphics/CommandContext.h"
@@ -13,6 +16,7 @@ namespace ParticleManager {
 		kParticleInfo,
 		kEmitterSRV,
 		//kEmitterCount,
+		kRandomBuffer,
 		kOutputCommand,
 		kCreateParticle,
 
@@ -77,11 +81,14 @@ void GPUParticleManager::Initialize() {
 	CreateGraphics();
 	CreateAddEmitter();
 	CreateIndexBuffer();
+	randomBuffer_.Create(L"rondomBuffer", sizeof(UINT));
 	gpuParticle_->SetDrawCommandSignature(commandSignature_.Get());
 	gpuParticle_->SetSpawnCommandSignature(spawnCommandSignature_.Get());
 }
 
 void GPUParticleManager::Update(CommandContext& commandContext) {
+	UINT seed = static_cast<UINT>(std::chrono::system_clock::now().time_since_epoch().count());
+	randomBuffer_.Copy(&seed, sizeof(UINT));
 
 	commandContext.SetComputeRootSignature(*appendEmitterComputeRootSignature_);
 	commandContext.SetPipelineState(*appendEmitterComputePipelineState_);
@@ -97,7 +104,7 @@ void GPUParticleManager::Update(CommandContext& commandContext) {
 
 	commandContext.SetComputeRootSignature(*spawnComputeRootSignature_);
 	commandContext.SetPipelineState(*spawnComputePipelineState_);
-	gpuParticle_->Spawn(commandContext);
+	gpuParticle_->Spawn(commandContext,randomBuffer_);
 
 	commandContext.SetComputeRootSignature(*updateComputeRootSignature_);
 	commandContext.SetPipelineState(*updateComputePipelineState_);
@@ -342,6 +349,7 @@ void GPUParticleManager::CreateSpawn() {
 		rootParameters[ParticleManager::SpawnRootSignature::kParticleInfo].InitAsUnorderedAccessView(0);
 		rootParameters[ParticleManager::SpawnRootSignature::kEmitterSRV].InitAsShaderResourceView(0);
 		//rootParameters[ParticleManager::SpawnRootSignature::kEmitterCount].InitAsConstantBufferView(0);
+		rootParameters[ParticleManager::SpawnRootSignature::kRandomBuffer].InitAsConstantBufferView(0);
 		rootParameters[ParticleManager::SpawnRootSignature::kOutputCommand].InitAsDescriptorTable(_countof(consumeRanges), consumeRanges);
 		rootParameters[ParticleManager::SpawnRootSignature::kCreateParticle].InitAsUnorderedAccessView(2);
 		D3D12_ROOT_SIGNATURE_DESC desc{};

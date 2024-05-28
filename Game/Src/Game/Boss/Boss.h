@@ -8,8 +8,7 @@
 #include "Engine/Model/ModelHandle.h"
 #include "Engine/Collision/Collider.h"
 
-#include "Engine/GPUParticleManager/GPUParticleManager.h"
-
+class GPUParticleManager;
 class CommandContext;
 class Boss {
 public:
@@ -17,9 +16,13 @@ public:
 	void Initialize();
 	void Update();
 	void Draw(const ViewProjection& viewProjection, CommandContext& commandContext);
+
+	void SetGPUParticleManager(GPUParticleManager* GPUParticleManager) { gpuParticleManager_ = GPUParticleManager; }
 private:
 	void UpdateTransform();
 	void OnCollision(const ColliderDesc& desc);
+
+	GPUParticleManager* gpuParticleManager_;
 
 	ModelHandle bossModelHandle_;
 	Animation::Animation animation_;

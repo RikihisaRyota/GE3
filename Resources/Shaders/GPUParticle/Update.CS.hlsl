@@ -13,7 +13,6 @@ void main(uint3 DTid : SV_DispatchThreadID)
     if (Input[index].isAlive)
     {
         float t = float(Input[index].particleLifeTime.time) / float(Input[index].particleLifeTime.maxTime);
-        Input[index].particleLifeTime.time++;
         Input[index].scale = lerp(Input[index].scaleRange.min, Input[index].scaleRange.max, t);
         
         Input[index].rotate += Input[index].rotateVelocity;
@@ -27,5 +26,6 @@ void main(uint3 DTid : SV_DispatchThreadID)
         }else{
             outputDrawIndexCommands.Append(index);
         }
+        Input[index].particleLifeTime.time++;
     }
 }

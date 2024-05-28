@@ -8,6 +8,7 @@
 #include "Engine/Input/Input.h"
 #include "Engine/Math/MyMath.h"
 #include "Engine/Collision/CollisionAttribute.h"
+#include "Engine/GPUParticleManager/GPUParticleManager.h"
 
 Player::Player() {
 	playerModelHandle_ = ModelManager::GetInstance()->Load("Resources/Models/Walk/walk.gltf");
@@ -53,9 +54,9 @@ void Player::Update() {
 	if (ImGui::TreeNode("Player")) {
 		ImGui::DragFloat3("position", &worldTransform_.translate.x, 0.1f);
 		auto& material = ModelManager::GetInstance()->GetModel(playerModelHandle_).GetMaterialData();
-		ImGui::DragFloat4("color", &material.color.x, 0.1f,0.0f,1.0f);
-		ImGui::DragFloat("environmentCoefficient", &material.environmentCoefficient, 0.1f,0.0f,1.0f);
-		
+		ImGui::DragFloat4("color", &material.color.x, 0.1f, 0.0f, 1.0f);
+		ImGui::DragFloat("environmentCoefficient", &material.environmentCoefficient, 0.1f, 0.0f, 1.0f);
+
 		ImGui::TreePop();
 	}
 	ImGui::End();
@@ -128,12 +129,17 @@ void Player::GPUParticleSpawn() {
 		Vector3 worldPos = MakeTranslateMatrix(worldMatrix);
 		Vector3 parentPos = MakeTranslateMatrix(parentMatrix);
 		Vector3 born = (worldPos - parentPos);
+		
 		// 0
 		{
+			float startScaleMax = 0.25f;
+			float startScaleMin = 0.125f;
+			float scaleMax = born.Length() * startScaleMax;
+			float scaleMin = born.Length() * startScaleMin;
 			GPUParticleShaderStructs::Emitter emitterForGPU = {
 		   .emitterArea{
 				   .sphere{
-						.radius = born.Length(),
+						.radius = born.Length() * 0.5f,
 					},
 					.position{worldPos},
 					.type = 1,
@@ -142,12 +148,12 @@ void Player::GPUParticleSpawn() {
 		   .scale{
 			   .range{
 				   .start{
-					   .min = {0.1f,0.1f,0.1f},
-					   .max = {0.2f,0.2f,0.2f},
+					   .min = {scaleMin,scaleMin,scaleMin},
+					   .max = {scaleMax,scaleMax,scaleMax},
 				   },
 				   .end{
-					   .min = {0.02f,0.02f,0.02f},
-					   .max = {0.01f,0.01f,0.01f},
+					   .min = {0.0f,0.0f,0.0f},
+					   .max = {0.0f,0.0f,0.0f},
 				   },
 			   },
 		   },
@@ -158,26 +164,26 @@ void Player::GPUParticleSpawn() {
 
 		   .velocity{
 			   .range{
-				   .min = {-0.05f,-0.05f,-0.05f},
-				   .max = {0.05f,0.0f,0.05f},
+				   .min = {0.0f,0.0f,0.0f},
+				   .max = {0.0f,0.0f,0.0f},
 			   }
 		   },
 
 		   .color{
 			   .range{
 				   .start{
-					   .min = {1.0f,0.0f,0.0f,1.0f},
-					   .max = {1.0f,0.0f,0.0f,1.0f},
+					   .min = {0.0f,0.8f,0.2f,1.0f},
+					   .max = {0.0f,1.0f,0.5f,1.0f},
 				   },
 				   .end{
-					   .min = {0.2f,0.0f,0.0f,1.0f},
-					   .max = {0.2f,0.0f,0.0f,1.0f},
+					   .min = {0.0f,0.6f,0.1f,1.0f},
+					   .max = {0.0f,0.8f,0.3f,1.0f},
 				   },
 			   },
 		   },
 
 		   .frequency{
-			   .interval = 1,
+			   .interval = 0,
 			   .isLoop = false,
 			   //.lifeTime = 120,
 		   },
@@ -185,7 +191,7 @@ void Player::GPUParticleSpawn() {
 		   .particleLifeSpan{
 			   .range{
 				   .min = 1,
-				   .max = 2,
+				   .max = 1,
 			   }
 		   },
 
@@ -254,7 +260,7 @@ void Player::Move() {
 		Matrix4x4 rotate = MakeRotateYMatrix(viewProjection_->rotation_.y);
 		// オフセットをカメラの回転に合わせて回転させる
 		vector = TransformNormal(vector, rotate);
-		worldTransform_.translate += vector * 0.2f;
+		worldTransform_.translate += vector * 0.1f;
 		PlayerRotate(vector.Normalized());
 
 		animationTime_ += 1.0f;
@@ -274,7 +280,7 @@ void Player::AnimationUpdate() {
 	//animationTransform_.translate.y = (std::sin(time) * 0.05f);
 	static const float kCycle = 30.0f;
 	animationTime_ = std::fmodf(animationTime_, kCycle);
-	animation_.Update(walkHandle_,animationTime_ / kCycle);
+	animation_.Update(walkHandle_, animationTime_ / kCycle);
 }
 
 void Player::PlayerRotate(const Vector3& move) {

@@ -7,12 +7,11 @@
 #include "Engine/Math/ViewProjection.h"
 #include "Engine/Model/ModelHandle.h"
 
-#include "Engine/GPUParticleManager/GPUParticleManager.h"
 #include "PlayerBullet.h"
 #include "Engine/Animation/Animation.h"
 #include "Engine/Collision/Collider.h"
 
-
+class GPUParticleManager;
 class CommandContext;
 class Player {
 public:

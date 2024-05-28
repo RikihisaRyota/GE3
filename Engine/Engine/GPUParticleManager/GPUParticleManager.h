@@ -56,5 +56,8 @@ private:
 	UploadBuffer indexBuffer_;
 	D3D12_INDEX_BUFFER_VIEW ibView_{};
 
+	// ランダムバッファ
+	UploadBuffer randomBuffer_;
+
 	std::unique_ptr<GPUParticle> gpuParticle_;
 };

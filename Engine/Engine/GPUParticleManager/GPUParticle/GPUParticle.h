@@ -39,7 +39,7 @@ public:
 	GPUParticle();
 	~GPUParticle();
 	void Initialize();
-	void Spawn(CommandContext& commandContext);
+	void Spawn(CommandContext& commandContext,const UploadBuffer& random);
 	void EmitterUpdate(CommandContext& commandContext);
 	void AppendEmitter(CommandContext& commandContext);
 	void AddEmitter(CommandContext& commandContext);

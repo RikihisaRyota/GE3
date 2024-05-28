@@ -11,6 +11,14 @@ RWStructuredBuffer<Particle> Output : register(u0);
 
 StructuredBuffer<Emitter> gEmitter : register(t0);
 
+struct Random
+{
+     uint32_t random;
+};
+
+
+ConstantBuffer<Random> gRandom : register(b0);
+
 ConsumeStructuredBuffer<uint> particleIndexCommands : register(u1);
 
 RWStructuredBuffer<CreateParticle> createParticle : register(u2);
@@ -100,20 +108,19 @@ void main(uint3 DTid : SV_DispatchThreadID)
     for (int i = 0; i < emitterSize; i++)
     {
         if(createParticle[i].createParticleNum > 0){
-
-        // ここで同期処理をしたい
-        // 並列処理で複数のスレットがcreateParticle[i].createParticleNumの計算を行っていて
-        // 現在のcreateParticle[i].createParticleNum の中身を知りたい
-        // createParticle[i].createParticleNum の値を安全に読み取る
-        int32_t createNum; 
+        int32_t createNum=-1; 
         InterlockedAdd(createParticle[i].createParticleNum, -1,createNum);
         if (createNum > 0)
         {
                 int index = particleIndexCommands.Consume();
-                uint32_t seed = setSeed(index * 21412);
+                uint32_t seed = setSeed(index * gRandom.random);
                 uint32_t emitterIndex = createParticle[i].emitterNum;
                 Create(index, emitterIndex,seed);
-                Output[index].isAlive = 1;
+                uint32_t textureIndex=Output[index].textureInidex;
+                uint32_t isAlive= Output[index].isAlive;
+                Output[index].textureInidex =  Output[index].isAlive;
+                Output[index].textureInidex = textureIndex;
+                Output[index].isAlive=isAlive;
                 break;
         }
         }

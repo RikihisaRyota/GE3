@@ -1,5 +1,6 @@
 #pragma once
 
+#include <vector>
 #include <memory>
 
 #include "Engine/GPUParticleManager/GPUParticleManager.h"
@@ -10,6 +11,7 @@
 #include "Src/Game/FollowCamera/FollowCamera.h"
 #include "Src/Game/Player/Player.h"
 #include "Src/Game/Skybox/Skybox.h"
+#include "Src/Game/GameObject/GameObject.h"
 #include "Src/Scenes/BaseScene/BaseScene.h"
 
 #include "Engine/Sprite/SpriteHandle.h"
@@ -28,17 +30,16 @@ public:
 	void Finalize() override;
 
 private:
-	
+
 	std::unique_ptr<DebugCamera> debugCamera_;
 	//std::unique_ptr<GPUParticleEditor> gpuParticleEditor_;
 	std::unique_ptr<GPUParticleManager> gpuParticleManager_;
 	std::unique_ptr<FollowCamera> followCamera_;
-	
+
 	std::unique_ptr<Player> player_;
 	std::unique_ptr<Boss> boss_;
 	std::unique_ptr<Skybox> skybox_;
-
-
+	std::vector<std::unique_ptr<GameObject> >gameObject_;
 
 	TextureHandle gpuTexture_;
 	ModelHandle modelHandle_;

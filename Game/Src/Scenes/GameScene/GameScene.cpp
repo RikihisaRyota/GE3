@@ -11,8 +11,11 @@
 #include "Engine/ImGui/ImGuiManager.h"
 #include "Engine/Sprite/SpriteManager.h"
 #include "Engine/Collision/CollisionManager.h"
+#include "Engine/LevelDataLoader/LevelDataLoader.h"
 
 GameScene::GameScene() {
+	LevelDataLoader::Load("Resources/object.json");
+
 	debugCamera_ = std::make_unique<DebugCamera>();
 	//gpuParticleEditor_ = std::make_unique<GPUParticleEditor>();
 	gpuParticleManager_ = std::make_unique<GPUParticleManager>();
@@ -21,6 +24,14 @@ GameScene::GameScene() {
 	followCamera_ = std::make_unique<FollowCamera>();
 	skybox_ = std::make_unique<Skybox>();
 
+	for (auto& object : LevelDataLoader::objectData_.gameObject) {
+		if (object.transform.parent == -1) {
+			gameObject_.emplace_back(std::make_unique<GameObject>(object));
+		}
+		else {
+			gameObject_.emplace_back(std::make_unique<GameObject>(object, &gameObject_.at(object.transform.parent)->GetWorldTransform()));
+		}
+	}
 
 	modelHandle_ = ModelManager::GetInstance()->Load("Resources/Models/Ball/Ball.obj");
 	terrainHandle_ = ModelManager::GetInstance()->Load("Resources/Models/terrain/terrain.obj");
@@ -61,6 +72,17 @@ void GameScene::Initialize() {
 	followCamera_->SetTarget(&player_->GetWorldTransform());
 	followCamera_->SetViewProjection(viewProjection_);
 	followCamera_->Initialize();
+
+	auto itData = LevelDataLoader::objectData_.gameObject.begin();
+	for (auto& object : gameObject_) {
+		if (itData != LevelDataLoader::objectData_.gameObject.end()) {
+			object->Initialize(*itData);
+			++itData;
+		}
+		else {
+			break;
+		}
+	}
 	//// 0
 	//{
 	//	GPUParticleShaderStructs::Emitter emitterForGPU = {
@@ -225,6 +247,9 @@ void GameScene::Update() {
 	}
 	player_->Update();
 	boss_->Update();
+	for (auto& object : gameObject_) {
+		object->Update();
+	}
 
 	worldTransform_.UpdateMatrix();
 	ModelManager::GetInstance()->GetModel(modelHandle_).SetMaterialColor(color_);
@@ -233,12 +258,19 @@ void GameScene::Update() {
 	//gpuParticleEditor_->Update(RenderManager::GetInstance()->GetCommandContext());
 
 	CollisionManager::GetInstance()->Collision();
+
+	for ( auto & object : gameObject_) {
+		object->DrawImGui();
+	}
 }
 
 void GameScene::Draw(CommandContext& commandContext) {
 
 	player_->Draw(*viewProjection_, commandContext);
 	boss_->Draw(*viewProjection_, commandContext);
+	for (auto& object : gameObject_) {
+		object->Draw(*viewProjection_, commandContext);
+	}
 
 	ModelManager::GetInstance()->Draw(animationWorldTransform_, animation_, *viewProjection_, animationModelHandle_, commandContext);
 

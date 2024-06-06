@@ -28,7 +28,7 @@ void WorldTransform::TransferMatrix(const ModelHandle& modelHandle, uint32_t chi
 	// 定数バッファに書き込み
 	if (modelHandle != ModelHandle::kMaxModeHandle) {
 		// マルチメッシュに対応してない
-		constMap->matWorld =  ModelManager::GetInstance()->GetModel(modelHandle).GetMeshData().at(children)->rootNode.localMatrix * matWorld;
+		constMap->matWorld = ModelManager::GetInstance()->GetModel(modelHandle).GetMeshData().at(children)->rootNode.localMatrix * matWorld;
 	}
 	else {
 		constMap->matWorld = matWorld;
@@ -58,8 +58,10 @@ void WorldTransform::UpdateMatrix(const ModelHandle& modelHandle, uint32_t child
 	if (parent_) {
 		matWorld = Mul(matWorld, parent_->matWorld);
 	}
-	// 定数バッファに転送する
-	TransferMatrix(modelHandle, children);
+	if (constBuff) {
+		// 定数バッファに転送する
+		TransferMatrix(modelHandle, children);
+	}
 }
 
 void WorldTransform::Reset() {

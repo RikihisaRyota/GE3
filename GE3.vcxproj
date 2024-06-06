@@ -165,6 +165,8 @@
     <ClCompile Include="Engine\Engine\Graphics\PostEffect.cpp" />
     <ClCompile Include="Engine\Engine\Graphics\RadialBlur.cpp" />
     <ClCompile Include="Engine\Engine\Graphics\ReadBackBuffer.cpp" />
+    <ClCompile Include="Engine\Engine\Json\JsonUtils.cpp" />
+    <ClCompile Include="Engine\Engine\LevelDataLoader\LevelDataLoader.cpp" />
     <ClCompile Include="Engine\Engine\Lighting\Lighting.cpp" />
     <ClCompile Include="Engine\Engine\Math\Quaternion.cpp" />
     <ClCompile Include="Engine\Engine\Math\Vector3.cpp" />
@@ -212,6 +214,7 @@
     <ClCompile Include="Engine\Engine\WinApp\WinApp.cpp" />
     <ClCompile Include="Game\Src\Game\Boss\Boss.cpp" />
     <ClCompile Include="Game\Src\Game\FollowCamera\FollowCamera.cpp" />
+    <ClCompile Include="Game\Src\Game\GameObject\GameObject.cpp" />
     <ClCompile Include="Game\Src\Game\Player\Player.cpp" />
     <ClCompile Include="Game\Src\Game\Player\PlayerBullet.cpp" />
     <ClCompile Include="Game\Src\Game\Skybox\Skybox.cpp" />
@@ -221,7 +224,6 @@
     <ClCompile Include="Game\Src\Scenes\SceneManager\SceneManager.cpp" />
     <ClCompile Include="Game\Src\Scenes\TitleScene\TitleScene.cpp" />
     <ClCompile Include="Game\Src\Scenes\Transition\Transition.cpp" />
-    <ClCompile Include="LevelDataLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\Engine\Animation\Animation.h" />
@@ -245,6 +247,8 @@
     <ClInclude Include="Engine\Engine\Graphics\PostEffect.h" />
     <ClInclude Include="Engine\Engine\Graphics\RadialBlur.h" />
     <ClInclude Include="Engine\Engine\Graphics\ReadBackBuffer.h" />
+    <ClInclude Include="Engine\Engine\Json\JsonUtils.h" />
+    <ClInclude Include="Engine\Engine\LevelDataLoader\LevelDataLoader.h" />
     <ClInclude Include="Engine\Engine\Lighting\Lighting.h" />
     <ClInclude Include="Engine\Engine\Math\Quaternion.h" />
     <ClInclude Include="Engine\Engine\Math\Random.h" />
@@ -303,6 +307,7 @@
     <ClInclude Include="Engine\Engine\WinApp\WinApp.h" />
     <ClInclude Include="Game\Src\Game\Boss\Boss.h" />
     <ClInclude Include="Game\Src\Game\FollowCamera\FollowCamera.h" />
+    <ClInclude Include="Game\Src\Game\GameObject\GameObject.h" />
     <ClInclude Include="Game\Src\Game\Player\Player.h" />
     <ClInclude Include="Game\Src\Game\Player\PlayerBullet.h" />
     <ClInclude Include="Game\Src\Game\Skybox\Skybox.h" />
@@ -313,7 +318,6 @@
     <ClInclude Include="Game\Src\Scenes\SceneManager\SceneManager.h" />
     <ClInclude Include="Game\Src\Scenes\TitleScene\TitleScene.h" />
     <ClInclude Include="Game\Src\Scenes\Transition\Transition.h" />
-    <ClInclude Include="LevelDataLoader.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="Externals\Imgui\LICENSE.txt" />

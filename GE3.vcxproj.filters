@@ -160,6 +160,12 @@
     <Filter Include="Shaders\Skybox">
       <UniqueIdentifier>{60edc69e-7abd-4337-b768-4caab8d747ae}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\Json">
+      <UniqueIdentifier>{68447b02-5fea-4b78-8966-46418af79d5a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\GameObject">
+      <UniqueIdentifier>{bcf0a6d4-5c8c-4709-bcd0-bd62d6745f17}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine\Engine\Math\MyMath.cpp">
@@ -355,9 +361,6 @@
     <ClCompile Include="Game\Src\Game\Boss\Boss.cpp">
       <Filter>Game\Boss</Filter>
     </ClCompile>
-    <ClCompile Include="LevelDataLoader.cpp">
-      <Filter>Engine\LevelDataLoader</Filter>
-    </ClCompile>
     <ClCompile Include="Engine\Engine\Animation\Skeleton.cpp">
       <Filter>Engine\Animation</Filter>
     </ClCompile>
@@ -367,16 +370,31 @@
     <ClCompile Include="Engine\Engine\Collision\CollisionManager.cpp">
       <Filter>Engine\Collision</Filter>
     </ClCompile>
-    <ClCompile Include="Engine\Engine\Math\Vector3.cpp" />
     <ClCompile Include="Engine\Engine\Graphics\Outline.cpp">
       <Filter>Engine\Graphics</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Engine\Graphics\GaussianFilter.cpp">
       <Filter>Engine\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Engine\Engine\Graphics\RadialBlur.cpp" />
     <ClCompile Include="Engine\Engine\Graphics\Dissolve.cpp" />
-    <ClCompile Include="Game\Src\Game\Skybox\Skybox.cpp" />
+    <ClCompile Include="Engine\Engine\Json\JsonUtils.cpp">
+      <Filter>Engine\Json</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Engine\LevelDataLoader\LevelDataLoader.cpp">
+      <Filter>Engine\LevelDataLoader</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Engine\Graphics\RadialBlur.cpp">
+      <Filter>Engine\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Src\Game\Skybox\Skybox.cpp">
+      <Filter>Game\Skybox</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Engine\Math\Vector3.cpp">
+      <Filter>Engine\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Src\Game\GameObject\GameObject.cpp">
+      <Filter>Game\GameObject</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\Engine\WinApp\WinApp.h">
@@ -619,9 +637,6 @@
     <ClInclude Include="Engine\Engine\Animation\Skinning.h">
       <Filter>Engine\Animation</Filter>
     </ClInclude>
-    <ClInclude Include="LevelDataLoader.h">
-      <Filter>Engine\LevelDataLoader</Filter>
-    </ClInclude>
     <ClInclude Include="Engine\Engine\DrawLine\DrawLine.h">
       <Filter>Engine\DrawLine</Filter>
     </ClInclude>
@@ -648,6 +663,15 @@
     </ClInclude>
     <ClInclude Include="Game\Src\Game\Skybox\Skybox.h">
       <Filter>Game\Skybox</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Engine\Json\JsonUtils.h">
+      <Filter>Engine\Json</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Engine\LevelDataLoader\LevelDataLoader.h">
+      <Filter>Engine\LevelDataLoader</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Src\Game\GameObject\GameObject.h">
+      <Filter>Game\GameObject</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

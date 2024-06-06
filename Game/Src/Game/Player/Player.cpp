@@ -104,7 +104,8 @@ void Player::Shot() {
 }
 
 void Player::OnCollision(const ColliderDesc& desc) {
-	if (desc.collider->GetName() == "Boss") {
+	if (desc.collider->GetName() == "Boss"||
+		desc.collider->GetName() == "GameObject") {
 		// ワールド空間の押し出しベクトル
 		Vector3 pushVector = desc.normal * desc.depth;
 		auto parent = worldTransform_.parent_;

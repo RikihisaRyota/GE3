@@ -2,81 +2,19 @@
     "name": "scene",
     "objects": [
         {
-            "type": "LIGHT",
-            "name": "Light",
-            "transform": {
-                "translation": [
-                    4.076245307922363,
-                    1.0054539442062378,
-                    5.903861999511719
-                ],
-                "rotation": [
-                    37.26104736328125,
-                    3.1637091636657715,
-                    106.93632507324219
-                ],
-                "scaling": [
-                    1.0,
-                    0.9999999403953552,
-                    1.0
-                ]
-            }
-        },
-        {
-            "type": "CAMERA",
-            "name": "Camera",
-            "transform": {
-                "translation": [
-                    7.358891487121582,
-                    -6.925790786743164,
-                    4.958309173583984
-                ],
-                "rotation": [
-                    63.559295654296875,
-                    2.2983238068263745e-07,
-                    46.69194412231445
-                ],
-                "scaling": [
-                    1.0,
-                    1.0,
-                    1.0
-                ]
-            }
-        },
-        {
             "type": "MESH",
-            "name": "立方体",
+            "name": "球",
             "transform": {
                 "translation": [
-                    6.216042995452881,
                     0.0,
+                    10.0,
                     0.0
                 ],
                 "rotation": [
                     0.0,
-                    -0.0,
-                    0.0
-                ],
-                "scaling": [
-                    1.0,
-                    1.0,
+                    0.0,
+                    0.0,
                     1.0
-                ]
-            }
-        },
-        {
-            "type": "MESH",
-            "name": "Cube.001",
-            "transform": {
-                "translation": [
-                    -6.389313697814941,
-                    0.0,
-                    0.0
-                ],
-                "rotation": [
-                    0.0,
-                    -0.0,
-                    0.0
                 ],
                 "scaling": [
                     1.0,
@@ -84,24 +22,149 @@
                     1.0
                 ]
             },
+            "file_name": "Resources/Models/Post/Post.gltf",
+            "collider": {
+                "type": "BOX",
+                "center": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "size": [
+                    2.0,
+                    2.0,
+                    11.0
+                ],
+                "rotate": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "type": "MESH",
+            "name": "球.002",
+            "transform": {
+                "translation": [
+                    0.0,
+                    5.0,
+                    0.0
+                ],
+                "rotation": [
+                    0.3535533845424652,
+                    0.3535533845424652,
+                    -0.1464466005563736,
+                    0.8535534143447876
+                ],
+                "scaling": [
+                    0.9999999403953552,
+                    1.0,
+                    1.0
+                ]
+            },
+            "file_name": "Resources/Models/Post/Post.gltf",
+            "collider": {
+                "type": "BOX",
+                "center": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "size": [
+                    2.0,
+                    2.0,
+                    11.0
+                ],
+                "rotate": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "type": "MESH",
+            "name": "球.003",
+            "transform": {
+                "translation": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.0
+                ],
+                "scaling": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "file_name": "Resources/Models/Post/Post.gltf",
+            "collider": {
+                "type": "BOX",
+                "center": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "size": [
+                    2.0,
+                    2.0,
+                    11.0
+                ],
+                "rotate": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.0
+                ]
+            },
             "children": [
                 {
                     "type": "MESH",
-                    "name": "Cube",
+                    "name": "球.001",
                     "transform": {
                         "translation": [
-                            6.389313697814941,
                             0.0,
-                            0.0
+                            0.0,
+                            15.0
                         ],
                         "rotation": [
                             0.0,
-                            -0.0,
-                            0.0
+                            0.0,
+                            0.0,
+                            1.0
                         ],
                         "scaling": [
                             1.0,
                             1.0,
+                            1.0
+                        ]
+                    },
+                    "file_name": "Resources/Models/Post/Post.gltf",
+                    "collider": {
+                        "type": "BOX",
+                        "center": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "size": [
+                            2.0,
+                            2.0,
+                            11.0
+                        ],
+                        "rotate": [
+                            0.0,
+                            0.0,
+                            0.0,
                             1.0
                         ]
                     }

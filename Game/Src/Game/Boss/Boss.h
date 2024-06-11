@@ -27,12 +27,13 @@ private:
 	ModelHandle bossModelHandle_;
 	Animation::Animation animation_;
 	Animation::AnimationHandle twoHandedAttackHandle_;
+	Animation::AnimationHandle upperAttackHandle_;
 	float animationTime_;
 	WorldTransform animationTransform_;
 
 	WorldTransform worldTransform_;
 
-	OBBCollider* collider_;
+	//OBBCollider* collider_;
 
 	Vector4 colliderColor_;
 };

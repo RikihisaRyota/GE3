@@ -169,6 +169,9 @@
     <Filter Include="Shaders\Skinning">
       <UniqueIdentifier>{24214361-3167-431a-a6e8-2813efcd97db}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Game\Boss\BossStateManager">
+      <UniqueIdentifier>{86ff9745-4bcf-4006-adf5-b82c1d0e2120}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine\Engine\Math\MyMath.cpp">
@@ -675,6 +678,9 @@
     </ClInclude>
     <ClInclude Include="Game\Src\Game\GameObject\GameObject.h">
       <Filter>Game\GameObject</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Src\Game\Boss\BossStateManager\BossStateManager.h">
+      <Filter>Game\Boss\BossStateManager</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

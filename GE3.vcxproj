@@ -306,6 +306,7 @@
     <ClInclude Include="Engine\Engine\Texture\TextureManager.h" />
     <ClInclude Include="Engine\Engine\WinApp\WinApp.h" />
     <ClInclude Include="Game\Src\Game\Boss\Boss.h" />
+    <ClInclude Include="Game\Src\Game\Boss\BossStateManager\BossStateManager.h" />
     <ClInclude Include="Game\Src\Game\FollowCamera\FollowCamera.h" />
     <ClInclude Include="Game\Src\Game\GameObject\GameObject.h" />
     <ClInclude Include="Game\Src\Game\Player\Player.h" />

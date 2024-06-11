@@ -12,8 +12,13 @@
 #include "Engine/Graphics/UploadBuffer.h"
 #include "Engine/Math/Matrix4x4.h"
 #include "Engine/Model/ModelHandle.h"
+#include "Engine/Graphics/DefaultBuffer.h"
 
-namespace Animation {
+class CommandContext;
+namespace Animation {		
+	extern PipelineState pipelineState;
+	extern RootSignature rootSignature;
+
 	static const uint32_t kNumMaxInfluence = 4;
 
 	struct VertexInfluence {
@@ -26,17 +31,23 @@ namespace Animation {
 		Matrix4x4 skeletonSpaceInverseTransposeMatrix;
 	};
 	struct SkinCluster {
+		void CreateSkinCluster(const Skeleton& skeleton, const ModelHandle& modelHandle);
+		void Update(const Skeleton& skeleton, CommandContext& commandContext, const ModelHandle& modelHandle);
+		
 		std::vector<Matrix4x4> inverseBindPoseMatrices;
 
 		UploadBuffer influenceResource;
-		D3D12_VERTEX_BUFFER_VIEW influenceBufferView;
+		DescriptorHandle influenceHandle;
 		std::span<VertexInfluence> mappedInfluence;
 
 		UploadBuffer paletteResource;
 		std::span<WellForGPU> mappedPalette;
 		DescriptorHandle paletteHandle;
 
-		void Update(const Skeleton& skeleton);
-		void CreateSkinCluster(const Skeleton& skeleton, const ModelHandle& modelHandle);
+		DefaultBuffer vertexBuffer;
+		DescriptorHandle outputVertexBufferView;
+		D3D12_VERTEX_BUFFER_VIEW vertexBufferView;
+
+		UploadBuffer skinningInfomation;
 	};
 }

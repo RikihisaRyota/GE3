@@ -67,7 +67,7 @@ namespace Animation {
 		AnimationHandle GetAnimationHandle(const std::string& name);
 		
 		void Initialize(const ModelHandle& modelHandle);
-		void Update(const AnimationHandle& handle,float time);
+		void Update(const AnimationHandle& handle,float time, CommandContext& commandContext, const ModelHandle& modelHandle);
 		void DrawLine(const WorldTransform& worldTransform);
 		void DrawBox(const WorldTransform& worldTransform, const ViewProjection& viewProjection);
 

@@ -13,6 +13,7 @@
 #include "Engine/Texture/TextureHandle.h"
 #include "Engine/Graphics/PipelineState.h"
 #include "Engine/Graphics/RootSignature.h"
+#include "Engine/Graphics/DescriptorHandle.h"
 
 #include "Engine/Math/Vector4.h"
 #include "Engine/Math/Vector3.h"
@@ -73,6 +74,11 @@ public:
 		std::map<std::string, JointWeightData> skinClusterData;
 		UploadBuffer indexBuffer{};
 		D3D12_INDEX_BUFFER_VIEW ibView{};
+
+		UploadBuffer vertexBuffer;
+		D3D12_VERTEX_BUFFER_VIEW vbView{};
+		DescriptorHandle srView{};
+
 		Mesh* meshes{};
 		std::vector<Vertex> vertices;
 		Node rootNode;
@@ -83,7 +89,6 @@ public:
 	void Create(const std::filesystem::path& modelPath);
 	const std::filesystem::path& GetName() const { return name_; }
 	const std::vector<std::unique_ptr<MeshData>>& GetMeshData() const { return meshData_; }
-	const D3D12_VERTEX_BUFFER_VIEW GetVBView()const { return vbView_; }
 	const TextureHandle GetTextureHandle()const { return textureHandle_; }
 	const UploadBuffer& GetMaterialBuffer()const { return materialBuffer_; }
 	Material& GetMaterialData() { return *material_; }
@@ -94,9 +99,6 @@ private:
 	Node ReadNode(aiNode* node);
 	
 	std::vector<std::unique_ptr<MeshData>> meshData_;
-
-	UploadBuffer vertexBuffer_;
-	D3D12_VERTEX_BUFFER_VIEW vbView_{};
 	TextureHandle textureHandle_;
 	Material* material_;
 	UploadBuffer materialBuffer_;

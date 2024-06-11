@@ -19,3 +19,9 @@ void PipelineState::Create(const std::wstring& name, const D3D12_COMPUTE_PIPELIN
 	);
 	pipelineState_->SetName(name.c_str());
 }
+
+void PipelineState::Release() {
+	if (pipelineState_) {
+		pipelineState_.Reset();
+	}
+}

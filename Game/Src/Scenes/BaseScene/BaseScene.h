@@ -12,7 +12,7 @@ public:
 
 	virtual void Finalize() = 0;
 
-	virtual void Update() = 0;
+	virtual void Update(CommandContext& commandContext) = 0;
 
 	virtual void Draw(CommandContext& commandContext) = 0;
 

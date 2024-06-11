@@ -135,10 +135,10 @@ namespace Animation {
 
 	}
 
-	void Animation::Update(const AnimationHandle& handle,float time) {
+	void Animation::Update(const AnimationHandle& handle,float time, CommandContext& commandContext, const ModelHandle& modelHandle) {
 		ApplyAnimation(skeleton, animations.at(handle), time);
 		skeleton.Update();
-		skinCluster.Update(skeleton);
+		skinCluster.Update(skeleton,commandContext,modelHandle);
 	}
 
 	void Animation::DrawLine(const WorldTransform& worldTransform) {

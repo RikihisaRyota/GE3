@@ -19,7 +19,7 @@ public:
 
 	void Initialize();
 
-	void Update();
+	void Update(CommandContext& commandContext);
 
 	void Draw(const ViewProjection& viewProjection, CommandContext& commandContext);
 
@@ -34,7 +34,7 @@ private:
 
 	void Move();
 	
-	void AnimationUpdate();
+	void AnimationUpdate(CommandContext& commandContext);
 	void PlayerRotate(const Vector3& vector);
 
 	void BulletUpdate();

@@ -37,7 +37,7 @@ void Boss::Initialize() {
 	UpdateTransform();
 }
 
-void Boss::Update() {
+void Boss::Update(CommandContext& commandContext) {
 	for (auto& joint : animation_.skeleton.joints) {
 		if (!joint.parent.has_value()) {
 			continue;
@@ -122,7 +122,7 @@ void Boss::Update() {
 	static const float kCycle = 360.0f;
 	animationTime_ += 1.0f;
 	animationTime_ = std::fmodf(animationTime_, kCycle);
-	animation_.Update(twoHandedAttackHandle_,animationTime_ / kCycle);
+	animation_.Update(twoHandedAttackHandle_,animationTime_ / kCycle,commandContext,bossModelHandle_);
 	UpdateTransform();
 }
 

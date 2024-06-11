@@ -15,6 +15,7 @@
 #include "Engine/Texture/TextureManager.h"
 
 #include "Engine/Math/MyMath.h"
+#include "Engine/Graphics/GraphicsCore.h"
 
 void Model::Create(const std::filesystem::path& modelPath) {
 	LoadFile(modelPath);
@@ -26,6 +27,8 @@ void Model::SetMaterialColor(const Vector4& color) {
 }
 
 void Model::LoadFile(const std::filesystem::path& modelPath) {
+	auto device = GraphicsCore::GetInstance()->GetDevice();
+
 	path_ = modelPath;
 	name_ = modelPath.stem();
 
@@ -111,12 +114,27 @@ void Model::LoadFile(const std::filesystem::path& modelPath) {
 		currentModelData->ibView.BufferLocation = currentModelData->indexBuffer.GetGPUVirtualAddress();
 		currentModelData->ibView.SizeInBytes = UINT(currentModelData->indexBuffer.GetBufferSize());
 		currentModelData->ibView.Format = DXGI_FORMAT_R32_UINT;
+		
+
+		currentModelData->vertexBuffer.Create(name_.wstring() + L"VertexBuffer", vertexPos.size() * sizeof(vertexPos[0]));
+		currentModelData->vertexBuffer.Copy(vertexPos.data(), vertexPos.size() * sizeof(vertexPos[0]));
+		currentModelData->vbView.BufferLocation = currentModelData->vertexBuffer.GetGPUVirtualAddress();
+		currentModelData->vbView.SizeInBytes = UINT(currentModelData->vertexBuffer.GetBufferSize());
+		currentModelData->vbView.StrideInBytes = sizeof(vertexPos[0]);
+
+		currentModelData->srView = GraphicsCore::GetInstance()->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+
+		D3D12_SHADER_RESOURCE_VIEW_DESC vertexSrvDesc{};
+		vertexSrvDesc.Format = DXGI_FORMAT_UNKNOWN;
+		vertexSrvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+		vertexSrvDesc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
+		vertexSrvDesc.Buffer.FirstElement = 0;
+		vertexSrvDesc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
+		vertexSrvDesc.Buffer.NumElements = UINT(vertexPos.size());
+		vertexSrvDesc.Buffer.StructureByteStride = sizeof(Model::Vertex);
+		device->CreateShaderResourceView(currentModelData->vertexBuffer, &vertexSrvDesc, currentModelData->srView);
+
 	}
-	vertexBuffer_.Create(name_.wstring() + L"VertexBuffer", vertexPos.size() * sizeof(vertexPos[0]));
-	vertexBuffer_.Copy(vertexPos.data(), vertexPos.size() * sizeof(vertexPos[0]));
-	vbView_.BufferLocation = vertexBuffer_.GetGPUVirtualAddress();
-	vbView_.SizeInBytes = UINT(vertexBuffer_.GetBufferSize());
-	vbView_.StrideInBytes = sizeof(vertexPos[0]);
 	// Material解析
 	for (uint32_t materialIndex = 0; materialIndex < scene->mNumMaterials; ++materialIndex) {
 		aiMaterial* material = scene->mMaterials[materialIndex];

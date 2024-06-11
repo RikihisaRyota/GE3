@@ -19,7 +19,7 @@ public:
 
 	void Initialize(int scene, ViewProjection* viewProjection);
 
-	void Update(ViewProjection* viewProjection);
+	void Update(CommandContext& commandContext,ViewProjection* viewProjection);
 
 	void Draw(CommandContext& ommandContext);
 

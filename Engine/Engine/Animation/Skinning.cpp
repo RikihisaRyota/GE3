@@ -1,12 +1,61 @@
 #include "Skinning.h"
 
 #include <assert.h>
+#include <d3dx12.h>
 
 #include "Engine/Graphics/GraphicsCore.h"
 #include "Engine/Model/ModelManager.h"
 #include "Engine/Math/MyMath.h"
 
+#include "Engine/Graphics/CommandContext.h"
+#include "Engine/Graphics/PipelineState.h"
+#include "Engine/Graphics/RootSignature.h"
+#include "Engine/ShderCompiler/ShaderCompiler.h"
+
 namespace Animation {
+	enum {
+		kWell,
+		kInputVertex,
+		kInfluence,
+		kOutputVertex,
+		kSkinningInfomation,
+		kCount,
+	};
+
+	PipelineState pipelineState;
+	RootSignature rootSignature;
+
+	// 初期化関数の定義
+	void Initialize() {
+		{
+			CD3DX12_ROOT_PARAMETER rootParameters[kCount]{};
+			rootParameters[kWell].InitAsShaderResourceView(0);
+			rootParameters[kInputVertex].InitAsShaderResourceView(1);
+			rootParameters[kInfluence].InitAsShaderResourceView(2);
+			rootParameters[kOutputVertex].InitAsUnorderedAccessView(0);
+			rootParameters[kSkinningInfomation].InitAsConstantBufferView(0);
+
+			D3D12_ROOT_SIGNATURE_DESC desc{};
+			desc.pParameters = rootParameters;
+			desc.NumParameters = _countof(rootParameters);
+			desc.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
+
+			rootSignature.Create(L"SkinningRootSigunature", desc);
+		}
+		{
+			D3D12_COMPUTE_PIPELINE_STATE_DESC desc{};
+			auto cs = ShaderCompiler::Compile(L"Resources/Shaders/Skinning/Skinning.hlsl", L"cs_6_0");
+			desc.CS = CD3DX12_SHADER_BYTECODE(cs->GetBufferPointer(), cs->GetBufferSize());
+			desc.pRootSignature = rootSignature;
+
+			pipelineState.Create(L"SkinningPipelineState", desc);
+		}
+	}
+
+	void Release() {
+		pipelineState.Release();
+		rootSignature.Release();
+	}
 
 	void SkinCluster::CreateSkinCluster(const Skeleton& skeleton, const ModelHandle& modelHandle) {
 		auto graphics = GraphicsCore::GetInstance();
@@ -40,13 +89,43 @@ namespace Animation {
 		std::memset(mappedInfluence, 0, sizeof(VertexInfluence) * verticesSize);
 		this->mappedInfluence = { mappedInfluence, verticesSize };
 
+		influenceHandle = graphics->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 
-		influenceBufferView.BufferLocation = influenceResource.GetGPUVirtualAddress();
-		influenceBufferView.SizeInBytes = UINT(sizeof(VertexInfluence) * verticesSize);
-		influenceBufferView.StrideInBytes = sizeof(VertexInfluence);
+		D3D12_SHADER_RESOURCE_VIEW_DESC influenceSrvDesc{};
+		influenceSrvDesc.Format = DXGI_FORMAT_UNKNOWN;
+		influenceSrvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+		influenceSrvDesc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
+		influenceSrvDesc.Buffer.FirstElement = 0;
+		influenceSrvDesc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
+		influenceSrvDesc.Buffer.NumElements = UINT(verticesSize);
+		influenceSrvDesc.Buffer.StructureByteStride = sizeof(VertexInfluence);
+		device->CreateShaderResourceView(influenceResource, &influenceSrvDesc, influenceHandle);
 
 		inverseBindPoseMatrices.resize(jointSize);
 		std::generate(inverseBindPoseMatrices.begin(), inverseBindPoseMatrices.end(), MakeIdentity4x4);
+
+
+		auto vertexBufferSize = model.GetMeshData().at(0)->vertexBuffer.GetBufferSize();
+
+		vertexBuffer.Create(L"SkinClusterVertexBuffer", vertexBufferSize, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
+		vertexBufferView.BufferLocation = vertexBuffer.GetGPUVirtualAddress();
+		vertexBufferView.SizeInBytes = UINT(vertexBufferSize);
+		vertexBufferView.StrideInBytes = sizeof(Model::Vertex);
+
+		outputVertexBufferView = graphics->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+
+		D3D12_UNORDERED_ACCESS_VIEW_DESC vertexUAVDesc{};
+		vertexUAVDesc.Format = DXGI_FORMAT_UNKNOWN;
+		vertexUAVDesc.ViewDimension = D3D12_UAV_DIMENSION_BUFFER;
+		vertexUAVDesc.Buffer.FirstElement = 0;
+		vertexUAVDesc.Buffer.NumElements = UINT(model.GetMeshData().at(0)->vertices.size());
+		vertexUAVDesc.Buffer.StructureByteStride = sizeof(Model::Vertex);
+		vertexUAVDesc.Buffer.Flags = D3D12_BUFFER_UAV_FLAG_NONE;
+		device->CreateUnorderedAccessView(
+			vertexBuffer,
+			nullptr,
+			&vertexUAVDesc,
+			outputVertexBufferView);
 
 		for (const auto& jointWeight : model.GetMeshData().at(0)->skinClusterData) {
 			auto it = skeleton.jointMap.find(jointWeight.first);
@@ -66,9 +145,13 @@ namespace Animation {
 			}
 		}
 		influenceResource.Copy(this->mappedInfluence.data(), sizeof(VertexInfluence) * verticesSize);
+
+		skinningInfomation.Create(L"SkinningInfomation", sizeof(UINT));
+		size_t size = (model.GetMeshData().at(0)->vertices.size());
+		skinningInfomation.Copy(&size, sizeof(UINT));
 	}
 
-	void SkinCluster::Update(const Skeleton& skeleton) {
+	void SkinCluster::Update(const Skeleton& skeleton, CommandContext& commandContext, const ModelHandle& modelHandle) {
 		for (size_t jointIndex = 0; jointIndex < skeleton.joints.size(); ++jointIndex) {
 			assert(jointIndex < inverseBindPoseMatrices.size());
 
@@ -78,6 +161,15 @@ namespace Animation {
 				Transpose(Inverse(mappedPalette[jointIndex].skeletonSpaceMatrix));
 		}
 		paletteResource.Copy(mappedPalette.data(), sizeof(WellForGPU) * skeleton.joints.size());
+
+
+		commandContext.SetComputeRootSignature(rootSignature);
+		commandContext.SetPipelineState(pipelineState);
+		commandContext.SetComputeShaderResource(kWell, paletteResource.GetGPUVirtualAddress());
+		commandContext.SetComputeShaderResource(kInputVertex, ModelManager::GetInstance()->GetModel(modelHandle).GetMeshData().at(0)->vertexBuffer.GetGPUVirtualAddress());
+		commandContext.SetComputeShaderResource(kInfluence, influenceResource.GetGPUVirtualAddress());
+		commandContext.SetComputeUAV(kOutputVertex, vertexBuffer.GetGPUVirtualAddress());
+		commandContext.SetComputeConstantBuffer(kSkinningInfomation, skinningInfomation.GetGPUVirtualAddress());
 	}
 
 }

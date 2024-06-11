@@ -200,8 +200,8 @@ void ModelManager::Draw(const WorldTransform& worldTransform, const ViewProjecti
 	commandContext.SetGraphicsRootSignature(*rootSignature_);
 	commandContext.SetPipelineState(*pipelineState_);
 	commandContext.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	commandContext.SetVertexBuffer(0, models_.at(modelHandle)->GetVBView());
 	for (auto& modelData : models_.at(modelHandle)->GetMeshData()) {
+		commandContext.SetVertexBuffer(0, modelData->vbView);
 		commandContext.SetIndexBuffer(modelData->ibView);
 		commandContext.SetGraphicsConstantBuffer(Parameter::RootParameter::WorldTransform, worldTransform.constBuff.get()->GetGPUVirtualAddress());
 		commandContext.SetGraphicsConstantBuffer(Parameter::RootParameter::ViewProjection, viewProjection.constBuff_.GetGPUVirtualAddress());
@@ -217,26 +217,23 @@ void ModelManager::Draw(const WorldTransform& worldTransform, const ViewProjecti
 }
 
 void ModelManager::Draw(const WorldTransform& worldTransform, const Animation::Animation& skinning, const ViewProjection& viewProjection, const ModelHandle& modelHandle, CommandContext& commandContext) {
-	commandContext.SetGraphicsRootSignature(*skinningRootSignature_);
-	commandContext.SetPipelineState(*skinningPipelineState_);
+
+	commandContext.SetGraphicsRootSignature(*rootSignature_);
+	commandContext.SetPipelineState(*pipelineState_);
 	commandContext.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	D3D12_VERTEX_BUFFER_VIEW vbvs[2] = {
-		models_.at(modelHandle)->GetVBView(),
-		skinning.skinCluster.influenceBufferView
-	};
-	commandContext.SetVertexBuffer(0,2, vbvs);
+
 	for (auto& modelData : models_.at(modelHandle)->GetMeshData()) {
+		commandContext.SetVertexBuffer(0, skinning.skinCluster.vertexBufferView);
 		commandContext.SetIndexBuffer(modelData->ibView);
-		commandContext.SetGraphicsConstantBuffer(Parameter::SkinningRootParameter::SkinningWorldTransform, worldTransform.constBuff.get()->GetGPUVirtualAddress());
-		commandContext.SetGraphicsConstantBuffer(Parameter::SkinningRootParameter::SkinningViewProjection, viewProjection.constBuff_.GetGPUVirtualAddress());
-		commandContext.SetGraphicsConstantBuffer(Parameter::SkinningRootParameter::SkinningDirectionLight, Lighting::GetInstance()->GetDirectionLightBuffer().GetGPUVirtualAddress());
-		commandContext.SetGraphicsConstantBuffer(Parameter::SkinningRootParameter::SkinningPointLight, Lighting::GetInstance()->GetPointLightBuffer().GetGPUVirtualAddress());
-		commandContext.SetGraphicsConstantBuffer(Parameter::SkinningRootParameter::SkinningMaterial, models_.at(modelHandle)->GetMaterialBuffer().GetGPUVirtualAddress());
-		commandContext.SetGraphicsDescriptorTable(Parameter::SkinningRootParameter::SkinningTexture, TextureManager::GetInstance()->GetTexture(models_.at(modelHandle)->GetTextureHandle()).GetSRV());
+		commandContext.SetGraphicsConstantBuffer(Parameter::RootParameter::WorldTransform, worldTransform.constBuff.get()->GetGPUVirtualAddress());
+		commandContext.SetGraphicsConstantBuffer(Parameter::RootParameter::ViewProjection, viewProjection.constBuff_.GetGPUVirtualAddress());
+		commandContext.SetGraphicsConstantBuffer(Parameter::RootParameter::DirectionLight, Lighting::GetInstance()->GetDirectionLightBuffer().GetGPUVirtualAddress());
+		commandContext.SetGraphicsConstantBuffer(Parameter::RootParameter::PointLight, Lighting::GetInstance()->GetPointLightBuffer().GetGPUVirtualAddress());
+		commandContext.SetGraphicsConstantBuffer(Parameter::RootParameter::Material, models_.at(modelHandle)->GetMaterialBuffer().GetGPUVirtualAddress());
+		commandContext.SetGraphicsDescriptorTable(Parameter::RootParameter::Texture, TextureManager::GetInstance()->GetTexture(models_.at(modelHandle)->GetTextureHandle()).GetSRV());
 		/// いったん決め打ち
-		commandContext.SetGraphicsDescriptorTable(Parameter::SkinningRootParameter::SkinningEnvironmentalMap, TextureManager::GetInstance()->GetTexture(TextureManager::GetInstance()->Load("Resources/Images/Skybox/rostock_laage_airport_4k.dds")).GetSRV());
-		commandContext.SetGraphicsShaderResource(Parameter::SkinningRootParameter::SkinningSkinning, skinning.skinCluster.paletteResource.GetGPUVirtualAddress());
-		commandContext.SetGraphicsDescriptorTable(Parameter::SkinningRootParameter::SkinningSampler, SamplerManager::LinearWrap);
+		commandContext.SetGraphicsDescriptorTable(Parameter::RootParameter::EnvironmentalMap, TextureManager::GetInstance()->GetTexture(TextureManager::GetInstance()->Load("Resources/Images/Skybox/rostock_laage_airport_4k.dds")).GetSRV());
+		commandContext.SetGraphicsDescriptorTable(Parameter::RootParameter::Sampler, SamplerManager::LinearWrap);
 		commandContext.DrawIndexed(modelData->meshes->indexCount);
 	}
 }

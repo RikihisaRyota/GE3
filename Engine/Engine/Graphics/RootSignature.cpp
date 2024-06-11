@@ -30,3 +30,9 @@ void RootSignature::Create(const std::wstring& name, const D3D12_ROOT_SIGNATURE_
 	);
 	rootSignature_->SetName(name.c_str());
 }
+
+void RootSignature::Release() {
+	if (rootSignature_) {
+		rootSignature_.Reset();
+	}
+}

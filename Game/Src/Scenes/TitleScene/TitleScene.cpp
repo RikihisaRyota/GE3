@@ -34,7 +34,7 @@ void TitleScene::Initialize() {
 	}*/
 }
 
-void TitleScene::Update() {
+void TitleScene::Update(CommandContext& commandContext) {
 	viewProjection_.UpdateMatrix();
 	gpuParticleManager_->Update(RenderManager::GetInstance()->GetCommandContext());
 	debugCamera_->Update(&viewProjection_);

@@ -114,6 +114,17 @@ namespace GPUParticleShaderStructs {
 		float radius;
 		Vector3 pad;
 	};
+	struct EmitterSegment {
+		Vector3 origin;
+		float pad;
+		Vector3 diff;
+		float pad1;
+	};
+	struct EmitterCapsule {
+		EmitterSegment segment;
+		float radius;
+		Vector3 pad;
+	};
 
 	struct EmitterArea {
 		EmitterAABB aabb;

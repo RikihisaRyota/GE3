@@ -14,6 +14,7 @@
 #include "Src/Scenes/SceneFactory/SceneFactory.h"
 #include "WinApp/WinApp.h"
 #include "Sprite/SpriteManager.h"
+#include "Animation/Skinning.h"
 
 namespace GameCore {
 	Audio* audio = nullptr;
@@ -63,6 +64,8 @@ namespace GameCore {
 
 		particleManager = ParticleManager::GetInstance();
 		particleManager->Initialize();
+
+		Animation::Initialize();
 	}
 
 	bool BeginFrame() {
@@ -75,7 +78,7 @@ namespace GameCore {
 
 		lighting->Update();
 
-		sceneManager->Update(viewProjection);
+		sceneManager->Update(renderManager->GetCommandContext(),viewProjection);
 
 		particleManager->Update();
 
@@ -97,6 +100,7 @@ namespace GameCore {
 	}
 
 	void Shutdown() {
+		Animation::Release();
 		particleManager->Shutdown();
 		delete viewProjection;
 		delete sceneFactory;

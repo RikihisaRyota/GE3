@@ -225,7 +225,7 @@ void GameScene::Initialize() {
 	//}
 }
 
-void GameScene::Update() {
+void GameScene::Update(CommandContext& commandContext) {
 	DrawLine::GetInstance()->SetLine({ -10.0f,0.0f,0.0f }, { 10.0f,0.0f,0.0f }, { 1.0f,1.0f,1.0f,1.0f });
 	//DrawLine::GetInstance()->SetLine({ -10.0f,1.0f,0.0f }, { 10.0f,1.0f,0.0f }, { 0.0f,1.0f,0.0f,1.0f });
 	//DrawLine::GetInstance()->SetLine({ -10.0f,1.0f,0.0f }, { 10.0f,1.0f,0.0f }, { 0.0f,1.0f,0.0f,1.0f });
@@ -245,8 +245,8 @@ void GameScene::Update() {
 	if (!debugCamera_->GetIsDebugCamera()) {
 		followCamera_->Update();
 	}
-	player_->Update();
-	boss_->Update();
+	player_->Update(commandContext);
+	boss_->Update(commandContext);
 	for (auto& object : gameObject_) {
 		object->Update();
 	}

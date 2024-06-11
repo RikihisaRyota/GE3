@@ -12,6 +12,10 @@
 
 namespace Animation {
 
+	void Initialize();
+
+	void Release();
+
 	struct Joint {
 		Model::QuaternionTransform transform;
 		Matrix4x4 localMatrix;

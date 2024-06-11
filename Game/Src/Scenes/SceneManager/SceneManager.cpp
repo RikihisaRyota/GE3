@@ -26,7 +26,7 @@ void SceneManager::Initialize(int scene, ViewProjection* viewProjection) {
 	sceneNames_.push_back("Game");
 }
 
-void SceneManager::Update(ViewProjection* viewProjection) {
+void SceneManager::Update(CommandContext& commandContext,ViewProjection* viewProjection) {
 #ifdef ENABLE_IMGUI
 	ImGui::Begin("SceneManager");
 	// Combo を使用する
@@ -63,7 +63,7 @@ void SceneManager::Update(ViewProjection* viewProjection) {
 		transition_->Update();
 	}
 	if (transition_->GetIsSceneStart()) {
-		scene_->Update();
+		scene_->Update(commandContext);
 	}
 }
 void SceneManager::Draw(CommandContext& commandContext) {

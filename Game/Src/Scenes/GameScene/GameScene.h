@@ -25,7 +25,7 @@ public:
 	GameScene();
 	~GameScene();
 	void Initialize() override;
-	void Update() override;
+	void Update(CommandContext& commandContext) override;
 	void Draw(CommandContext& commandContext) override;
 	void Finalize() override;
 

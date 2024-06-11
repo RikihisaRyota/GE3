@@ -38,11 +38,11 @@ void Player::Initialize() {
 	UpdateTransform();
 }
 
-void Player::Update() {
+void Player::Update(CommandContext& commandContext) {
 	colliderColor_ = { 0.0f,0.0f,1.0f,1.0f };
 	Move();
 
-	AnimationUpdate();
+	AnimationUpdate(commandContext);
 
 	BulletUpdate();
 
@@ -268,7 +268,7 @@ void Player::Move() {
 	}
 }
 
-void Player::AnimationUpdate() {
+void Player::AnimationUpdate(CommandContext& commandContext) {
 	//static float cycle = 60.0f;
 	//static float time = 0.0f;
 	//// 1フレームでのパラメータ加算値
@@ -281,7 +281,7 @@ void Player::AnimationUpdate() {
 	//animationTransform_.translate.y = (std::sin(time) * 0.05f);
 	static const float kCycle = 30.0f;
 	animationTime_ = std::fmodf(animationTime_, kCycle);
-	animation_.Update(walkHandle_, animationTime_ / kCycle);
+	animation_.Update(walkHandle_, animationTime_ / kCycle,commandContext,playerModelHandle_);
 }
 
 void Player::PlayerRotate(const Vector3& move) {

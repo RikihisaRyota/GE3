@@ -166,6 +166,9 @@
     <Filter Include="Game\GameObject">
       <UniqueIdentifier>{bcf0a6d4-5c8c-4709-bcd0-bd62d6745f17}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shaders\Skinning">
+      <UniqueIdentifier>{24214361-3167-431a-a6e8-2813efcd97db}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine\Engine\Math\MyMath.cpp">
@@ -798,6 +801,9 @@
     </FxCompile>
     <FxCompile Include="Resources\Shaders\Skybox\Skybox.VS.hlsl">
       <Filter>Shaders\Skybox</Filter>
+    </FxCompile>
+    <FxCompile Include="Resources\Shaders\Skinning\Skinning.hlsl">
+      <Filter>Shaders\Skinning</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

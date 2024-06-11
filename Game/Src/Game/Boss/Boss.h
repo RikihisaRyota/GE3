@@ -14,7 +14,7 @@ class Boss {
 public:
 	Boss();
 	void Initialize();
-	void Update();
+	void Update(CommandContext& commandContext);
 	void Draw(const ViewProjection& viewProjection, CommandContext& commandContext);
 
 	void SetGPUParticleManager(GPUParticleManager* GPUParticleManager) { gpuParticleManager_ = GPUParticleManager; }

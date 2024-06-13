@@ -8,6 +8,8 @@
 #include "Engine/Model/ModelHandle.h"
 #include "Engine/Collision/Collider.h"
 
+#include "BossStateManager/BossStateManager.h"
+
 class GPUParticleManager;
 class CommandContext;
 class Boss {
@@ -18,7 +20,12 @@ public:
 	void Draw(const ViewProjection& viewProjection, CommandContext& commandContext);
 
 	void SetGPUParticleManager(GPUParticleManager* GPUParticleManager) { gpuParticleManager_ = GPUParticleManager; }
+
+	Animation::Animation* GetAnimation() { return &animation_; }
+	const ModelHandle& GetModelHandle() { return bossModelHandle_; }
+	void DrawImGui();
 private:
+	void UpdateGPUParticle();
 	void UpdateTransform();
 	void OnCollision(const ColliderDesc& desc);
 
@@ -26,9 +33,7 @@ private:
 
 	ModelHandle bossModelHandle_;
 	Animation::Animation animation_;
-	Animation::AnimationHandle twoHandedAttackHandle_;
-	Animation::AnimationHandle upperAttackHandle_;
-	float animationTime_;
+
 	WorldTransform animationTransform_;
 
 	WorldTransform worldTransform_;
@@ -36,4 +41,6 @@ private:
 	//OBBCollider* collider_;
 
 	Vector4 colliderColor_;
+
+	std::unique_ptr<BossStateManager> bossStateManager_;
 };

@@ -227,10 +227,7 @@ void GameScene::Initialize() {
 
 void GameScene::Update(CommandContext& commandContext) {
 	DrawLine::GetInstance()->SetLine({ -10.0f,0.0f,0.0f }, { 10.0f,0.0f,0.0f }, { 1.0f,1.0f,1.0f,1.0f });
-	//DrawLine::GetInstance()->SetLine({ -10.0f,1.0f,0.0f }, { 10.0f,1.0f,0.0f }, { 0.0f,1.0f,0.0f,1.0f });
-	//DrawLine::GetInstance()->SetLine({ -10.0f,1.0f,0.0f }, { 10.0f,1.0f,0.0f }, { 0.0f,1.0f,0.0f,1.0f });
-	//DrawLine::GetInstance()->SetLine({ -10.0f,1.0f,0.0f }, { 10.0f,1.0f,0.0f }, { 0.0f,1.0f,0.0f,1.0f });
-
+	
 	skybox_->Update();
 
 	debugCamera_->Update(viewProjection_);
@@ -259,9 +256,13 @@ void GameScene::Update(CommandContext& commandContext) {
 
 	CollisionManager::GetInstance()->Collision();
 
+#ifdef _DEBUG
+	player_->DrawImGui();
+	boss_->DrawImGui();
 	for ( auto & object : gameObject_) {
 		object->DrawImGui();
 	}
+#endif // _DEBUG
 }
 
 void GameScene::Draw(CommandContext& commandContext) {

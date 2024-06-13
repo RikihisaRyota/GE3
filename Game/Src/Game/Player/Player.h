@@ -26,6 +26,7 @@ public:
 	void SetGPUParticleManager(GPUParticleManager* GPUParticleManager) { gpuParticleManager_ = GPUParticleManager; }
 	void SetViewProjection(ViewProjection* viewProjection) { viewProjection_ = viewProjection; }
 	const WorldTransform& GetWorldTransform() const { return worldTransform_; }
+	void DrawImGui();
 private:
 	static const uint32_t kBulletTime = 120;
 	static const uint32_t kBulletCoolTime = 15;

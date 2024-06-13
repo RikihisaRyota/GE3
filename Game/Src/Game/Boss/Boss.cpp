@@ -7,12 +7,14 @@
 #include "Engine/Collision/CollisionAttribute.h"
 #include "Engine/GPUParticleManager/GPUParticleManager.h"
 #include "Engine/GPUParticleManager/GPUParticle/GPUParticleShaderStructs.h"
+#include "Engine/ImGui/ImGuiManager.h"
 
 Boss::Boss() {
 	bossModelHandle_ = ModelManager::GetInstance()->Load("Resources/Models/Boss/boss.gltf");
 	animation_.Initialize(bossModelHandle_);
-	twoHandedAttackHandle_ = animation_.GetAnimationHandle("twoHandedAttack");
-	upperAttackHandle_ = animation_.GetAnimationHandle("upperAttack");
+
+	bossStateManager_ = std::make_unique<BossStateManager>();
+	bossStateManager_->SetBoss(this);
 #pragma region コライダー
 	//collider_ = new OBBCollider();
 	//collider_->SetName("Boss");
@@ -31,6 +33,8 @@ Boss::Boss() {
 }
 
 void Boss::Initialize() {
+	bossStateManager_->Initialize();
+
 	worldTransform_.Reset();
 	worldTransform_.translate.z = 5.0f;
 	animationTransform_.Reset();
@@ -39,6 +43,32 @@ void Boss::Initialize() {
 }
 
 void Boss::Update(CommandContext& commandContext) {
+	UpdateGPUParticle();
+	bossStateManager_->Update(commandContext);
+
+	colliderColor_ = { 0.0f,0.0f,1.0f,1.0f };
+	UpdateTransform();
+	
+	
+}
+
+void Boss::Draw(const ViewProjection& viewProjection, CommandContext& commandContext) {
+	ModelManager::GetInstance()->Draw(animationTransform_, animation_, viewProjection, bossModelHandle_, commandContext);
+	//animation_.DrawBox(animationTransform_,viewProjection);
+	animation_.DrawLine(animationTransform_);
+	//collider_->DrawCollision(viewProjection, colliderColor_);
+}
+
+void Boss::DrawImGui() {
+	bossStateManager_->DrawImGui();
+	ImGui::Begin("InGame");
+	if (ImGui::BeginMenu("Boss")) {
+		ImGui::EndMenu();
+	}
+	ImGui::End();
+}
+
+void Boss::UpdateGPUParticle() {
 	for (auto& joint : animation_.skeleton.joints) {
 		if (!joint.parent.has_value()) {
 			continue;
@@ -63,12 +93,12 @@ void Boss::Update(CommandContext& commandContext) {
 		   .scale{
 			   .range{
 				   .start{
-					   .min = {0.005f,0.005f,0.005f},
-					   .max = {0.005f,0.005f,0.005f},
+					   .min = {0.1f,0.1f,0.1f},
+					   .max = {0.1f,0.1f,0.1f},
 				   },
 				   .end{
-					   .min = {0.001f,0.001f,0.001f},
-					   .max = {0.001f,0.001f,0.001f},
+					   .min = {0.01f,0.01f,0.01f},
+					   .max = {0.01f,0.01f,0.01f},
 				   },
 			   },
 		   },
@@ -118,26 +148,12 @@ void Boss::Update(CommandContext& commandContext) {
 			gpuParticleManager_->CreateParticle(emitterForGPU);
 		}
 	}
-
-	colliderColor_ = { 0.0f,0.0f,1.0f,1.0f };
-	static const float kCycle = 360.0f;
-	animationTime_ += 1.0f;
-	animationTime_ = std::fmodf(animationTime_, kCycle);
-	animation_.Update(upperAttackHandle_,animationTime_ / kCycle,commandContext,bossModelHandle_);
-	UpdateTransform();
-}
-
-void Boss::Draw(const ViewProjection& viewProjection, CommandContext& commandContext) {
-	ModelManager::GetInstance()->Draw(animationTransform_, animation_, viewProjection, bossModelHandle_, commandContext);
-	//animation_.DrawBox(animationTransform_,viewProjection);
-	animation_.DrawLine(animationTransform_);
-	//collider_->DrawCollision(viewProjection, colliderColor_);
 }
 
 void Boss::UpdateTransform() {
 	worldTransform_.UpdateMatrix();
-	auto& mesh = ModelManager::GetInstance()->GetModel(bossModelHandle_).GetMeshData().at(0);
-	Vector3 modelSize = mesh->meshes->max - mesh->meshes->min;
+	//auto& mesh = ModelManager::GetInstance()->GetModel(bossModelHandle_).GetMeshData().at(0);
+	//Vector3 modelSize = mesh->meshes->max - mesh->meshes->min;
 	//collider_->SetCenter(MakeTranslateMatrix(worldTransform_.matWorld) + Vector3(0.0f, modelSize.y * 0.5f, 0.0f));
 	//collider_->SetOrientation(worldTransform_.rotate);
 	//collider_->SetSize({ modelSize.x * worldTransform_.scale.x,modelSize.y * worldTransform_.scale.y,modelSize.z * worldTransform_.scale.z });

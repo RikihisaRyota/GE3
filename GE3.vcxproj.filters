@@ -172,6 +172,12 @@
     <Filter Include="Game\Boss\BossStateManager">
       <UniqueIdentifier>{86ff9745-4bcf-4006-adf5-b82c1d0e2120}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Game\Boss\BossModelManager">
+      <UniqueIdentifier>{48457258-1ca0-4e94-ba62-e4be09fa2a96}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\Boss\BossHP">
+      <UniqueIdentifier>{f931ce8a-b3f4-4497-8a3a-b90487070c8d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine\Engine\Math\MyMath.cpp">
@@ -382,7 +388,6 @@
     <ClCompile Include="Engine\Engine\Graphics\GaussianFilter.cpp">
       <Filter>Engine\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Engine\Engine\Graphics\Dissolve.cpp" />
     <ClCompile Include="Engine\Engine\Json\JsonUtils.cpp">
       <Filter>Engine\Json</Filter>
     </ClCompile>
@@ -401,6 +406,13 @@
     <ClCompile Include="Game\Src\Game\GameObject\GameObject.cpp">
       <Filter>Game\GameObject</Filter>
     </ClCompile>
+    <ClCompile Include="Game\Src\Game\Boss\BossStateManager\BossStateManager.cpp">
+      <Filter>Game\Boss\BossStateManager</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Engine\Graphics\Dissolve.cpp">
+      <Filter>Engine\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Src\Game\Boss\BossHP\BossHP.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\Engine\WinApp\WinApp.h">
@@ -681,6 +693,9 @@
     </ClInclude>
     <ClInclude Include="Game\Src\Game\Boss\BossStateManager\BossStateManager.h">
       <Filter>Game\Boss\BossStateManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Src\Game\Boss\BossHP\BossHP.h">
+      <Filter>Game\Boss\BossHP</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

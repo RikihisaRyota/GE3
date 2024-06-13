@@ -213,6 +213,8 @@
     <ClCompile Include="Engine\Engine\Texture\TextureManager.cpp" />
     <ClCompile Include="Engine\Engine\WinApp\WinApp.cpp" />
     <ClCompile Include="Game\Src\Game\Boss\Boss.cpp" />
+    <ClCompile Include="Game\Src\Game\Boss\BossHP\BossHP.cpp" />
+    <ClCompile Include="Game\Src\Game\Boss\BossStateManager\BossStateManager.cpp" />
     <ClCompile Include="Game\Src\Game\FollowCamera\FollowCamera.cpp" />
     <ClCompile Include="Game\Src\Game\GameObject\GameObject.cpp" />
     <ClCompile Include="Game\Src\Game\Player\Player.cpp" />
@@ -306,6 +308,7 @@
     <ClInclude Include="Engine\Engine\Texture\TextureManager.h" />
     <ClInclude Include="Engine\Engine\WinApp\WinApp.h" />
     <ClInclude Include="Game\Src\Game\Boss\Boss.h" />
+    <ClInclude Include="Game\Src\Game\Boss\BossHP\BossHP.h" />
     <ClInclude Include="Game\Src\Game\Boss\BossStateManager\BossStateManager.h" />
     <ClInclude Include="Game\Src\Game\FollowCamera\FollowCamera.h" />
     <ClInclude Include="Game\Src\Game\GameObject\GameObject.h" />

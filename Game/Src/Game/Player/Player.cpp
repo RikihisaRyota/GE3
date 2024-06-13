@@ -49,19 +49,6 @@ void Player::Update(CommandContext& commandContext) {
 	UpdateTransform();
 
 	GPUParticleSpawn();
-#ifdef _DEBUG
-	ImGui::Begin("InGame");
-	if (ImGui::TreeNode("Player")) {
-		ImGui::DragFloat3("position", &worldTransform_.translate.x, 0.1f);
-		auto& material = ModelManager::GetInstance()->GetModel(playerModelHandle_).GetMaterialData();
-		ImGui::DragFloat4("color", &material.color.x, 0.1f, 0.0f, 1.0f);
-		ImGui::DragFloat("environmentCoefficient", &material.environmentCoefficient, 0.1f, 0.0f, 1.0f);
-
-		ImGui::TreePop();
-	}
-	ImGui::End();
-#endif // _DEBUG
-
 }
 
 void Player::Draw(const ViewProjection& viewProjection, CommandContext& commandContext) {
@@ -266,6 +253,19 @@ void Player::Move() {
 
 		animationTime_ += 1.0f;
 	}
+}
+
+void Player::DrawImGui() {
+	ImGui::Begin("InGame");
+	if (ImGui::BeginMenu("Player")) {
+		ImGui::DragFloat3("position", &worldTransform_.translate.x, 0.1f);
+		auto& material = ModelManager::GetInstance()->GetModel(playerModelHandle_).GetMaterialData();
+		ImGui::DragFloat4("color", &material.color.x, 0.1f, 0.0f, 1.0f);
+		ImGui::DragFloat("environmentCoefficient", &material.environmentCoefficient, 0.1f, 0.0f, 1.0f);
+
+		ImGui::EndMenu();
+	}
+	ImGui::End();
 }
 
 void Player::AnimationUpdate(CommandContext& commandContext) {

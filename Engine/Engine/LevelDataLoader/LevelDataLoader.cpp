@@ -55,7 +55,6 @@ namespace LevelDataLoader {
 		if (object.contains("file_name")) {
 			gameObject.fileName = object["file_name"];
 		}
-
 		auto& transform = object["transform"];
 		gameObject.transform.translate.x = float(transform["translation"][0]);
 		gameObject.transform.translate.y = float(transform["translation"][2]);

@@ -6,7 +6,7 @@
 
 void BossStateRoot::Initialize() {
 	SetDesc();
-	animationHandle_ = manager_.boss_->GetAnimation()->GetAnimationHandle("twoHandedAttack");
+	animationHandle_ = manager_.boss_->GetAnimation()->GetAnimationHandle("idle");
 	time_ = 0.0f;
 }
 
@@ -16,6 +16,7 @@ void BossStateRoot::SetDesc() {
 
 void BossStateRoot::Update(CommandContext& commandContext) {
 	time_ += 1.0f / data_.allFrame;
+	time_ = std::fmod(time_,1.0f);
 	auto boss = manager_.boss_;
 	auto animation = manager_.boss_->GetAnimation();
 	animation->Update(animationHandle_, time_, commandContext, boss->GetModelHandle());
@@ -23,7 +24,7 @@ void BossStateRoot::Update(CommandContext& commandContext) {
 
 void BossStateTwoHandAttack::Initialize() {
 	SetDesc();
-	animationHandle_ = manager_.boss_->GetAnimation()->GetAnimationHandle("twoHandedAttack");
+	animationHandle_ = manager_.boss_->GetAnimation()->GetAnimationHandle("twoHandAttack");
 	time_ = 0.0f;
 }
 
@@ -70,8 +71,9 @@ void BossStateManager::Initialize() {
 	JSON_LOAD(jsonData_.upper.transitionFrame);
 	JSON_ROOT();
 	JSON_CLOSE();
-	activeStateEnum_ = kNone;
-	standbyStateEnum_ = kNone;
+	activeStateEnum_ = kRoot;
+	standbyStateEnum_ = kRoot;
+	ChangeState<BossStateRoot>(false);
 }
 
 void BossStateManager::Update(CommandContext& commandContext) {

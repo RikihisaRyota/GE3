@@ -11,8 +11,8 @@
 #include "Engine/GPUParticleManager/GPUParticleManager.h"
 
 Player::Player() {
-	playerModelHandle_ = ModelManager::GetInstance()->Load("Resources/Models/Walk/walk.gltf");
-	animation_.Initialize(playerModelHandle_);
+	playerModelHandle_ = ModelManager::GetInstance()->Load("Resources/Models/Player/player.gltf");
+	animation_.Initialize("Resources/Animation/Player/animation.gltf",playerModelHandle_);
 	walkHandle_ = animation_.GetAnimationHandle("walk");
 	worldTransform_.Initialize();
 	animationTransform_.Initialize();
@@ -52,7 +52,7 @@ void Player::Update(CommandContext& commandContext) {
 }
 
 void Player::Draw(const ViewProjection& viewProjection, CommandContext& commandContext) {
-	//ModelManager::GetInstance()->Draw(animationTransform_, animation_, *viewProjection_, playerModelHandle_, commandContext);
+	ModelManager::GetInstance()->Draw(animationTransform_, animation_, *viewProjection_, playerModelHandle_, commandContext);
 	//animation_.DrawBox(animationTransform_,viewProjection);
 	animation_.DrawLine(animationTransform_);
 	collider_->DrawCollision(viewProjection, colliderColor_);

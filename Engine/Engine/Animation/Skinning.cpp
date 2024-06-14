@@ -170,6 +170,7 @@ namespace Animation {
 		commandContext.SetComputeShaderResource(kInfluence, influenceResource.GetGPUVirtualAddress());
 		commandContext.SetComputeUAV(kOutputVertex, vertexBuffer.GetGPUVirtualAddress());
 		commandContext.SetComputeConstantBuffer(kSkinningInfomation, skinningInfomation.GetGPUVirtualAddress());
+		commandContext.Dispatch(UINT(ModelManager::GetInstance()->GetModel(modelHandle).GetMeshData().at(0)->vertices.size() * 1023) / 1024, 1, 1);
 	}
 
 }

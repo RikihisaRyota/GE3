@@ -11,7 +11,7 @@
 
 Boss::Boss() {
 	bossModelHandle_ = ModelManager::GetInstance()->Load("Resources/Models/Boss/boss.gltf");
-	animation_.Initialize(bossModelHandle_);
+	animation_.Initialize("Resources/Animation/Boss/animation.gltf",bossModelHandle_);
 
 	bossStateManager_ = std::make_unique<BossStateManager>();
 	bossStateManager_->SetBoss(this);
@@ -45,11 +45,8 @@ void Boss::Initialize() {
 void Boss::Update(CommandContext& commandContext) {
 	UpdateGPUParticle();
 	bossStateManager_->Update(commandContext);
-
 	colliderColor_ = { 0.0f,0.0f,1.0f,1.0f };
 	UpdateTransform();
-	
-	
 }
 
 void Boss::Draw(const ViewProjection& viewProjection, CommandContext& commandContext) {

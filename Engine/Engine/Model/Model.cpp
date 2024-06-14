@@ -1,5 +1,7 @@
 #include "Model.h"
 
+#include <iostream>
+
 #include <cassert>
 #include <fstream>
 #include <sstream>
@@ -40,6 +42,10 @@ void Model::LoadFile(const std::filesystem::path& modelPath) {
 	const aiScene* scene = importer.ReadFile(modelPath.string(),
 		aiProcess_Triangulate |
 		aiProcess_FlipUVs);
+	if (!scene) {
+		std::cerr << "Error: Failed to load input file: " << importer.GetErrorString() << std::endl;
+		assert(0);
+	}
 	assert(scene->HasMeshes()); // メッシュがないものは対応しない
 
 
@@ -61,7 +67,7 @@ void Model::LoadFile(const std::filesystem::path& modelPath) {
 			aiVector3D& texcoord = mesh->mTextureCoords[0][vertexIndex];
 			aiVector3D& normal = mesh->mNormals[vertexIndex];
 			Vertex vertex{};
-			vertex.position = { position.x,position.y,position.z };
+			vertex.position = { position.x,position.y,position.z,1.0f };
 			vertex.normal = { normal.x,normal.y,normal.z };
 			vertex.texcoord = { texcoord.x,texcoord.y };
 			vertex.position.x *= -1.0f;
@@ -114,7 +120,7 @@ void Model::LoadFile(const std::filesystem::path& modelPath) {
 		currentModelData->ibView.BufferLocation = currentModelData->indexBuffer.GetGPUVirtualAddress();
 		currentModelData->ibView.SizeInBytes = UINT(currentModelData->indexBuffer.GetBufferSize());
 		currentModelData->ibView.Format = DXGI_FORMAT_R32_UINT;
-		
+
 
 		currentModelData->vertexBuffer.Create(name_.wstring() + L"VertexBuffer", vertexPos.size() * sizeof(vertexPos[0]));
 		currentModelData->vertexBuffer.Copy(vertexPos.data(), vertexPos.size() * sizeof(vertexPos[0]));

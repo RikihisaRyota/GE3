@@ -33,19 +33,11 @@ GameScene::GameScene() {
 		}
 	}
 
-	modelHandle_ = ModelManager::GetInstance()->Load("Resources/Models/Ball/Ball.obj");
-	terrainHandle_ = ModelManager::GetInstance()->Load("Resources/Models/terrain/terrain.obj");
-
 	gpuTexture_ = TextureManager::GetInstance()->Load("Resources/Images/GPUParticle.png");
 	color_ = { 1.0f,1.0f,1.0f,1.0 };
 	soundHandle_ = Audio::GetInstance()->SoundLoad("Resources/Audios/walk.mp3");
 	playHandle_ = Audio::GetInstance()->SoundPlayLoopStart(soundHandle_);
 
-	animationModelHandle_ = ModelManager::GetInstance()->Load("Resources/Models/Player/player.gltf");
-	animation_.Initialize(animationModelHandle_);
-
-	animationWorldTransform_.Initialize();;
-	animationTime_ = 0.0f;
 	worldTransform_.Initialize();
 
 	//gpuParticleEditor_->Initialize();
@@ -232,13 +224,6 @@ void GameScene::Update(CommandContext& commandContext) {
 
 	debugCamera_->Update(viewProjection_);
 
-	static const float kCycle = 60.0f;
-	animationTime_ += 1.0f;
-	animationTime_ = std::fmodf(animationTime_, kCycle);
-	//animation_.Update(animationTime_/ kCycle);
-
-	animationWorldTransform_.TransferMatrix();
-
 	if (!debugCamera_->GetIsDebugCamera()) {
 		followCamera_->Update();
 	}
@@ -249,8 +234,6 @@ void GameScene::Update(CommandContext& commandContext) {
 	}
 
 	worldTransform_.UpdateMatrix();
-	ModelManager::GetInstance()->GetModel(modelHandle_).SetMaterialColor(color_);
-
 	gpuParticleManager_->Update(RenderManager::GetInstance()->GetCommandContext());
 	//gpuParticleEditor_->Update(RenderManager::GetInstance()->GetCommandContext());
 
@@ -272,12 +255,6 @@ void GameScene::Draw(CommandContext& commandContext) {
 	for (auto& object : gameObject_) {
 		object->Draw(*viewProjection_, commandContext);
 	}
-
-	ModelManager::GetInstance()->Draw(animationWorldTransform_, animation_, *viewProjection_, animationModelHandle_, commandContext);
-
-	ModelManager::GetInstance()->Draw(worldTransform_, *viewProjection_, modelHandle_, commandContext);
-
-	ModelManager::GetInstance()->Draw(worldTransform_, *viewProjection_, terrainHandle_, commandContext);
 
 	//gpuParticleEditor_->Draw(*viewProjection_, commandContext);
 

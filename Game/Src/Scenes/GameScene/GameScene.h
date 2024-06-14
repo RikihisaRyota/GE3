@@ -42,16 +42,9 @@ private:
 	std::vector<std::unique_ptr<GameObject> >gameObject_;
 
 	TextureHandle gpuTexture_;
-	ModelHandle modelHandle_;
-	ModelHandle terrainHandle_;
 	WorldTransform worldTransform_;
 	int32_t soundHandle_;
 	int32_t playHandle_;
 	Vector4 color_;
 
-	Animation::Animation animation_;
-	float animationTime_;
-
-	ModelHandle animationModelHandle_;
-	WorldTransform animationWorldTransform_;
 };

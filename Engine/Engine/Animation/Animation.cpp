@@ -1,5 +1,7 @@
 #include "Animation.h"
 
+#include <iostream>
+
 #include <assert.h>
 
 #include <assimp/Importer.hpp>
@@ -58,6 +60,10 @@ namespace Animation {
 		Assimp::Importer importer;
 		const aiScene* scene = importer.ReadFile(directoryPath.string(), 0);
 		// アニメーションがない
+		if (!scene) {
+			std::cerr << "Error: Failed to load input file: " << importer.GetErrorString() << std::endl;
+		assert(0);
+		}
 		assert(scene->mNumAnimations != 0);
 		std::vector<AnimationDesc> animationDescs{};
 		for (uint32_t i = 0; i < scene->mNumAnimations; ++i) {
@@ -112,7 +118,7 @@ namespace Animation {
 	}
 
 	AnimationHandle Animation::GetAnimationHandle(const std::string& name) {
-		for (uint32_t index=0; auto & animation : animations) {
+		for (uint32_t index = 0; auto & animation : animations) {
 			if (animation.name == name) {
 				return index;
 			}
@@ -135,10 +141,22 @@ namespace Animation {
 
 	}
 
-	void Animation::Update(const AnimationHandle& handle,float time, CommandContext& commandContext, const ModelHandle& modelHandle) {
+	void Animation::Initialize(const std::filesystem::path& path, const ModelHandle& modelHandle) {
+		animations = LoadAnimationFile(path);
+		skeleton.CreateSkeleton(ModelManager::GetInstance()->GetModel(modelHandle).GetMeshData().at(0)->rootNode);
+		skinCluster.CreateSkinCluster(skeleton, modelHandle);
+
+		debugBoxModelHandle_ = ModelManager::GetInstance()->Load("Resources/Models/Box1x1/box1x1.gltf");
+		for (auto& joint : skeleton.joints) {
+			debugBox_.emplace_back(WorldTransform());
+			debugBox_.back().Initialize();
+		}
+	}
+
+	void Animation::Update(const AnimationHandle& handle, float time, CommandContext& commandContext, const ModelHandle& modelHandle) {
 		ApplyAnimation(skeleton, animations.at(handle), time);
 		skeleton.Update();
-		skinCluster.Update(skeleton,commandContext,modelHandle);
+		skinCluster.Update(skeleton, commandContext, modelHandle);
 	}
 
 	void Animation::DrawLine(const WorldTransform& worldTransform) {

@@ -7,7 +7,7 @@ StructuredBuffer<Well>  gMatrixPalette:register(t0);
 
 struct Vertex
 {
-    float32_t3 position;
+    float32_t4 position;
     float32_t3 normal;
     float32_t2 texcoord;
 };
@@ -29,13 +29,13 @@ ConstantBuffer<SkinningInfomation> gSkinningInfomation:register(b0);
 Vertex Skinning(Vertex input,VertexInfluence influence){
     Vertex skinned;
     
-    skinned.position = mul(input.position, (float32_t3x3) gMatrixPalette[influence.index.x].skeletonSpaceMatrix) * influence.weight.x;
-    skinned.position += mul(input.position,  (float32_t3x3)gMatrixPalette[influence.index.y].skeletonSpaceMatrix) * influence.weight.y;
-    skinned.position += mul(input.position,  (float32_t3x3)gMatrixPalette[influence.index.z].skeletonSpaceMatrix) * influence.weight.z;
-    skinned.position += mul(input.position,  (float32_t3x3)gMatrixPalette[influence.index.w].skeletonSpaceMatrix) * influence.weight.w;
-    //skinned.position.w = 1.0f;
+    skinned.position =  mul(input.position, gMatrixPalette[influence.index.x].skeletonSpaceMatrix) * influence.weight.x;
+    skinned.position += mul(input.position, gMatrixPalette[influence.index.y].skeletonSpaceMatrix) * influence.weight.y;
+    skinned.position += mul(input.position, gMatrixPalette[influence.index.z].skeletonSpaceMatrix) * influence.weight.z;
+    skinned.position += mul(input.position, gMatrixPalette[influence.index.w].skeletonSpaceMatrix) * influence.weight.w;
+    skinned.position.w = 1.0f;
 
-    skinned.normal = mul(input.normal, (float32_t3x3)gMatrixPalette[influence.index.x].skeletonSpaceInverseTransposeMatrix) * influence.weight.x;
+    skinned.normal =  mul(input.normal, (float32_t3x3)gMatrixPalette[influence.index.x].skeletonSpaceInverseTransposeMatrix) * influence.weight.x;
     skinned.normal += mul(input.normal, (float32_t3x3)gMatrixPalette[influence.index.y].skeletonSpaceInverseTransposeMatrix) * influence.weight.y;
     skinned.normal += mul(input.normal, (float32_t3x3)gMatrixPalette[influence.index.z].skeletonSpaceInverseTransposeMatrix) * influence.weight.z;
     skinned.normal += mul(input.normal, (float32_t3x3)gMatrixPalette[influence.index.w].skeletonSpaceInverseTransposeMatrix) * influence.weight.w;

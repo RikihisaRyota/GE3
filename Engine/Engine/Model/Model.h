@@ -36,7 +36,7 @@ public:
 	};
 
 	struct Vertex {
-		Vector3 position;
+		Vector4 position;
 		Vector3 normal;
 		Vector2 texcoord;
 	};
@@ -97,7 +97,6 @@ public:
 private:
 	void LoadFile(const std::filesystem::path& modelPath);
 	Node ReadNode(aiNode* node);
-	
 	std::vector<std::unique_ptr<MeshData>> meshData_;
 	TextureHandle textureHandle_;
 	Material* material_;

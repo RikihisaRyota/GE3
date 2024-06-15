@@ -20,7 +20,7 @@ void CollisionManager::DeleteCollider(Collider* collider) {
 void CollisionManager::Collision() {
     auto iter1 = colliders_.begin();
     for (; iter1 != colliders_.end(); ++iter1) {
-        Collider* collider1 = iter1->get();  // unique_ptrから生ポインタを取得
+        Collider* collider1 = iter1->get();  
 
         // アクティブじゃなければ通さない
         if (!collider1->GetIsActive()) { continue; }
@@ -28,7 +28,7 @@ void CollisionManager::Collision() {
         auto iter2 = iter1;
         ++iter2;
         for (; iter2 != colliders_.end(); ++iter2) {
-            Collider* collider2 = iter2->get();  // unique_ptrから生ポインタを取得
+            Collider* collider2 = iter2->get();
 
             // アクティブじゃなければ通さない
             if (!collider2->GetIsActive()) { continue; }

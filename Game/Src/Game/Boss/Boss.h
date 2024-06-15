@@ -1,4 +1,6 @@
 #pragma once
+
+#include <unordered_map>
 #include <memory>
 #include <list>
 
@@ -23,8 +25,10 @@ public:
 
 	Animation::Animation* GetAnimation() { return &animation_; }
 	const ModelHandle& GetModelHandle() { return bossModelHandle_; }
-	void DrawImGui();
+	void DrawImGui(); 
+	void DrawDebug(const ViewProjection& viewProjection);
 private:
+	void UpdateCollider();
 	void UpdateGPUParticle();
 	void UpdateTransform();
 	void OnCollision(const ColliderDesc& desc);
@@ -38,9 +42,18 @@ private:
 
 	WorldTransform worldTransform_;
 
-	//OBBCollider* collider_;
+	std::unordered_map<std::string,OBBCollider*> bossCollider_;
 
 	Vector4 colliderColor_;
 
 	std::unique_ptr<BossStateManager> bossStateManager_;
+#pragma region Collision
+	float colliderSize_;
+#pragma endregion
+
+#pragma region Properties
+	Vector3 offset_;
+	Vector3 animationWorldTransformOffset_;
+#pragma endregion
+
 };

@@ -9,23 +9,29 @@
 #include "Engine/Math/WorldTransform.h"
 #include "Engine/Model/ModelHandle.h"
 #include "Engine/Texture/TextureHandle.h"
+#include "Engine/Collision/Collider.h"
 
 class CommandContext;
 class PlayerBullet {
 public:
+	~PlayerBullet();
 	void Create(GPUParticleManager* GPUParticleManager,const Vector3& position,const Vector3& velocity,uint32_t time);
 	void Update();
 	void Draw(const ViewProjection& viewProjection, CommandContext& commandContext);
-
+	void DrawDebug(const ViewProjection& viewProjection);
 	bool GetIsAlive() { return isAlive_; }
 private:
-	static const uint32_t kNumSubBullet = 5;
+	void OnCollision(const ColliderDesc& desc);
+	void UpdateTransform();
+
 	GPUParticleManager* gpuParticleManager_;
+
+	OBBCollider* collider_;
 
 	ModelHandle modelHandle_;
 	TextureHandle gpuTexture_;
 	WorldTransform worldTransform_;
-	std::array<WorldTransform,kNumSubBullet> secondBullet_;
+
 	Vector3 velocity_;
 	bool isAlive_;
 	uint32_t time_;

@@ -1,0 +1,17 @@
+{
+    "bossCollision": {
+        "colliderSize_": 0.6000000238418579
+    },
+    "bossProperties": {
+        "animationWorldTransformOffset_": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "offset_": [
+            0.0,
+            -30.0,
+            30.0
+        ]
+    }
+}

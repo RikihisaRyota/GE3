@@ -14,6 +14,7 @@
 #include "Engine/LevelDataLoader/LevelDataLoader.h"
 
 GameScene::GameScene() {
+	CollisionManager::GetInstance()->ClearCollider();
 	LevelDataLoader::Load("Resources/object.json");
 
 	debugCamera_ = std::make_unique<DebugCamera>();
@@ -240,6 +241,7 @@ void GameScene::Update(CommandContext& commandContext) {
 	CollisionManager::GetInstance()->Collision();
 
 #ifdef _DEBUG
+	followCamera_->DrawImGui();
 	player_->DrawImGui();
 	boss_->DrawImGui();
 	for ( auto & object : gameObject_) {
@@ -260,6 +262,12 @@ void GameScene::Draw(CommandContext& commandContext) {
 
 	skybox_->Draw(commandContext, *viewProjection_);
 	gpuParticleManager_->Draw(*viewProjection_, commandContext);
+
+#ifdef _DEBUG
+	player_->DrawDebug(*viewProjection_);
+	boss_->DrawDebug(*viewProjection_);
+#endif // _DEBUG
+
 }
 
 void GameScene::Finalize() {}

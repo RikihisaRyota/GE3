@@ -11,6 +11,7 @@
 #include "Engine/GPUParticleManager/GPUParticleManager.h"
 
 Player::Player() {
+	ModelManager::GetInstance()->Load("Resources/Models/Bullet/bullet.gltf");
 	playerModelHandle_ = ModelManager::GetInstance()->Load("Resources/Models/Player/player.gltf");
 	animation_.Initialize("Resources/Animation/Player/animation.gltf",playerModelHandle_);
 	walkHandle_ = animation_.GetAnimationHandle("walk");
@@ -53,13 +54,20 @@ void Player::Update(CommandContext& commandContext) {
 
 void Player::Draw(const ViewProjection& viewProjection, CommandContext& commandContext) {
 	ModelManager::GetInstance()->Draw(animationTransform_, animation_, *viewProjection_, playerModelHandle_, commandContext);
-	//animation_.DrawBox(animationTransform_,viewProjection);
-	animation_.DrawLine(animationTransform_);
-	collider_->DrawCollision(viewProjection, colliderColor_);
+
 	// 弾
 	for (auto& bullet : playerBullets_) {
 		bullet->Draw(viewProjection, commandContext);
 	}
+}
+
+void Player::DrawDebug(const ViewProjection& viewProjection) {
+	// 弾
+	for (auto& bullet : playerBullets_) {
+		bullet->DrawDebug(viewProjection);
+	}
+	animation_.DrawLine(animationTransform_);
+	collider_->DrawCollision(viewProjection, colliderColor_);
 }
 
 void Player::BulletUpdate() {
@@ -243,11 +251,10 @@ void Player::Move() {
 	}
 	// 移動量に速さを反映
 	if (vector != Vector3(0.0f, 0.0f, 0.0f)) {
-		vector.Normalized();
 		// 回転行列生成
 		Matrix4x4 rotate = MakeRotateYMatrix(viewProjection_->rotation_.y);
 		// オフセットをカメラの回転に合わせて回転させる
-		vector = TransformNormal(vector, rotate);
+		vector = TransformNormal(vector.Normalized(), rotate);
 		worldTransform_.translate += vector * 0.1f;
 		PlayerRotate(vector.Normalized());
 

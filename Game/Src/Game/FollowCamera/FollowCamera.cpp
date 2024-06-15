@@ -3,7 +3,15 @@
 #include "Engine/Input/Input.h"
 #include "Engine/Math/MyMath.h"
 
-void FollowCamera::Initialize() {}
+#include "Engine/ImGui/ImGuiManager.h"
+#include "Engine/Json/JsonUtils.h"
+
+void FollowCamera::Initialize() {
+	JSON_OPEN("Resources/Data/FollowCamera/followCamera.json");
+	JSON_OBJECT("Parameter");
+	JSON_LOAD(offset_);
+	JSON_CLOSE();
+}
 
 void FollowCamera::Update() {
 	if (target_) {
@@ -13,6 +21,21 @@ void FollowCamera::Update() {
 		RotateUpdate();
 		viewProjection_->UpdateMatrix();
 	}
+}
+
+void FollowCamera::DrawImGui() {
+	ImGui::Begin("InGame");
+	if (ImGui::BeginMenu("FollowCamera")) {
+		ImGui::DragFloat3("Offset", &offset_.x, 0.1f);
+		if (ImGui::Button("Save")) {
+			JSON_OPEN("Resources/Data/FollowCamera/followCamera.json");
+			JSON_OBJECT("Parameter");
+			JSON_SAVE(offset_);
+			JSON_CLOSE();
+		}
+		ImGui::EndMenu();
+	}
+	ImGui::End();
 }
 
 void FollowCamera::GamePad() {
@@ -73,7 +96,7 @@ void FollowCamera::RotateUpdate() {
 		Mul(MakeRotateXMatrix(viewProjection_->rotation_.x),
 			MakeRotateYMatrix(viewProjection_->rotation_.y));
 	// オフセットをカメラの回転に合わせて回転させる
-	Vector3 offset = TransformNormal({ 0.0f, 2.0f, -15.0f }, rotate);
+	Vector3 offset = TransformNormal(offset_, rotate);
 	// 座標をコピーしてずらす/*interTarget_, target_->translation_*/
 	viewProjection_->translation_ = interTarget_ + offset;
 }

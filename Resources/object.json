@@ -3,11 +3,53 @@
     "objects": [
         {
             "type": "MESH",
-            "name": "球",
+            "name": "球.005",
             "transform": {
                 "translation": [
-                    0.0,
                     10.0,
+                    5.0,
+                    0.0
+                ],
+                "rotation": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.0
+                ],
+                "scaling": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "file_name": "Resources/Models/Post/Post.gltf",
+            "collider": {
+                "type": "BOX",
+                "center": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "size": [
+                    2.0,
+                    2.0,
+                    11.0
+                ],
+                "rotate": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "type": "MESH",
+            "name": "球.001",
+            "transform": {
+                "translation": [
+                    -10.0,
+                    5.0,
                     0.0
                 ],
                 "rotation": [
@@ -48,18 +90,18 @@
             "name": "球.002",
             "transform": {
                 "translation": [
-                    0.0,
+                    -5.0,
                     5.0,
                     0.0
                 ],
                 "rotation": [
-                    0.3535533845424652,
-                    0.3535533845424652,
-                    -0.1464466005563736,
-                    0.8535534143447876
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.0
                 ],
                 "scaling": [
-                    0.9999999403953552,
+                    1.0,
                     1.0,
                     1.0
                 ]
@@ -90,7 +132,91 @@
             "name": "球.003",
             "transform": {
                 "translation": [
+                    5.0,
+                    5.0,
+                    0.0
+                ],
+                "rotation": [
                     0.0,
+                    0.0,
+                    0.0,
+                    1.0
+                ],
+                "scaling": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "file_name": "Resources/Models/Post/Post.gltf",
+            "collider": {
+                "type": "BOX",
+                "center": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "size": [
+                    2.0,
+                    2.0,
+                    11.0
+                ],
+                "rotate": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "type": "MESH",
+            "name": "球.004",
+            "transform": {
+                "translation": [
+                    5.0,
+                    -5.0,
+                    0.0
+                ],
+                "rotation": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.0
+                ],
+                "scaling": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "file_name": "Resources/Models/Post/Post.gltf",
+            "collider": {
+                "type": "BOX",
+                "center": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "size": [
+                    2.0,
+                    2.0,
+                    11.0
+                ],
+                "rotate": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "type": "MESH",
+            "name": "球.006",
+            "transform": {
+                "translation": [
+                    5.0,
                     0.0,
                     0.0
                 ],
@@ -125,51 +251,259 @@
                     0.0,
                     1.0
                 ]
+            }
+        },
+        {
+            "type": "MESH",
+            "name": "球.007",
+            "transform": {
+                "translation": [
+                    10.0,
+                    -5.0,
+                    0.0
+                ],
+                "rotation": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.0
+                ],
+                "scaling": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
             },
-            "children": [
-                {
-                    "type": "MESH",
-                    "name": "球.001",
-                    "transform": {
-                        "translation": [
-                            0.0,
-                            0.0,
-                            15.0
-                        ],
-                        "rotation": [
-                            0.0,
-                            0.0,
-                            0.0,
-                            1.0
-                        ],
-                        "scaling": [
-                            1.0,
-                            1.0,
-                            1.0
-                        ]
-                    },
-                    "file_name": "Resources/Models/Post/Post.gltf",
-                    "collider": {
-                        "type": "BOX",
-                        "center": [
-                            0.0,
-                            0.0,
-                            0.0
-                        ],
-                        "size": [
-                            2.0,
-                            2.0,
-                            11.0
-                        ],
-                        "rotate": [
-                            0.0,
-                            0.0,
-                            0.0,
-                            1.0
-                        ]
-                    }
-                }
-            ]
+            "file_name": "Resources/Models/Post/Post.gltf",
+            "collider": {
+                "type": "BOX",
+                "center": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "size": [
+                    2.0,
+                    2.0,
+                    11.0
+                ],
+                "rotate": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "type": "MESH",
+            "name": "球.008",
+            "transform": {
+                "translation": [
+                    10.0,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.0
+                ],
+                "scaling": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "file_name": "Resources/Models/Post/Post.gltf",
+            "collider": {
+                "type": "BOX",
+                "center": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "size": [
+                    2.0,
+                    2.0,
+                    11.0
+                ],
+                "rotate": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "type": "MESH",
+            "name": "球.009",
+            "transform": {
+                "translation": [
+                    -5.0,
+                    -5.0,
+                    0.0
+                ],
+                "rotation": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.0
+                ],
+                "scaling": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "file_name": "Resources/Models/Post/Post.gltf",
+            "collider": {
+                "type": "BOX",
+                "center": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "size": [
+                    2.0,
+                    2.0,
+                    11.0
+                ],
+                "rotate": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "type": "MESH",
+            "name": "球.010",
+            "transform": {
+                "translation": [
+                    -5.0,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.0
+                ],
+                "scaling": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "file_name": "Resources/Models/Post/Post.gltf",
+            "collider": {
+                "type": "BOX",
+                "center": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "size": [
+                    2.0,
+                    2.0,
+                    11.0
+                ],
+                "rotate": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "type": "MESH",
+            "name": "球.011",
+            "transform": {
+                "translation": [
+                    -10.0,
+                    -5.0,
+                    0.0
+                ],
+                "rotation": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.0
+                ],
+                "scaling": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "file_name": "Resources/Models/Post/Post.gltf",
+            "collider": {
+                "type": "BOX",
+                "center": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "size": [
+                    2.0,
+                    2.0,
+                    11.0
+                ],
+                "rotate": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "type": "MESH",
+            "name": "球.012",
+            "transform": {
+                "translation": [
+                    -10.0,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.0
+                ],
+                "scaling": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "file_name": "Resources/Models/Post/Post.gltf",
+            "collider": {
+                "type": "BOX",
+                "center": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "size": [
+                    2.0,
+                    2.0,
+                    11.0
+                ],
+                "rotate": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.0
+                ]
+            }
         }
     ]
 }

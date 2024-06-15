@@ -22,6 +22,7 @@ public:
 	void Update(CommandContext& commandContext);
 
 	void Draw(const ViewProjection& viewProjection, CommandContext& commandContext);
+	void DrawDebug(const ViewProjection& viewProjection);
 
 	void SetGPUParticleManager(GPUParticleManager* GPUParticleManager) { gpuParticleManager_ = GPUParticleManager; }
 	void SetViewProjection(ViewProjection* viewProjection) { viewProjection_ = viewProjection; }

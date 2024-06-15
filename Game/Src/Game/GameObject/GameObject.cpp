@@ -12,12 +12,11 @@ GameObject::GameObject(const LevelDataLoader::GameObject& desc, const WorldTrans
 
 	modelHandle_ = ModelManager::GetInstance()->Load(desc.fileName);
 	worldTransform_.Initialize();
-
+	worldTransform_.parent_ = worldTransform;
 	worldTransform_.translate = desc_.transform.translate;
 	worldTransform_.rotate = desc.transform.rotate;
 	worldTransform_.scale = desc.transform.scale;
 	worldTransform_.UpdateMatrix();
-	worldTransform_.parent_ = worldTransform;
 	if (desc.collider) {
 		collider_ = new OBBCollider();
 		collider_->SetName("GameObject");
@@ -26,7 +25,7 @@ GameObject::GameObject(const LevelDataLoader::GameObject& desc, const WorldTrans
 		collider_->SetSize(desc.collider->size);
 		collider_->SetCallback([this](const ColliderDesc& collisionInfo) { OnCollision(collisionInfo); });
 		collider_->SetCollisionAttribute(CollisionAttribute::GameObject);
-		collider_->SetCollisionMask(CollisionAttribute::Player | CollisionAttribute::Boss);
+		collider_->SetCollisionMask(CollisionAttribute::Player | CollisionAttribute::PlayerBullet| CollisionAttribute::Boss);
 		collider_->SetIsActive(true);
 	}
 }
@@ -35,7 +34,7 @@ void GameObject::Initialize(const LevelDataLoader::GameObject& desc) {
 	worldTransform_.translate = desc.transform.translate;
 	worldTransform_.rotate = desc.transform.rotate;
 	worldTransform_.scale = desc.transform.scale;
-	
+	worldTransform_.UpdateMatrix();
 }
 
 

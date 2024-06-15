@@ -41,10 +41,9 @@ struct Quaternion {
     Quaternion operator*(const Quaternion& rhs) const {
         return Quaternion{
             w * rhs.x + x * rhs.w + y * rhs.z - z * rhs.y,
-            w * rhs.y - x * rhs.z + y * rhs.w + z * rhs.x,
-            w * rhs.z + x * rhs.y - y * rhs.x + z * rhs.w,
-            w * rhs.w - x * rhs.x - y * rhs.y - z * rhs.z
-        };
+            w * rhs.y + y * rhs.w + z * rhs.x - x * rhs.z,
+            w * rhs.z + z * rhs.w + x * rhs.y - y * rhs.x,
+            w * rhs.w - x * rhs.x - y * rhs.y - z * rhs.z };
     }
 
     // 加算演算子のオーバーロード

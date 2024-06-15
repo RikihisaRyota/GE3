@@ -7,20 +7,18 @@
 #include "CollisionManager.h"
 
 namespace {
-
 	std::vector<Vector3> GetVertices(const OBB& obb) {
 		Vector3 halfSize = obb.size * 0.5f;
 
 		std::vector<Vector3> vertices(8);
-
-		vertices[0] = { -halfSize.x, -halfSize.y, -halfSize.z };   // 左下前
-		vertices[1] = { -halfSize.x,  halfSize.y, -halfSize.z };   // 左上前
-		vertices[2] = { halfSize.x,  halfSize.y, -halfSize.z };   // 右上前
-		vertices[3] = { halfSize.x, -halfSize.y, -halfSize.z };   // 右下前
-		vertices[4] = { -halfSize.x, -halfSize.y,  halfSize.z };   // 左下奥 
-		vertices[5] = { -halfSize.x,  halfSize.y,  halfSize.z };   // 左上奥
-		vertices[6] = { halfSize.x,  halfSize.y,  halfSize.z };   // 右上奥
-		vertices[7] = { halfSize.x, -halfSize.y,  halfSize.z };   // 右下奥
+		vertices[0] = { -halfSize.x, -halfSize.y, -halfSize.z };
+		vertices[1] = { -halfSize.x,  halfSize.y, -halfSize.z };
+		vertices[2] = { halfSize.x,  halfSize.y, -halfSize.z };
+		vertices[3] = { halfSize.x, -halfSize.y, -halfSize.z };
+		vertices[4] = { -halfSize.x, -halfSize.y,  halfSize.z };
+		vertices[5] = { -halfSize.x,  halfSize.y,  halfSize.z };
+		vertices[6] = { halfSize.x,  halfSize.y,  halfSize.z };
+		vertices[7] = { halfSize.x, -halfSize.y,  halfSize.z };
 
 		Matrix4x4 obbWorldMatrix =
 			Matrix4x4().SetXAxis(obb.orientations[0]).SetYAxis(obb.orientations[1]).SetZAxis(obb.orientations[2]).SetTranslate(obb.center);
@@ -48,8 +46,6 @@ namespace {
 		return range1 + range2 - maxOverlap;
 	}
 }
-
-
 Collider::Collider() {
 	CollisionManager::GetInstance()->AddCollider(std::move(this));
 }
@@ -104,19 +100,16 @@ bool OBBCollider::IsCollision(OBBCollider* other, ColliderDesc& desc) {
 	float minOverlap = FLT_MAX;
 	Vector3 minOverlapAxis = {};
 
-	// 分離軸判定関数
 	auto IsSeparateAxis = [&](const Vector3& axis) {
-		if (axis == Vector3(0.0f, 0.0f, 0.0f)) { return false; }
+		if (axis == Vector3(0.0f,0.0f,0.0f)) { return false; }
 		Vector2 minmax1 = Projection(vertices1, axis);
 		Vector2 minmax2 = Projection(vertices2, axis);
 
-		// 分離軸である
 		if (!(minmax1.x <= minmax2.y && minmax1.y >= minmax2.x)) {
 			return true;
 		}
 
 		float overlap = GetOverlap(minmax1, minmax2);
-
 		if (overlap < minOverlap) {
 			minOverlapAxis = axis;
 			minOverlap = overlap;
@@ -130,7 +123,6 @@ bool OBBCollider::IsCollision(OBBCollider* other, ColliderDesc& desc) {
 		if (IsSeparateAxis(axis)) { return false; }
 	}
 
-	// 衝突情報を格納していく
 	desc.collider = this;
 	desc.normal = minOverlapAxis.Normalized();
 	if (Dot(other->obb_.center - this->obb_.center, desc.normal) < 0.0f) {

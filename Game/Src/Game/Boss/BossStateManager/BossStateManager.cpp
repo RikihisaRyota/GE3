@@ -92,27 +92,27 @@ void BossStateManager::Update(CommandContext& commandContext) {
 void BossStateManager::DrawImGui() {
 	ImGui::Begin("InGame");
 	if (ImGui::BeginMenu("Boss")) {
-		// ステートを変更するImGui::Comboの作成
-		static const char* stateNames[] = { "None", "Root", "TwoHandAttack", "UpperAttack" };
-		static int currentState = static_cast<int>(activeStateEnum_);
-
-		// ステートを変更するImGui::Comboの作成
-		if (ImGui::Combo("Change State", &currentState, stateNames, IM_ARRAYSIZE(stateNames))) {
-			switch (currentState) {
-			case kRoot:
-				ChangeState<BossStateRoot>(false);
-				break;
-			case kTwoHandAttack:
-				ChangeState<BossStateTwoHandAttack>(false);
-				break;
-			case kUpperAttack:
-				ChangeState<BossStateUpperAttack>(false);
-				break;
-			default:
-				break;
-			}
-		}
 		if (ImGui::TreeNode("BossStateManager")) {
+			// ステートを変更するImGui::Comboの作成
+			static const char* stateNames[] = { "None", "Root", "TwoHandAttack", "UpperAttack" };
+			static int currentState = static_cast<int>(activeStateEnum_);
+
+			// ステートを変更するImGui::Comboの作成
+			if (ImGui::Combo("Change State", &currentState, stateNames, IM_ARRAYSIZE(stateNames))) {
+				switch (currentState) {
+				case kRoot:
+					ChangeState<BossStateRoot>(false);
+					break;
+				case kTwoHandAttack:
+					ChangeState<BossStateTwoHandAttack>(false);
+					break;
+				case kUpperAttack:
+					ChangeState<BossStateUpperAttack>(false);
+					break;
+				default:
+					break;
+				}
+			}
 			if (ImGui::TreeNode("Root")) {
 				ImGui::DragFloat("全体フレーム", &jsonData_.root.allFrame, 0.1f);
 				ImGui::DragFloat("遷移フレーム", &jsonData_.root.transitionFrame, 0.1f);

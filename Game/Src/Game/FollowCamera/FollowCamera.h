@@ -14,6 +14,8 @@ public:
 
 	void SetViewProjection(ViewProjection* viewProjection) { viewProjection_ = viewProjection; }
 	void SetTarget(const WorldTransform* target) { target_ = target; }
+
+	void DrawImGui();
 private:
 	void GamePad();
 	void Keyboard();
@@ -34,4 +36,6 @@ private:
 
 	Vector2 destinationAngle_;
 	Vector3 interTarget_;
+
+	Vector3 offset_;
 };

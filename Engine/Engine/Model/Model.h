@@ -94,6 +94,7 @@ public:
 	Material& GetMaterialData() { return *material_; }
 	const std::filesystem::path& GetPath()const { return path_; }
 	void SetMaterialColor(const Vector4& color);
+	Vector4& GetMaterialColor() { return material_->color; }
 private:
 	void LoadFile(const std::filesystem::path& modelPath);
 	Node ReadNode(aiNode* node);

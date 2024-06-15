@@ -25,7 +25,7 @@ PixelShaderOutput main(VertexShaderOutput input)
     PixelShaderOutput output;
     float32_t3 worldPos = gWorldTransform.world._m30_m31_m32;
     float32_t4 textureColor = gTexture.Sample(gSampler, input.texcoord.xy);
-    output.color = textureColor;
+    output.color = textureColor*gMaterial.color;
     // ディフーズ
     float32_t halfRanbert = HalfRanbert(input.normal, gDirectionLight.direction);
     float32_t3 diffuse = float32_t3(gDirectionLight.color.rgb * halfRanbert * gDirectionLight.intensity);
@@ -47,8 +47,8 @@ PixelShaderOutput main(VertexShaderOutput input)
     float32_t3 pointLightBlinnPhongReflection = PointLightBlinnPhongReflection(input.normal,worldPos, gPointLight.position, gDirectionLight.sharpness);
     float32_t3 pointLightSpecular = float32_t3(gPointLight.color.rgb * pointLightBlinnPhongReflection * factor * gPointLight.intensity);
     
-    //output.color.rgb = gMaterial.color.rgb * textureColor.rgb * ((diffuse + specular + ambient) + (pointLightDiffuse + pointLightSpecular));
-    //output.color.a = gMaterial.color.a;
+    output.color.rgb = gMaterial.color.rgb * textureColor.rgb * ((diffuse + specular + ambient) + (pointLightDiffuse + pointLightSpecular));
+    output.color.a = gMaterial.color.a;
     //output.color = environmentColor*gMaterial.environmentCoefficient;
     return output;
     

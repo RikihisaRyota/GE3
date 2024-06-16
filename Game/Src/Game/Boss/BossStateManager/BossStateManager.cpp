@@ -15,11 +15,27 @@ void BossStateRoot::SetDesc() {
 }
 
 void BossStateRoot::Update(CommandContext& commandContext) {
-	time_ += 1.0f / data_.allFrame;
-	time_ = std::fmod(time_,1.0f);
+	if (time_ >= 1.0f && inTransition_) {
+		inTransition_ = false;
+		time_ = 0.0f;
+	}
+
+	if (inTransition_) {
+		time_ += 1.0f / data_.transitionFrame;
+	}
+	else {
+		time_ += 1.0f / data_.allFrame;
+		time_ = std::fmod(time_, 1.0f);
+	}
+
 	auto boss = manager_.boss_;
 	auto animation = manager_.boss_->GetAnimation();
-	animation->Update(animationHandle_, time_, commandContext, boss->GetModelHandle());
+	if (inTransition_) {
+		animation->Update(manager_.GetAnimationHandle(), manager_.GetAnimationTime(), animationHandle_, 0.0f, time_, commandContext, boss->GetModelHandle());
+	}
+	else {
+		animation->Update(animationHandle_, time_, commandContext, boss->GetModelHandle());
+	}
 }
 
 void BossStateTwoHandAttack::Initialize() {
@@ -33,10 +49,33 @@ void BossStateTwoHandAttack::SetDesc() {
 }
 
 void BossStateTwoHandAttack::Update(CommandContext& commandContext) {
-	time_ += 1.0f / data_.allFrame;
 	auto boss = manager_.boss_;
-	auto animation = manager_.boss_->GetAnimation();
-	animation->Update(animationHandle_, time_, commandContext, boss->GetModelHandle());
+	auto animation = boss->GetAnimation();
+
+	if (inTransition_) {
+		time_ += 1.0f / data_.transitionFrame;
+		if (time_ >= 1.0f) {
+			inTransition_ = false;
+			time_ = 0.0f;
+		}
+	}
+
+	if (!inTransition_) {
+		time_ += 1.0f / data_.allFrame;
+	}
+
+	time_ = std::clamp(time_, 0.0f, 1.0f);
+
+	if (inTransition_) {
+		animation->Update(manager_.GetAnimationHandle(), manager_.GetAnimationTime(), animationHandle_, 0.0f, time_, commandContext, boss->GetModelHandle());
+	}
+	else {
+		animation->Update(animationHandle_, time_, commandContext, boss->GetModelHandle());
+	}
+
+	if (time_ >= 1.0f && !inTransition_) {
+		manager_.ChangeState<BossStateRoot>();
+	}
 }
 
 void BossStateUpperAttack::Initialize() {
@@ -50,11 +89,35 @@ void BossStateUpperAttack::SetDesc() {
 }
 
 void BossStateUpperAttack::Update(CommandContext& commandContext) {
-	time_ += 1.0f / data_.allFrame;
 	auto boss = manager_.boss_;
-	auto animation = manager_.boss_->GetAnimation();
-	animation->Update(animationHandle_, time_, commandContext, boss->GetModelHandle());
+	auto animation = boss->GetAnimation();
+
+	if (inTransition_) {
+		time_ += 1.0f / data_.transitionFrame;
+		if (time_ >= 1.0f) {
+			inTransition_ = false;
+			time_ = 0.0f;
+		}
+	}
+
+	if (!inTransition_) {
+		time_ += 1.0f / data_.allFrame;
+	}
+
+	time_ = std::clamp(time_, 0.0f, 1.0f);
+
+	if (inTransition_) {
+		animation->Update(manager_.GetAnimationHandle(), manager_.GetAnimationTime(), animationHandle_, 0.0f, time_, commandContext, boss->GetModelHandle());
+	}
+	else {
+		animation->Update(animationHandle_, time_, commandContext, boss->GetModelHandle());
+	}
+
+	if (time_ >= 1.0f && !inTransition_) {
+		manager_.ChangeState<BossStateRoot>();
+	}
 }
+
 
 void BossStateManager::Initialize() {
 	JSON_OPEN("Resources/Data/Boss/BossState.json");
@@ -73,7 +136,7 @@ void BossStateManager::Initialize() {
 	JSON_CLOSE();
 	activeStateEnum_ = kRoot;
 	standbyStateEnum_ = kRoot;
-	ChangeState<BossStateRoot>(false);
+	ChangeState<BossStateRoot>();
 }
 
 void BossStateManager::Update(CommandContext& commandContext) {
@@ -95,19 +158,19 @@ void BossStateManager::DrawImGui() {
 		if (ImGui::TreeNode("BossStateManager")) {
 			// ステートを変更するImGui::Comboの作成
 			static const char* stateNames[] = { "None", "Root", "TwoHandAttack", "UpperAttack" };
-			static int currentState = static_cast<int>(activeStateEnum_);
+			int currentState = static_cast<int>(activeStateEnum_);
 
 			// ステートを変更するImGui::Comboの作成
 			if (ImGui::Combo("Change State", &currentState, stateNames, IM_ARRAYSIZE(stateNames))) {
 				switch (currentState) {
 				case kRoot:
-					ChangeState<BossStateRoot>(false);
+					ChangeState<BossStateRoot>();
 					break;
 				case kTwoHandAttack:
-					ChangeState<BossStateTwoHandAttack>(false);
+					ChangeState<BossStateTwoHandAttack>();
 					break;
 				case kUpperAttack:
-					ChangeState<BossStateUpperAttack>(false);
+					ChangeState<BossStateUpperAttack>();
 					break;
 				default:
 					break;

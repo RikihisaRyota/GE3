@@ -1058,6 +1058,33 @@ Quaternion Slerp(const Quaternion& q0, const Quaternion& q1, float t) {
 	float theta = std::acos(dot);
 	return (start * std::sin((1.0f - t) * theta) + q1 * std::sin(t * theta)) * (1.0f / std::sin(theta));
 }
+Quaternion MakeRotateXAngleQuaternion(float radians) {
+	Quaternion q;
+	float halfAngle = radians * 0.5f;
+	q.w = std::cos(halfAngle);
+	q.x = std::sin(halfAngle);
+	q.y = 0.0f;
+	q.z = 0.0f;
+	return q;
+}
+Quaternion MakeRotateYAngleQuaternion(float radians) {
+	Quaternion q;
+	float halfAngle = radians * 0.5f;
+	q.w = std::cos(halfAngle);
+	q.x = 0.0f;
+	q.y = std::sin(halfAngle);
+	q.z = 0.0f;
+	return q;
+}
+Quaternion MakeRotateZAngleQuaternion(float radians) {
+	Quaternion q;
+	float halfAngle = radians * 0.5f;
+	q.w = std::cos(halfAngle);
+	q.x = 0.0f;
+	q.y = 0.0f;
+	q.z = std::sin(halfAngle);
+	return q;
+}
 Quaternion MakeRotateAxisAngleQuaternion(const Vector3& axis, float angle) {
 	float halfAngle = angle * 0.5f;
 	float sinHalfAngle = std::sinf(halfAngle);

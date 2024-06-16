@@ -59,6 +59,7 @@ void Boss::Initialize() {
 
 	worldTransform_.Reset();
 	worldTransform_.translate = offset_;
+	worldTransform_.rotate = MakeRotateYAngleQuaternion(DegToRad(180.0f));
 	animationTransform_.Reset();
 	animationTransform_.parent_ = &worldTransform_;
 	animationTransform_.translate = animationWorldTransformOffset_;
@@ -79,7 +80,6 @@ void Boss::Draw(const ViewProjection& viewProjection, CommandContext& commandCon
 }
 
 void Boss::DrawImGui() {
-	bossStateManager_->DrawImGui();
 	ImGui::Begin("InGame");
 	if (ImGui::BeginMenu("Boss")) {
 		auto& color = ModelManager::GetInstance()->GetModel(bossModelHandle_).GetMaterialColor();
@@ -113,6 +113,8 @@ void Boss::DrawImGui() {
 		ImGui::EndMenu();
 	}
 	ImGui::End();
+	bossStateManager_->DrawImGui();
+
 }
 
 void Boss::DrawDebug(const ViewProjection& viewProjection) {

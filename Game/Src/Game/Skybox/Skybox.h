@@ -17,6 +17,8 @@ public:
 	void Initialize();
 	void Update();
 	void Draw(CommandContext& commandContext, const ViewProjection& viewProjection);
+
+	void DrawImGui();
 private:
 	std::unique_ptr<PipelineState> pipelineState_;
 	std::unique_ptr<RootSignature> rootSignature_;

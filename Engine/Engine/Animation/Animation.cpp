@@ -56,13 +56,27 @@ namespace Animation {
 		}
 	}
 
+	void ApplyAnimationTransition(Skeleton& skeleton, const AnimationDesc& from, float fromTime, const AnimationDesc& to, float toTime, float animationTime) {
+		for (auto& joint : skeleton.joints) {
+			auto fromIt = from.nodeAnimations.find(joint.name);
+			auto toIt = to.nodeAnimations.find(joint.name);
+			if (fromIt != from.nodeAnimations.end() && toIt != to.nodeAnimations.end()) {
+				const NodeAnimation& fromNodeAnimation = (*fromIt).second;
+				const NodeAnimation& toNodeAnimation = (*toIt).second;
+				joint.transform.translate = Lerp(CalculateValue(fromNodeAnimation.translate, fromTime), CalculateValue(toNodeAnimation.translate, toTime), animationTime);
+				joint.transform.rotate = Slerp(CalculateValue(fromNodeAnimation.rotate, fromTime), CalculateValue(toNodeAnimation.rotate, toTime), animationTime);
+				joint.transform.scale = Lerp(CalculateValue(fromNodeAnimation.scale, fromTime), CalculateValue(toNodeAnimation.scale, toTime), animationTime);
+			}
+		}
+	}
+
 	std::vector<AnimationDesc> LoadAnimationFile(const std::filesystem::path& directoryPath) {
 		Assimp::Importer importer;
 		const aiScene* scene = importer.ReadFile(directoryPath.string(), 0);
 		// アニメーションがない
 		if (!scene) {
 			std::cerr << "Error: Failed to load input file: " << importer.GetErrorString() << std::endl;
-		assert(0);
+			assert(0);
 		}
 		assert(scene->mNumAnimations != 0);
 		std::vector<AnimationDesc> animationDescs{};
@@ -155,6 +169,12 @@ namespace Animation {
 
 	void Animation::Update(const AnimationHandle& handle, float time, CommandContext& commandContext, const ModelHandle& modelHandle) {
 		ApplyAnimation(skeleton, animations.at(handle), time);
+		skeleton.Update();
+		skinCluster.Update(skeleton, commandContext, modelHandle);
+	}
+
+	void Animation::Update(const AnimationHandle& pre, float fromTime, const AnimationHandle& current, float toTime, float time, CommandContext& commandContext, const ModelHandle& modelHandle) {
+		ApplyAnimationTransition(skeleton, animations.at(pre), fromTime, animations.at(current), toTime, time);
 		skeleton.Update();
 		skinCluster.Update(skeleton, commandContext, modelHandle);
 	}

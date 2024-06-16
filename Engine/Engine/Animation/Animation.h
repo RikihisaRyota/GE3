@@ -65,10 +65,11 @@ namespace Animation {
 		Skeleton skeleton;
 		SkinCluster skinCluster;
 		AnimationHandle GetAnimationHandle(const std::string& name);
-		
+
 		void Initialize(const ModelHandle& modelHandle);
 		void Initialize(const std::filesystem::path& path, const ModelHandle& modelHandle);
-		void Update(const AnimationHandle& handle,float time, CommandContext& commandContext, const ModelHandle& modelHandle);
+		void Update(const AnimationHandle& handle, float time, CommandContext& commandContext, const ModelHandle& modelHandle);
+		void Update(const AnimationHandle& pre, float fromTime, const AnimationHandle& current, float toTime, float time, CommandContext& commandContext, const ModelHandle& modelHandle);
 		void DrawLine(const WorldTransform& worldTransform);
 		void DrawBox(const WorldTransform& worldTransform, const ViewProjection& viewProjection);
 
@@ -79,4 +80,5 @@ namespace Animation {
 	Vector3 CalculateValue(const AnimationCurve<Vector3>& keyframes, float time);
 	Quaternion CalculateValue(const AnimationCurve<Quaternion>& keyframes, float time);
 	void ApplyAnimation(Skeleton& skeleton, const AnimationDesc& animation, float animationTime);
+	void ApplyAnimationTransition(Skeleton& skeleton, const AnimationDesc& from, float fromTime, const AnimationDesc& to, float toTime, float animationTime);
 }

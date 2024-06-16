@@ -241,6 +241,7 @@ void GameScene::Update(CommandContext& commandContext) {
 	CollisionManager::GetInstance()->Collision();
 
 #ifdef _DEBUG
+	skybox_->DrawImGui();
 	followCamera_->DrawImGui();
 	player_->DrawImGui();
 	boss_->DrawImGui();

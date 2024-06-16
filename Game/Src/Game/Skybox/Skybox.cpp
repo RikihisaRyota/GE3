@@ -142,21 +142,12 @@ Skybox::Skybox() {
 
 void Skybox::Initialize() {
 	worldTransform_.Reset();
-	worldTransform_.scale = { 10.0f,10.0f,10.0f };
+	worldTransform_.scale = { 30.0f,30.0f,30.0f };
 	worldTransform_.UpdateMatrix();
 }
 
 void Skybox::Update() {
-#ifdef _DEBUG
-	ImGui::Begin("InGame");
-	if (ImGui::TreeNode("Skybox")) {
-		ImGui::DragFloat3("scale", &worldTransform_.scale.x, 1.0f, 0.0f);
-		ImGui::TreePop();
-	}
-	ImGui::End();
 	worldTransform_.UpdateMatrix();
-#endif // _DEBUG
-
 }
 
 
@@ -173,4 +164,13 @@ void Skybox::Draw(CommandContext& commandContext, const ViewProjection& viewProj
 	commandContext.SetGraphicsDescriptorTable(Param::kTexture, TextureManager::GetInstance()->GetTexture(textureHandle_).GetSRV());
 
 	commandContext.Draw(static_cast<UINT>(vertices_.size()));
+}
+
+void Skybox::DrawImGui() {
+	ImGui::Begin("InGame");
+	if (ImGui::BeginMenu("Skybox")) {
+		ImGui::DragFloat3("scale", &worldTransform_.scale.x, 1.0f, 0.0f);
+		ImGui::EndMenu();
+	}
+	ImGui::End();
 }

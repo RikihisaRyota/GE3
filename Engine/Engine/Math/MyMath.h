@@ -22,6 +22,10 @@ Quaternion Multiply(const Quaternion& p1, float scalar);
 float Norm(const Quaternion& quaternion);
 Quaternion Slerp(const Quaternion& q0, const Quaternion& q1, float t);
 // 任意軸回転(Quaternion)
+Quaternion MakeRotateXAngleQuaternion(float radians);
+Quaternion MakeRotateYAngleQuaternion(float radians);
+Quaternion MakeRotateZAngleQuaternion(float radians);
+
 Quaternion MakeRotateAxisAngleQuaternion(const Vector3& axis, float angle);
 Quaternion MakeRotateQuaternion(const Vector3& from, const Vector3 to);
 Quaternion MakeFromOrthonormal(const Vector3& x, const Vector3& y, const Vector3& z);

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <optional>
 #include <memory>
 
 #include "Engine/Math/Random.h"
@@ -17,6 +18,8 @@ public:
 	virtual	void SetDesc() = 0;
 	virtual void Update(CommandContext& commandContext) = 0;
 	//virtual void OnCollision(const ColliderDesc& colliderDesc) = 0;
+	const Animation::AnimationHandle& GetAnimationHandle() const { return animationHandle_; }
+	const float GetAnimationTime() const { return time_;  }
 	BossStateManager& GetManager() { return manager_; }
 protected:
 	Animation::AnimationHandle animationHandle_;
@@ -37,7 +40,6 @@ public:
 	void Initialize() override;
 	void SetDesc() override;
 	void Update(CommandContext& commandContext) override;
-
 private:
 	JsonData data_;
 };
@@ -53,7 +55,6 @@ public:
 	void Initialize() override;
 	void SetDesc() override;
 	void Update(CommandContext& commandContext) override;
-
 private:
 	JsonData data_;
 };
@@ -69,7 +70,6 @@ public:
 	void Initialize() override;
 	void SetDesc() override;
 	void Update(CommandContext& commandContext) override;
-
 private:
 	JsonData data_;
 };
@@ -97,10 +97,31 @@ public:
 
 	void Update(CommandContext& commandContext);
 
+	const Animation::AnimationHandle GetAnimationHandle() const {
+		if (preAnimationHandle_.has_value()) {
+			return preAnimationHandle_.value();
+		}
+		return Animation::AnimationHandle();  
+	}
+
+	const float GetAnimationTime() const {
+		if (preAnimationTime_.has_value()) {
+			return preAnimationTime_.value();
+		}
+		return 0.0f;
+	}
 	template<class T>
-	void ChangeState(bool flag) {
+	void ChangeState() {
+		bool inTransition = false;
+		if (activeState_) {
+			preAnimationHandle_ = activeState_->GetAnimationHandle();
+			preAnimationTime_ = activeState_->GetAnimationTime();
+			if (preAnimationHandle_) {
+				inTransition = true;
+			}
+		}
 		static_assert(std::is_base_of_v<BossState, T>, "Not inherited.");
-		standbyState_ = std::make_unique<T>(*this, flag);
+		standbyState_ = std::make_unique<T>(*this, inTransition);
 		standbyStateEnum_ = GetStateEnum<T>();
 	}
 	JsonData jsonData_;
@@ -114,5 +135,6 @@ private:
 	State standbyStateEnum_;
 	std::unique_ptr<BossState> activeState_;
 	std::unique_ptr<BossState> standbyState_;
-
+	std::optional<float>preAnimationTime_;
+	std::optional<Animation::AnimationHandle> preAnimationHandle_;
 };

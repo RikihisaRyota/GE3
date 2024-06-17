@@ -16,6 +16,12 @@ class GPUParticleManager;
 class CommandContext;
 class Player {
 public:
+	enum State {
+		kRoot,
+		kWalk,
+		kShootWalk,
+		kCount,
+	};
 	Player();
 
 	void Initialize();
@@ -23,6 +29,7 @@ public:
 	void Update(CommandContext& commandContext);
 
 	void Draw(const ViewProjection& viewProjection, CommandContext& commandContext);
+	void DrawSprite(CommandContext& commandContext);
 	void DrawDebug(const ViewProjection& viewProjection);
 
 	void SetGPUParticleManager(GPUParticleManager* GPUParticleManager) { gpuParticleManager_ = GPUParticleManager; }
@@ -30,8 +37,6 @@ public:
 	const WorldTransform& GetWorldTransform() const { return worldTransform_; }
 	void DrawImGui();
 private:
-	
-
 	void UpdateTransform();
 
 	void Move();
@@ -56,7 +61,15 @@ private:
 	WorldTransform animationTransform_;
 	Animation::Animation animation_;
 	Animation::AnimationHandle walkHandle_;
+	Animation::AnimationHandle shootWalkHandle_;
+	Animation::AnimationHandle idleHandle_;
+	Animation::AnimationHandle currentAnimationHandle_;
+	Animation::AnimationHandle preAnimationHandle_;
+	State state_;
+	State preState_;
 	float animationTime_;
+	float transitionTime_;
+	bool onTransition_;
 
 	Vector4 colliderColor_;
 
@@ -66,6 +79,12 @@ private:
 	std::unique_ptr<PlayerUI> playerUI_;
 
 	float reticleDistance_;
+	float bulletSpeed_;
 	uint32_t bulletLifeTime_;
 	uint32_t bulletCoolTime_;
+	
+	float idleAnimationCycle_;
+	float walkAnimationCycle_;
+	float shootWalkAnimationCycle_;
+	float transitionCycle_;
 };

@@ -14,6 +14,9 @@ PixelShaderOutput main(VSOutput input)
 {
     PixelShaderOutput output;
     output.color = gMaterial.color * gTexture.Sample(gSampler, input.uv);
+    if(output.color.a<=0.5f){
+        discard;
+    }
     return output;
 
 }

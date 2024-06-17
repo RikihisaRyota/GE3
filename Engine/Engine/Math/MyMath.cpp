@@ -959,22 +959,23 @@ bool SeparationAxis(const Vector3 axis, const OBB obb_1, const OBB obb_2) {// åˆ
 }
 
 float Angle(const Vector3& from, const Vector3& to) {
-	float dot = Dot(from, to);
-	Vector2 Vector2From = { from.x ,from.z };
-	Vector2 Vector2To = { to.x ,to.z };
-	if (dot >= 1.0f) {
-		return 0.0f;
-	}
-	if (dot <= -1.0f) {
-		return DegToRad(180.0f);
-	}
+	return std::acos(Dot(from.Normalized(), to.Normalized()));
+	//float dot = Dot(from, to);
+	//Vector2 Vector2From = { from.x ,from.z };
+	//Vector2 Vector2To = { to.x ,to.z };
+	//if (dot >= 1.0f) {
+	//	return 0.0f;
+	//}
+	//if (dot <= -1.0f) {
+	//	return DegToRad(180.0f);
+	//}
 
-	if (Cross(Vector2From, Vector2To) > 0) {
-		return -std::acosf(dot);
-	}
-	else {
-		return std::acosf(dot);
-	}
+	//if (Cross(Vector2From, Vector2To) > 0) {
+	//	return -std::acosf(dot);
+	//}
+	//else {
+	//	return std::acosf(dot);
+	//}
 }
 
 
@@ -1095,23 +1096,30 @@ Quaternion MakeRotateZAngleQuaternion(float radians) {
 	return q;
 }
 Quaternion MakeRotateAxisAngleQuaternion(const Vector3& axis, float angle) {
-	float halfAngle = angle * 0.5f;
-	float sinHalfAngle = std::sinf(halfAngle);
-	Vector3 normalizedAxis;
-	if (axis.Length() > 0) {
-		normalizedAxis = Normalize(axis);
-	}
-	else {
-		normalizedAxis = axis;
-	}
+	Vector3 v = axis.Normalized() * std::sin(angle * 0.5f);
+	return Quaternion{
+		v.x,
+		v.y,
+		v.z,
+		std::cos(angle * 0.5f) };
+	
+	//float halfAngle = angle * 0.5f;
+	//float sinHalfAngle = std::sinf(halfAngle);
+	//Vector3 normalizedAxis;
+	//if (axis.Length() > 0) {
+	//	normalizedAxis = Normalize(axis);
+	//}
+	//else {
+	//	normalizedAxis = axis;
+	//}
 
-	Quaternion result;
-	result.x = normalizedAxis.x * sinHalfAngle;
-	result.y = normalizedAxis.y * sinHalfAngle;
-	result.z = normalizedAxis.z * sinHalfAngle;
-	result.w = std::cosf(halfAngle);
+	//Quaternion result;
+	//result.x = normalizedAxis.x * sinHalfAngle;
+	//result.y = normalizedAxis.y * sinHalfAngle;
+	//result.z = normalizedAxis.z * sinHalfAngle;
+	//result.w = std::cosf(halfAngle);
 
-	return result;
+	//return result;
 }
 
 Quaternion MakeRotateQuaternion(const Vector3& from, const Vector3 to) {
@@ -1140,6 +1148,11 @@ Quaternion MakeRotateQuaternion(const Vector3& from, const Vector3 to) {
 	result.w = std::cos(halfCos);
 
 	return result;
+}
+Quaternion MakeFromTwoVector(const Vector3& from, const Vector3& to) {
+	Vector3 axis = Cross(from, to).Normalized();
+	float angle = Angle(from, to);
+	return MakeRotateAxisAngleQuaternion(axis, angle);
 }
 Quaternion MakeFromOrthonormal(const Vector3& x, const Vector3& y, const Vector3& z) {
 	float trace = x.x + y.y + z.z;

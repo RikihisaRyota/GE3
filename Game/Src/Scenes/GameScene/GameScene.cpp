@@ -264,6 +264,7 @@ void GameScene::Draw(CommandContext& commandContext) {
 	skybox_->Draw(commandContext, *viewProjection_);
 	gpuParticleManager_->Draw(*viewProjection_, commandContext);
 
+	player_->DrawSprite(commandContext);
 #ifdef _DEBUG
 	player_->DrawDebug(*viewProjection_);
 	boss_->DrawDebug(*viewProjection_);

@@ -101,6 +101,7 @@ bool OBBCollider::IsCollision(OBBCollider* other, ColliderDesc& desc) {
 	Vector3 minOverlapAxis = {};
 
 	auto IsSeparateAxis = [&](const Vector3& axis) {
+		if (axis.LengthSquared() < 1e-6) { return false; }
 		if (axis == Vector3(0.0f,0.0f,0.0f)) { return false; }
 		Vector2 minmax1 = Projection(vertices1, axis);
 		Vector2 minmax2 = Projection(vertices2, axis);
@@ -135,7 +136,6 @@ bool OBBCollider::IsCollision(OBBCollider* other, ColliderDesc& desc) {
 void OBBCollider::DrawCollision(const ViewProjection& viewProjection, const Vector4& color) {
 	auto drawLine = DrawLine::GetInstance();
 	std::vector<Vector3> vertices = GetVertices(obb_);
-	// Define the edges by specifying the index pairs of the vertices
 	const std::vector<std::pair<int, int>> edges = {
 		{0, 1}, {1, 2}, {2, 3}, {3, 0}, // 前面の4つの辺
 		{4, 5}, {5, 6}, {6, 7}, {7, 4}, // 背面の4つの辺

@@ -4,19 +4,32 @@
 
 #include "imgui.h"
 
+#include "Engine/Json/JsonUtils.h"
 #include "Engine/Model/ModelManager.h"
 #include "Engine/Input/Input.h"
 #include "Engine/Math/MyMath.h"
 #include "Engine/Collision/CollisionAttribute.h"
 #include "Engine/GPUParticleManager/GPUParticleManager.h"
+#include "Engine/WinApp/WinApp.h"
 
 Player::Player() {
 	ModelManager::GetInstance()->Load("Resources/Models/Bullet/bullet.gltf");
 	playerModelHandle_ = ModelManager::GetInstance()->Load("Resources/Models/Player/player.gltf");
-	animation_.Initialize("Resources/Animation/Player/animation.gltf",playerModelHandle_);
+	animation_.Initialize("Resources/Animation/Player/animation.gltf", playerModelHandle_);
 	walkHandle_ = animation_.GetAnimationHandle("walk");
 	worldTransform_.Initialize();
 	animationTransform_.Initialize();
+
+	playerUI_ = std::make_unique<PlayerUI>();
+
+	JSON_OPEN("Resources/Data/Player/player.json");
+	JSON_OBJECT("playerProperties");
+	JSON_LOAD(reticleDistance_);
+	JSON_LOAD(bulletLifeTime_);
+	JSON_LOAD(bulletCoolTime_);
+	JSON_ROOT();
+	JSON_CLOSE();
+
 #pragma region コライダー
 	collider_ = new OBBCollider();
 	collider_->SetName("Player");
@@ -33,6 +46,7 @@ Player::Player() {
 }
 
 void Player::Initialize() {
+	playerUI_->Initialize();
 	worldTransform_.Reset();
 	animationTransform_.Reset();
 	animationTransform_.parent_ = &worldTransform_;
@@ -50,15 +64,17 @@ void Player::Update(CommandContext& commandContext) {
 	UpdateTransform();
 
 	GPUParticleSpawn();
+
+	playerUI_->Update();
 }
 
 void Player::Draw(const ViewProjection& viewProjection, CommandContext& commandContext) {
 	ModelManager::GetInstance()->Draw(animationTransform_, animation_, *viewProjection_, playerModelHandle_, commandContext);
-
 	// 弾
 	for (auto& bullet : playerBullets_) {
 		bullet->Draw(viewProjection, commandContext);
 	}
+	playerUI_->Draw(commandContext);
 }
 
 void Player::DrawDebug(const ViewProjection& viewProjection) {
@@ -90,16 +106,48 @@ void Player::BulletUpdate() {
 
 void Player::Shot() {
 	bulletTime_++;
-	if (Input::GetInstance()->PushKey(DIK_SPACE) && bulletTime_ >= kBulletCoolTime) {
+
+	// レティクルのスクリーン座標
+	Vector2 reticlePos = { 1280 * 0.5f, 720.0f * 0.5f };
+	if (Input::GetInstance()->PushKey(DIK_SPACE) && bulletTime_ >= bulletCoolTime_) {
 		bulletTime_ = 0;
+
+		// プレイヤーの位置
+		Vector3 playerPosition = MakeTranslateMatrix(worldTransform_.matWorld) * Vector3(1.0f, 5.0f, 1.0f);
+
+		// VPV合成行列
+		Matrix4x4 matVPV = viewProjection_->matView_ * viewProjection_->matProjection_ * MakeViewportMatrix(0.0f, 0.0f, float(WinApp::kWindowWidth), float(WinApp::kWindowHeight), viewProjection_->nearZ_, viewProjection_->farZ_);
+		// 逆行列に
+		Matrix4x4 inverseVPV = Inverse(matVPV);
+
+		// スクリーン座標
+		Vector3 posNear = Vector3(reticlePos.x, reticlePos.y, 0.0f);
+		Vector3 posFar = Vector3(reticlePos.x, reticlePos.y, 1.0f);
+
+		// スクリーンからワールド座標へ
+		posNear = Transform(posNear, inverseVPV);
+		posFar = Transform(posFar, inverseVPV);
+
+		// レイの方向ベクトルを計算
+		Vector3 rayDirection = Normalize(posFar - posNear);
+
+		// 3Dレティクルの位置
+		Vector3 reticle3D = posNear + (rayDirection * reticleDistance_);
+
+		// 弾の速度ベクトルを計算
+		Vector3 bulletVelocity = Normalize(reticle3D - playerPosition) * 0.5f;
+
+		// 弾を作成
 		playerBullets_.emplace_back(std::make_unique<PlayerBullet>());
-		playerBullets_.back()->Create(gpuParticleManager_, MakeTranslateMatrix(worldTransform_.matWorld) * Vector3(1.0f, 5.0f, 1.0f), Normalize(GetZAxis(MakeRotate(worldTransform_.rotate))) * 0.5f, kBulletTime);
+		playerBullets_.back()->Create(gpuParticleManager_, playerPosition, bulletVelocity, bulletLifeTime_);
 	}
+
+
 
 }
 
 void Player::OnCollision(const ColliderDesc& desc) {
-	if (desc.collider->GetName() == "Boss"||
+	if (desc.collider->GetName() == "Boss" ||
 		desc.collider->GetName() == "GameObject") {
 		// ワールド空間の押し出しベクトル
 		Vector3 pushVector = desc.normal * desc.depth;
@@ -125,7 +173,7 @@ void Player::GPUParticleSpawn() {
 		Vector3 worldPos = MakeTranslateMatrix(worldMatrix);
 		Vector3 parentPos = MakeTranslateMatrix(parentMatrix);
 		Vector3 born = (worldPos - parentPos);
-		
+
 		// 0
 		{
 			float startScaleMax = 0.25f;
@@ -269,7 +317,25 @@ void Player::DrawImGui() {
 		auto& material = ModelManager::GetInstance()->GetModel(playerModelHandle_).GetMaterialData();
 		ImGui::DragFloat4("color", &material.color.x, 0.1f, 0.0f, 1.0f);
 		ImGui::DragFloat("environmentCoefficient", &material.environmentCoefficient, 0.1f, 0.0f, 1.0f);
-
+		if (ImGui::TreeNode("PlayerProperties")) {
+			ImGui::DragFloat("reticleDistance", &reticleDistance_, 0.1f, 0.0f);
+			int time = bulletLifeTime_;
+			ImGui::DragInt("bulletLifeTime_", &time, 1, 0);
+			bulletLifeTime_ = time;
+			time = bulletCoolTime_;
+			ImGui::DragInt("bulletCoolTime_", &time, 1, 0);
+			bulletCoolTime_ = time;
+			if (ImGui::Button("Save")) {
+				JSON_OPEN("Resources/Data/Player/player.json");
+				JSON_OBJECT("playerProperties");
+				JSON_SAVE(reticleDistance_);
+				JSON_SAVE(bulletLifeTime_);
+				JSON_SAVE(bulletCoolTime_);
+				JSON_ROOT();
+				JSON_CLOSE();
+			}
+			ImGui::TreePop();
+		}
 		ImGui::EndMenu();
 	}
 	ImGui::End();
@@ -288,11 +354,11 @@ void Player::AnimationUpdate(CommandContext& commandContext) {
 	//animationTransform_.translate.y = (std::sin(time) * 0.05f);
 	static const float kCycle = 30.0f;
 	animationTime_ = std::fmodf(animationTime_, kCycle);
-	animation_.Update(walkHandle_, animationTime_ / kCycle,commandContext,playerModelHandle_);
+	animation_.Update(walkHandle_, animationTime_ / kCycle, commandContext, playerModelHandle_);
 }
 
 void Player::PlayerRotate(const Vector3& move) {
-	worldTransform_.rotate = Slerp(worldTransform_.rotate, MakeLookRotation({ move.x,0.0f,move.z }), 0.1f);
+	worldTransform_.rotate = Slerp(worldTransform_.rotate, MakeLookRotation(Vector3(move.x, 0.0f, move.z).Normalized()), 0.1f);
 	/*Vector3 vector = Conjugation(worldTransform_.rotate) * move;
 	if (Dot(Vector3(0.0f,0.0f,1.0f), vector) < 0.999f) {
 		Quaternion diff = MakeRotateQuaternion(Vector3(0.0f,0.0f,1.0f), vector);

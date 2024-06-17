@@ -8,6 +8,7 @@
 #include "Engine/Model/ModelHandle.h"
 
 #include "PlayerBullet.h"
+#include "PlayerUI/PlayerUI.h"
 #include "Engine/Animation/Animation.h"
 #include "Engine/Collision/Collider.h"
 
@@ -29,8 +30,7 @@ public:
 	const WorldTransform& GetWorldTransform() const { return worldTransform_; }
 	void DrawImGui();
 private:
-	static const uint32_t kBulletTime = 120;
-	static const uint32_t kBulletCoolTime = 15;
+	
 
 	void UpdateTransform();
 
@@ -62,4 +62,10 @@ private:
 
 	uint32_t bulletTime_;
 	std::list<std::unique_ptr<PlayerBullet>> playerBullets_;
+
+	std::unique_ptr<PlayerUI> playerUI_;
+
+	float reticleDistance_;
+	uint32_t bulletLifeTime_;
+	uint32_t bulletCoolTime_;
 };

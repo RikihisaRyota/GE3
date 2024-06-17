@@ -5,7 +5,7 @@
 #include <numbers>
 #include <list>
 #include <vector>
-
+#include <stdexcept>
 //#include "PrimitiveDrawer.h"
 
 #include "Vector3.h"
@@ -1041,23 +1041,32 @@ float Norm(const Quaternion& quaternion) {
 }
 
 Quaternion Slerp(const Quaternion& q0, const Quaternion& q1, float t) {
-	Quaternion start = q0;
+	Quaternion q1Adjusted = q1;
 	float dot = Dot(q0, q1);
+
+	// q0 と q1 がほぼ同じ場合、線形補間を使用
 	if (dot > 0.99999f) {
 		return Lerp(q0, q1, t);
 	}
-	// q1, q2が反対向きの場合
-	if (dot < 0) {
-		start.x = -start.x;
-		start.y = -start.y;
-		start.z = -start.z;
-		start.w = -start.w;
+
+	// q1 が反対向きの場合、q1 を反転させる
+	if (dot < 0.0f) {
+		q1Adjusted.x = -q1Adjusted.x;
+		q1Adjusted.y = -q1Adjusted.y;
+		q1Adjusted.z = -q1Adjusted.z;
+		q1Adjusted.w = -q1Adjusted.w;
 		dot = -dot;
 	}
+
 	// 球面線形補間の計算
 	float theta = std::acos(dot);
-	return (start * std::sin((1.0f - t) * theta) + q1 * std::sin(t * theta)) * (1.0f / std::sin(theta));
+	float sinTheta = std::sin(theta);
+	float weight0 = std::sin((1.0f - t) * theta) / sinTheta;
+	float weight1 = std::sin(t * theta) / sinTheta;
+
+	return (q0 * weight0) + (q1Adjusted * weight1);
 }
+
 Quaternion MakeRotateXAngleQuaternion(float radians) {
 	Quaternion q;
 	float halfAngle = radians * 0.5f;
@@ -1132,52 +1141,56 @@ Quaternion MakeRotateQuaternion(const Vector3& from, const Vector3 to) {
 
 	return result;
 }
-
 Quaternion MakeFromOrthonormal(const Vector3& x, const Vector3& y, const Vector3& z) {
 	float trace = x.x + y.y + z.z;
+	Quaternion result;
+
 	if (trace > 0.0f) {
-		float s = std::sqrt(trace + 1.0f) * 0.5f;
-		Quaternion result{};
-		result.w = s;
-		s = 0.25f / s;
+		float s = std::sqrt(trace + 1.0f);
+		result.w = 0.5f * s;
+		s = 0.5f / s;
 		result.x = (y.z - z.y) * s;
 		result.y = (z.x - x.z) * s;
 		result.z = (x.y - y.x) * s;
-		return result;
 	}
 	else if (x.x > y.y && x.x > z.z) {
-		float s = std::sqrt(1.0f + x.x - y.y - z.z) * 0.5f;
-		Quaternion result{};
-		result.x = s;
-		s = 0.25f / s;
+		float s = std::sqrt(1.0f + x.x - y.y - z.z);
+		result.x = 0.5f * s;
+		s = 0.5f / s;
 		result.y = (x.y + y.x) * s;
 		result.z = (z.x + x.z) * s;
 		result.w = (y.z - z.y) * s;
-		return result;
 	}
 	else if (y.y > z.z) {
-		float s = std::sqrt(1.0f - x.x + y.y - z.z) * 0.5f;
-		Quaternion result{};
-		result.y = s;
-		s = 0.25f / s;
+		float s = std::sqrt(1.0f - x.x + y.y - z.z);
+		result.y = 0.5f * s;
+		s = 0.5f / s;
 		result.x = (x.y + y.x) * s;
 		result.z = (y.z + z.y) * s;
 		result.w = (z.x - x.z) * s;
-		return result;
 	}
-	Quaternion result{};
-	float s = std::sqrt(1.0f - x.x - y.y + z.z) * 0.5f;
-	result.z = s;
-	s = 0.25f / s;
-	result.x = (z.x + x.z) * s;
-	result.y = (y.z + z.y) * s;
-	result.w = (x.y - y.x) * s;
+	else {
+		float s = std::sqrt(1.0f - x.x - y.y + z.z);
+		result.z = 0.5f * s;
+		s = 0.5f / s;
+		result.x = (z.x + x.z) * s;
+		result.y = (y.z + z.y) * s;
+		result.w = (x.y - y.x) * s;
+	}
+
 	return result;
 }
 
+
 Quaternion MakeLookRotation(const Vector3& direction, const Vector3& up) {
 	Vector3 z = Normalize(direction);
+	if (Length(z) < 1e-6) {
+		throw std::invalid_argument("direction vector cannot be zero.");
+	}
 	Vector3 x = Normalize(Cross(up, z));
+	if (Length(x) < 1e-6) {
+		throw std::invalid_argument("up vector cannot be parallel to the direction vector.");
+	}
 	Vector3 y = Cross(z, x);
 	return MakeFromOrthonormal(x, y, z);
 }

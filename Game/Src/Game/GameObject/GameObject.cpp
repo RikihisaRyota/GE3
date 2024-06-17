@@ -31,6 +31,7 @@ GameObject::GameObject(const LevelDataLoader::GameObject& desc, const WorldTrans
 }
 
 void GameObject::Initialize(const LevelDataLoader::GameObject& desc) {
+	colliderColor_ = { 0.0f,1.0f,0.0f,1.0f };
 	worldTransform_.translate = desc.transform.translate;
 	worldTransform_.rotate = desc.transform.rotate;
 	worldTransform_.scale = desc.transform.scale;
@@ -39,12 +40,13 @@ void GameObject::Initialize(const LevelDataLoader::GameObject& desc) {
 
 
 void GameObject::Update() {
+	colliderColor_ = { 0.0f,1.0f,0.0f,1.0f };
 	UpdateTransform();
 }
 
 void GameObject::Draw(const ViewProjection& viewProjection, CommandContext& commandContext) {
 	ModelManager::GetInstance()->Draw(worldTransform_, viewProjection, modelHandle_, commandContext);
-	collider_->DrawCollision(viewProjection, { 0.0f,1.0f,0.0f,1.0f });
+	collider_->DrawCollision(viewProjection, colliderColor_);
 }
 
 void GameObject::DrawImGui() {
@@ -66,5 +68,6 @@ void GameObject::UpdateTransform() {
 }
 
 void GameObject::OnCollision(const ColliderDesc& collisionInfo) {
+	colliderColor_ = { 1.0f,0.0f,0.0f,1.0f };
 	collisionInfo;
 }

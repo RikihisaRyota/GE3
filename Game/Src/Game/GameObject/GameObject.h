@@ -29,4 +29,5 @@ private:
 	ModelHandle modelHandle_;
 
 	LevelDataLoader::GameObject desc_;
+	Vector4 colliderColor_;
 };

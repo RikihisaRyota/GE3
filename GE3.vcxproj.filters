@@ -178,6 +178,9 @@
     <Filter Include="Game\Boss\BossHP">
       <UniqueIdentifier>{f931ce8a-b3f4-4497-8a3a-b90487070c8d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Game\Player\PlayerUI">
+      <UniqueIdentifier>{040f61b1-2448-4384-878e-61de9191ad10}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine\Engine\Math\MyMath.cpp">
@@ -412,7 +415,12 @@
     <ClCompile Include="Engine\Engine\Graphics\Dissolve.cpp">
       <Filter>Engine\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Game\Src\Game\Boss\BossHP\BossHP.cpp" />
+    <ClCompile Include="Game\Src\Game\Player\PlayerUI\PlayerUI.cpp">
+      <Filter>Game\Player\PlayerUI</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Src\Game\Boss\BossHP\BossHP.cpp">
+      <Filter>Game\Boss\BossHP</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\Engine\WinApp\WinApp.h">
@@ -696,6 +704,9 @@
     </ClInclude>
     <ClInclude Include="Game\Src\Game\Boss\BossHP\BossHP.h">
       <Filter>Game\Boss\BossHP</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Src\Game\Player\PlayerUI\PlayerUI.h">
+      <Filter>Game\Player\PlayerUI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

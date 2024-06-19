@@ -184,6 +184,9 @@
     <Filter Include="Game\Player\PlayerBullet">
       <UniqueIdentifier>{bc3a9218-b3e9-4762-a7f1-a937912e92b0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Game\Player\PlayerHP">
+      <UniqueIdentifier>{bdc3498c-901c-47b1-9507-a689dcc701b0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine\Engine\Math\MyMath.cpp">
@@ -424,7 +427,12 @@
     <ClCompile Include="Game\Src\Game\Player\PlayerBullet\PlayerBullet.cpp">
       <Filter>Game\Player\PlayerBullet</Filter>
     </ClCompile>
-    <ClCompile Include="Game\Src\Game\Player\PlayerBullet\PlayerBulletManager.cpp" />
+    <ClCompile Include="Game\Src\Game\Player\PlayerBullet\PlayerBulletManager.cpp">
+      <Filter>Game\Player\PlayerBullet</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Src\Game\Player\PlayerHP\PlayerHP.cpp">
+      <Filter>Game\Player\PlayerHP</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\Engine\WinApp\WinApp.h">
@@ -714,6 +722,9 @@
     </ClInclude>
     <ClInclude Include="Game\Src\Game\Player\PlayerBullet\PlayerBulletManager.h">
       <Filter>Game\Player\PlayerBullet</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Src\Game\Player\PlayerHP\PlayerHP.h">
+      <Filter>Game\Player\PlayerHP</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

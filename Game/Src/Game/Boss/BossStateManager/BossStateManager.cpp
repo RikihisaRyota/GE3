@@ -42,6 +42,7 @@ void BossStateTwoHandAttack::Initialize() {
 	SetDesc();
 	animationHandle_ = manager_.boss_->GetAnimation()->GetAnimationHandle("twoHandAttack");
 	time_ = 0.0f;
+	manager_.SetColliderActive(BossStateManager::kTwoHandAttack,true);
 }
 
 void BossStateTwoHandAttack::SetDesc() {
@@ -75,6 +76,7 @@ void BossStateTwoHandAttack::Update(CommandContext& commandContext) {
 
 	if (time_ >= 1.0f && !inTransition_) {
 		manager_.ChangeState<BossStateRoot>();
+		manager_.SetColliderActive(BossStateManager::kTwoHandAttack, false);
 	}
 }
 
@@ -82,6 +84,7 @@ void BossStateUpperAttack::Initialize() {
 	SetDesc();
 	animationHandle_ = manager_.boss_->GetAnimation()->GetAnimationHandle("upperAttack");
 	time_ = 0.0f;
+	manager_.SetColliderActive(BossStateManager::kUpperAttack, true);
 }
 
 void BossStateUpperAttack::SetDesc() {
@@ -115,6 +118,7 @@ void BossStateUpperAttack::Update(CommandContext& commandContext) {
 
 	if (time_ >= 1.0f && !inTransition_) {
 		manager_.ChangeState<BossStateRoot>();
+		manager_.SetColliderActive(BossStateManager::kUpperAttack, false);
 	}
 }
 
@@ -231,4 +235,16 @@ BossStateManager::State BossStateManager::GetStateEnum<BossStateTwoHandAttack>()
 template<>
 BossStateManager::State BossStateManager::GetStateEnum<BossStateUpperAttack>() {
 	return kUpperAttack;
+}
+
+void BossStateManager::SetColliderActive(const BossStateManager::State& state, bool flag) {
+	auto& colliders = boss_->GetCollider();
+	auto& colliderTypes = boss_->GetColliderType(stateNames_.at(state));
+	for (auto& collider : colliders) {
+		for (auto& typeName : colliderTypes) {
+			if (collider.first == typeName) {
+				collider.second->attack->SetIsActive(flag);
+			}
+		}
+	}
 }

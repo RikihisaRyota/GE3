@@ -1,8 +1,7 @@
 {
     "StateRoot": {
         "jsonData_.root.allFrame": 360.0,
-        "jsonData_.root.transitionFrame": 15.0,
-        "maxHP_": 200
+        "jsonData_.root.transitionFrame": 15.0
     },
     "StateTwoHandAttack": {
         "jsonData_.twoHand.allFrame": 360.0,

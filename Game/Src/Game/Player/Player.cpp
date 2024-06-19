@@ -23,10 +23,12 @@ Player::Player() {
 	playerBulletManager_ = std::make_unique<PlayerBulletManager>();
 	playerUI_ = std::make_unique<PlayerUI>();
 	playerBulletManager_->SetPlayerUI(playerUI_.get());
+	playerHP_ = std::make_unique<PlayerHP>();
 	JSON_OPEN("Resources/Data/Player/player.json");
 	JSON_OBJECT("playerProperties");
 	JSON_LOAD(walkSpeed_);
 	JSON_LOAD(shootingWalkSpeed_);
+	JSON_LOAD(gravity_);
 	JSON_ROOT();
 	JSON_OBJECT("playerAnimation");
 	JSON_LOAD(transitionCycle_);
@@ -46,7 +48,7 @@ Player::Player() {
 	collider_->SetSize({ modelSize.x * worldTransform_.scale.x,modelSize.y * worldTransform_.scale.y,modelSize.z * worldTransform_.scale.z });
 	collider_->SetCallback([this](const ColliderDesc& collisionInfo) { OnCollision(collisionInfo); });
 	collider_->SetCollisionAttribute(CollisionAttribute::Player);
-	collider_->SetCollisionMask(CollisionAttribute::BossBody| CollisionAttribute::BossAttack| CollisionAttribute::GameObject);
+	collider_->SetCollisionMask(CollisionAttribute::BossBody | CollisionAttribute::BossAttack | CollisionAttribute::GameObject);
 	collider_->SetIsActive(true);
 #pragma endregion
 }
@@ -54,10 +56,14 @@ Player::Player() {
 void Player::Initialize() {
 	state_ = kRoot;
 	playerBulletManager_->Initialize();
+	playerHP_->Initialize();
 	playerUI_->Initialize();
 	worldTransform_.Reset();
+	worldTransform_.translate.y = 1.0f;
 	animationTransform_.Reset();
 	animationTransform_.parent_ = &worldTransform_;
+	velocity_ = { 0.0f,0.0f,0.0f };
+	acceleration_ = { 0.0f,0.0f,0.0f };
 	UpdateTransform();
 }
 
@@ -67,6 +73,11 @@ void Player::Update(CommandContext& commandContext) {
 	state_ = kRoot;
 
 	Move();
+
+	acceleration_.y -= gravity_;
+	acceleration_ *= 0.9f;
+	velocity_ += acceleration_;
+	worldTransform_.translate += velocity_;
 
 	AnimationUpdate(commandContext);
 
@@ -116,7 +127,25 @@ void Player::OnCollision(const ColliderDesc& desc) {
 		if (parent) {
 			pushVector = Inverse(parent->rotate) * pushVector;
 		}
+		// 上から乗ったら
+		if (std::fabs(Dot(desc.normal, {0.0f,-1.0f,0.0f})) >= 0.5f) {
+			acceleration_.y = 0.0f;
+		}
+
 		worldTransform_.translate += pushVector;
+
+		UpdateTransform();
+		colliderColor_ = { 1.0f,0.0f,0.0f,1.0f };
+	}
+	if (desc.collider->GetName() == "BossAttack") {
+		playerHP_->HitDamage(1);
+		// ワールド空間の押し出しベクトル
+		Vector3 pushVector = desc.normal * desc.depth;
+		auto parent = worldTransform_.parent_;
+		if (parent) {
+			pushVector = Inverse(parent->rotate) * pushVector;
+		}
+		acceleration_ += pushVector;
 
 		UpdateTransform();
 		colliderColor_ = { 1.0f,0.0f,0.0f,1.0f };
@@ -266,13 +295,14 @@ void Player::Move() {
 		Matrix4x4 rotate = MakeRotateYMatrix(viewProjection_->rotation_.y);
 		// オフセットをカメラの回転に合わせて回転させる
 		vector = TransformNormal(vector.Normalized(), rotate);
-		
+
 		PlayerRotate(vector.Normalized());
 	}
 	if (Input::GetInstance()->PushKey(DIK_LSHIFT)) {
 		state_ = kShootWalk;
 
 		worldTransform_.rotate = Slerp(worldTransform_.rotate, MakeRotateYAngleQuaternion(viewProjection_->rotation_.y), 0.5f);
+		worldTransform_.rotate = Normalize(worldTransform_.rotate);
 	}
 	float speed = 0.0f;
 	switch (state_) {
@@ -289,22 +319,26 @@ void Player::Move() {
 	default:
 		break;
 	}
-	worldTransform_.translate += vector * speed;
+	velocity_ = vector * speed;
 }
 
 void Player::DrawImGui() {
 	ImGui::Begin("InGame");
 	if (ImGui::BeginMenu("Player")) {
 		ImGui::DragFloat3("position", &worldTransform_.translate.x, 0.1f);
+		ImGui::DragFloat3("velocity", &velocity_.x, 0.1f);
+		ImGui::DragFloat3("acceleration", &acceleration_.x, 0.1f);
 		auto& material = ModelManager::GetInstance()->GetModel(playerModelHandle_).GetMaterialData();
 		ImGui::DragFloat4("color", &material.color.x, 0.1f, 0.0f, 1.0f);
 		ImGui::DragFloat("environmentCoefficient", &material.environmentCoefficient, 0.1f, 0.0f, 1.0f);
 		if (ImGui::TreeNode("PlayerProperties")) {
+			ImGui::DragFloat("gravity", &gravity_,0.01f,0.0f);
 			ImGui::DragFloat("walkSpeed_", &walkSpeed_, 0.1f, 0.0f);
 			ImGui::DragFloat("shootingWalkSpeed_", &shootingWalkSpeed_, 0.1f, 0.0f);
 			if (ImGui::Button("Save")) {
 				JSON_OPEN("Resources/Data/Player/player.json");
 				JSON_OBJECT("playerProperties");
+				JSON_SAVE(gravity_);
 				JSON_SAVE(walkSpeed_);
 				JSON_SAVE(shootingWalkSpeed_);
 				JSON_ROOT();
@@ -333,6 +367,7 @@ void Player::DrawImGui() {
 	}
 	ImGui::End();
 	playerBulletManager_->DrawImGui();
+	playerHP_->DrawImGui();
 }
 
 void Player::AnimationUpdate(CommandContext& commandContext) {

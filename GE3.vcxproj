@@ -220,6 +220,7 @@
     <ClCompile Include="Game\Src\Game\Player\Player.cpp" />
     <ClCompile Include="Game\Src\Game\Player\PlayerBullet\PlayerBullet.cpp" />
     <ClCompile Include="Game\Src\Game\Player\PlayerBullet\PlayerBulletManager.cpp" />
+    <ClCompile Include="Game\Src\Game\Player\PlayerHP\PlayerHP.cpp" />
     <ClCompile Include="Game\Src\Game\Player\PlayerUI\PlayerUI.cpp" />
     <ClCompile Include="Game\Src\Game\Skybox\Skybox.cpp" />
     <ClCompile Include="Game\Src\main.cpp" />
@@ -317,6 +318,7 @@
     <ClInclude Include="Game\Src\Game\Player\Player.h" />
     <ClInclude Include="Game\Src\Game\Player\PlayerBullet\PlayerBullet.h" />
     <ClInclude Include="Game\Src\Game\Player\PlayerBullet\PlayerBulletManager.h" />
+    <ClInclude Include="Game\Src\Game\Player\PlayerHP\PlayerHP.h" />
     <ClInclude Include="Game\Src\Game\Player\PlayerUI\PlayerUI.h" />
     <ClInclude Include="Game\Src\Game\Skybox\Skybox.h" />
     <ClInclude Include="Game\Src\Scenes\BaseScene\BaseScene.h" />

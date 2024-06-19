@@ -16,6 +16,12 @@
 class GPUParticleManager;
 class CommandContext;
 class Boss {
+private:
+	struct BossCollider {
+		std::unique_ptr<OBBCollider> body;
+		std::unique_ptr<OBBCollider> attack;
+		Vector4 color;
+	};
 public:
 	Boss();
 	void Initialize();
@@ -28,13 +34,9 @@ public:
 	const ModelHandle& GetModelHandle() { return bossModelHandle_; }
 	void DrawImGui(); 
 	void DrawDebug(const ViewProjection& viewProjection);
+	std::unordered_map<std::string, std::unique_ptr<BossCollider>>& GetCollider() {	return bossCollider_;}
+	const std::vector<std::string>& GetColliderType(const std::string& name) { return colliderType_[name]; }
 private:
-	struct BossCollider {
-		std::unique_ptr<OBBCollider> body;
-		std::unique_ptr<OBBCollider> attack;
-		Vector4 color;
-	};
-
 	void UpdateCollider();
 	void UpdateGPUParticle();
 	void UpdateTransform();

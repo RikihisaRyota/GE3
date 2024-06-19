@@ -49,6 +49,7 @@ void PlayerBulletManager::DrawImGui() {
 	ImGui::Begin("InGame");
 	if (ImGui::BeginMenu("Player")) {
 		if (ImGui::TreeNode("PlayerBullet")) {
+			ImGui::DragFloat3("offset", &offset_.x, 0.1f, 0.0f);
 			ImGui::DragFloat("reticleDistance", &reticleDistance_, 0.1f, 0.0f);
 			ImGui::DragFloat("bulletSpeed_", &bulletSpeed_, 0.1f, 0.0f);
 			int time = bulletLifeTime_;

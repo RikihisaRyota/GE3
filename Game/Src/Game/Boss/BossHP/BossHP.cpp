@@ -5,8 +5,8 @@
 #include "Engine/Json/JsonUtils.h"
 #include "Engine/ImGui/ImGuiManager.h"
 BossHP::BossHP() {
-	JSON_OPEN("Resources/Data/Boss/BossState.json");
-	JSON_OBJECT("StateRoot");
+	JSON_OPEN("Resources/Data/Boss/bossHP.json");
+	JSON_OBJECT("BossHP");
 	JSON_LOAD(maxHP_);
 	JSON_ROOT();
 	JSON_CLOSE();
@@ -30,8 +30,8 @@ void BossHP::DrawImGui() {
 			ImGui::DragInt("CurrentHP", &currentHP, 1, 0, maxHP);
 			currentHP_ = currentHP;
 			if (ImGui::Button("Save")) {
-				JSON_OPEN("Resources/Data/Boss/BossState.json");
-				JSON_OBJECT("StateRoot");
+				JSON_OPEN("Resources/Data/Boss/bossHP.json");
+				JSON_OBJECT("BossHP");
 				JSON_SAVE(maxHP_);
 				JSON_ROOT();
 				JSON_CLOSE();

@@ -119,7 +119,6 @@ void Boss::Draw(const ViewProjection& viewProjection, CommandContext& commandCon
 }
 
 void Boss::DrawImGui() {
-	ImGui::ShowDemoWindow();
 	ImGui::Begin("InGame");
 	if (ImGui::BeginMenu("Boss")) {
 		auto& color = ModelManager::GetInstance()->GetModel(bossModelHandle_).GetMaterialColor();
@@ -145,11 +144,11 @@ void Boss::DrawImGui() {
 			if (ImGui::TreeNode("Size")) {
 				for (auto& size : colliderSize_) {
 					ImGui::DragFloat(size.first.c_str(), &size.second, 0.1f, 0.0f);
-					bossCollider_[size.first]->color = { 0.0f,0.0f,1.0f,1.0f };
+					//bossCollider_[size.first]->color = { 0.0f,0.0f,1.0f,1.0f };
 				}
 				if (ImGui::Button("Save")) {
-					JSON_OPEN("Resources/Data/Boss/bossCollider.json");
-					JSON_OBJECT("bossCollision");
+					JSON_OPEN("Resources/Data/Boss/bossCollision.json");
+					JSON_OBJECT("bossCollider");
 					for (auto& size : colliderSize_) {
 						JSON_SAVE_BY_NAME(size.first, size.second);
 					}
@@ -162,12 +161,18 @@ void Boss::DrawImGui() {
 
 			if (ImGui::TreeNode("ColliderType")) {
 				if (ImGui::TreeNode("NodeName")) {
+					// bossCollider_ のキーからノード名を取得してリストボックスに表示
+					std::vector<const char*> colliderNodeNames;
+					for (const auto& colliderNode : bossCollider_) {
+						colliderNodeNames.push_back(colliderNode.first.c_str());
+					}
 					// 各タイプについてループ
 					for (auto& type : colliderType_) {
 						if (ImGui::TreeNode(type.first.c_str())) {
 							// 現在登録してあるノード名を表示するリストボックス
 							std::vector<const char*> nodeNames;
 							for (const auto& nodeName : type.second) {
+								bossCollider_[nodeName]->color = { 1.0f,1.0f,0.0f,1.0f };
 								nodeNames.push_back(nodeName.c_str());
 							}
 
@@ -177,19 +182,16 @@ void Boss::DrawImGui() {
 
 							// 選択されたノード名を削除するボタン
 							if (selectedEntryNodeNameIndex >= 0 && selectedEntryNodeNameIndex < nodeNames.size()) {
+								bossCollider_[colliderNodeNames[selectedEntryNodeNameIndex]]->color = { 0.0f,0.0f,1.0f,1.0f };
 								if (ImGui::Button("Remove Selected NodeName")) {
 									type.second.erase(type.second.begin() + selectedEntryNodeNameIndex);
-									selectedEntryNodeNameIndex = -1;  // 削除後、選択状態をクリア
+									//selectedEntryNodeNameIndex = -1;  // 削除後、選択状態をクリア
 								}
 							}
 
 							// ノード名を追加
 							if (ImGui::TreeNode("Add NodeName")) {
-								// bossCollider_ のキーからノード名を取得してリストボックスに表示
-								std::vector<const char*> colliderNodeNames;
-								for (const auto& colliderNode : bossCollider_) {
-									colliderNodeNames.push_back(colliderNode.first.c_str());
-								}
+
 
 								int& selectedNodeNameIndex = selectedNodeNameIndices_[type.first];
 
@@ -202,7 +204,7 @@ void Boss::DrawImGui() {
 										std::string newName(colliderNodeNames[selectedNodeNameIndex]);
 										if (!newName.empty()) {
 											type.second.emplace_back(newName);
-											selectedNodeNameIndex = -1;
+											//selectedNodeNameIndex = -1;
 										}
 									}
 								}
@@ -245,8 +247,8 @@ void Boss::DrawImGui() {
 void Boss::DrawDebug(const ViewProjection& viewProjection) {
 
 	for (auto& collider : bossCollider_) {
-		collider.second->body->DrawCollision(viewProjection, Vector4(0.0f, 1.0f, 0.0f, 1.0f));
-		collider.second->attack->DrawCollision(viewProjection, Vector4(0.0f, 1.0f, 0.0f, 1.0f));
+		collider.second->body->DrawCollision(viewProjection, collider.second->color);
+		collider.second->attack->DrawCollision(viewProjection, collider.second->color);
 	}
 	animation_.DrawLine(animationTransform_);
 }

@@ -7,6 +7,7 @@
 #include "Engine/Math/ViewProjection.h"
 #include "Engine/Model/ModelHandle.h"
 
+#include "PlayerHP/PlayerHP.h"
 #include "PlayerBullet/PlayerBullet.h"
 #include "PlayerUI/PlayerUI.h"
 #include "PlayerBullet/PlayerBulletManager.h"
@@ -66,6 +67,7 @@ private:
 	std::unique_ptr<PlayerUI> playerUI_;
 	std::unique_ptr<PlayerBulletManager> playerBulletManager_;
 	std::unique_ptr<OBBCollider> collider_;
+	std::unique_ptr<PlayerHP> playerHP_;
 
 	ModelHandle playerModelHandle_;
 	WorldTransform animationTransform_;
@@ -83,6 +85,9 @@ private:
 
 	Vector4 colliderColor_;
 
+	Vector3 velocity_;
+	Vector3 acceleration_;
+	float gravity_;
 	
 	float idleAnimationCycle_;
 	float walkAnimationCycle_;

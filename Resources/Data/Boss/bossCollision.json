@@ -1,5 +1,40 @@
 {
-    "bossCollider": {},
+    "bossCollider": {
+        "Sphere.001": 0.0,
+        "mixamorig:Head": 5.0,
+        "mixamorig:HeadTop_End": 0.5,
+        "mixamorig:Hips": 0.0,
+        "mixamorig:LeftArm": 0.5,
+        "mixamorig:LeftFoot": 0.5,
+        "mixamorig:LeftForeArm": 0.5,
+        "mixamorig:LeftHand": 0.5,
+        "mixamorig:LeftHandIndex1": 1.0,
+        "mixamorig:LeftHandIndex2": 1.0,
+        "mixamorig:LeftHandIndex3": 1.0,
+        "mixamorig:LeftHandIndex4": 0.5,
+        "mixamorig:LeftLeg": 0.5,
+        "mixamorig:LeftShoulder": 0.5,
+        "mixamorig:LeftToeBase": 0.5,
+        "mixamorig:LeftToe_End": 1.0,
+        "mixamorig:LeftUpLeg": 1.0,
+        "mixamorig:Neck": 3.5,
+        "mixamorig:RightArm": 0.5,
+        "mixamorig:RightFoot": 0.5,
+        "mixamorig:RightForeArm": 0.5,
+        "mixamorig:RightHand": 0.5,
+        "mixamorig:RightHandIndex1": 1.0,
+        "mixamorig:RightHandIndex2": 1.0,
+        "mixamorig:RightHandIndex3": 1.0,
+        "mixamorig:RightHandIndex4": 1.0,
+        "mixamorig:RightLeg": 0.5,
+        "mixamorig:RightShoulder": 0.5,
+        "mixamorig:RightToeBase": 0.5,
+        "mixamorig:RightToe_End": 1.0,
+        "mixamorig:RightUpLeg": 1.0,
+        "mixamorig:Spine": 3.0,
+        "mixamorig:Spine1": 3.200000047683716,
+        "mixamorig:Spine2": 3.5
+    },
     "colliderTypes": {
         "None": {
             "colliderNames": {}
@@ -9,12 +44,36 @@
         },
         "TwoHandAttack": {
             "colliderNames": {
-                "mixamorig:Head": "mixamorig:Head"
+                "mixamorig:Head": "mixamorig:Head",
+                "mixamorig:HeadTop_End": "mixamorig:HeadTop_End",
+                "mixamorig:LeftArm": "mixamorig:LeftArm",
+                "mixamorig:LeftForeArm": "mixamorig:LeftForeArm",
+                "mixamorig:LeftHand": "mixamorig:LeftHand",
+                "mixamorig:LeftHandIndex1": "mixamorig:LeftHandIndex1",
+                "mixamorig:LeftHandIndex2": "mixamorig:LeftHandIndex2",
+                "mixamorig:LeftHandIndex4": "mixamorig:LeftHandIndex4",
+                "mixamorig:LeftShoulder": "mixamorig:LeftShoulder",
+                "mixamorig:Neck": "mixamorig:Neck",
+                "mixamorig:RightArm": "mixamorig:RightArm",
+                "mixamorig:RightForeArm": "mixamorig:RightForeArm",
+                "mixamorig:RightHandIndex1": "mixamorig:RightHandIndex1",
+                "mixamorig:RightHandIndex2": "mixamorig:RightHandIndex2",
+                "mixamorig:RightHandIndex3": "mixamorig:RightHandIndex3",
+                "mixamorig:RightHandIndex4": "mixamorig:RightHandIndex4",
+                "mixamorig:RightShoulder": "mixamorig:RightShoulder",
+                "mixamorig:Spine": "mixamorig:Spine",
+                "mixamorig:Spine1": "mixamorig:Spine1",
+                "mixamorig:Spine2": "mixamorig:Spine2"
             }
         },
         "UpperAttack": {
             "colliderNames": {
                 "mixamorig:LeftToe_End": "mixamorig:LeftToe_End",
+                "mixamorig:RightArm": "mixamorig:RightArm",
+                "mixamorig:RightForeArm": "mixamorig:RightForeArm",
+                "mixamorig:RightHand": "mixamorig:RightHand",
+                "mixamorig:RightHandIndex1": "mixamorig:RightHandIndex1",
+                "mixamorig:RightHandIndex2": "mixamorig:RightHandIndex2",
                 "mixamorig:RightShoulder": "mixamorig:RightShoulder",
                 "mixamorig:RightUpLeg": "mixamorig:RightUpLeg"
             }

@@ -7,8 +7,9 @@
 #include "Engine/Math/ViewProjection.h"
 #include "Engine/Model/ModelHandle.h"
 
-#include "PlayerBullet.h"
+#include "PlayerBullet/PlayerBullet.h"
 #include "PlayerUI/PlayerUI.h"
+#include "PlayerBullet/PlayerBulletManager.h"
 #include "Engine/Animation/Animation.h"
 #include "Engine/Collision/Collider.h"
 
@@ -32,8 +33,14 @@ public:
 	void DrawSprite(CommandContext& commandContext);
 	void DrawDebug(const ViewProjection& viewProjection);
 
-	void SetGPUParticleManager(GPUParticleManager* GPUParticleManager) { gpuParticleManager_ = GPUParticleManager; }
-	void SetViewProjection(ViewProjection* viewProjection) { viewProjection_ = viewProjection; }
+	void SetGPUParticleManager(GPUParticleManager* GPUParticleManager) { 
+		gpuParticleManager_ = GPUParticleManager; 
+		playerBulletManager_->SetGPUParticleManager(GPUParticleManager);
+	}
+	void SetViewProjection(ViewProjection* viewProjection) { 
+		viewProjection_ = viewProjection; 
+		playerBulletManager_->SetViewProjection(viewProjection);
+	}
 	const WorldTransform& GetWorldTransform() const { return worldTransform_; }
 	void DrawImGui();
 private:
@@ -55,7 +62,10 @@ private:
 
 	WorldTransform worldTransform_;
 
-	OBBCollider* collider_;
+
+	std::unique_ptr<PlayerUI> playerUI_;
+	std::unique_ptr<PlayerBulletManager> playerBulletManager_;
+	std::unique_ptr<OBBCollider> collider_;
 
 	ModelHandle playerModelHandle_;
 	WorldTransform animationTransform_;
@@ -73,18 +83,12 @@ private:
 
 	Vector4 colliderColor_;
 
-	uint32_t bulletTime_;
-	std::list<std::unique_ptr<PlayerBullet>> playerBullets_;
-
-	std::unique_ptr<PlayerUI> playerUI_;
-
-	float reticleDistance_;
-	float bulletSpeed_;
-	uint32_t bulletLifeTime_;
-	uint32_t bulletCoolTime_;
 	
 	float idleAnimationCycle_;
 	float walkAnimationCycle_;
 	float shootWalkAnimationCycle_;
 	float transitionCycle_;
+
+	float walkSpeed_;
+	float shootingWalkSpeed_;
 };

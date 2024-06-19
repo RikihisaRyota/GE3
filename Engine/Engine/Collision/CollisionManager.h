@@ -22,5 +22,5 @@ private:
     CollisionManager(CollisionManager&&) = delete;
     CollisionManager& operator=(CollisionManager&&) = delete;
 
-    std::list<std::unique_ptr<Collider>> colliders_;
+    std::list<Collider*> colliders_;
 };

@@ -181,6 +181,9 @@
     <Filter Include="Game\Player\PlayerUI">
       <UniqueIdentifier>{040f61b1-2448-4384-878e-61de9191ad10}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Game\Player\PlayerBullet">
+      <UniqueIdentifier>{bc3a9218-b3e9-4762-a7f1-a937912e92b0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine\Engine\Math\MyMath.cpp">
@@ -343,9 +346,6 @@
     <ClCompile Include="Engine\Engine\ParticleManager\Particle\Particle.cpp">
       <Filter>Engine\ParticleManager\Particle</Filter>
     </ClCompile>
-    <ClCompile Include="Game\Src\Game\Player\PlayerBullet.cpp">
-      <Filter>Game\Player</Filter>
-    </ClCompile>
     <ClCompile Include="Engine\Engine\GPUParticleManager\GPUParticle\GPUParticleEditor.cpp">
       <Filter>Engine\GPUParticleManager\Editor</Filter>
     </ClCompile>
@@ -421,6 +421,10 @@
     <ClCompile Include="Game\Src\Game\Boss\BossHP\BossHP.cpp">
       <Filter>Game\Boss\BossHP</Filter>
     </ClCompile>
+    <ClCompile Include="Game\Src\Game\Player\PlayerBullet\PlayerBullet.cpp">
+      <Filter>Game\Player\PlayerBullet</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Src\Game\Player\PlayerBullet\PlayerBulletManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\Engine\WinApp\WinApp.h">
@@ -633,9 +637,6 @@
     <ClInclude Include="Engine\Engine\ParticleManager\ParticleManager.h">
       <Filter>Engine\ParticleManager</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Src\Game\Player\PlayerBullet.h">
-      <Filter>Game\Player</Filter>
-    </ClInclude>
     <ClInclude Include="Engine\Engine\Graphics\DefaultBuffer.h">
       <Filter>Engine\Graphics</Filter>
     </ClInclude>
@@ -707,6 +708,12 @@
     </ClInclude>
     <ClInclude Include="Game\Src\Game\Player\PlayerUI\PlayerUI.h">
       <Filter>Game\Player\PlayerUI</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Src\Game\Player\PlayerBullet\PlayerBullet.h">
+      <Filter>Game\Player\PlayerBullet</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Src\Game\Player\PlayerBullet\PlayerBulletManager.h">
+      <Filter>Game\Player\PlayerBullet</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

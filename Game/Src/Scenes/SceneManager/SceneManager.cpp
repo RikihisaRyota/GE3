@@ -4,10 +4,7 @@
 
 #include "Src/Scenes/BaseScene/BaseScene.h"
 #include "Src/Scenes/SceneFactory/AbstractSceneFactory/AbstractSceneFactory.h"
-SceneManager::~SceneManager() {
-	scene_->Finalize();
-	delete scene_;
-}
+SceneManager::~SceneManager() {}
 
 SceneManager* SceneManager::GetInstance() {
 	static SceneManager sceneManager;
@@ -26,7 +23,7 @@ void SceneManager::Initialize(int scene, ViewProjection* viewProjection) {
 	sceneNames_.push_back("Game");
 }
 
-void SceneManager::Update(CommandContext& commandContext,ViewProjection* viewProjection) {
+void SceneManager::Update(CommandContext& commandContext, ViewProjection* viewProjection) {
 #ifdef ENABLE_IMGUI
 	ImGui::Begin("SceneManager");
 	// Combo を使用する
@@ -70,6 +67,17 @@ void SceneManager::Draw(CommandContext& commandContext) {
 	scene_->Draw(commandContext);
 	if (transition_->GetIsTransition()) {
 		transition_->Draw(commandContext);
+	}
+}
+
+void SceneManager::Finalize() {
+	if (scene_) {
+		scene_->Finalize();
+		delete scene_;
+	}
+	if (nextScene_) {
+		nextScene_->Finalize();
+		delete nextScene_;
 	}
 }
 

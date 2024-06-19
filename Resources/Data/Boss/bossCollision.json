@@ -1,0 +1,23 @@
+{
+    "bossCollider": {},
+    "colliderTypes": {
+        "None": {
+            "colliderNames": {}
+        },
+        "Root": {
+            "colliderNames": {}
+        },
+        "TwoHandAttack": {
+            "colliderNames": {
+                "mixamorig:Head": "mixamorig:Head"
+            }
+        },
+        "UpperAttack": {
+            "colliderNames": {
+                "mixamorig:LeftToe_End": "mixamorig:LeftToe_End",
+                "mixamorig:RightShoulder": "mixamorig:RightShoulder",
+                "mixamorig:RightUpLeg": "mixamorig:RightUpLeg"
+            }
+        }
+    }
+}

@@ -1,0 +1,12 @@
+{
+    "bulletProperties": {
+        "bulletCoolTime_": 30,
+        "bulletLifeTime_": 120,
+        "offset_": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "reticleDistance_": 20.0
+    }
+}

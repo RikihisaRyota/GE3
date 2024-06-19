@@ -120,7 +120,7 @@ void BossStateUpperAttack::Update(CommandContext& commandContext) {
 
 
 void BossStateManager::Initialize() {
-	JSON_OPEN("Resources/Data/Boss/BossState.json");
+	JSON_OPEN("Resources/Data/Boss/bossState.json");
 	JSON_OBJECT("StateRoot");
 	JSON_LOAD(jsonData_.root.allFrame);
 	JSON_LOAD(jsonData_.root.transitionFrame);
@@ -157,11 +157,15 @@ void BossStateManager::DrawImGui() {
 	if (ImGui::BeginMenu("Boss")) {
 		if (ImGui::TreeNode("BossStateManager")) {
 			// ステートを変更するImGui::Comboの作成
-			static const char* stateNames[] = { "None", "Root", "TwoHandAttack", "UpperAttack" };
+			// コンボボックスに渡すための const char* 配列を生成
+			std::vector<const char*> stateNamesCStr;
+			for (const auto& state : stateNames_) {
+				stateNamesCStr.push_back(state.c_str());
+			}
 			int currentState = static_cast<int>(activeStateEnum_);
 
 			// ステートを変更するImGui::Comboの作成
-			if (ImGui::Combo("Change State", &currentState, stateNames, IM_ARRAYSIZE(stateNames))) {
+			if (ImGui::Combo("Change State", &currentState, stateNamesCStr.data(), int(stateNamesCStr.size()))) {
 				switch (currentState) {
 				case kRoot:
 					ChangeState<BossStateRoot>();

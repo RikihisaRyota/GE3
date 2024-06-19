@@ -23,6 +23,7 @@ public:
 	using Callback = std::function<void(const ColliderDesc&)>;
 
 	Collider();
+	~Collider();
 
 	virtual bool IsCollision(Collider* collider, ColliderDesc& desc) = 0;
 	virtual bool IsCollision(OBBCollider* collider, ColliderDesc& desc) = 0;

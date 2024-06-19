@@ -6,9 +6,7 @@
         "walkAnimationCycle_": 30.0
     },
     "playerProperties": {
-        "bulletCoolTime_": 20,
-        "bulletLifeTime_": 120,
-        "bulletSpeed_": 1.0,
-        "reticleDistance_": 20.0
+        "shootingWalkSpeed_": 0.05000000074505806,
+        "walkSpeed_": 0.10000000149011612
     }
 }

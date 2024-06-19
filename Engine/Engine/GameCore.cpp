@@ -102,6 +102,7 @@ namespace GameCore {
 	void Shutdown() {
 		Animation::Release();
 		particleManager->Shutdown();
+		sceneManager->Finalize();
 		delete viewProjection;
 		delete sceneFactory;
 		renderManager->Shutdown();

@@ -11,6 +11,7 @@
 #include "Engine/Collision/Collider.h"
 
 #include "BossStateManager/BossStateManager.h"
+#include "BossHP/BossHP.h"
 
 class GPUParticleManager;
 class CommandContext;
@@ -28,10 +29,17 @@ public:
 	void DrawImGui(); 
 	void DrawDebug(const ViewProjection& viewProjection);
 private:
+	struct BossCollider {
+		std::unique_ptr<OBBCollider> body;
+		std::unique_ptr<OBBCollider> attack;
+		Vector4 color;
+	};
+
 	void UpdateCollider();
 	void UpdateGPUParticle();
 	void UpdateTransform();
-	void OnCollision(const ColliderDesc& desc);
+	void OnCollisionBody(const ColliderDesc& desc);
+	void OnCollisionAttack(const ColliderDesc& desc);
 
 	GPUParticleManager* gpuParticleManager_;
 
@@ -42,13 +50,17 @@ private:
 
 	WorldTransform worldTransform_;
 
-	std::unordered_map<std::string,OBBCollider*> bossCollider_;
+	std::unordered_map<std::string,std::unique_ptr<BossCollider>> bossCollider_;
 
-	Vector4 colliderColor_;
 
 	std::unique_ptr<BossStateManager> bossStateManager_;
+	std::unique_ptr<BossHP> bossHP_;
+
 #pragma region Collision
-	float colliderSize_;
+	std::unordered_map<std::string, float> colliderSize_;
+	std::unordered_map<std::string, std::vector<std::string>> colliderType_;
+	std::unordered_map<std::string, int> selectedNodeNameIndices_;
+	std::unordered_map<std::string, int> selectedEntryNodeNameIndices_;
 #pragma endregion
 
 #pragma region Properties

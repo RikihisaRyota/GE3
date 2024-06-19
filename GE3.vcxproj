@@ -218,7 +218,8 @@
     <ClCompile Include="Game\Src\Game\FollowCamera\FollowCamera.cpp" />
     <ClCompile Include="Game\Src\Game\GameObject\GameObject.cpp" />
     <ClCompile Include="Game\Src\Game\Player\Player.cpp" />
-    <ClCompile Include="Game\Src\Game\Player\PlayerBullet.cpp" />
+    <ClCompile Include="Game\Src\Game\Player\PlayerBullet\PlayerBullet.cpp" />
+    <ClCompile Include="Game\Src\Game\Player\PlayerBullet\PlayerBulletManager.cpp" />
     <ClCompile Include="Game\Src\Game\Player\PlayerUI\PlayerUI.cpp" />
     <ClCompile Include="Game\Src\Game\Skybox\Skybox.cpp" />
     <ClCompile Include="Game\Src\main.cpp" />
@@ -314,7 +315,8 @@
     <ClInclude Include="Game\Src\Game\FollowCamera\FollowCamera.h" />
     <ClInclude Include="Game\Src\Game\GameObject\GameObject.h" />
     <ClInclude Include="Game\Src\Game\Player\Player.h" />
-    <ClInclude Include="Game\Src\Game\Player\PlayerBullet.h" />
+    <ClInclude Include="Game\Src\Game\Player\PlayerBullet\PlayerBullet.h" />
+    <ClInclude Include="Game\Src\Game\Player\PlayerBullet\PlayerBulletManager.h" />
     <ClInclude Include="Game\Src\Game\Player\PlayerUI\PlayerUI.h" />
     <ClInclude Include="Game\Src\Game\Skybox\Skybox.h" />
     <ClInclude Include="Game\Src\Scenes\BaseScene\BaseScene.h" />

@@ -48,7 +48,9 @@ GameScene::GameScene() {
 	boss_->SetGPUParticleManager(gpuParticleManager_.get());
 }
 
-GameScene::~GameScene() {}
+GameScene::~GameScene() {
+	CollisionManager::GetInstance();
+}
 
 void GameScene::Initialize() {
 	//DrawLine::GetInstance()->SetLine({ -10.0f,1.0f,0.0f }, { 10.0f,1.0f,0.0f }, { 0.0f,1.0f,0.0f,1.0f });

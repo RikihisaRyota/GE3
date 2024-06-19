@@ -25,7 +25,7 @@ GameObject::GameObject(const LevelDataLoader::GameObject& desc, const WorldTrans
 		collider_->SetSize(desc.collider->size);
 		collider_->SetCallback([this](const ColliderDesc& collisionInfo) { OnCollision(collisionInfo); });
 		collider_->SetCollisionAttribute(CollisionAttribute::GameObject);
-		collider_->SetCollisionMask(CollisionAttribute::Player | CollisionAttribute::PlayerBullet| CollisionAttribute::Boss);
+		collider_->SetCollisionMask(CollisionAttribute::Player | CollisionAttribute::PlayerBullet| CollisionAttribute::BossBody);
 		collider_->SetIsActive(true);
 	}
 }

@@ -1,15 +1,17 @@
 #pragma once
 
 #include <stdint.h>
+#pragma once
 
+#include <stdint.h>
+#include <string>
+#include <filesystem>
 #include "../Externals/nlohmann/json.hpp"
-
 #include "Engine/Math/Vector2.h"
 #include "Engine/Math/Vector3.h"
 #include "Engine/Math/Vector4.h"
 #include "Engine/Math/Quaternion.h"
 
-//void to_json(nlohmann::json& json, const int& value);
 void to_json(nlohmann::json& json, const int32_t& value);
 void to_json(nlohmann::json& json, const uint32_t& value);
 void to_json(nlohmann::json& json, const float& value);
@@ -18,7 +20,6 @@ void to_json(nlohmann::json& json, const Vector3& value);
 void to_json(nlohmann::json& json, const Vector4& value);
 void to_json(nlohmann::json& json, const Quaternion& value);
 
-//void from_json(const nlohmann::json& json, int& value);
 void from_json(const nlohmann::json& json, int32_t& value);
 void from_json(const nlohmann::json& json, uint32_t& value);
 void from_json(const nlohmann::json& json, float& value);
@@ -53,7 +54,6 @@ namespace JsonHelper {
     bool Load(Quaternion& value, const std::string& name);
     bool Load(std::string& value, const std::string& name);
 }
-
 #ifndef STRINGIFY_HELPER
 #define STRINGIFY_HELPER(x) #x
 #endif
@@ -77,7 +77,9 @@ namespace JsonHelper {
 // Objectがある時True
 #define JSON_OBJECT(x) (JsonHelper::Object(x))
 // 引数に与えた変数の名前でセーブ
-#define JSON_SAVE(x) (JsonHelper::Save(x,  STRINGIFY(x)))
+#define JSON_SAVE_BY_NAME(name, x) (JsonHelper::Save(x, name))
+#define JSON_SAVE(x) (JsonHelper::Save(x, STRINGIFY(x)))
 // 引数に与えた変数の名前でロード
 // 読み込めたらTrue
-#define JSON_LOAD(x) (JsonHelper::Load(x,  STRINGIFY(x)))
+#define JSON_LOAD_BY_NAME(name, x) (JsonHelper::Load(x, name))
+#define JSON_LOAD(x) (JsonHelper::Load(x, STRINGIFY(x)))

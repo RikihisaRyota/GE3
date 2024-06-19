@@ -23,6 +23,8 @@ public:
 
 	void Draw(CommandContext& ommandContext);
 
+	void Finalize();
+
 	void ChangeScene(int scene);
 	void SetSceneFactory(AbstractSceneFactory* abstractSceneFactory) { abstractSceneFactory_ = abstractSceneFactory; }
 private:

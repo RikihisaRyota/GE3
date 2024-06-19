@@ -47,7 +47,11 @@ namespace {
 	}
 }
 Collider::Collider() {
-	CollisionManager::GetInstance()->AddCollider(std::move(this));
+	CollisionManager::GetInstance()->AddCollider(this);
+}
+
+Collider::~Collider() {
+	CollisionManager::GetInstance()->DeleteCollider(this);
 }
 
 void Collider::OnCollision(const ColliderDesc& colliderDesc) {

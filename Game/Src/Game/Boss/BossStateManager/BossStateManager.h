@@ -77,6 +77,12 @@ private:
 
 class BossStateManager {
 public:
+	std::vector<std::string> stateNames_{
+		"None",
+		"Root",
+		"TwoHandAttack",
+		"UpperAttack"
+	};
 	enum State {
 		kNone,
 		kRoot,

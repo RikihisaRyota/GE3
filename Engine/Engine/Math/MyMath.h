@@ -20,6 +20,7 @@ Quaternion Add(const Quaternion& p1, const Quaternion& p2);
 Quaternion Multiply(const Quaternion& p1, const Quaternion& p2);
 Quaternion Multiply(const Quaternion& p1, float scalar);
 float Norm(const Quaternion& quaternion);
+bool IsValidQuaternion(const Quaternion& q);
 Quaternion Slerp(const Quaternion& q0, const Quaternion& q1, float t);
 // 任意軸回転(Quaternion)
 Quaternion MakeRotateXAngleQuaternion(float radians);

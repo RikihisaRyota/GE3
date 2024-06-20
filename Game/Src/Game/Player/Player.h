@@ -1,6 +1,8 @@
 #pragma once
 
+#include <string>
 #include <memory>
+#include <vector>
 #include <list>
 
 #include "Engine/Math/WorldTransform.h"
@@ -18,11 +20,20 @@ class GPUParticleManager;
 class CommandContext;
 class Player {
 public:
+	std::vector<std::string> name_ = {
+		"idle",
+		"walk",
+		"shootingWalk",
+		"hitDamage"
+	};
 	enum State {
 		kRoot,
 		kWalk,
-		kShootWalk,
+		kShootingWalk,
+		kHitDamage,
 		kCount,
+
+		kNone,
 	};
 	Player();
 
@@ -45,6 +56,11 @@ public:
 	const WorldTransform& GetWorldTransform() const { return worldTransform_; }
 	void DrawImGui();
 private:
+	struct AnimationInfo {
+		Animation::AnimationHandle handle;
+		float animationCycle;
+	};
+
 	void UpdateTransform();
 
 	void Move();
@@ -72,13 +88,13 @@ private:
 	ModelHandle playerModelHandle_;
 	WorldTransform animationTransform_;
 	Animation::Animation animation_;
-	Animation::AnimationHandle walkHandle_;
-	Animation::AnimationHandle shootWalkHandle_;
-	Animation::AnimationHandle idleHandle_;
+	std::unordered_map<std::string, AnimationInfo> animationInfo_;
 	Animation::AnimationHandle currentAnimationHandle_;
 	Animation::AnimationHandle preAnimationHandle_;
+	
 	State state_;
 	State preState_;
+	std::optional<State> tmpState_;
 	float animationTime_;
 	float transitionTime_;
 	bool onTransition_;
@@ -88,10 +104,10 @@ private:
 	Vector3 velocity_;
 	Vector3 acceleration_;
 	float gravity_;
-	
-	float idleAnimationCycle_;
-	float walkAnimationCycle_;
-	float shootWalkAnimationCycle_;
+	Vector3 knockBackStartPos_;
+	Vector3 knockBackEndPos_;
+	float knockBack_;
+
 	float transitionCycle_;
 
 	float walkSpeed_;

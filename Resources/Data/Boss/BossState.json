@@ -1,14 +1,14 @@
 {
     "StateRoot": {
-        "jsonData_.root.allFrame": 360.0,
+        "jsonData_.root.allFrame": 180.0,
         "jsonData_.root.transitionFrame": 15.0
     },
     "StateTwoHandAttack": {
-        "jsonData_.twoHand.allFrame": 360.0,
+        "jsonData_.twoHand.allFrame": 420.0,
         "jsonData_.twoHand.transitionFrame": 15.0
     },
     "StateUpperAttack": {
-        "jsonData_.upper.allFrame": 360.0,
+        "jsonData_.upper.allFrame": 420.0,
         "jsonData_.upper.transitionFrame": 15.0
     }
 }

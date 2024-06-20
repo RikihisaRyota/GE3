@@ -25,7 +25,7 @@ private:
 	const float kRotateSpeedX = 0.000001f;
 	const float kRotateSpeedY = 0.000002f;
 	// 上下方向の回転のデッドゾーン
-	const float kDeadZoneRotateMin = -10.0f;
+	const float kDeadZoneRotateMin = -5.0f;
 	const float kDeadZoneRotateMax = 70.0f;
 	// キーボードカメラスピード
 	const float kKeyboardCameraSpeed_Y = 10000.0f;

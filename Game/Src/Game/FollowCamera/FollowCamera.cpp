@@ -41,7 +41,7 @@ void FollowCamera::DrawImGui() {
 void FollowCamera::GamePad() {
 	XINPUT_STATE joyState{};
 	if (Input::GetInstance()->IsControllerConnected()) {
-		Input::GetInstance()->GetJoystickState(0, joyState);
+		Input::GetInstance()->GetJoystickState(joyState);
 		// カメラの角度から回転行列を計算する
 		// X軸
 		viewProjection_->rotation_.x -=

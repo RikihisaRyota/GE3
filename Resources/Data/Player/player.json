@@ -1,13 +1,15 @@
 {
     "playerAnimation": {
-        "idleAnimationCycle_": 120.0,
-        "shootWalkAnimationCycle_": 30.0,
+        "hitDamage": 120.0,
+        "idle": 120.0,
+        "shootingWalk": 30.0,
         "transitionCycle_": 10.0,
-        "walkAnimationCycle_": 30.0
+        "walk": 30.0
     },
     "playerProperties": {
         "gravity_": 0.009999999776482582,
-        "shootingWalkSpeed_": 0.05000000074505806,
+        "knockBack_": 5.0,
+        "shootingWalkSpeed_": 0.029999999329447746,
         "walkSpeed_": 0.10000000149011612
     }
 }

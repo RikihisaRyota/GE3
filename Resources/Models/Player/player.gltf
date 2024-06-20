@@ -206,7 +206,7 @@
     ],
     "meshes": [
         {
-            "name": "Retopology_hp_Plane.002mesh.002",
+            "name": "Retopology_hp_Plane.002mesh",
             "primitives": [
                 {
                     "mode": 4,

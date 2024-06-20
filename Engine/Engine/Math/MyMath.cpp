@@ -1041,13 +1041,20 @@ float Norm(const Quaternion& quaternion) {
 	);
 }
 
+bool IsValidQuaternion(const Quaternion& q) {
+	return std::isfinite(q.w) && std::isfinite(q.x) && std::isfinite(q.y) && std::isfinite(q.z);
+}
+
 Quaternion Slerp(const Quaternion& q0, const Quaternion& q1, float t) {
 	Quaternion q1Adjusted = q1;
 	float dot = Dot(q0, q1);
 
+	// クリッピングして範囲内にする
+	dot = (std::max)(-1.0f, (std::min)(1.0f, dot));
+
 	// q0 と q1 がほぼ同じ場合、線形補間を使用
-	if (dot > 0.99999f) {
-		return Lerp(q0, q1, t);
+	if (dot >= 1.0f - DBL_EPSILON) {
+		return Normalize(Lerp(q0, q1, t));
 	}
 
 	// q1 が反対向きの場合、q1 を反転させる
@@ -1065,7 +1072,16 @@ Quaternion Slerp(const Quaternion& q0, const Quaternion& q1, float t) {
 	float weight0 = std::sin((1.0f - t) * theta) / sinTheta;
 	float weight1 = std::sin(t * theta) / sinTheta;
 
-	return (q0 * weight0) + (q1Adjusted * weight1);
+	Quaternion result = (q0 * weight0) + (q1Adjusted * weight1);
+
+	// 結果が有効なクォータニオンかチェック
+	if (!IsValidQuaternion(result) || result.w == 0.0f) {
+		// 線形補間を使用
+		result = Normalize(Lerp(q0, q1Adjusted, t));
+	}
+
+	return Normalize(result);
+
 }
 
 Quaternion MakeRotateXAngleQuaternion(float radians) {
@@ -1102,7 +1118,7 @@ Quaternion MakeRotateAxisAngleQuaternion(const Vector3& axis, float angle) {
 		v.y,
 		v.z,
 		std::cos(angle * 0.5f) };
-	
+
 	//float halfAngle = angle * 0.5f;
 	//float sinHalfAngle = std::sinf(halfAngle);
 	//Vector3 normalizedAxis;

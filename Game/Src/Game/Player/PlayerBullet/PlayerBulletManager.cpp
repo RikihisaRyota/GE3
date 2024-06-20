@@ -96,10 +96,7 @@ void PlayerBulletManager::Create(const WorldTransform& worldTransform) {
 		// プレイヤーの位置
 		Vector3 playerPosition = MakeTranslateMatrix(worldTransform.matWorld) + offset_;
 		Vector3 bulletVelocity{};
-		if (!Input::GetInstance()->PushKey(DIK_LSHIFT)) {
-			bulletVelocity = Normalize(GetZAxis(MakeRotate(worldTransform.rotate))) * bulletSpeed_;
-		}
-		else {
+		if (Input::GetInstance()->PushKey(DIK_LSHIFT) || Input::GetInstance()->PushGamepadButton(Button::LT)) {
 			// VPV合成行列
 			Matrix4x4 matVPV = viewProjection_->matView_ * viewProjection_->matProjection_ * MakeViewportMatrix(0.0f, 0.0f, float(WinApp::kWindowWidth), float(WinApp::kWindowHeight), viewProjection_->nearZ_, viewProjection_->farZ_);
 			// 逆行列に
@@ -122,6 +119,9 @@ void PlayerBulletManager::Create(const WorldTransform& worldTransform) {
 
 			// 弾の速度ベクトルを計算
 			bulletVelocity = Normalize(reticle3D - playerPosition) * bulletSpeed_;
+		}
+		else {
+			bulletVelocity = Normalize(GetZAxis(MakeRotate(worldTransform.rotate))) * bulletSpeed_;
 		}
 		// 弾を作成
 		playerBullets_.emplace_back(std::make_unique<PlayerBullet>());

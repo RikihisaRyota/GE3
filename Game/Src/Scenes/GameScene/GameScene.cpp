@@ -12,6 +12,7 @@
 #include "Engine/Sprite/SpriteManager.h"
 #include "Engine/Collision/CollisionManager.h"
 #include "Engine/LevelDataLoader/LevelDataLoader.h"
+#include "Engine/Input/Input.h"
 
 GameScene::GameScene() {
 	CollisionManager::GetInstance()->ClearCollider();
@@ -20,11 +21,8 @@ GameScene::GameScene() {
 	debugCamera_ = std::make_unique<DebugCamera>();
 	//gpuParticleEditor_ = std::make_unique<GPUParticleEditor>();
 	gpuParticleManager_ = std::make_unique<GPUParticleManager>();
+	// 当たり判定の順番
 	player_ = std::make_unique<Player>();
-	boss_ = std::make_unique<Boss>();
-	followCamera_ = std::make_unique<FollowCamera>();
-	skybox_ = std::make_unique<Skybox>();
-
 	for (auto& object : LevelDataLoader::objectData_.gameObject) {
 		if (object.transform.parent == -1) {
 			gameObject_.emplace_back(std::make_unique<GameObject>(object));
@@ -33,6 +31,10 @@ GameScene::GameScene() {
 			gameObject_.emplace_back(std::make_unique<GameObject>(object, &gameObject_.at(object.transform.parent)->GetWorldTransform()));
 		}
 	}
+	boss_ = std::make_unique<Boss>();
+	followCamera_ = std::make_unique<FollowCamera>();
+	skybox_ = std::make_unique<Skybox>();
+
 
 	gpuTexture_ = TextureManager::GetInstance()->Load("Resources/Images/GPUParticle.png");
 	color_ = { 1.0f,1.0f,1.0f,1.0 };
@@ -222,7 +224,7 @@ void GameScene::Initialize() {
 
 void GameScene::Update(CommandContext& commandContext) {
 	DrawLine::GetInstance()->SetLine({ -10.0f,0.0f,0.0f }, { 10.0f,0.0f,0.0f }, { 1.0f,1.0f,1.0f,1.0f });
-	
+
 	skybox_->Update();
 
 	debugCamera_->Update(viewProjection_);
@@ -247,8 +249,18 @@ void GameScene::Update(CommandContext& commandContext) {
 	followCamera_->DrawImGui();
 	player_->DrawImGui();
 	boss_->DrawImGui();
-	for ( auto & object : gameObject_) {
+	for (auto& object : gameObject_) {
 		object->DrawImGui();
+	}
+	if (Input::GetInstance()->PushKey(DIK_R)) {
+		skybox_->Initialize();
+		followCamera_->Initialize();
+		player_->Initialize();
+		boss_->Initialize();
+		for (size_t i = 0; auto & object : LevelDataLoader::objectData_.gameObject) {
+			gameObject_.at(i)->Initialize(object);
+			i++;
+		}
 	}
 #endif // _DEBUG
 }

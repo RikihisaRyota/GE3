@@ -9,13 +9,27 @@
 #define DIRECTINPUT_VERSION 0x0800 // DirectInputのバージョン指定
 #include <dinput.h>
 
-
-
 #pragma comment(lib, "dinput8.lib")
 #pragma comment(lib, "dxguid.lib")
 #pragma comment(lib, "XInput.lib")
 
 struct Vector2;
+enum Button {
+	Up = XINPUT_GAMEPAD_DPAD_UP,
+	Down = XINPUT_GAMEPAD_DPAD_DOWN,
+	Left = XINPUT_GAMEPAD_DPAD_LEFT,
+	Right = XINPUT_GAMEPAD_DPAD_RIGHT,
+	Start = XINPUT_GAMEPAD_START,
+	Back = XINPUT_GAMEPAD_BACK,
+	LT = XINPUT_GAMEPAD_LEFT_THUMB,
+	RT = XINPUT_GAMEPAD_RIGHT_THUMB,
+	LS = XINPUT_GAMEPAD_LEFT_SHOULDER,
+	RS = XINPUT_GAMEPAD_RIGHT_SHOULDER,
+	A = XINPUT_GAMEPAD_A,
+	B = XINPUT_GAMEPAD_B,
+	X = XINPUT_GAMEPAD_X,
+	Y = XINPUT_GAMEPAD_Y
+};
 class Input {
 public:
 	enum class PadType {
@@ -23,132 +37,51 @@ public:
 		XInput,
 	};
 
-	// variantがC++17から
 	union State {
 		XINPUT_STATE xInput_;
 		DIJOYSTATE2 directInput_;
 	};
+
 	struct Joystick {
 		Microsoft::WRL::ComPtr<IDirectInputDevice8> device_;
-		int32_t deadZoneL_;
-		int32_t deadZoneR_;
 		PadType type_;
 		State state_;
 		State statePre_;
 	};
-public: // 静的メンバ関数
+
 	static Input* GetInstance();
-public: // メンバ関数
-	/// <summary>
-	/// 初期化
-	/// </summary>
+
 	void Initialize();
-
-	/// <summary>
-	/// 毎フレーム処理
-	/// </summary>
 	void Update();
-
-	/// <summary>
-	/// 解放
-	/// </summary>
 	void Finalize();
 
-	/// <summary>
-	/// キーの押下をチェック
-	/// </summary>
-	/// <param name="keyNumber">キー番号( DIK_0 等)</param>
-	/// <returns>押されているか</returns>
 	bool PushKey(BYTE keyNumber) const;
-
-	/// <summary>
-	/// マウスの押下をチェック
-	/// </summary>
-	/// <param name="keyNumber">マウスボタン番号(0:左,1:右,2:中)</param>
-	/// <returns>押されているか</returns>
-	bool PushMouse(int32_t keyNumber) const;
-
-	/// <summary>
-	/// キーのトリガーをチェック(押した瞬間true)
-	/// </summary>
-	/// <param name="keyNumber">キー番号( DIK_0 等)</param>
-	/// <returns>トリガーか</returns>
 	bool TriggerKey(BYTE keyNumber) const;
-
-	/// <summary>
-	/// キーのトリガーをチェック
-	/// </summary>
-	/// <param name="keyNumber">マウスボタン番号(0:左,1:右,2:中)</param>
-	/// <returns>トリガーか</returns>
-	bool TriggerMouse(int32_t keyNumber) const;
-
-	/// <summary>
-	/// キーを離した瞬間
-	/// </summary>
-	/// <param name="keyNumber"></param>
-	/// <returns></returns>
 	bool ExitKey(BYTE keyNumber) const;
 
-	/// <summary>
-	/// キーを離した瞬間
-	/// </summary>
-	/// <param name="keyNumber">マウスボタン番号(0:左,1:右,2:中)</param>
-	/// <returns></returns>
-	bool ExitMouse(int32_t keyNumber) const;
+	bool PushMouse(int32_t buttonNumber) const;
+	bool TriggerMouse(int32_t buttonNumber) const;
+	bool ExitMouse(int32_t buttonNumber) const;
 
-	/// <summary>
-	/// 全キー情報取得
-	/// </summary>
-	/// <param name="keyStateBuf">全キー情報</param>
-	const std::array<BYTE, 256>& GetAllKey() { return key_; }
+	bool PushGamepadButton(Button button, int32_t stickNo = 0) const;
+	float GetTriggerPushGamepadButton(Button button, int32_t stickNo = 0) const;
+	bool TriggerGamepadButton(Button button, int32_t stickNo = 0) const;
+	bool ExitGamepadButton(Button button, int32_t stickNo = 0) const;
 
-	/// <summary>
-	/// ホイールスクロール量を取得する
-	/// </summary>
-	/// <param name=""></param>
-	/// <returns></returns>
 	int32_t GetWheel() const;
-
-	/// <summary>
-	/// ホイールスクロール量を取得する
-	/// </summary>
-	/// <param name=""></param>
-	/// <returns></returns>
 	Vector2 GetMouseMove() const;
-	/// <summary>
-	/// 現在のジョイスティック状態を取得する
-	/// </summary>
-	/// <param name="stickNo">ジョイスティック番号</param>
-	/// <param name="out">現在のジョイスティック状態</param>
-	/// <returns>正しく取得できたか</returns>
-	bool GetJoystickState(int32_t stickNo, DIJOYSTATE2& out) const;
 
-	/// <summary>
-	/// 前回のジョイスティック状態を取得する
-	/// </summary>
-	/// <param name="stickNo">ジョイスティック番号</param>
-	/// <param name="out">前回のジョイスティック状態</param>
-	/// <returns>正しく取得できたか</returns>
-	bool GetJoystickStatePrevious(int32_t stickNo, DIJOYSTATE2& out) const;
+	bool GetJoystickState(DIJOYSTATE2& out, int32_t stickNo = 0) const;
+	bool GetJoystickStatePrevious(DIJOYSTATE2& out, int32_t stickNo = 0) const;
+	bool GetJoystickState(XINPUT_STATE& out, int32_t stickNo = 0) const;
+	bool GetJoystickStatePrevious(XINPUT_STATE& out, int32_t stickNo = 0) const;
 
-	/// <summary>
-	/// 現在のジョイスティック状態を取得する
-	/// </summary>
-	/// <param name="stickNo">ジョイスティック番号</param>
-	/// <param name="out">現在のジョイスティック状態</param>
-	/// <returns>正しく取得できたか</returns>
-	bool GetJoystickState(int32_t stickNo, XINPUT_STATE& out) const;
-
-	/// <summary>
-	/// 前回のジョイスティック状態を取得する
-	/// </summary>
-	/// <param name="stickNo">ジョイスティック番号</param>
-	/// <param name="out">前回のジョイスティック状態</param>
-	/// <returns>正しく取得できたか</returns>
-	bool GetJoystickStatePrevious(int32_t stickNo, XINPUT_STATE& out) const;
+	Vector2 GetLeftStick(int32_t stickNo = 0);
+	Vector2 GetRightStick(int32_t stickNo = 0);
 
 	bool IsControllerConnected() const;
-private: // メンバ変数
+
+private:
 	Input() = default;
 	~Input() = default;
 	Input(const Input&) = delete;
@@ -156,7 +89,10 @@ private: // メンバ変数
 
 	BOOL CALLBACK EnumJoysticksCallback(const DIDEVICEINSTANCE* instance, VOID* context);
 	BOOL CALLBACK EnumJoystickObjectsCallback(const DIDEVICEOBJECTINSTANCE* instance, VOID* context);
-private: // メンバ変数
+
+	void AcquireAllDevices();
+
+private:
 	Microsoft::WRL::ComPtr<IDirectInput8> dInput_;
 	Microsoft::WRL::ComPtr<IDirectInputDevice8> devKeyboard_;
 	Microsoft::WRL::ComPtr<IDirectInputDevice8> devMouse_;

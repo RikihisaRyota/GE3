@@ -15,9 +15,9 @@
 Player::Player() {
 	playerModelHandle_ = ModelManager::GetInstance()->Load("Resources/Models/Player/player.gltf");
 	animation_.Initialize("Resources/Animation/Player/animation.gltf", playerModelHandle_);
-	walkHandle_ = animation_.GetAnimationHandle("walk");
-	shootWalkHandle_ = animation_.GetAnimationHandle("shootingWalk");
-	idleHandle_ = animation_.GetAnimationHandle("idle");
+	for (size_t i = 0; i < State::kCount; ++i) {
+		animationInfo_[name_.at(i)].handle = animation_.GetAnimationHandle(name_.at(i));
+	}
 	worldTransform_.Initialize();
 	animationTransform_.Initialize();
 	playerBulletManager_ = std::make_unique<PlayerBulletManager>();
@@ -29,12 +29,14 @@ Player::Player() {
 	JSON_LOAD(walkSpeed_);
 	JSON_LOAD(shootingWalkSpeed_);
 	JSON_LOAD(gravity_);
+	JSON_LOAD(knockBack_);
 	JSON_ROOT();
 	JSON_OBJECT("playerAnimation");
 	JSON_LOAD(transitionCycle_);
-	JSON_LOAD(idleAnimationCycle_);
-	JSON_LOAD(walkAnimationCycle_);
-	JSON_LOAD(shootWalkAnimationCycle_);
+	for (auto& animationInfo : animationInfo_) {
+		std::string name = animationInfo.first;
+		JSON_LOAD_BY_NAME(name, animationInfo.second.animationCycle);
+	}
 	JSON_ROOT();
 	JSON_CLOSE();
 
@@ -59,7 +61,7 @@ void Player::Initialize() {
 	playerHP_->Initialize();
 	playerUI_->Initialize();
 	worldTransform_.Reset();
-	worldTransform_.translate.y = 1.0f;
+	worldTransform_.translate.y = 6.0f;
 	animationTransform_.Reset();
 	animationTransform_.parent_ = &worldTransform_;
 	velocity_ = { 0.0f,0.0f,0.0f };
@@ -68,16 +70,55 @@ void Player::Initialize() {
 }
 
 void Player::Update(CommandContext& commandContext) {
+	velocity_ = { 0.0f,0.0f,0.0f };
 	colliderColor_ = { 0.0f,0.0f,1.0f,1.0f };
 	preState_ = state_;
-	state_ = kRoot;
+	if (tmpState_.has_value()) {
+		state_ = tmpState_.value();
+		tmpState_ = std::nullopt;
+	}
+	else {
+		switch (state_) {
+		case Player::kRoot:
+		case Player::kWalk:
+		case Player::kShootingWalk:
 
-	Move();
-
+			state_ = kRoot;
+			break;
+		case Player::kHitDamage:
+			break;
+		case Player::kCount:
+			break;
+		default:
+			break;
+		}
+	}
+	switch (state_) {
+	case Player::kRoot:
+	case Player::kWalk:
+	case Player::kShootingWalk:
+		Shot();
+		Move();
+		break;
+	case Player::kHitDamage:
+		if (!onTransition_) {
+			worldTransform_.translate.x = Lerp(knockBackStartPos_.x, knockBackEndPos_.x, animationTime_);
+			worldTransform_.translate.z = Lerp(knockBackStartPos_.z, knockBackEndPos_.z, animationTime_);
+		}
+		break;
+	case Player::kCount:
+		break;
+	default:
+		break;
+	}
 	acceleration_.y -= gravity_;
 	acceleration_ *= 0.9f;
 	velocity_ += acceleration_;
 	worldTransform_.translate += velocity_;
+	Vector3 playerForward = Vector3(velocity_.x, 0.0f, velocity_.z);
+	if (playerForward.Length() != 0.0f) {
+		PlayerRotate(playerForward.Normalized());
+	}
 
 	AnimationUpdate(commandContext);
 
@@ -108,12 +149,12 @@ void Player::DrawDebug(const ViewProjection& viewProjection) {
 }
 
 void Player::BulletUpdate() {
-	Shot();
 	playerBulletManager_->Update();
 }
 
 void Player::Shot() {
-	if (Input::GetInstance()->PushKey(DIK_SPACE)) {
+	auto input = Input::GetInstance();
+	if (input->PushKey(DIK_SPACE) || input->PushGamepadButton(Button::RT)) {
 		playerBulletManager_->Create(worldTransform_);
 	}
 }
@@ -128,7 +169,7 @@ void Player::OnCollision(const ColliderDesc& desc) {
 			pushVector = Inverse(parent->rotate) * pushVector;
 		}
 		// 上から乗ったら
-		if (std::fabs(Dot(desc.normal, {0.0f,-1.0f,0.0f})) >= 0.5f) {
+		if (std::fabs(Dot(desc.normal, { 0.0f,-1.0f,0.0f })) >= 0.5f) {
 			acceleration_.y = 0.0f;
 		}
 
@@ -138,17 +179,22 @@ void Player::OnCollision(const ColliderDesc& desc) {
 		colliderColor_ = { 1.0f,0.0f,0.0f,1.0f };
 	}
 	if (desc.collider->GetName() == "BossAttack") {
-		playerHP_->HitDamage(1);
-		// ワールド空間の押し出しベクトル
-		Vector3 pushVector = desc.normal * desc.depth;
-		auto parent = worldTransform_.parent_;
-		if (parent) {
-			pushVector = Inverse(parent->rotate) * pushVector;
-		}
-		acceleration_ += pushVector;
+		if (state_ != kHitDamage) {
+			velocity_ = { 0.0f,0.0f,0.0f };
+			playerHP_->HitDamage(1);
+			tmpState_ = kHitDamage;
+			Vector3 vector = Vector3(desc.normal.x, 0.0f, desc.normal.z);
+			if (vector.Length() == 0.0f) {
+				vector.y = 1.0f;
+			}
+			vector = vector.Normalized();
+			knockBackStartPos_ = MakeTranslateMatrix(worldTransform_.matWorld);
+			knockBackEndPos_ = MakeTranslateMatrix(worldTransform_.matWorld) + vector * knockBack_;
+			worldTransform_.rotate = MakeLookRotation(-vector);
+			UpdateTransform();
 
-		UpdateTransform();
-		colliderColor_ = { 1.0f,0.0f,0.0f,1.0f };
+			colliderColor_ = { 1.0f,0.0f,0.0f,1.0f };
+		}
 	}
 }
 
@@ -250,59 +296,56 @@ void Player::UpdateTransform() {
 }
 
 void Player::Move() {
+	auto input = Input::GetInstance();
 #pragma region ゲームパット
 	// ゲームパットの状態を得る変数
 	XINPUT_STATE joyState{};
 	Vector3 vector{};
 	// ゲームパットの状況取得
 	// 入力がなかったら何もしない
-	if (Input::GetInstance()->IsControllerConnected()) {
-		Input::GetInstance()->GetJoystickState(0, joyState);
+	if (input->IsControllerConnected()) {
 		const float kMargin = 0.7f;
 		// 移動量
 		Vector3 move = {
-			static_cast<float>(joyState.Gamepad.sThumbLX),
+			input->GetLeftStick().x,
 			0.0f,
-			static_cast<float>(joyState.Gamepad.sThumbLY),
+			input->GetLeftStick().y,
 		};
 		if (move.Length() > kMargin) {
-			vector = {
-				static_cast<float>(joyState.Gamepad.sThumbLX),
-				0.0f,
-				static_cast<float>(joyState.Gamepad.sThumbLY),
-			};
+			vector = move;
 		}
-		vector = move.Normalized();
 	}
 #pragma endregion
 #pragma region キーボード
-	if (Input::GetInstance()->PushKey(DIK_W)) {
+	if (input->PushKey(DIK_W)) {
 		vector.z = 1.0f;
 	}
-	if (Input::GetInstance()->PushKey(DIK_S)) {
+	if (input->PushKey(DIK_S)) {
 		vector.z = -1.0f;
 	}
-	if (Input::GetInstance()->PushKey(DIK_A)) {
+	if (input->PushKey(DIK_A)) {
 		vector.x = -1.0f;
 	}
-	if (Input::GetInstance()->PushKey(DIK_D)) {
+	if (input->PushKey(DIK_D)) {
 		vector.x = 1.0f;
 	}
 	// 移動量に速さを反映
 	if (vector != Vector3(0.0f, 0.0f, 0.0f)) {
-		state_ = kWalk;
-		// 回転行列生成
+		tmpState_ = kWalk;
+		// 回転行列生成前にゼロベクトルかどうかをチェックし、処理をスキップする
+			// 回転行列生成
 		Matrix4x4 rotate = MakeRotateYMatrix(viewProjection_->rotation_.y);
 		// オフセットをカメラの回転に合わせて回転させる
 		vector = TransformNormal(vector.Normalized(), rotate);
-
-		PlayerRotate(vector.Normalized());
+		if (vector.Length()==0.0f) {
+			int a = 1;
+			a = 0;
+		}
 	}
-	if (Input::GetInstance()->PushKey(DIK_LSHIFT)) {
-		state_ = kShootWalk;
-
-		worldTransform_.rotate = Slerp(worldTransform_.rotate, MakeRotateYAngleQuaternion(viewProjection_->rotation_.y), 0.5f);
-		worldTransform_.rotate = Normalize(worldTransform_.rotate);
+	if (input->PushKey(DIK_LSHIFT) ||
+		input->PushGamepadButton(Button::LT)) {
+		tmpState_ = kShootingWalk;
+		worldTransform_.rotate = Slerp(worldTransform_.rotate, MakeRotateYAngleQuaternion(viewProjection_->rotation_.y), 0.6f);
 	}
 	float speed = 0.0f;
 	switch (state_) {
@@ -311,7 +354,7 @@ void Player::Move() {
 	case Player::kWalk:
 		speed = walkSpeed_;
 		break;
-	case Player::kShootWalk:
+	case Player::kShootingWalk:
 		speed = shootingWalkSpeed_;
 		break;
 	case Player::kCount:
@@ -332,7 +375,8 @@ void Player::DrawImGui() {
 		ImGui::DragFloat4("color", &material.color.x, 0.1f, 0.0f, 1.0f);
 		ImGui::DragFloat("environmentCoefficient", &material.environmentCoefficient, 0.1f, 0.0f, 1.0f);
 		if (ImGui::TreeNode("PlayerProperties")) {
-			ImGui::DragFloat("gravity", &gravity_,0.01f,0.0f);
+			ImGui::DragFloat("gravity", &gravity_, 0.01f, 0.0f);
+			ImGui::DragFloat("knockBack", &knockBack_, 0.1f, 0.0f);
 			ImGui::DragFloat("walkSpeed_", &walkSpeed_, 0.1f, 0.0f);
 			ImGui::DragFloat("shootingWalkSpeed_", &shootingWalkSpeed_, 0.1f, 0.0f);
 			if (ImGui::Button("Save")) {
@@ -341,6 +385,7 @@ void Player::DrawImGui() {
 				JSON_SAVE(gravity_);
 				JSON_SAVE(walkSpeed_);
 				JSON_SAVE(shootingWalkSpeed_);
+				JSON_SAVE(knockBack_);
 				JSON_ROOT();
 				JSON_CLOSE();
 			}
@@ -348,16 +393,17 @@ void Player::DrawImGui() {
 		}
 		if (ImGui::TreeNode("PlayerAnimation")) {
 			ImGui::DragFloat("transitionCycle_", &transitionCycle_, 1.0f, 0.0f);
-			ImGui::DragFloat("idleAnimationCycle_", &idleAnimationCycle_, 1.0f, 0.0f);
-			ImGui::DragFloat("walkAnimationCycle_", &walkAnimationCycle_, 1.0f, 0.0f);
-			ImGui::DragFloat("shootWalkAnimationCycle_", &shootWalkAnimationCycle_, 1.0f, 0.0f);
+			for (auto& animationInfo : animationInfo_) {
+				ImGui::DragFloat((animationInfo.first + "Cycle").c_str(), &animationInfo.second.animationCycle, 1.0f, 0.0f);
+			}
 			if (ImGui::Button("Save")) {
 				JSON_OPEN("Resources/Data/Player/player.json");
 				JSON_OBJECT("playerAnimation");
-				JSON_SAVE(idleAnimationCycle_);
-				JSON_SAVE(walkAnimationCycle_);
-				JSON_SAVE(shootWalkAnimationCycle_);
 				JSON_SAVE(transitionCycle_);
+				for (auto& animationInfo : animationInfo_) {
+					std::string name = animationInfo.first;
+					JSON_SAVE_BY_NAME(name, animationInfo.second.animationCycle);
+				}
 				JSON_ROOT();
 				JSON_CLOSE();
 			}
@@ -374,59 +420,43 @@ void Player::AnimationUpdate(CommandContext& commandContext) {
 	if (state_ != preState_) {
 		onTransition_ = true;
 		transitionTime_ = 0.0f;
-		switch (state_) {
-		case Player::kRoot:
-			currentAnimationHandle_ = idleHandle_;
-			break;
-		case Player::kWalk:
-			currentAnimationHandle_ = walkHandle_;
-			break;
-		case Player::kShootWalk:
-			currentAnimationHandle_ = shootWalkHandle_;
-			break;
-		case Player::kCount:
-			break;
-		default:
-			break;
-		}
-		switch (preState_) {
-		case Player::kRoot:
-			preAnimationHandle_ = idleHandle_;
-			break;
-		case Player::kWalk:
-			preAnimationHandle_ = walkHandle_;
-			break;
-		case Player::kShootWalk:
-			preAnimationHandle_ = shootWalkHandle_;
-			break;
-		case Player::kCount:
-			break;
-		default:
-			break;
-		}
+		currentAnimationHandle_ = animationInfo_[name_.at(state_)].handle;
+		preAnimationHandle_ = animationInfo_[name_.at(preState_)].handle;
 	}
 	if (!onTransition_) {
+
+
 		switch (state_) {
 		case Player::kRoot:
-			currentAnimationHandle_ = idleHandle_;
-			animationTime_ += 1.0f / idleAnimationCycle_;
-			animationTime_ = std::fmodf(animationTime_, 1.0f);
-			break;
 		case Player::kWalk:
-			currentAnimationHandle_ = walkHandle_;
-			animationTime_ += 1.0f / walkAnimationCycle_;
-			animationTime_ = std::fmodf(animationTime_, 1.0f);
-			break;
-		case Player::kShootWalk:
-			currentAnimationHandle_ = shootWalkHandle_;
-			animationTime_ += 1.0f / shootWalkAnimationCycle_;
-			animationTime_ = std::fmodf(animationTime_, 1.0f);
-			break;
+		{
+			animationTime_ += 1.0f / animationInfo_[name_.at(state_)].animationCycle;
+		}
+		break;
+		break;
+		case Player::kShootingWalk:
+		{
+			Vector3 length = { velocity_.x,0.0f,velocity_.z };
+			if (length.Length() != 0.0f) {
+				animationTime_ += 1.0f / animationInfo_[name_.at(state_)].animationCycle;
+			}
+		}
+		break;
+		case Player::kHitDamage:
+		{
+			animationTime_ += 1.0f / animationInfo_[name_.at(state_)].animationCycle;
+			if (animationTime_ >= 1.0f) {
+				tmpState_ = kRoot;
+			}
+		}
+		break;
 		case Player::kCount:
 			break;
 		default:
 			break;
 		}
+		currentAnimationHandle_ = animationInfo_[name_.at(state_)].handle;
+		animationTime_ = std::fmodf(animationTime_, 1.0f);
 		animation_.Update(currentAnimationHandle_, animationTime_, commandContext, playerModelHandle_);
 	}
 	else {
@@ -447,12 +477,5 @@ void Player::PlayerRotate(const Vector3& move) {
 	if (Dot({ 0.0f,0.0f,1.0f }, vector) < 0.999f) {
 		Quaternion diff = MakeFromTwoVector({ 0.0f,0.0f,1.0f }, vector);
 		worldTransform_.rotate = Slerp(Quaternion::identity, diff, 0.1f) * worldTransform_.rotate;
-	}
-	// nafなど計算できない値になったら
-	if (!std::isfinite(worldTransform_.rotate.x) ||
-		!std::isfinite(worldTransform_.rotate.y) ||
-		!std::isfinite(worldTransform_.rotate.z) ||
-		!std::isfinite(worldTransform_.rotate.w)) {
-		worldTransform_.rotate = Quaternion::identity;
 	}
 }

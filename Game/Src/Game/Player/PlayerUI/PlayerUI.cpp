@@ -23,7 +23,7 @@ void PlayerUI::Update() {}
 void PlayerUI::Draw(CommandContext& commandContext) {
 	for (size_t i = 0; i < handle_.size(); ++i) {
 		if (i == kReticle) {
-			if (Input::GetInstance()->PushKey(DIK_LSHIFT)) {
+			if (Input::GetInstance()->PushKey(DIK_LSHIFT)|| Input::GetInstance()->PushGamepadButton(Button::LT)) {
 				SpriteManager::GetInstance()->Draw(handle_.at(i), commandContext);
 			}
 		}

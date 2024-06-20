@@ -103,7 +103,8 @@ public:
 
 	void Update(CommandContext& commandContext);
 
-	void SetColliderActive(const BossStateManager::State& state,bool flag);
+	void SetAttackColliderActive(const BossStateManager::State& state,bool flag);
+	void SetBodyColliderActive(const BossStateManager::State& state,bool flag);
 
 	const Animation::AnimationHandle GetAnimationHandle() const {
 		if (preAnimationHandle_.has_value()) {

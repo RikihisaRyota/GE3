@@ -115,7 +115,7 @@ void Boss::Update(CommandContext& commandContext) {
 }
 
 void Boss::Draw(const ViewProjection& viewProjection, CommandContext& commandContext) {
-	ModelManager::GetInstance()->Draw(animationTransform_, animation_, viewProjection, bossModelHandle_, commandContext);
+	//ModelManager::GetInstance()->Draw(animationTransform_, animation_, viewProjection, bossModelHandle_, commandContext);
 }
 
 void Boss::DrawImGui() {
@@ -291,11 +291,15 @@ void Boss::UpdateGPUParticle() {
 		{
 			GPUParticleShaderStructs::Emitter emitterForGPU = {
 		   .emitterArea{
-				   .sphere{
-						.radius = born.Length() * 0.5f,
+				   .capsule{
+						.segment{
+							.origin = {worldPos},
+							.diff = {parentPos},
+						},
+						.radius = born.Length() * colliderSize_[joint.name],
 					},
-					.position{worldPos},
-					.type = 1,
+					.position{0.0f,0.0f,0.0f},
+					.type = 2,
 			   },
 
 		   .scale{
@@ -343,14 +347,14 @@ void Boss::UpdateGPUParticle() {
 
 		   .particleLifeSpan{
 			   .range{
-				   .min = 1,
-				   .max = 2,
+				   .min = 15,
+				   .max = 30,
 			   }
 		   },
 
 		   .textureIndex = 0,
 
-		   .createParticleNum = 1 << 10,
+		   .createParticleNum = uint32_t(born.Length())*200,
 			};
 
 			gpuParticleManager_->CreateParticle(emitterForGPU);

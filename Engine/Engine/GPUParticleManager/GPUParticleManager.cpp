@@ -47,6 +47,7 @@ namespace ParticleManager {
 	};
 
 	enum ParticleUpdateRootSigunature {
+		kViewPrijection,
 		kParticleBuffer,
 		kParticleIndexCommand,
 		kOutputDrawIndex,
@@ -71,6 +72,10 @@ namespace ParticleManager {
 
 		kGraphicsSigunatureCount,
 	};
+
+	enum BulletForGPUSigunature {
+
+	};
 }
 
 void GPUParticleManager::Initialize() {
@@ -86,7 +91,7 @@ void GPUParticleManager::Initialize() {
 	gpuParticle_->SetSpawnCommandSignature(spawnCommandSignature_.Get());
 }
 
-void GPUParticleManager::Update(CommandContext& commandContext) {
+void GPUParticleManager::Update(const ViewProjection& viewProjection,CommandContext& commandContext) {
 	UINT seed = static_cast<UINT>(std::chrono::system_clock::now().time_since_epoch().count());
 	randomBuffer_.Copy(&seed, sizeof(UINT));
 
@@ -108,7 +113,7 @@ void GPUParticleManager::Update(CommandContext& commandContext) {
 
 	commandContext.SetComputeRootSignature(*updateComputeRootSignature_);
 	commandContext.SetPipelineState(*updateComputePipelineState_);
-	gpuParticle_->ParticleUpdate(commandContext);
+	gpuParticle_->ParticleUpdate(viewProjection,commandContext);
 }
 
 void GPUParticleManager::Draw(const ViewProjection& viewProjection, CommandContext& commandContext) {
@@ -195,8 +200,8 @@ void GPUParticleManager::CreateGraphics() {
 		auto ps = ShaderCompiler::Compile(L"Resources/Shaders/GPUParticle/GPUParticle.PS.hlsl", L"ps_6_0");
 		desc.VS = CD3DX12_SHADER_BYTECODE(vs->GetBufferPointer(), vs->GetBufferSize());
 		desc.PS = CD3DX12_SHADER_BYTECODE(ps->GetBufferPointer(), ps->GetBufferSize());
-		desc.BlendState = Helper::BlendAdditive;
-		desc.DepthStencilState = Helper::DepthStateRead;
+		desc.BlendState = Helper::BlendAlpha;
+		desc.DepthStencilState = Helper::DepthStateReadWrite;
 		desc.RasterizerState = Helper::RasterizerNoCull;
 		desc.NumRenderTargets = 1;
 		desc.RTVFormats[0] = RenderManager::GetInstance()->GetRenderTargetFormat();
@@ -310,11 +315,12 @@ void GPUParticleManager::CreateUpdate() {
 
 		//	ParticleIndexCommand用（カウンター付きUAVの場合このように宣言）
 		CD3DX12_DESCRIPTOR_RANGE particleIndexRange[1]{};
-		particleIndexRange[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, ParticleManager::ParticleUpdateRootSigunature::kParticleIndexCommand, 0);
+		particleIndexRange[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 1, 0);
 		CD3DX12_DESCRIPTOR_RANGE outputDrawRange[1]{};
-		outputDrawRange[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, ParticleManager::ParticleUpdateRootSigunature::kOutputDrawIndex, 0);
+		outputDrawRange[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 2, 0);
 
 		CD3DX12_ROOT_PARAMETER rootParameters[ParticleManager::ParticleUpdateRootSigunature::kUpdateRootSigunatureCount]{};
+		rootParameters[ParticleManager::ParticleUpdateRootSigunature::kViewPrijection].InitAsConstantBufferView(0);
 		rootParameters[ParticleManager::ParticleUpdateRootSigunature::kParticleBuffer].InitAsUnorderedAccessView(0);
 		rootParameters[ParticleManager::ParticleUpdateRootSigunature::kParticleIndexCommand].InitAsDescriptorTable(_countof(particleIndexRange), particleIndexRange);
 		rootParameters[ParticleManager::ParticleUpdateRootSigunature::kOutputDrawIndex].InitAsDescriptorTable(_countof(outputDrawRange), outputDrawRange);

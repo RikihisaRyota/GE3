@@ -50,36 +50,38 @@ void Rotate(uint index, uint32_t emitterIndex,inout uint32_t seed)
 
 void Translate(uint index,  uint32_t emitterIndex,inout uint32_t seed)
 {
-    Output[index].translate = gEmitter[emitterIndex].area.position;
     if(gEmitter[emitterIndex].area.type==0){
-        Output[index].translate.x += randomRange(gEmitter[emitterIndex].area.aabb.range.min.x, gEmitter[emitterIndex].area.aabb.range.max.x, seed);
-        Output[index].translate.y += randomRange(gEmitter[emitterIndex].area.aabb.range.min.y, gEmitter[emitterIndex].area.aabb.range.max.y, seed);
-        Output[index].translate.z += randomRange(gEmitter[emitterIndex].area.aabb.range.min.z, gEmitter[emitterIndex].area.aabb.range.max.z, seed);
+        Output[index].translate = gEmitter[emitterIndex].area.position;
+        Output[index].translate += randomRange(gEmitter[emitterIndex].area.aabb.range.min, gEmitter[emitterIndex].area.aabb.range.max, seed);
     }else if(gEmitter[emitterIndex].area.type==1){
+        Output[index].translate = gEmitter[emitterIndex].area.position;
         float32_t3 normal,direction;
-        normal.x = randomRange(-gEmitter[emitterIndex].area.sphere.radius, gEmitter[emitterIndex].area.sphere.radius,seed);
-        normal.y = randomRange(-gEmitter[emitterIndex].area.sphere.radius, gEmitter[emitterIndex].area.sphere.radius,seed);
-        normal.z = randomRange(-gEmitter[emitterIndex].area.sphere.radius, gEmitter[emitterIndex].area.sphere.radius,seed);
+        normal.x = randomRange(-1.0f, 1.0f,seed);
+        normal.y = randomRange(-1.0f, 1.0f,seed);
+        normal.z = randomRange(-1.0f, 1.0f,seed);
         direction=normalize(normal);
-        direction*= randomRange(-gEmitter[emitterIndex].area.sphere.radius, gEmitter[emitterIndex].area.sphere.radius, seed);
+        direction*= randomRange(0.0f, gEmitter[emitterIndex].area.sphere.radius, seed);
         Output[index].translate += direction;
+    } else if(gEmitter[emitterIndex].area.type==2){
+            float32_t3 normal,direction,p;
+            p = randomRangeSame(gEmitter[emitterIndex].area.capsule.segment.origin, gEmitter[emitterIndex].area.capsule.segment.diff,seed);
+            normal.x = randomRange(-1.0f, 1.0f,seed);
+            normal.y = randomRange(-1.0f, 1.0f,seed);
+            normal.z = randomRange(-1.0f, 1.0f,seed);
+            direction=normalize(normal);
+            direction*= randomRange(0.0f, gEmitter[emitterIndex].area.capsule.radius, seed);
+            Output[index].translate =  pointOnCapsule(p + direction,gEmitter[emitterIndex].area.capsule.segment.origin,gEmitter[emitterIndex].area.capsule.segment.diff,gEmitter[emitterIndex].area.capsule.radius ,randomRange(-1.0f, 0.0f,seed));
     }
-    
 }
 
 void Velocity(uint index,  uint32_t emitterIndex,inout uint32_t seed)
 {
-    Output[index].velocity.x = randomRange(gEmitter[emitterIndex].velocity3D.range.min.x, gEmitter[emitterIndex].velocity3D.range.max.x, seed);
-    Output[index].velocity.y = randomRange(gEmitter[emitterIndex].velocity3D.range.min.y, gEmitter[emitterIndex].velocity3D.range.max.y, seed);
-    Output[index].velocity.z = randomRange(gEmitter[emitterIndex].velocity3D.range.min.z, gEmitter[emitterIndex].velocity3D.range.max.z, seed);
+    Output[index].velocity = randomRange(gEmitter[emitterIndex].velocity3D.range.min, gEmitter[emitterIndex].velocity3D.range.max, seed);
 }
 
 void Color(uint index,  uint32_t emitterIndex,inout uint32_t seed)
 {
-    Output[index].color.r = randomRange(gEmitter[emitterIndex].color.range.start.min.r, gEmitter[emitterIndex].color.range.start.min.r, seed);
-    Output[index].color.g = randomRange(gEmitter[emitterIndex].color.range.start.min.g, gEmitter[emitterIndex].color.range.start.min.g,seed);
-    Output[index].color.b = randomRange(gEmitter[emitterIndex].color.range.start.min.b, gEmitter[emitterIndex].color.range.start.min.b, seed);
-    Output[index].color.a = randomRange(gEmitter[emitterIndex].color.range.start.min.a, gEmitter[emitterIndex].color.range.start.min.a,seed);
+    Output[index].color = randomRange(gEmitter[emitterIndex].color.range.start.min, gEmitter[emitterIndex].color.range.start.min, seed);
 }
 
 void Create(uint index,  uint32_t emitterIndex,uint32_t seed)

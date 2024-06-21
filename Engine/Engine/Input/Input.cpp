@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <debugapi.h>
 #include <string.h>
 #include <vector>
 
@@ -37,7 +38,7 @@ void Input::Initialize() {
 	// マウス設定
 	result = dInput_->CreateDevice(GUID_SysMouse, &devMouse_, NULL);
 	assert(SUCCEEDED(result));
-	result = devMouse_->SetDataFormat(&c_dfDIMouse);
+	result = devMouse_->SetDataFormat(&c_dfDIMouse2);
 	assert(SUCCEEDED(result));
 	result = devMouse_->SetCooperativeLevel(WinApp::GetInstance()->GetHwnd(), DISCL_FOREGROUND | DISCL_NONEXCLUSIVE | DISCL_NOWINKEY);
 	assert(SUCCEEDED(result));
@@ -144,10 +145,10 @@ bool Input::ExitMouse(int32_t buttonNumber) const {
 
 bool Input::PushGamepadButton(Button button, int32_t stickNo) const {
 	if (IsControllerConnected() && stickNo >= 0 && stickNo < static_cast<int32_t>(devJoysticks_.size())) {
-		if (button == LT) {
+		if (button == Button::LT) {
 			return (devJoysticks_[stickNo].state_.xInput_.Gamepad.bLeftTrigger) != 0;
 		}
-		else if (button == RT) {
+		else if (button == Button::RT) {
 			return (devJoysticks_[stickNo].state_.xInput_.Gamepad.bRightTrigger) != 0;
 		}
 		else {
@@ -159,11 +160,11 @@ bool Input::PushGamepadButton(Button button, int32_t stickNo) const {
 
 float Input::GetTriggerPushGamepadButton(Button button, int32_t stickNo) const {
 	if (IsControllerConnected() && stickNo >= 0 && stickNo < static_cast<int32_t>(devJoysticks_.size())) {
-		if (button == LT) {
+		if (button == Button::LT) {
 			return float(devJoysticks_[stickNo].state_.xInput_.Gamepad.bLeftTrigger) / 255.0f;
 
 		}
-		else if (button == RT) {
+		else if (button == Button::RT) {
 			return float(devJoysticks_[stickNo].state_.xInput_.Gamepad.bRightTrigger) / 255.0f;
 		}
 	}
@@ -276,6 +277,10 @@ bool Input::IsControllerConnected() const {
 		}
 	}
 	return false;
+}
+
+bool Input::IsWindowActive() {
+	return GetForegroundWindow() == WinApp::GetInstance()->GetHwnd();
 }
 
 

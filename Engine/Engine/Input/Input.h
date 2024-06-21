@@ -80,7 +80,7 @@ public:
 	Vector2 GetRightStick(int32_t stickNo = 0);
 
 	bool IsControllerConnected() const;
-
+	bool IsWindowActive();
 private:
 	Input() = default;
 	~Input() = default;

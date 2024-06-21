@@ -43,7 +43,7 @@ public:
 	void EmitterUpdate(CommandContext& commandContext);
 	void AppendEmitter(CommandContext& commandContext);
 	void AddEmitter(CommandContext& commandContext);
-	void ParticleUpdate(CommandContext& commandContext);
+	void ParticleUpdate(const ViewProjection& viewProjection,CommandContext& commandContext);
 	void Draw(const ViewProjection& viewProjection, CommandContext& commandContext);
 	void SetDrawCommandSignature(ID3D12CommandSignature* commandSignature) { commandSignature_ = commandSignature; }
 	void SetSpawnCommandSignature(ID3D12CommandSignature* commandSignature) { spawnCommandSignature_ = commandSignature; }

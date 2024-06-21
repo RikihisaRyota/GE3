@@ -20,7 +20,7 @@ class GPUParticleManager {
 public:
 	void Initialize();
 
-	void Update(CommandContext& commandContext);
+	void Update(const ViewProjection& viewProjection,CommandContext& commandContext);
 
 	void Draw(const ViewProjection& viewProjection,CommandContext& commandContext);
 

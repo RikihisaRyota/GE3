@@ -5,6 +5,7 @@
 #include "Engine/Math/Vector2.h"
 #include "Engine/Math/Vector3.h"
 #include "Engine/Math/Vector4.h"
+#include "Engine/Math/Matrix4x4.h"
 
 namespace GPUParticleShaderStructs {
 	// hlsli側も変更するように
@@ -101,6 +102,7 @@ namespace GPUParticleShaderStructs {
 		uint32_t pad2;
 		Vector3 velocity;
 		uint32_t pad3;
+		Matrix4x4 matWorld;
 	};
 
 	// hlsli側も変更すること
@@ -114,6 +116,7 @@ namespace GPUParticleShaderStructs {
 		float radius;
 		Vector3 pad;
 	};
+
 	struct EmitterSegment {
 		Vector3 origin;
 		float pad;
@@ -129,6 +132,7 @@ namespace GPUParticleShaderStructs {
 	struct EmitterArea {
 		EmitterAABB aabb;
 		EmitterSphere sphere;
+		EmitterCapsule capsule;
 		Vector3 position;
 		uint32_t type;
 	};
@@ -197,6 +201,12 @@ namespace GPUParticleShaderStructs {
 	struct CreateParticle {
 		uint32_t emitterIndex;
 		int32_t createParticleNum;
+	};
+
+	// 弾
+	struct BulletForGPU {
+		Vector3 position;
+		float radius;
 	};
 
 	struct IndirectCommand {

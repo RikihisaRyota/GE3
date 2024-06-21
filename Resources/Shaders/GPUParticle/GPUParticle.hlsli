@@ -73,6 +73,7 @@ struct Particle
 
     float32_t3 velocity;
     uint32_t pad3;    
+    float32_t4x4 worldMatrix;
 };
 
 struct EmitterAABB
@@ -85,10 +86,21 @@ struct EmitterSphere
     float32_t radius;
     float32_t3 pad;
 };
-
+struct EmitterSegment {
+		float32_t3 origin;
+		float32_t pad;
+		float32_t3 diff;
+		float32_t pad1;
+};
+struct EmitterCapsule {
+		EmitterSegment segment;
+		float32_t radius;
+		float32_t3 pad;
+};
 struct EmitterArea{
     EmitterAABB aabb;
     EmitterSphere sphere;
+    EmitterCapsule capsule;
     float32_t3 position;
     uint32_t type;
 };
@@ -163,11 +175,36 @@ struct EmitterCounterBuffer
     uint32_t3 pad;
 };
 
-float sdSphere(float32_t3 p, float32_t s )
+float32_t sdSphere(float32_t3 p, float32_t s )
 {
   return length(p)-s;
 }
 
+float32_t sdCapsule(float32_t3 p, float32_t3 a, float32_t3 b, float32_t r)
+{
+    float32_t3 pa = p - a, ba = b - a;
+    float32_t h = clamp(dot(pa, ba) / dot(ba, ba), 0.0, 1.0);
+    return length(pa - ba * h) - r;
+}
+
+float32_t3 closestPointOnSegment(float32_t3 p, float32_t3 a, float32_t3 b)
+{
+    float32_t3 pa = p - a;
+    float32_t3 ba = b - a;
+    float32_t t = clamp(dot(pa, ba) / dot(ba, ba), 0.0, 1.0);
+    return a + t * ba;
+}
+
+float32_t3 pointOnCapsule(float32_t3 p, float32_t3 a, float32_t3 b, float32_t r, float32_t targetDistance)
+{
+    float32_t3 closestPoint = closestPointOnSegment(p, a, b);
+
+    float32_t3 direction = normalize(p - closestPoint);
+
+    float32_t3 pointOnSurface = closestPoint + direction * (r + targetDistance);
+
+    return pointOnSurface;
+}
 
 uint32_t randInt(uint32_t seed) {
     seed ^= seed << 13;
@@ -191,6 +228,38 @@ float32_t randFloat(inout uint32_t seed) {
 float32_t  randomRange(float32_t min, float max,inout uint32_t  seed) {
     return lerp(min, max, randFloat(seed));
 }
+float32_t2 randomRange(float32_t2 min, float32_t2 max, inout uint32_t seed) {
+    float32_t2 result;
+    result.x=lerp(min.x, max.x, randFloat(seed));
+    result.y=lerp(min.y, max.y, randFloat(seed));
+    return result;
+}
+float32_t3 randomRange(float32_t3 min, float32_t3 max, inout uint32_t seed) {
+    float32_t3 result;
+    result.x=lerp(min.x, max.x, randFloat(seed));
+    result.y=lerp(min.y, max.y, randFloat(seed));
+    result.z=lerp(min.z, max.z, randFloat(seed));
+    return result;
+}
+
+float32_t3 randomRangeSame(float32_t3 min, float32_t3 max, inout uint32_t seed) {
+    float32_t3 result;
+    float32_t localSeed =randFloat(seed);
+    result.x=lerp(min.x, max.x, localSeed);
+    result.y=lerp(min.y, max.y, localSeed);
+    result.z=lerp(min.z, max.z, localSeed);
+    return result;
+}
+
+float32_t4 randomRange(float32_t4 min, float32_t4 max, inout uint32_t seed) {
+    float32_t4 result;
+    result.x=lerp(min.x, max.x, randFloat(seed));
+    result.y=lerp(min.y, max.y, randFloat(seed));
+    result.z=lerp(min.z, max.z, randFloat(seed));
+    result.w=lerp(min.w, max.w, randFloat(seed));
+    return result;
+}
+
 float32_t random(float32_t2 uv, float32_t seed)
 {
     return frac(sin(dot(uv, float32_t2(12.9898f, 78.233f)) + seed) * 43758.5453);

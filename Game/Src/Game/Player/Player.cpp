@@ -199,90 +199,90 @@ void Player::OnCollision(const ColliderDesc& desc) {
 }
 
 void Player::GPUParticleSpawn() {
-	for (auto& joint : animation_.skeleton.joints) {
-		if (!joint.parent.has_value()) {
-			continue;
-		}
-		Matrix4x4 worldMatrix = joint.skeletonSpaceMatrix * worldTransform_.matWorld;
-		Matrix4x4 parentMatrix = animation_.skeleton.joints.at(*joint.parent).skeletonSpaceMatrix * worldTransform_.matWorld;
+	//for (auto& joint : animation_.skeleton.joints) {
+	//	if (!joint.parent.has_value()) {
+	//		continue;
+	//	}
+	//	Matrix4x4 worldMatrix = joint.skeletonSpaceMatrix * worldTransform_.matWorld;
+	//	Matrix4x4 parentMatrix = animation_.skeleton.joints.at(*joint.parent).skeletonSpaceMatrix * worldTransform_.matWorld;
 
-		Vector3 worldPos = MakeTranslateMatrix(worldMatrix);
-		Vector3 parentPos = MakeTranslateMatrix(parentMatrix);
-		Vector3 born = (worldPos - parentPos);
+	//	Vector3 worldPos = MakeTranslateMatrix(worldMatrix);
+	//	Vector3 parentPos = MakeTranslateMatrix(parentMatrix);
+	//	Vector3 born = (worldPos - parentPos);
 
-		// 0
-		{
-			float startScaleMax = 0.25f;
-			float startScaleMin = 0.125f;
-			float scaleMax = born.Length() * startScaleMax;
-			float scaleMin = born.Length() * startScaleMin;
-			GPUParticleShaderStructs::Emitter emitterForGPU = {
-		   .emitterArea{
-				   .sphere{
-						.radius = born.Length() * 0.5f,
-					},
-					.position{worldPos},
-					.type = 1,
-			   },
+	//	// 0
+	//	{
+	//		float startScaleMax = 0.25f;
+	//		float startScaleMin = 0.125f;
+	//		float scaleMax = born.Length() * startScaleMax;
+	//		float scaleMin = born.Length() * startScaleMin;
+	//		GPUParticleShaderStructs::Emitter emitterForGPU = {
+	//	   .emitterArea{
+	//			   .sphere{
+	//					.radius = born.Length() * 0.5f,
+	//				},
+	//				.position{worldPos},
+	//				.type = 1,
+	//		   },
 
-		   .scale{
-			   .range{
-				   .start{
-					   .min = {scaleMin,scaleMin,scaleMin},
-					   .max = {scaleMax,scaleMax,scaleMax},
-				   },
-				   .end{
-					   .min = {0.0f,0.0f,0.0f},
-					   .max = {0.0f,0.0f,0.0f},
-				   },
-			   },
-		   },
+	//	   .scale{
+	//		   .range{
+	//			   .start{
+	//				   .min = {scaleMin,scaleMin,scaleMin},
+	//				   .max = {scaleMax,scaleMax,scaleMax},
+	//			   },
+	//			   .end{
+	//				   .min = {0.0f,0.0f,0.0f},
+	//				   .max = {0.0f,0.0f,0.0f},
+	//			   },
+	//		   },
+	//	   },
 
-		   .rotate{
-			   .rotate = 0.0f,
-		   },
+	//	   .rotate{
+	//		   .rotate = 0.0f,
+	//	   },
 
-		   .velocity{
-			   .range{
-				   .min = {0.0f,0.0f,0.0f},
-				   .max = {0.0f,0.0f,0.0f},
-			   }
-		   },
+	//	   .velocity{
+	//		   .range{
+	//			   .min = {0.0f,0.0f,0.0f},
+	//			   .max = {0.0f,0.0f,0.0f},
+	//		   }
+	//	   },
 
-		   .color{
-			   .range{
-				   .start{
-					   .min = {0.0f,0.8f,0.2f,1.0f},
-					   .max = {0.0f,1.0f,0.5f,1.0f},
-				   },
-				   .end{
-					   .min = {0.0f,0.6f,0.1f,1.0f},
-					   .max = {0.0f,0.8f,0.3f,1.0f},
-				   },
-			   },
-		   },
+	//	   .color{
+	//		   .range{
+	//			   .start{
+	//				   .min = {0.0f,0.8f,0.2f,1.0f},
+	//				   .max = {0.0f,1.0f,0.5f,1.0f},
+	//			   },
+	//			   .end{
+	//				   .min = {0.0f,0.6f,0.1f,1.0f},
+	//				   .max = {0.0f,0.8f,0.3f,1.0f},
+	//			   },
+	//		   },
+	//	   },
 
-		   .frequency{
-			   .interval = 0,
-			   .isLoop = false,
-			   //.lifeTime = 120,
-		   },
+	//	   .frequency{
+	//		   .interval = 0,
+	//		   .isLoop = false,
+	//		   //.lifeTime = 120,
+	//	   },
 
-		   .particleLifeSpan{
-			   .range{
-				   .min = 1,
-				   .max = 1,
-			   }
-		   },
+	//	   .particleLifeSpan{
+	//		   .range{
+	//			   .min = 1,
+	//			   .max = 1,
+	//		   }
+	//	   },
 
-		   .textureIndex = 0,
+	//	   .textureIndex = 0,
 
-		   .createParticleNum = 1 << 10,
-			};
+	//	   .createParticleNum = 1 << 10,
+	//		};
 
-			gpuParticleManager_->CreateParticle(emitterForGPU);
-		}
-	}
+	//		gpuParticleManager_->CreateParticle(emitterForGPU);
+	//	}
+	//}
 }
 
 void Player::UpdateTransform() {

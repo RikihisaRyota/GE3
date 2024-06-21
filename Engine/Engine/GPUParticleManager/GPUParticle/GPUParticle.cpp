@@ -126,7 +126,7 @@ void GPUParticle::Spawn(CommandContext& commandContext, const UploadBuffer& rand
 }
 
 
-void GPUParticle::ParticleUpdate(CommandContext& commandContext) {
+void GPUParticle::ParticleUpdate(const ViewProjection& viewProjection,CommandContext& commandContext) {
 	// リセット
 	commandContext.CopyBufferRegion(drawIndexCommandBuffers_, particleIndexCounterOffset_, resetAppendDrawIndexBufferCounterReset_, 0, sizeof(UINT));
 
@@ -134,9 +134,11 @@ void GPUParticle::ParticleUpdate(CommandContext& commandContext) {
 	commandContext.TransitionResource(originalCommandBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 	commandContext.TransitionResource(drawIndexCommandBuffers_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 
-	commandContext.SetComputeUAV(0, particleBuffer_->GetGPUVirtualAddress());
-	commandContext.SetComputeDescriptorTable(1, originalCommandUAVHandle_);
-	commandContext.SetComputeDescriptorTable(2, drawIndexCommandUAVHandle_);
+
+	commandContext.SetComputeConstantBuffer(0, viewProjection.constBuff_.GetGPUVirtualAddress());
+	commandContext.SetComputeUAV(1, particleBuffer_->GetGPUVirtualAddress());
+	commandContext.SetComputeDescriptorTable(2, originalCommandUAVHandle_);
+	commandContext.SetComputeDescriptorTable(3, drawIndexCommandUAVHandle_);
 
 	commandContext.Dispatch(static_cast<UINT>(ceil(GPUParticleShaderStructs::MaxParticleNum / float(GPUParticleShaderStructs::ComputeThreadBlockSize))), 1, 1);
 	commandContext.UAVBarrier(particleBuffer_);

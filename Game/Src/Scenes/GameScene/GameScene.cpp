@@ -84,11 +84,15 @@ void GameScene::Initialize() {
 	//{
 	//	GPUParticleShaderStructs::Emitter emitterForGPU = {
 	//   .emitterArea{
-	//		   .sphere{
-	//				.radius = {10.0f},
+	//		   .capsule{
+	//				.segment{
+	//					.origin{2.0f,6.0f,0.0f},
+	//					.diff{-2.0f,6.0f,0.0f},
+	//				},
+	//				.radius = 1.0f,
 	//			},
 	//			.position{0.0f,0.0f,0.0},
-	//			.type = 1,
+	//			.type = 2,
 	//	   },
 
 	//   .scale{
@@ -110,8 +114,8 @@ void GameScene::Initialize() {
 
 	//   .velocity{
 	//	   .range{
-	//		   .min = {-0.05f,-0.05f,-0.05f},
-	//		   .max = {0.05f,0.0f,0.05f},
+	//		   .min = {0.0f,0.0f,0.0f},
+	//		   .max = {0.0f,0.0f,0.0f},
 	//	   }
 	//   },
 
@@ -130,7 +134,7 @@ void GameScene::Initialize() {
 
 	//   .frequency{
 	//	   .interval = 1,
-	//	   .isLoop = false,
+	//	   .isLoop = true,
 	//	   .lifeTime = 360,
 	//   },
 
@@ -143,7 +147,7 @@ void GameScene::Initialize() {
 
 	//   .textureIndex = TextureManager::GetInstance()->GetTexture(gpuTexture_).GetDescriptorIndex(),
 
-	//   .createParticleNum = 1 << 10,
+	//   .createParticleNum = 1 << 11,
 	//	};
 
 	//	gpuParticleManager_->CreateParticle(emitterForGPU);
@@ -239,7 +243,7 @@ void GameScene::Update(CommandContext& commandContext) {
 	}
 
 	worldTransform_.UpdateMatrix();
-	gpuParticleManager_->Update(RenderManager::GetInstance()->GetCommandContext());
+	gpuParticleManager_->Update(*viewProjection_,RenderManager::GetInstance()->GetCommandContext());
 	//gpuParticleEditor_->Update(RenderManager::GetInstance()->GetCommandContext());
 
 	CollisionManager::GetInstance()->Collision();
@@ -275,13 +279,13 @@ void GameScene::Draw(CommandContext& commandContext) {
 
 	//gpuParticleEditor_->Draw(*viewProjection_, commandContext);
 
-	skybox_->Draw(commandContext, *viewProjection_);
+	//skybox_->Draw(commandContext, *viewProjection_);
 	gpuParticleManager_->Draw(*viewProjection_, commandContext);
 
 	player_->DrawSprite(commandContext);
 #ifdef _DEBUG
-	player_->DrawDebug(*viewProjection_);
-	boss_->DrawDebug(*viewProjection_);
+	//player_->DrawDebug(*viewProjection_);
+	//boss_->DrawDebug(*viewProjection_);
 #endif // _DEBUG
 
 }

@@ -36,7 +36,7 @@ void TitleScene::Initialize() {
 
 void TitleScene::Update(CommandContext& commandContext) {
 	viewProjection_.UpdateMatrix();
-	gpuParticleManager_->Update(RenderManager::GetInstance()->GetCommandContext());
+	gpuParticleManager_->Update(viewProjection_,RenderManager::GetInstance()->GetCommandContext());
 	debugCamera_->Update(&viewProjection_);
 	if (Input::GetInstance()->PushKey(DIK_SPACE)) {
 		SceneManager::GetInstance()->ChangeScene(AbstractSceneFactory::Scene::kGame);

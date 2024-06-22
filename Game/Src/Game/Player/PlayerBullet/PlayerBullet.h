@@ -19,6 +19,10 @@ public:
 	void Draw(const ViewProjection& viewProjection, CommandContext& commandContext);
 	void DrawDebug(const ViewProjection& viewProjection);
 	bool GetIsAlive() { return isAlive_; }
+
+	const Vector3 GetPosition()const { return worldTransform_.translate; }
+	const Vector3 GetScale() const { return worldTransform_.scale; }
+
 private:
 	void OnCollision(const ColliderDesc& desc);
 	void UpdateTransform();

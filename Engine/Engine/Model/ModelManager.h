@@ -25,7 +25,7 @@ public:
 	Model& GetModel(const ModelHandle& modelHandle) { return *models_[modelHandle.index_]; }
 
 	void Draw(const WorldTransform& worldTransform,const ViewProjection& viewProjection, const ModelHandle& modelHandle, CommandContext& commandContext);
-	void Draw(const WorldTransform& worldTransform, const Animation::Animation& skinning,const ViewProjection& viewProjection, const ModelHandle& modelHandle, CommandContext& commandContext);
+	void Draw(const WorldTransform& worldTransform, Animation::Animation& skinning,const ViewProjection& viewProjection, const ModelHandle& modelHandle, CommandContext& commandContext);
 private:
 	static std::unique_ptr<PipelineState> pipelineState_;
 	static std::unique_ptr<RootSignature> rootSignature_;

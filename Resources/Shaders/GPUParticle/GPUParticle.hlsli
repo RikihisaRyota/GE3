@@ -1,5 +1,5 @@
 
-#define threadBlockSize 8
+#define threadBlockSize 1024
 #define emitterSize 1024
 
 // Utility
@@ -175,6 +175,8 @@ struct EmitterCounterBuffer
     uint32_t3 pad;
 };
 
+
+
 float32_t sdSphere(float32_t3 p, float32_t s )
 {
   return length(p)-s;
@@ -204,6 +206,72 @@ float32_t3 pointOnCapsule(float32_t3 p, float32_t3 a, float32_t3 b, float32_t r,
     float32_t3 pointOnSurface = closestPoint + direction * (r + targetDistance);
 
     return pointOnSurface;
+}
+
+float32_t sdTriangle(float32_t3 p, float32_t3 a, float32_t3 b, float32_t3 c) {
+    float32_t3 ba = b - a;
+    float32_t3 pa = p - a;
+    float32_t3 cb = c - b;
+    float32_t3 pb = p - b;
+    float32_t3 ac = a - c;
+    float32_t3 pc = p - c;
+    float32_t3 nor = cross(ba, ac);
+
+    return sqrt(
+        (sign(dot(cross(ba, nor), pa)) +
+         sign(dot(cross(cb, nor), pb)) +
+         sign(dot(cross(ac, nor), pc)) < 2.0)
+            ? min(min(
+                  dot(ba * clamp(dot(ba, pa) / dot(ba, ba), 0.0, 1.0) - pa,
+                      ba * clamp(dot(ba, pa) / dot(ba, ba), 0.0, 1.0) - pa),
+                  dot(cb * clamp(dot(cb, pb) / dot(cb, cb), 0.0, 1.0) - pb,
+                      cb * clamp(dot(cb, pb) / dot(cb, cb), 0.0, 1.0) - pb)),
+              dot(ac * clamp(dot(ac, pc) / dot(ac, ac), 0.0, 1.0) - pc,
+                  ac * clamp(dot(ac, pc) / dot(ac, ac), 0.0, 1.0) - pc))
+            : dot(nor, pa) * dot(nor, pa) / dot(nor, nor));
+}
+
+float32_t3 closestPointOnTriangle(float32_t3 p, float32_t3 a, float32_t3 b, float32_t3 c) {
+    float32_t3 ab = b - a;
+    float32_t3 ac = c - a;
+    float32_t3 ap = p - a;
+
+    float32_t d1 = dot(ab, ap);
+    float32_t d2 = dot(ac, ap);
+
+    if (d1 <= 0.0 && d2 <= 0.0) return a;
+
+    float32_t3 bp = p - b;
+    float32_t d3 = dot(ab, bp);
+    float32_t d4 = dot(ac, bp);
+
+    if (d3 >= 0.0 && d4 <= d3) return b;
+
+    float32_t vc = d1 * d4 - d3 * d2;
+    if (vc <= 0.0 && d1 >= 0.0 && d3 <= 0.0)
+        return a + ab * (d1 / (d1 - d3));
+
+    float32_t3 cp = p - c;
+    float32_t d5 = dot(ab, cp);
+    float32_t d6 = dot(ac, cp);
+
+    if (d6 >= 0.0 && d5 <= d6) return c;
+
+    float32_t vb = d5 * d2 - d1 * d6;
+    if (vb <= 0.0 && d2 >= 0.0 && d6 <= 0.0)
+        return a + ac * (d2 / (d2 - d6));
+
+    float32_t va = d3 * d6 - d5 * d4;
+    if (va <= 0.0 && (d4 - d3) >= 0.0 && (d5 - d6) >= 0.0)
+        return b + (c - b) * ((d4 - d3) / ((d4 - d3) + (d5 - d6)));
+
+    return a + ab * (d1 / (d1 + d3)) + ac * (d2 / (d2 + d6));
+}
+
+float32_t3 pointOnTriangle(float32_t3 p, float32_t3 a, float32_t3 b, float32_t3 c, float32_t targetDistance) {
+    float32_t3 closestPoint = closestPointOnTriangle(p, a, b, c);
+    float32_t3 direction = normalize(p - closestPoint);
+    return closestPoint + direction * targetDistance;
 }
 
 uint32_t randInt(uint32_t seed) {

@@ -147,11 +147,11 @@ namespace Animation {
 		skeleton.CreateSkeleton(ModelManager::GetInstance()->GetModel(modelHandle).GetMeshData().at(0)->rootNode);
 		skinCluster.CreateSkinCluster(skeleton, modelHandle);
 
-		debugBoxModelHandle_ = ModelManager::GetInstance()->Load("Resources/Models/Box1x1/box1x1.gltf");
-		for (auto& joint : skeleton.joints) {
-			debugBox_.emplace_back(WorldTransform());
-			debugBox_.back().Initialize();
-		}
+		//debugBoxModelHandle_ = ModelManager::GetInstance()->Load("Resources/Models/Box1x1/box1x1.gltf");
+		//for (auto& joint : skeleton.joints) {
+		//	debugBox_.push_back(WorldTransform());
+		//	debugBox_.back().Initialize();
+		//}
 
 	}
 
@@ -160,11 +160,6 @@ namespace Animation {
 		skeleton.CreateSkeleton(ModelManager::GetInstance()->GetModel(modelHandle).GetMeshData().at(0)->rootNode);
 		skinCluster.CreateSkinCluster(skeleton, modelHandle);
 
-		debugBoxModelHandle_ = ModelManager::GetInstance()->Load("Resources/Models/Box1x1/box1x1.gltf");
-		for (auto& joint : skeleton.joints) {
-			debugBox_.emplace_back(WorldTransform());
-			debugBox_.back().Initialize();
-		}
 	}
 
 	void Animation::Update(const AnimationHandle& handle, float time, CommandContext& commandContext, const ModelHandle& modelHandle) {
@@ -192,7 +187,7 @@ namespace Animation {
 			}
 		}
 	}
-	void Animation::DrawBox(const WorldTransform& worldTransform, const ViewProjection& viewProjection) {
+	/*void Animation::DrawBox(const WorldTransform& worldTransform, const ViewProjection& viewProjection) {
 		auto drawBox = ModelManager::GetInstance();
 		auto renderManager = RenderManager::GetInstance();
 		for (uint32_t i = 0; auto & joint : skeleton.joints) {
@@ -202,6 +197,6 @@ namespace Animation {
 			drawBox->Draw(debugBox_.at(i), viewProjection, debugBoxModelHandle_, renderManager->GetCommandContext());
 			i++;
 		}
-	}
+	}*/
 
 }

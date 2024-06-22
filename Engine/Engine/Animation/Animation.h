@@ -71,10 +71,6 @@ namespace Animation {
 		void Update(const AnimationHandle& handle, float time, CommandContext& commandContext, const ModelHandle& modelHandle);
 		void Update(const AnimationHandle& pre, float fromTime, const AnimationHandle& current, float toTime, float time, CommandContext& commandContext, const ModelHandle& modelHandle);
 		void DrawLine(const WorldTransform& worldTransform);
-		void DrawBox(const WorldTransform& worldTransform, const ViewProjection& viewProjection);
-
-		std::vector<WorldTransform> debugBox_;
-		ModelHandle debugBoxModelHandle_;
 	};
 
 	Vector3 CalculateValue(const AnimationCurve<Vector3>& keyframes, float time);

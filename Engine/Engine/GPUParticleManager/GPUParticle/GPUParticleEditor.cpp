@@ -221,7 +221,7 @@ void GPUParticleEditor::Draw(const ViewProjection& viewProjection, CommandContex
 		commandContext.SetGraphicsDescriptorTable(3, GraphicsCore::GetInstance()->GetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV).GetStartDescriptorHandle());
 		commandContext.SetGraphicsDescriptorTable(4, SamplerManager::LinearWrap);
 		commandContext.ExecuteIndirect(
-			commandSignature_.Get(),
+			*commandSignature_.get(),
 			1,
 			drawArgumentBuffer_,
 			0,
@@ -261,6 +261,7 @@ void GPUParticleEditor::CreateGraphics() {
 	}
 	// コマンドシグネイチャ
 	{
+		commandSignature_ = std::make_unique<CommandSignature>();
 		D3D12_INDIRECT_ARGUMENT_DESC argumentDescs[GPUParticleEditorParameter::CommandSigunature::kCommandSigunatureCount] = {};
 		argumentDescs[GPUParticleEditorParameter::CommandSigunature::kParticleSRV].Type = D3D12_INDIRECT_ARGUMENT_TYPE_SHADER_RESOURCE_VIEW;
 		argumentDescs[GPUParticleEditorParameter::CommandSigunature::kParticleSRV].ShaderResourceView.RootParameterIndex = 0;
@@ -272,9 +273,7 @@ void GPUParticleEditor::CreateGraphics() {
 		commandSignatureDesc.pArgumentDescs = argumentDescs;
 		commandSignatureDesc.NumArgumentDescs = _countof(argumentDescs);
 		commandSignatureDesc.ByteStride = sizeof(GPUParticleShaderStructs::IndirectCommand);
-		auto result = device->CreateCommandSignature(&commandSignatureDesc, *graphicsRootSignature_, IID_PPV_ARGS(&commandSignature_));
-		commandSignature_->SetName(L"EditorCommandSignature");
-		assert(SUCCEEDED(result));
+		commandSignature_->Create(L"EditorCommandSignature", commandSignatureDesc, graphicsRootSignature_.get());
 	}
 	// グラフィックスパイプライン
 	{

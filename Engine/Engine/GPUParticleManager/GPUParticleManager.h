@@ -3,6 +3,10 @@
 #include <memory>
 #include <vector>
 
+#include "Engine/Animation/Animation.h"
+#include "Engine/Animation/Skinning.h"
+
+#include "Engine/Graphics/CommandSignature.h"
 #include "Engine/Graphics/UploadBuffer.h"
 #include "Engine/Graphics/PipelineState.h"
 #include "Engine/Graphics/RootSignature.h"
@@ -15,7 +19,9 @@
 #include "Engine/Math/Matrix4x4.h"
 
 class CommandContext;
+class ModelHandle;
 struct ViewProjection;
+struct WorldTransform;
 class GPUParticleManager {
 public:
 	void Initialize();
@@ -24,7 +30,10 @@ public:
 
 	void Draw(const ViewProjection& viewProjection,CommandContext& commandContext);
 
+	void CreateMeshParticle(const ModelHandle& modelHandle, Animation::Animation& animation , const WorldTransform& worldTransform ,CommandContext& commandContext);
+	void CreateMeshParticle(const ModelHandle& modelHandle,const WorldTransform& worldTransform ,CommandContext& commandContext);
 	void CreateParticle(const GPUParticleShaderStructs::Emitter& emitterForGPU);
+	void SetBullets(const std::vector<GPUParticleShaderStructs::BulletForGPU>& bullets);
 
 private:
 	void CreateParticleBuffer();
@@ -34,6 +43,8 @@ private:
 	void CreateUpdate();
 	void CreateSpawn();
 	void CreateIndexBuffer();
+	void CreateBullet();
+	void CreateMeshParticle();
 
 	std::unique_ptr<PipelineState> graphicsPipelineState_;
 	std::unique_ptr<RootSignature> graphicsRootSignature_;
@@ -47,8 +58,12 @@ private:
 	std::unique_ptr<PipelineState> appendEmitterComputePipelineState_;
 	std::unique_ptr<RootSignature> updateComputeRootSignature_;
 	std::unique_ptr<PipelineState> updateComputePipelineState_;
-	Microsoft::WRL::ComPtr<ID3D12CommandSignature> commandSignature_;
-	Microsoft::WRL::ComPtr<ID3D12CommandSignature> spawnCommandSignature_;
+	std::unique_ptr<CommandSignature> commandSignature_;
+	std::unique_ptr<CommandSignature> spawnCommandSignature_;
+	std::unique_ptr<PipelineState> bulletPipelineState_;
+	std::unique_ptr<RootSignature> bulletRootSignature_;
+	std::unique_ptr<PipelineState> meshParticlePipelineState_;
+	std::unique_ptr<RootSignature> meshParticleRootSignature_;
 
 	UploadBuffer vertexBuffer_;
 	D3D12_VERTEX_BUFFER_VIEW vbView_{};

@@ -116,6 +116,7 @@ void Boss::Update(CommandContext& commandContext) {
 
 void Boss::Draw(const ViewProjection& viewProjection, CommandContext& commandContext) {
 	//ModelManager::GetInstance()->Draw(animationTransform_, animation_, viewProjection, bossModelHandle_, commandContext);
+	//gpuParticleManager_->CreateMeshParticle(bossModelHandle_, animation_, worldTransform_, commandContext);
 }
 
 void Boss::DrawImGui() {

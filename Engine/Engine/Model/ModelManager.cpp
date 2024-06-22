@@ -216,13 +216,14 @@ void ModelManager::Draw(const WorldTransform& worldTransform, const ViewProjecti
 	}
 }
 
-void ModelManager::Draw(const WorldTransform& worldTransform, const Animation::Animation& skinning, const ViewProjection& viewProjection, const ModelHandle& modelHandle, CommandContext& commandContext) {
+void ModelManager::Draw(const WorldTransform& worldTransform, Animation::Animation& skinning, const ViewProjection& viewProjection, const ModelHandle& modelHandle, CommandContext& commandContext) {
 
 	commandContext.SetGraphicsRootSignature(*rootSignature_);
 	commandContext.SetPipelineState(*pipelineState_);
 	commandContext.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	for (auto& modelData : models_.at(modelHandle)->GetMeshData()) {
+		commandContext.TransitionResource(skinning.skinCluster.vertexBuffer, D3D12_RESOURCE_STATE_GENERIC_READ);
 		commandContext.SetVertexBuffer(0, skinning.skinCluster.vertexBufferView);
 		commandContext.SetIndexBuffer(modelData->ibView);
 		commandContext.SetGraphicsConstantBuffer(Parameter::RootParameter::WorldTransform, worldTransform.constBuff.get()->GetGPUVirtualAddress());

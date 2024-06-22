@@ -433,6 +433,8 @@
     <ClCompile Include="Game\Src\Game\Player\PlayerHP\PlayerHP.cpp">
       <Filter>Game\Player\PlayerHP</Filter>
     </ClCompile>
+    <ClCompile Include="Engine\Engine\Graphics\CommandSignature.cpp" />
+    <ClCompile Include="Engine\Engine\Graphics\StructuredBuffer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\Engine\WinApp\WinApp.h">
@@ -726,6 +728,12 @@
     <ClInclude Include="Game\Src\Game\Player\PlayerHP\PlayerHP.h">
       <Filter>Game\Player\PlayerHP</Filter>
     </ClInclude>
+    <ClInclude Include="Engine\Engine\Graphics\CommandSignature.h">
+      <Filter>Engine\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Engine\Graphics\StructuredBuffer.h">
+      <Filter>Engine\Graphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Externals\Imgui\LICENSE.txt">
@@ -854,6 +862,12 @@
     </FxCompile>
     <FxCompile Include="Resources\Shaders\Skinning\Skinning.hlsl">
       <Filter>Shaders\Skinning</Filter>
+    </FxCompile>
+    <FxCompile Include="Resources\Shaders\GPUParticle\CollisionBullet.hlsl">
+      <Filter>Shaders\GPUParticle</Filter>
+    </FxCompile>
+    <FxCompile Include="Resources\Shaders\GPUParticle\MeshParticle.hlsl">
+      <Filter>Shaders\GPUParticle</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

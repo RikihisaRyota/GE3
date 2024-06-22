@@ -29,6 +29,7 @@ void PlayerBulletManager::Initialize() {
 void PlayerBulletManager::Update() {
 	bulletTime_++;
 	bulletTime_ = std::clamp(bulletTime_, 0, bulletCoolTime_);
+	std::vector<GPUParticleShaderStructs::BulletForGPU> bullets;
 	// 弾の更新と生存状態の確認
 	auto iter = playerBullets_.begin();
 	while (iter != playerBullets_.end()) {
@@ -40,9 +41,14 @@ void PlayerBulletManager::Update() {
 			iter = playerBullets_.erase(iter); // 削除して、次の要素を指す
 		}
 		else {
+			bullets.emplace_back(GPUParticleShaderStructs::BulletForGPU());
+			bullets.back().position = (*iter)->GetPosition();
+			bullets.back().radius = 10.0f;
+			bullets.back().speed = 0.1f;
 			++iter; // 次の弾へ移動
 		}
 	}
+	gpuParticleManager_->SetBullets(bullets);
 }
 
 void PlayerBulletManager::DrawImGui() {

@@ -124,6 +124,9 @@ void Model::LoadFile(const std::filesystem::path& modelPath) {
 
 		currentModelData->vertexBuffer.Create(name_.wstring() + L"VertexBuffer", vertexPos.size() * sizeof(vertexPos[0]));
 		currentModelData->vertexBuffer.Copy(vertexPos.data(), vertexPos.size() * sizeof(vertexPos[0]));
+		currentModelData->vertexCountBuffer.Create(name_.wstring() + L"VertexCountBuffer", sizeof(UINT));
+		size_t size = vertexPos.size();
+		currentModelData->vertexCountBuffer.Copy(&size, sizeof(UINT));
 		currentModelData->vbView.BufferLocation = currentModelData->vertexBuffer.GetGPUVirtualAddress();
 		currentModelData->vbView.SizeInBytes = UINT(currentModelData->vertexBuffer.GetBufferSize());
 		currentModelData->vbView.StrideInBytes = sizeof(vertexPos[0]);

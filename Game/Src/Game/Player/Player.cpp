@@ -133,9 +133,10 @@ void Player::Update(CommandContext& commandContext) {
 }
 
 void Player::Draw(const ViewProjection& viewProjection, CommandContext& commandContext) {
-	ModelManager::GetInstance()->Draw(animationTransform_, animation_, *viewProjection_, playerModelHandle_, commandContext);
+	//ModelManager::GetInstance()->Draw(animationTransform_, animation_, *viewProjection_, playerModelHandle_, commandContext);
 
 	playerBulletManager_->Draw(viewProjection, commandContext);
+	gpuParticleManager_->CreateMeshParticle(playerModelHandle_, animation_, worldTransform_, commandContext);
 }
 
 void Player::DrawSprite(CommandContext& commandContext) {
@@ -337,10 +338,6 @@ void Player::Move() {
 		Matrix4x4 rotate = MakeRotateYMatrix(viewProjection_->rotation_.y);
 		// オフセットをカメラの回転に合わせて回転させる
 		vector = TransformNormal(vector.Normalized(), rotate);
-		if (vector.Length()==0.0f) {
-			int a = 1;
-			a = 0;
-		}
 	}
 	if (input->PushKey(DIK_LSHIFT) ||
 		input->PushGamepadButton(Button::LT)) {

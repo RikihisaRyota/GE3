@@ -1,19 +1,12 @@
 #include "GPUParticle.hlsli"
 
-// struct EmitterCountBuffer
-// {
-//     uint32_t count;
-// };
-
-// ConstantBuffer<EmitterCountBuffer> gEmitterCount : register(b0);
-
 RWStructuredBuffer<Particle> Output : register(u0);
 
 StructuredBuffer<Emitter> gEmitter : register(t0);
 
 struct Random
 {
-     uint32_t random;
+    uint32_t random;
 };
 
 
@@ -22,6 +15,14 @@ ConstantBuffer<Random> gRandom : register(b0);
 ConsumeStructuredBuffer<uint> particleIndexCommands : register(u1);
 
 RWStructuredBuffer<CreateParticle> createParticle : register(u2);
+
+struct CounterParticle
+{
+    int32_t count;
+};
+
+
+RWStructuredBuffer<CounterParticle> particleIndexCounter : register(u3);
 
 void LifeTime(uint index, uint32_t emitterIndex,inout uint32_t seed)
 {
@@ -110,21 +111,21 @@ void main(uint3 DTid : SV_DispatchThreadID)
     for (int i = 0; i < emitterSize; i++)
     {
         if(createParticle[i].createParticleNum > 0){
-        int32_t createNum=-1; 
-        InterlockedAdd(createParticle[i].createParticleNum, -1,createNum);
-        if (createNum > 0)
-        {
-                int index = particleIndexCommands.Consume();
-                uint32_t seed = setSeed(index * gRandom.random);
-                uint32_t emitterIndex = createParticle[i].emitterNum;
-                Create(index, emitterIndex,seed);
-                uint32_t textureIndex=Output[index].textureInidex;
-                uint32_t isAlive= Output[index].isAlive;
-                Output[index].textureInidex =  Output[index].isAlive;
-                Output[index].textureInidex = textureIndex;
-                Output[index].isAlive=isAlive;
-                break;
-        }
+            int32_t createNum=-1; 
+            InterlockedAdd(createParticle[i].createParticleNum, -1,createNum);
+          
+                if (createNum > 0)
+                { 
+                    int32_t counter=-1;
+                    InterlockedAdd(particleIndexCounter[0].count, -1,counter);
+                    if(counter>0){
+                    int index = particleIndexCommands.Consume();
+                    uint32_t seed = setSeed(index * gRandom.random);
+                    uint32_t emitterIndex = createParticle[i].emitterNum;
+                    Create(index, emitterIndex,seed);
+                    break;
+                    }
+                }
         }
     }
 }

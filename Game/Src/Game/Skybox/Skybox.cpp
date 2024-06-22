@@ -159,7 +159,7 @@ void Skybox::Draw(CommandContext& commandContext, const ViewProjection& viewProj
 
 	commandContext.SetVertexBuffer(0, vbView_);
 
-	commandContext.SetGraphicsConstantBuffer(Param::kWorldTransform, worldTransform_.constBuff.get()->GetGPUVirtualAddress());
+	commandContext.SetGraphicsConstantBuffer(Param::kWorldTransform, worldTransform_.constBuff->GetGPUVirtualAddress());
 	commandContext.SetGraphicsConstantBuffer(Param::kViewProjection, viewProjection.constBuff_.GetGPUVirtualAddress());
 	commandContext.SetGraphicsDescriptorTable(Param::kTexture, TextureManager::GetInstance()->GetTexture(textureHandle_).GetSRV());
 

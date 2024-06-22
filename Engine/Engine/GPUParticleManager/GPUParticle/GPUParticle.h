@@ -7,11 +7,14 @@
 
 #include <wrl.h>
 
+#include "Engine/Animation/Animation.h"
+#include "Engine/Graphics/CommandSignature.h"
 #include "Engine/Graphics/DefaultBuffer.h"
 #include "Engine/Graphics/ReadBackBuffer.h"
 #include "Engine/Graphics/UploadBuffer.h"
 #include "Engine/Graphics/PipelineState.h"
 #include "Engine/Graphics/RootSignature.h"
+#include "Engine/Graphics/StructuredBuffer.h"
 #include "Engine/Graphics/DescriptorHandle.h"
 #include "Engine/GPUParticleManager/GPUParticle/GPUParticleShaderStructs.h"
 #include "Engine/Texture/TextureHandle.h"
@@ -24,17 +27,11 @@
 #include "Engine/Model/ModelHandle.h"
 
 class TextureHandle;
+class ModelHandle;
 class CommandContext;
 struct ViewProjection;
+struct WorldTransform;
 class GPUParticle {
-private:
-	enum CommandSigunature {
-		kParticleSRV,
-		kDrawIndexSRV,
-		kDrawIndex,
-
-		kCommandSigunatureCount,
-	};
 public:
 	GPUParticle();
 	~GPUParticle();
@@ -44,12 +41,16 @@ public:
 	void AppendEmitter(CommandContext& commandContext);
 	void AddEmitter(CommandContext& commandContext);
 	void ParticleUpdate(const ViewProjection& viewProjection,CommandContext& commandContext);
+	void BulletUpdate(CommandContext& commandContext);
 	void Draw(const ViewProjection& viewProjection, CommandContext& commandContext);
-	void SetDrawCommandSignature(ID3D12CommandSignature* commandSignature) { commandSignature_ = commandSignature; }
-	void SetSpawnCommandSignature(ID3D12CommandSignature* commandSignature) { spawnCommandSignature_ = commandSignature; }
+	void CreateMeshParticle(const ModelHandle& modelHandle, Animation::Animation& animation, const WorldTransform& worldTransform, const UploadBuffer& random, CommandContext& commandContext);
+	void CreateMeshParticle(const ModelHandle& modelHandle, const WorldTransform& worldTransform,const UploadBuffer& random, CommandContext& commandContext);
+	void SetDrawCommandSignature(CommandSignature* commandSignature) { commandSignature_ = commandSignature; }
+	void SetSpawnCommandSignature(CommandSignature* commandSignature) { spawnCommandSignature_ = commandSignature; }
 	void Create(const GPUParticleShaderStructs::Emitter& emitterForGPU);
 
 	void SetEmitter(const GPUParticleShaderStructs::Emitter& emitterForGPU);
+	void SetBullets(const std::vector<GPUParticleShaderStructs::BulletForGPU>& bullets);
 private:
 	void InitializeParticleBuffer();
 	void InitializeUpdateParticle();
@@ -57,16 +58,17 @@ private:
 	void InitializeBuffer();
 	void InitializeEmitter();
 	void InitializeAddEmitter();
+	void InitializeBullets();
 
 	// コマンドシグネイチャ
-	ID3D12CommandSignature* commandSignature_;
+	CommandSignature* commandSignature_;
 	// パーティクルの情報
 	DefaultBuffer particleBuffer_;
 	// パーティクルのIndexをAppend,Consumeするよう
 	DefaultBuffer originalCommandBuffer_;
 	DescriptorHandle originalCommandUAVHandle_;
 	// パーティクルが何体生きているかをCPU側に伝えるコピー用
-	ReadBackBuffer originalCommandCounterBuffer_;
+	//ReadBackBuffer originalCommandCounterBuffer_;
 	// 何番目のパーティクルが生きているか積み込みよう(ExecuteIndirect用)
 	DefaultBuffer drawIndexCommandBuffers_;
 	DescriptorHandle drawIndexCommandUAVHandle_;
@@ -81,7 +83,8 @@ private:
 	UploadBuffer resetCreateParticleBuffer_;
 	DescriptorHandle createParticleUAVHandle_;
 	DefaultBuffer spawnArgumentBuffer_;
-	ID3D12CommandSignature* spawnCommandSignature_;
+	DefaultBuffer originalCounterBuffer_;
+	CommandSignature* spawnCommandSignature_;
 	// 何個生成するか数える用
 	DefaultBuffer createParticleCounterCopySrcBuffer_;
 	// AddParticle用
@@ -93,7 +96,10 @@ private:
 	DescriptorHandle addEmitterUAVHandle_;
 	std::vector<GPUParticleShaderStructs::Emitter> emitterForGPUs_;
 	DefaultBuffer createEmitterBuffer_;
-
+	// 弾
+	StructuredBuffer bulletsBuffer_;
+	UploadBuffer bulletCountBuffer_;
+	// メッシュパーティクル
 
 	UINT particleIndexSize_;
 	UINT particleIndexCounterOffset_;

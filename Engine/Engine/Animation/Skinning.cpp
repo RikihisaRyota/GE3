@@ -165,6 +165,10 @@ namespace Animation {
 
 		commandContext.SetComputeRootSignature(rootSignature);
 		commandContext.SetPipelineState(pipelineState);
+
+		commandContext.TransitionResource(ModelManager::GetInstance()->GetModel(modelHandle).GetMeshData().at(0)->vertexBuffer, D3D12_RESOURCE_STATE_GENERIC_READ);
+		commandContext.TransitionResource(vertexBuffer, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+
 		commandContext.SetComputeShaderResource(kWell, paletteResource.GetGPUVirtualAddress());
 		commandContext.SetComputeShaderResource(kInputVertex, ModelManager::GetInstance()->GetModel(modelHandle).GetMeshData().at(0)->vertexBuffer.GetGPUVirtualAddress());
 		commandContext.SetComputeShaderResource(kInfluence, influenceResource.GetGPUVirtualAddress());

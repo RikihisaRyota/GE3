@@ -158,6 +158,7 @@
     <ClCompile Include="Engine\Engine\GPUParticleManager\GPUParticleManager.cpp" />
     <ClCompile Include="Engine\Engine\GPUParticleManager\GPUParticle\GPUParticle.cpp" />
     <ClCompile Include="Engine\Engine\GPUParticleManager\GPUParticle\GPUParticleEditor.cpp" />
+    <ClCompile Include="Engine\Engine\Graphics\CommandSignature.cpp" />
     <ClCompile Include="Engine\Engine\Graphics\DefaultBuffer.cpp" />
     <ClCompile Include="Engine\Engine\Graphics\Dissolve.cpp" />
     <ClCompile Include="Engine\Engine\Graphics\GaussianFilter.cpp" />
@@ -165,6 +166,7 @@
     <ClCompile Include="Engine\Engine\Graphics\PostEffect.cpp" />
     <ClCompile Include="Engine\Engine\Graphics\RadialBlur.cpp" />
     <ClCompile Include="Engine\Engine\Graphics\ReadBackBuffer.cpp" />
+    <ClCompile Include="Engine\Engine\Graphics\StructuredBuffer.cpp" />
     <ClCompile Include="Engine\Engine\Json\JsonUtils.cpp" />
     <ClCompile Include="Engine\Engine\LevelDataLoader\LevelDataLoader.cpp" />
     <ClCompile Include="Engine\Engine\Lighting\Lighting.cpp" />
@@ -245,6 +247,7 @@
     <ClInclude Include="Engine\Engine\GPUParticleManager\GPUParticle\GPUParticle.h" />
     <ClInclude Include="Engine\Engine\GPUParticleManager\GPUParticle\GPUParticleEditor.h" />
     <ClInclude Include="Engine\Engine\GPUParticleManager\GPUParticle\GPUParticleShaderStructs.h" />
+    <ClInclude Include="Engine\Engine\Graphics\CommandSignature.h" />
     <ClInclude Include="Engine\Engine\Graphics\DefaultBuffer.h" />
     <ClInclude Include="Engine\Engine\Graphics\Dissolve.h" />
     <ClInclude Include="Engine\Engine\Graphics\GaussianFilter.h" />
@@ -252,6 +255,7 @@
     <ClInclude Include="Engine\Engine\Graphics\PostEffect.h" />
     <ClInclude Include="Engine\Engine\Graphics\RadialBlur.h" />
     <ClInclude Include="Engine\Engine\Graphics\ReadBackBuffer.h" />
+    <ClInclude Include="Engine\Engine\Graphics\StructuredBuffer.h" />
     <ClInclude Include="Engine\Engine\Json\JsonUtils.h" />
     <ClInclude Include="Engine\Engine\LevelDataLoader\LevelDataLoader.h" />
     <ClInclude Include="Engine\Engine\Lighting\Lighting.h" />
@@ -450,6 +454,17 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Demo|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </FxCompile>
+    <FxCompile Include="Resources\Shaders\GPUParticle\CollisionBullet.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">4.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Demo|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Demo|x64'">4.0</ShaderModel>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Demo|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </FxCompile>
     <FxCompile Include="Resources\Shaders\GPUParticle\Editor\EditorEmitterSpaw.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4.0</ShaderModel>
@@ -498,6 +513,17 @@
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">4.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Demo|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Demo|x64'">4.0</ShaderModel>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Demo|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="Resources\Shaders\GPUParticle\MeshParticle.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">4.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Demo|x64'">Compute</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Demo|x64'">4.0</ShaderModel>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>

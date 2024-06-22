@@ -4,6 +4,13 @@
 
 #include "Color.h"
 #include "GraphicsCore.h"
+#include "ColorBuffer.h"
+#include "DepthBuffer.h"
+#include "GPUResource.h"
+#include "PipelineState.h"
+#include "RootSignature.h"
+#include "CommandSignature.h"
+
 
 void CommandContext::Create() {
 	auto device = GraphicsCore::GetInstance()->GetDevice();
@@ -251,9 +258,10 @@ void CommandContext::DrawIndexedInstanced(UINT indexCountPerInstance, UINT insta
 	commandList_->DrawIndexedInstanced(indexCountPerInstance, instanceCount, startIndexLocation, baseVertexLocation, startInstanceLocation);
 }
 
-void CommandContext::ExecuteIndirect(ID3D12CommandSignature* commandSignature, UINT maxCommandCount, ID3D12Resource* argumentBuffer, UINT64 argumentBufferOffset, ID3D12Resource* countBuffer, UINT64 countBufferOffset) {
+void CommandContext::ExecuteIndirect(const CommandSignature& commandSignature, UINT maxCommandCount, ID3D12Resource* argumentBuffer, UINT64 argumentBufferOffset, ID3D12Resource* countBuffer, UINT64 countBufferOffset) {
 	FlushResourceBarriers();
-	commandList_->ExecuteIndirect(commandSignature, maxCommandCount, argumentBuffer, argumentBufferOffset, countBuffer, countBufferOffset);
+	ID3D12CommandSignature* cs = commandSignature;
+	commandList_->ExecuteIndirect(cs, maxCommandCount, argumentBuffer, argumentBufferOffset, countBuffer, countBufferOffset);
 }
 
 void CommandContext::Dispatch(uint32_t x, uint32_t y, uint32_t z) {

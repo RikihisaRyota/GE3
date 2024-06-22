@@ -9,7 +9,14 @@
 #include "GPUResource.h"
 #include "PipelineState.h"
 #include "RootSignature.h"
+#include "CommandSignature.h"
 
+class ColorBuffer;
+class DepthBuffer;
+class GPUResource;
+class PipelineState;
+class RootSignature;
+class CommandSignature;
 class CommandContext {
 public:
 	void Create();
@@ -66,7 +73,7 @@ public:
 	void DrawIndexed(UINT indexCount, UINT startIndexLocation = 0, INT baseVertexLocation = 0);
 	void DrawInstanced(UINT vertexCountPerInstance, UINT instanceCount, UINT startVertexLocation = 0, UINT startInstanceLocation = 0);
 	void DrawIndexedInstanced(UINT indexCountPerInstance, UINT instanceCount, UINT startIndexLocation = 0, INT baseVertexLocation = 0, UINT startInstanceLocation = 0);
-	void ExecuteIndirect(ID3D12CommandSignature* commandSignature, UINT maxCommandCount,ID3D12Resource* argumentBuffer,UINT64 argumentBufferOffset, ID3D12Resource* countBuffer, UINT64 countBufferOffset);
+	void ExecuteIndirect(const CommandSignature& commandSignature, UINT maxCommandCount,ID3D12Resource* argumentBuffer,UINT64 argumentBufferOffset, ID3D12Resource* countBuffer, UINT64 countBufferOffset);
 
 	void Dispatch(uint32_t x, uint32_t y, uint32_t z);
 

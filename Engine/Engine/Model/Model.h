@@ -76,6 +76,7 @@ public:
 		D3D12_INDEX_BUFFER_VIEW ibView{};
 
 		UploadBuffer vertexBuffer;
+		UploadBuffer vertexCountBuffer;
 		D3D12_VERTEX_BUFFER_VIEW vbView{};
 		DescriptorHandle srView{};
 

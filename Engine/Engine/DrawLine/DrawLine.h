@@ -26,7 +26,7 @@ public:
 	void SetLine(const Vector3& start,const Vector3& end,const Vector4& color);
 	void SetLine(const Vector3& line,const Vector4& color);
 private:
-	static const UINT kMaxLineCount = 4096;
+	static const UINT kMaxLineCount = 1 << 15;
 	
 	void CreateRootSignature();
 	void CreatePipelineState();

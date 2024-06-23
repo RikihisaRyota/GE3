@@ -23,13 +23,13 @@ void PlayerBullet::Create(GPUParticleManager* GPUParticleManager, const Vector3&
 	worldTransform_.rotate = MakeLookRotation(Normalize(velocity));
 	worldTransform_.UpdateMatrix();
 #pragma region コライダー
-	collider_ = std::make_unique<OBBCollider>();
+	collider_ = std::make_unique<SphereCollider>();
 	collider_->SetName("PlayerBullet");
 	auto& mesh = ModelManager::GetInstance()->GetModel(modelHandle_).GetMeshData().at(0);
 	Vector3 modelSize = mesh->meshes->max - mesh->meshes->min;
 	collider_->SetCenter(MakeTranslateMatrix(worldTransform_.matWorld) + Vector3(0.0f, modelSize.y * 0.5f, 0.0f));
-	collider_->SetOrientation(worldTransform_.rotate);
-	collider_->SetSize({ modelSize.x * worldTransform_.scale.x,modelSize.y * worldTransform_.scale.y,modelSize.z * worldTransform_.scale.z });
+	radius_ = (std::min)(std::fabsf(modelSize.x * worldTransform_.scale.x), (std::min)(std::fabsf(modelSize.y * worldTransform_.scale.y), std::fabsf(modelSize.z * worldTransform_.scale.z)));
+	collider_->SetRadius(radius_);
 	collider_->SetCallback([this](const ColliderDesc& collisionInfo) { OnCollision(collisionInfo); });
 	collider_->SetCollisionAttribute(CollisionAttribute::PlayerBullet);
 	collider_->SetCollisionMask(CollisionAttribute::GameObject | CollisionAttribute::BossBody);
@@ -63,9 +63,5 @@ void PlayerBullet::OnCollision(const ColliderDesc& desc) {
 
 void PlayerBullet::UpdateTransform() {
 	worldTransform_.UpdateMatrix();
-	auto& mesh = ModelManager::GetInstance()->GetModel(modelHandle_).GetMeshData().at(0);
-	Vector3 modelSize = mesh->meshes->max - mesh->meshes->min;
-	collider_->SetCenter(MakeTranslateMatrix(worldTransform_.matWorld) + Vector3(0.0f, modelSize.y * 0.5f, 0.0f));
-	collider_->SetOrientation(worldTransform_.rotate);
-	collider_->SetSize({ modelSize.x * worldTransform_.scale.x,modelSize.y * worldTransform_.scale.y,modelSize.z * worldTransform_.scale.z });
+	collider_->SetCenter(MakeTranslateMatrix(worldTransform_.matWorld));
 }

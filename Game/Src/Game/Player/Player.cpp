@@ -30,6 +30,7 @@ Player::Player() {
 	JSON_LOAD(shootingWalkSpeed_);
 	JSON_LOAD(gravity_);
 	JSON_LOAD(knockBack_);
+	JSON_LOAD(colliderRadius_);
 	JSON_ROOT();
 	JSON_OBJECT("playerAnimation");
 	JSON_LOAD(transitionCycle_);
@@ -41,13 +42,13 @@ Player::Player() {
 	JSON_CLOSE();
 
 #pragma region コライダー
-	collider_ = std::make_unique<OBBCollider>();
+	collider_ = std::make_unique<CapsuleCollider>();
 	collider_->SetName("Player");
 	auto& mesh = ModelManager::GetInstance()->GetModel(playerModelHandle_).GetMeshData().at(0);
 	Vector3 modelSize = mesh->meshes->max - mesh->meshes->min;
-	collider_->SetCenter(MakeTranslateMatrix(worldTransform_.matWorld) + Vector3(0.0f, modelSize.y * 0.5f, 0.0f));
-	collider_->SetOrientation(worldTransform_.rotate);
-	collider_->SetSize({ modelSize.x * worldTransform_.scale.x,modelSize.y * worldTransform_.scale.y,modelSize.z * worldTransform_.scale.z });
+	Vector3 pos = MakeTranslateMatrix(worldTransform_.matWorld);
+	collider_->SetSegment(Segment(pos + Vector3(0.0f, mesh->meshes->max.y-colliderRadius_, 0.0f), pos + Vector3(0.0f, mesh->meshes->min.y+ colliderRadius_, 0.0f)));
+	collider_->SetRadius(colliderRadius_);
 	collider_->SetCallback([this](const ColliderDesc& collisionInfo) { OnCollision(collisionInfo); });
 	collider_->SetCollisionAttribute(CollisionAttribute::Player);
 	collider_->SetCollisionMask(CollisionAttribute::BossBody | CollisionAttribute::BossAttack | CollisionAttribute::GameObject);
@@ -290,9 +291,9 @@ void Player::UpdateTransform() {
 	worldTransform_.UpdateMatrix();
 	auto& mesh = ModelManager::GetInstance()->GetModel(playerModelHandle_).GetMeshData().at(0);
 	Vector3 modelSize = mesh->meshes->max - mesh->meshes->min;
-	collider_->SetCenter(MakeTranslateMatrix(worldTransform_.matWorld) + Vector3(0.0f, modelSize.y * 0.5f, 0.0f));
-	collider_->SetOrientation(worldTransform_.rotate);
-	collider_->SetSize({ modelSize.x * worldTransform_.scale.x,modelSize.y * worldTransform_.scale.y,modelSize.z * worldTransform_.scale.z });
+	Vector3 pos = MakeTranslateMatrix(worldTransform_.matWorld);
+	collider_->SetSegment(Segment(pos + Vector3(0.0f, mesh->meshes->max.y- colliderRadius_, 0.0f), pos + Vector3(0.0f, mesh->meshes->min.y+ colliderRadius_, 0.0f)));
+	collider_->SetRadius(colliderRadius_);
 	animationTransform_.UpdateMatrix();
 }
 
@@ -372,6 +373,7 @@ void Player::DrawImGui() {
 		ImGui::DragFloat4("color", &material.color.x, 0.1f, 0.0f, 1.0f);
 		ImGui::DragFloat("environmentCoefficient", &material.environmentCoefficient, 0.1f, 0.0f, 1.0f);
 		if (ImGui::TreeNode("PlayerProperties")) {
+			ImGui::DragFloat("colliderRadius", &colliderRadius_, 0.1f, 0.0f);
 			ImGui::DragFloat("gravity", &gravity_, 0.01f, 0.0f);
 			ImGui::DragFloat("knockBack", &knockBack_, 0.1f, 0.0f);
 			ImGui::DragFloat("walkSpeed_", &walkSpeed_, 0.1f, 0.0f);
@@ -383,6 +385,7 @@ void Player::DrawImGui() {
 				JSON_SAVE(walkSpeed_);
 				JSON_SAVE(shootingWalkSpeed_);
 				JSON_SAVE(knockBack_);
+				JSON_SAVE(colliderRadius_);
 				JSON_ROOT();
 				JSON_CLOSE();
 			}

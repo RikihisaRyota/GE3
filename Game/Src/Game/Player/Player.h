@@ -82,7 +82,7 @@ private:
 
 	std::unique_ptr<PlayerUI> playerUI_;
 	std::unique_ptr<PlayerBulletManager> playerBulletManager_;
-	std::unique_ptr<OBBCollider> collider_;
+	std::unique_ptr<CapsuleCollider> collider_;
 	std::unique_ptr<PlayerHP> playerHP_;
 
 	ModelHandle playerModelHandle_;
@@ -112,4 +112,6 @@ private:
 
 	float walkSpeed_;
 	float shootingWalkSpeed_;
+
+	float colliderRadius_;
 };

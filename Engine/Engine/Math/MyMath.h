@@ -27,6 +27,7 @@ Quaternion MakeRotateXAngleQuaternion(float radians);
 Quaternion MakeRotateYAngleQuaternion(float radians);
 Quaternion MakeRotateZAngleQuaternion(float radians);
 
+Vector3 RotateVector(const Vector3& vector, const Quaternion& quaternion);
 Quaternion MakeRotateAxisAngleQuaternion(const Vector3& axis, float angle);
 Quaternion MakeRotateQuaternion(const Vector3& from, const Vector3 to);
 Quaternion MakeFromTwoVector(const Vector3& from, const Vector3& to);

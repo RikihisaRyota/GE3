@@ -43,8 +43,8 @@ void PlayerBulletManager::Update() {
 		else {
 			bullets.emplace_back(GPUParticleShaderStructs::BulletForGPU());
 			bullets.back().position = (*iter)->GetPosition();
-			bullets.back().radius = 10.0f;
-			bullets.back().speed = 0.1f;
+			bullets.back().radius = (*iter)->GetRadius();
+			bullets.back().speed = bulletSpeed_;
 			++iter; // 次の弾へ移動
 		}
 	}
@@ -100,7 +100,7 @@ void PlayerBulletManager::Create(const WorldTransform& worldTransform) {
 	if (bulletTime_ >= bulletCoolTime_) {
 		bulletTime_ = 0;
 		// プレイヤーの位置
-		Vector3 playerPosition = MakeTranslateMatrix(worldTransform.matWorld) + offset_;
+		Vector3 playerPosition = MakeTranslateMatrix(worldTransform.matWorld) + RotateVector(offset_, worldTransform.rotate);
 		Vector3 bulletVelocity{};
 		if (Input::GetInstance()->PushKey(DIK_LSHIFT) || Input::GetInstance()->PushGamepadButton(Button::LT)) {
 			// VPV合成行列

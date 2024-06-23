@@ -44,6 +44,7 @@ Boss::Boss() {
 		Vector3 center = MakeTranslateMatrix(parentMatrix) + born * 0.5f;
 		Quaternion orientation = MakeLookRotation(born.Normalized());
 		Vector3 size = { born.Length() * colliderSize_[joint.name], born.Length() * colliderSize_[joint.name],born.Length() };
+
 		bossCollider_[joint.name]->body->SetCenter(center);
 		bossCollider_[joint.name]->attack->SetCenter(center);
 		bossCollider_[joint.name]->body->SetOrientation(orientation);
@@ -56,9 +57,15 @@ Boss::Boss() {
 		bossCollider_[joint.name]->attack->SetCollisionAttribute(CollisionAttribute::BossAttack);
 		bossCollider_[joint.name]->body->SetCollisionMask(CollisionAttribute::Player | CollisionAttribute::PlayerBullet);
 		bossCollider_[joint.name]->body->SetCollisionMask(CollisionAttribute::Player);
-		bossCollider_[joint.name]->body->SetIsActive(true);
-		bossCollider_[joint.name]->attack->SetIsActive(false);
 		bossCollider_[joint.name]->color = { 0.0f,1.0f,0.0f,1.0f };
+		if (born != Vector3(0.0f, 0.0f, 0.0f)) {
+			bossCollider_[joint.name]->body->SetIsActive(true);
+			bossCollider_[joint.name]->attack->SetIsActive(false);
+		}
+		else {
+			bossCollider_[joint.name]->body->SetIsActive(false);
+			bossCollider_[joint.name]->attack->SetIsActive(false);
+		}
 	}
 #pragma endregion
 	JSON_ROOT();
@@ -355,10 +362,10 @@ void Boss::UpdateGPUParticle() {
 
 		   .textureIndex = 0,
 
-		   .createParticleNum = uint32_t(born.Length())*200,
+		   .createParticleNum = uint32_t(born.Length()) * 200,
 			};
 
-			gpuParticleManager_->CreateParticle(emitterForGPU);
+			//gpuParticleManager_->CreateParticle(emitterForGPU);
 		}
 	}
 }

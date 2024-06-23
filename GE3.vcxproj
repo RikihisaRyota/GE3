@@ -259,8 +259,11 @@
     <ClInclude Include="Engine\Engine\Json\JsonUtils.h" />
     <ClInclude Include="Engine\Engine\LevelDataLoader\LevelDataLoader.h" />
     <ClInclude Include="Engine\Engine\Lighting\Lighting.h" />
+    <ClInclude Include="Engine\Engine\Math\Capsule.h" />
     <ClInclude Include="Engine\Engine\Math\Quaternion.h" />
     <ClInclude Include="Engine\Engine\Math\Random.h" />
+    <ClInclude Include="Engine\Engine\Math\Segment.h" />
+    <ClInclude Include="Engine\Engine\Math\Sphere.h" />
     <ClInclude Include="Engine\Engine\ParticleManager\ParticleManager.h" />
     <ClInclude Include="Engine\Engine\ParticleManager\ParticleShaderStruct.h" />
     <ClInclude Include="Engine\Engine\ParticleManager\Particle\Particle.h" />

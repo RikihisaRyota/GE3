@@ -284,8 +284,8 @@ void GameScene::Draw(CommandContext& commandContext) {
 
 	player_->DrawSprite(commandContext);
 #ifdef _DEBUG
-	//player_->DrawDebug(*viewProjection_);
-	//boss_->DrawDebug(*viewProjection_);
+	player_->DrawDebug(*viewProjection_);
+	boss_->DrawDebug(*viewProjection_);
 #endif // _DEBUG
 
 }

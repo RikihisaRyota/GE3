@@ -21,7 +21,7 @@ public:
 	bool GetIsAlive() { return isAlive_; }
 
 	const Vector3 GetPosition()const { return worldTransform_.translate; }
-	const Vector3 GetScale() const { return worldTransform_.scale; }
+	const float GetRadius() const { return radius_; }
 
 private:
 	void OnCollision(const ColliderDesc& desc);
@@ -29,7 +29,7 @@ private:
 
 	GPUParticleManager* gpuParticleManager_;
 
-	std::unique_ptr<OBBCollider> collider_;
+	std::unique_ptr<SphereCollider> collider_;
 
 	ModelHandle modelHandle_;
 	TextureHandle gpuTexture_;
@@ -38,4 +38,5 @@ private:
 	Vector3 velocity_;
 	bool isAlive_;
 	uint32_t time_;
+	float radius_;
 };

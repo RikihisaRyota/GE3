@@ -7,6 +7,7 @@
         "walk": 30.0
     },
     "playerProperties": {
+        "colliderRadius_": 0.4000000059604645,
         "gravity_": 0.009999999776482582,
         "knockBack_": 5.0,
         "shootingWalkSpeed_": 0.029999999329447746,

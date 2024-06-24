@@ -6,8 +6,8 @@
         "offset_": [
             0.0,
             0.5,
-            1.0
+            10.0
         ],
-        "reticleDistance_": 20.0
+        "reticleDistance_": 30.0
     }
 }

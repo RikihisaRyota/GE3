@@ -13,13 +13,14 @@
 #include "BossStateManager/BossStateManager.h"
 #include "BossHP/BossHP.h"
 
+
 class GPUParticleManager;
 class CommandContext;
 class Boss {
 private:
 	struct BossCollider {
-		std::unique_ptr<OBBCollider> body;
-		std::unique_ptr<OBBCollider> attack;
+		std::unique_ptr<CapsuleCollider> body;
+		std::unique_ptr<CapsuleCollider> attack;
 		Vector4 color;
 	};
 public:
@@ -44,6 +45,8 @@ private:
 	void OnCollisionAttack(const ColliderDesc& desc);
 
 	GPUParticleManager* gpuParticleManager_;
+	TextureHandle gpuTexture_;
+
 
 	ModelHandle bossModelHandle_;
 	Animation::Animation animation_;

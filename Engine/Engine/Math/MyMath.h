@@ -33,6 +33,7 @@ Quaternion MakeRotateQuaternion(const Vector3& from, const Vector3 to);
 Quaternion MakeFromTwoVector(const Vector3& from, const Vector3& to);
 Quaternion MakeFromOrthonormal(const Vector3& x, const Vector3& y, const Vector3& z);
 Quaternion MakeLookRotation(const Vector3& direction, const Vector3& up = { 0.0f,1.0f,0.0f });
+Matrix4x4 MakeLookRotationMatrix(const Vector3& direction, const Vector3& up = { 0.0f,1.0f,0.0f });
 // ベクトル変換
 Vector3 TransformNormal(const Vector3& v, const Matrix4x4& m);
 

@@ -472,10 +472,28 @@ void Player::AnimationUpdate(CommandContext& commandContext) {
 }
 
 void Player::PlayerRotate(const Vector3& move) {
-	Vector3 vector = Conjugation(worldTransform_.rotate) * move.Normalized();
+	Vector3 normalizedMove = move.Normalized();
+
+	Vector3 vector = Conjugation(worldTransform_.rotate) * normalizedMove;
 	vector = vector.Normalized();
-	if (Dot({ 0.0f,0.0f,1.0f }, vector) < 0.999f) {
-		Quaternion diff = MakeFromTwoVector({ 0.0f,0.0f,1.0f }, vector);
-		worldTransform_.rotate = Slerp(Quaternion::identity, diff, 0.1f) * worldTransform_.rotate;
+
+	Vector3 forward = { 0.0f, 0.0f, 1.0f };
+
+	float dotProduct = Dot(forward, vector);
+	if (dotProduct < 0.999f) {
+		if (fabs(dotProduct + 1.0f) < 1e-6f) {
+			Vector3 perpendicular = { 0.0f, 1.0f, 0.0f };
+			if (fabs(forward.x) > 1e-6f || fabs(forward.y) > 1e-6f) {
+				perpendicular = { -forward.y, forward.x, 0.0f };
+			}
+			perpendicular = perpendicular.Normalized();
+
+			Quaternion diff = MakeRotateAxisAngleQuaternion(perpendicular, std::numbers::pi_v<float>);
+			worldTransform_.rotate = Slerp(Quaternion::identity, diff, 0.1f) * worldTransform_.rotate;
+		}
+		else {
+			Quaternion diff = MakeFromTwoVector(forward, vector);
+			worldTransform_.rotate = Slerp(Quaternion::identity, diff, 0.1f) * worldTransform_.rotate;
+		}
 	}
 }

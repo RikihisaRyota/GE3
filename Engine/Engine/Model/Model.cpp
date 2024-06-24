@@ -117,6 +117,9 @@ void Model::LoadFile(const std::filesystem::path& modelPath) {
 		currentModelData->meshes->max = maxIndex;
 		currentModelData->indexBuffer.Create(name_.wstring() + L"IndexBuffer", indices.size() * sizeof(indices[0]));
 		currentModelData->indexBuffer.Copy(indices.data(), indices.size() * sizeof(indices[0]));
+		currentModelData->indexCountBuffer.Create(name_.wstring() + L"IndexCountBuffer",sizeof(UINT));
+		size_t indexCount = vertexPos.size();
+		currentModelData->indexCountBuffer.Copy(&indexCount,sizeof(UINT));
 		currentModelData->ibView.BufferLocation = currentModelData->indexBuffer.GetGPUVirtualAddress();
 		currentModelData->ibView.SizeInBytes = UINT(currentModelData->indexBuffer.GetBufferSize());
 		currentModelData->ibView.Format = DXGI_FORMAT_R32_UINT;
@@ -125,8 +128,8 @@ void Model::LoadFile(const std::filesystem::path& modelPath) {
 		currentModelData->vertexBuffer.Create(name_.wstring() + L"VertexBuffer", vertexPos.size() * sizeof(vertexPos[0]));
 		currentModelData->vertexBuffer.Copy(vertexPos.data(), vertexPos.size() * sizeof(vertexPos[0]));
 		currentModelData->vertexCountBuffer.Create(name_.wstring() + L"VertexCountBuffer", sizeof(UINT));
-		size_t size = vertexPos.size();
-		currentModelData->vertexCountBuffer.Copy(&size, sizeof(UINT));
+		size_t vertexCount = vertexPos.size();
+		currentModelData->vertexCountBuffer.Copy(&vertexCount, sizeof(UINT));
 		currentModelData->vbView.BufferLocation = currentModelData->vertexBuffer.GetGPUVirtualAddress();
 		currentModelData->vbView.SizeInBytes = UINT(currentModelData->vertexBuffer.GetBufferSize());
 		currentModelData->vbView.StrideInBytes = sizeof(vertexPos[0]);

@@ -146,7 +146,6 @@ namespace {
 		return closestPoint;
 	}
 
-
 	std::vector<Vector3> GenerateHalfSphereVertices(const Vector3& center, float radius, int segments, const Vector3& axis1, const Vector3& axis2) {
 		std::vector<Vector3> vertices;
 		vertices.reserve(segments + 1); // Reserve space for the vertices, including the center
@@ -159,6 +158,8 @@ namespace {
 
 		return vertices;
 	}
+
+
 	std::vector<Vector3> GenerateHalfSphereVertices(const Vector3& center, float radius, int rings, int sectors, const Vector3& axis1, const Vector3& axis2) {
 		std::vector<Vector3> vertices;
 		vertices.reserve((rings + 1) * (sectors + 1)); // Reserve space for the vertices, including the center
@@ -553,6 +554,7 @@ bool CapsuleCollider::IsCollision(CapsuleCollider* other, ColliderDesc& desc) {
 	desc.depth = radiusSum - distance;
 	return true;
 }
+
 void CapsuleCollider::DrawCollision(const ViewProjection& viewProjection, const Vector4& color) {
 	auto drawLine = DrawLine::GetInstance();
 	const Segment& segment = capsule_.segment;
@@ -561,28 +563,46 @@ void CapsuleCollider::DrawCollision(const ViewProjection& viewProjection, const 
 	float radius = capsule_.radius;
 	int segments = 24;
 
-	// Generate vertices for cylinder part (circles at both ends)
-	std::vector<Vector3> p1Vertices = GenerateCircleVertices(p1, radius, segments, { 1.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 1.0f });
-	std::vector<Vector3> p2Vertices = GenerateCircleVertices(p2, radius, segments, { 1.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 1.0f });
+	// Calculate the direction vector of the segment
+	Vector3 direction = p2 - p1;
+	direction.Normalize();
 
-	// Draw lines for cylinder part (circles and connecting lines)
-	for (int i = 0; i < p1Vertices.size(); ++i) {
+	// Find two vectors that are perpendicular to the direction vector
+	Vector3 axis1, axis2;
+	if (fabs(direction.x) > fabs(direction.y)) {
+		axis1 = Vector3(direction.z, 0, -direction.x);
+	}
+	else {
+		axis1 = Vector3(0, -direction.z, direction.y);
+	}
+	axis1.Normalize();
+	axis2 = direction.Cross(axis1);
+	axis2.Normalize();
+
+	// Generate vertices for the cylindrical part (circles at both ends)
+	std::vector<Vector3> p1Vertices = GenerateCircleVertices(p1, radius, segments, axis1, axis2);
+	std::vector<Vector3> p2Vertices = GenerateCircleVertices(p2, radius, segments, axis1, axis2);
+
+	// Draw lines for the cylindrical part (circles and connecting lines)
+	for (int i = 0; i < segments; ++i) {
 		drawLine->SetLine(p1Vertices[i], p1Vertices[(i + 1) % segments], color);
 		drawLine->SetLine(p2Vertices[i], p2Vertices[(i + 1) % segments], color);
 		drawLine->SetLine(p1Vertices[i], p2Vertices[i], color);
 	}
 
-	// Generate vertices for half-spheres at both ends
-	std::vector<Vector3> p1XyVertices = GenerateHalfSphereVertices(p1, radius, segments, { 1.0f, 0.0f, 0.0f }, { 0.0f, 1.0f, 0.0f });
-	std::vector<Vector3> p1YzVertices = GenerateHalfSphereVertices(p1, radius, segments, { 0.0f, 0.0f, 1.0f }, { 0.0f, 1.0f, 0.0f });
+	// Generate vertices for the half-spheres at both ends in cross pattern
+	Vector3 axis3 = Cross(axis1, axis2).Normalized();
 
-	std::vector<Vector3> p2XyVertices = GenerateHalfSphereVertices(p2, radius, segments, { 1.0f, 0.0f, 0.0f }, { 0.0f, -1.0f, 0.0f });
-	std::vector<Vector3> p2YzVertices = GenerateHalfSphereVertices(p2, radius, segments, { 0.0f, 0.0f, 1.0f }, { 0.0f, -1.0f, 0.0f });
+	std::vector<Vector3> xyTopHalfSphereVertices = GenerateHalfSphereVertices(p1, radius, segments, axis1, -axis3);
+	std::vector<Vector3> zyTopHalfSphereVertices = GenerateHalfSphereVertices(p1, radius, segments, axis2, -axis3);
+	std::vector<Vector3> xyBottomHalfSphereVertices = GenerateHalfSphereVertices(p2, radius, segments, axis1, axis3);
+	std::vector<Vector3> xzBottomHalfSphereVertices = GenerateHalfSphereVertices(p2, radius, segments, axis2, axis3);
 
-	for (int i = 0; i < p1XyVertices.size(); ++i) {
-		drawLine->SetLine(p1XyVertices[i], p1XyVertices[(i + 1) % p1XyVertices.size()], color);
-		drawLine->SetLine(p1YzVertices[i], p1YzVertices[(i + 1) % p1YzVertices.size()], color);
-		drawLine->SetLine(p2XyVertices[i], p2XyVertices[(i + 1) % p2XyVertices.size()], color);
-		drawLine->SetLine(p2YzVertices[i], p2YzVertices[(i + 1) % p2YzVertices.size()], color);
+	// Draw lines for the half-spheres in cross pattern
+	for (int i = 0; i < xyTopHalfSphereVertices.size(); i++) {
+		drawLine->SetLine(xyTopHalfSphereVertices[i], xyTopHalfSphereVertices[(i + 1) % xyTopHalfSphereVertices.size()], color);
+		drawLine->SetLine(zyTopHalfSphereVertices[i], zyTopHalfSphereVertices[(i + 1) % zyTopHalfSphereVertices.size()], color);
+		drawLine->SetLine(xyBottomHalfSphereVertices[i], xyBottomHalfSphereVertices[(i + 1) % xyBottomHalfSphereVertices.size()], color);
+		drawLine->SetLine(xzBottomHalfSphereVertices[i], xzBottomHalfSphereVertices[(i + 1) % xzBottomHalfSphereVertices.size()], color);
 	}
 }

@@ -11,9 +11,7 @@
 
 void DebugCamera::Update(ViewProjection* viewProjection) {
 #ifdef ENABLE_IMGUI
-	ImGui::Begin("DebugCamera");
 	ImGui::Checkbox("isDebugCamara", &isDebugCamera_);
-	ImGui::End();
 #endif // ENABLE_IMGUI
 	if (isDebugCamera_) {
 		auto input = Input::GetInstance();

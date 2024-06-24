@@ -205,10 +205,13 @@ void GPUParticle::CreateMeshParticle(const ModelHandle& modelHandle, Animation::
 	commandContext.SetComputeShaderResource(4, ModelManager::GetInstance()->GetModel(modelHandle).GetMeshData().at(0)->indexBuffer.GetGPUVirtualAddress());
 	commandContext.SetComputeConstantBuffer(5, random.GetGPUVirtualAddress());
 	commandContext.SetComputeConstantBuffer(6, worldTransform.constBuff.get()->GetGPUVirtualAddress());
-	commandContext.SetComputeConstantBuffer(7, ModelManager::GetInstance()->GetModel(modelHandle).GetMeshData().at(0)->vertexCountBuffer.GetGPUVirtualAddress());
+	commandContext.SetComputeConstantBuffer(7, ModelManager::GetInstance()->GetModel(modelHandle).GetMeshData().at(0)->indexCountBuffer.GetGPUVirtualAddress());
+	
+	size_t indexCount = ModelManager::GetInstance()->GetModel(modelHandle).GetMeshData().at(0)->meshes->indexCount;
+	size_t numTriangles = indexCount / 3;
+	size_t numThreadGroups = (numTriangles + GPUParticleShaderStructs::ComputeThreadBlockSize - 1) / GPUParticleShaderStructs::ComputeThreadBlockSize;
 
-	commandContext.Dispatch(UINT(ModelManager::GetInstance()->GetModel(modelHandle).GetMeshData().at(0)->vertices.size() * 1023) / 1024, 1, 1);
-
+	commandContext.Dispatch(UINT(numThreadGroups), 1, 1);
 }
 
 void GPUParticle::CreateMeshParticle(const ModelHandle& modelHandle, const WorldTransform& worldTransform, const UploadBuffer& random, CommandContext& commandContext) {
@@ -230,7 +233,11 @@ void GPUParticle::CreateMeshParticle(const ModelHandle& modelHandle, const World
 	commandContext.SetComputeConstantBuffer(6, worldTransform.constBuff.get()->GetGPUVirtualAddress());
 	commandContext.SetComputeConstantBuffer(7, ModelManager::GetInstance()->GetModel(modelHandle).GetMeshData().at(0)->vertexCountBuffer.GetGPUVirtualAddress());
 
-	commandContext.Dispatch(UINT(ModelManager::GetInstance()->GetModel(modelHandle).GetMeshData().at(0)->vertices.size() * 1023) / 1024, 1, 1);
+	size_t vertexCount = ModelManager::GetInstance()->GetModel(modelHandle).GetMeshData().at(0)->vertices.size();
+
+	size_t numThreadGroups = (vertexCount + GPUParticleShaderStructs::ComputeThreadBlockSize - 1) / GPUParticleShaderStructs::ComputeThreadBlockSize;
+
+	commandContext.Dispatch(UINT(numThreadGroups), 1, 1);
 }
 
 void GPUParticle::Create(const GPUParticleShaderStructs::Emitter& emitterForGPU) {

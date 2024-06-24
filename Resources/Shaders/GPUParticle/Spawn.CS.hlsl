@@ -82,12 +82,14 @@ void Velocity(uint index,  uint32_t emitterIndex,inout uint32_t seed)
 
 void Color(uint index,  uint32_t emitterIndex,inout uint32_t seed)
 {
-    Output[index].color = randomRange(gEmitter[emitterIndex].color.range.start.min, gEmitter[emitterIndex].color.range.start.min, seed);
+    Output[index].colorRange.min=randomRange(gEmitter[emitterIndex].color.range.start.min, gEmitter[emitterIndex].color.range.start.max, seed);
+    Output[index].colorRange.max=randomRange(gEmitter[emitterIndex].color.range.end.min, gEmitter[emitterIndex].color.range.end.max, seed);
+    Output[index].color =Output[index].colorRange.min;
 }
 
 void Create(uint index,  uint32_t emitterIndex,uint32_t seed)
 {
-    Output[index].textureInidex = gEmitter[emitterIndex].textureIndex;
+    Output[index].textureIndex = gEmitter[emitterIndex].textureIndex;
     
     Output[index].isAlive = 1;
     

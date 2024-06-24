@@ -243,7 +243,7 @@ void GameScene::Update(CommandContext& commandContext) {
 	}
 
 	worldTransform_.UpdateMatrix();
-	gpuParticleManager_->Update(*viewProjection_,RenderManager::GetInstance()->GetCommandContext());
+	gpuParticleManager_->Update(*viewProjection_, RenderManager::GetInstance()->GetCommandContext());
 	//gpuParticleEditor_->Update(RenderManager::GetInstance()->GetCommandContext());
 
 	CollisionManager::GetInstance()->Collision();
@@ -284,8 +284,16 @@ void GameScene::Draw(CommandContext& commandContext) {
 
 	player_->DrawSprite(commandContext);
 #ifdef _DEBUG
-	player_->DrawDebug(*viewProjection_);
-	boss_->DrawDebug(*viewProjection_);
+	static bool playerDebug = false;
+	static bool bossDebug = false;
+	ImGui::Checkbox("PlayerDebug", &playerDebug);
+	if (playerDebug) {
+		player_->DrawDebug(*viewProjection_);
+	}
+	ImGui::Checkbox("BossDebug", &bossDebug);
+	if (bossDebug) {
+		boss_->DrawDebug(*viewProjection_);
+	}
 #endif // _DEBUG
 
 }

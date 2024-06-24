@@ -1,5 +1,6 @@
 
 #define threadBlockSize 1024
+#define meshThreadBlockSize  1024
 #define emitterSize 1024
 
 // Utility
@@ -58,10 +59,11 @@ struct Particle
 
     ParticleLifeTime particleLifeTime;
 
+    Float4MinMax colorRange;
     float32_t4 color;
     
     float32_t3 scale;
-    uint32_t textureInidex;
+    uint32_t textureIndex;
 
     float32_t rotateVelocity;
     float32_t rotate;
@@ -73,6 +75,7 @@ struct Particle
 
     float32_t3 velocity;
     uint32_t pad3;    
+
     float32_t4x4 worldMatrix;
 };
 

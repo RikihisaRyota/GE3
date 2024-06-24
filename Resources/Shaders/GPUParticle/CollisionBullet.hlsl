@@ -52,7 +52,7 @@ void main( uint3 DTid : SV_DispatchThreadID )
             float32_t3 v =particle[index].translate- bullets[i].position;
             particle[index].velocity = normalize(v)* bullets[i].speed;
             particle[index].particleLifeTime.time=0;
-            particle[index].particleLifeTime.maxTime=360;
+            particle[index].particleLifeTime.maxTime=60;
         }
     }
     }

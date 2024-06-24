@@ -72,6 +72,7 @@ public:
 
 	struct MeshData {
 		std::map<std::string, JointWeightData> skinClusterData;
+		UploadBuffer indexCountBuffer{};
 		UploadBuffer indexBuffer{};
 		D3D12_INDEX_BUFFER_VIEW ibView{};
 

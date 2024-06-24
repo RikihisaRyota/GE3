@@ -57,6 +57,8 @@ void main(uint3 DTid : SV_DispatchThreadID)
 
         float32_t4x4 rotateMatrix=mul(particleRotate,billbordMatrix); 
 
+        input[index].color = lerp(input[index].colorRange.min, input[index].colorRange.max, t);
+
         if (input[index].particleLifeTime.time >= input[index].particleLifeTime.maxTime)
         {
             input[index].isAlive = false;

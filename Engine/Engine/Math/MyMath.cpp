@@ -1224,6 +1224,22 @@ Quaternion MakeLookRotation(const Vector3& direction, const Vector3& up) {
 	return MakeFromOrthonormal(x, y, z);
 }
 
+Matrix4x4 MakeLookRotationMatrix(const Vector3& direction, const Vector3& up) {
+	Vector3 tmpUp = up;
+	Vector3 right = tmpUp.Cross(direction);
+	right.Normalize();
+	tmpUp = direction.Cross(right);
+	tmpUp.Normalize();
+
+	Matrix4x4 rotationMatrix;
+	rotationMatrix.m[0][0] = right.x; rotationMatrix.m[0][1] = right.y; rotationMatrix.m[0][2] = right.z; rotationMatrix.m[0][3] = 0.0f;
+	rotationMatrix.m[1][0] = tmpUp.x;    rotationMatrix.m[1][1] = tmpUp.y;    rotationMatrix.m[1][2] = tmpUp.z;    rotationMatrix.m[1][3] = 0.0f;
+	rotationMatrix.m[2][0] = direction.x; rotationMatrix.m[2][1] = direction.y; rotationMatrix.m[2][2] = direction.z; rotationMatrix.m[2][3] = 0.0f;
+	rotationMatrix.m[3][0] = 0.0f;    rotationMatrix.m[3][1] = 0.0f;    rotationMatrix.m[3][2] = 0.0f;    rotationMatrix.m[3][3] = 1.0f;
+
+	return rotationMatrix;
+}
+
 Vector3 RotateVector(const Vector3& vector, const Quaternion& quaternion) {
 	Quaternion conjugate = Conjugation(quaternion);
 	Quaternion w = Multiply(Multiply(quaternion, Quaternion(vector.x, vector.y, vector.z, 0.0f)), conjugate);

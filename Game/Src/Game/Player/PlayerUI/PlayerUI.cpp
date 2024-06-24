@@ -9,13 +9,13 @@ PlayerUI::PlayerUI() {
 	auto spriteManager = SpriteManager::GetInstance();
 	auto textureManager = TextureManager::GetInstance();
 	handle_.emplace_back(spriteManager->Create(textureManager->Load("Resources/Images/Player/playerReticle.png"), { float(WinApp::kWindowWidth) * 0.5f,float(WinApp::kWindowHeight) * 0.5f }, { 0.5f,0.5f }));
-}
-
-void PlayerUI::Initialize() {
 	auto sprite = SpriteManager::GetInstance()->GetSprite(handle_.at(kReticle));
 
 	sprite->SetColor({ 1.0f,0.5f,0.0f,1.0f });
 	sprite->SetSize(sprite->GetSize() * 0.5f);
+}
+
+void PlayerUI::Initialize() {
 }
 
 void PlayerUI::Update() {}

@@ -8,13 +8,14 @@
 #include "Engine/GPUParticleManager/GPUParticleManager.h"
 #include "Engine/GPUParticleManager/GPUParticle/GPUParticleShaderStructs.h"
 #include "Engine/ImGui/ImGuiManager.h"
+#include "Engine/Texture/TextureManager.h"
 
 #include "Engine/Json/JsonUtils.h"
 
 Boss::Boss() {
-	bossModelHandle_ = ModelManager::GetInstance()->Load("Resources/Models/Boss/boss.gltf");
+	bossModelHandle_ = ModelManager::GetInstance()->Load("Resources/Models/Boss/boss_ts.gltf");
 	animation_.Initialize("Resources/Animation/Boss/animation.gltf", bossModelHandle_);
-
+	gpuTexture_ = TextureManager::GetInstance()->Load("Resources/Images/GPUParticle.png");
 	bossStateManager_ = std::make_unique<BossStateManager>();
 	bossStateManager_->SetBoss(this);
 	worldTransform_.Initialize();
@@ -33,24 +34,24 @@ Boss::Boss() {
 		JSON_LOAD_BY_NAME(joint.name, colliderSize_[joint.name]);
 		JSON_ROOT();
 		bossCollider_[joint.name] = std::make_unique<BossCollider>();
-		bossCollider_[joint.name]->body = std::make_unique<OBBCollider>();
-		bossCollider_[joint.name]->attack = std::make_unique<OBBCollider>();
+		bossCollider_[joint.name]->body = std::make_unique<CapsuleCollider>();
+		bossCollider_[joint.name]->attack = std::make_unique<CapsuleCollider>();
 		bossCollider_[joint.name]->body->SetName("Boss");
 		bossCollider_[joint.name]->attack->SetName("BossAttack");
 		Matrix4x4 worldMatrix = joint.skeletonSpaceMatrix * animationTransform_.matWorld;
 		Matrix4x4 parentMatrix = animation_.skeleton.joints.at(*joint.parent).skeletonSpaceMatrix * animationTransform_.matWorld;
 
-		Vector3 born = (MakeTranslateMatrix(worldMatrix) - MakeTranslateMatrix(parentMatrix));
-		Vector3 center = MakeTranslateMatrix(parentMatrix) + born * 0.5f;
-		Quaternion orientation = MakeLookRotation(born.Normalized());
-		Vector3 size = { born.Length() * colliderSize_[joint.name], born.Length() * colliderSize_[joint.name],born.Length() };
+		Vector3 pos = MakeTranslateMatrix(worldMatrix);
+		Vector3 parentPos = MakeTranslateMatrix(parentMatrix);
+		//Vector3 born = (MakeTranslateMatrix(worldMatrix) - MakeTranslateMatrix(parentMatrix));
+		//Vector3 center = MakeTranslateMatrix(parentMatrix) + born * 0.5f;
+		//Quaternion orientation = MakeLookRotation(born.Normalized());
+		//Vector3 size = { born.Length() * colliderSize_[joint.name], born.Length() * colliderSize_[joint.name],born.Length() };
 
-		bossCollider_[joint.name]->body->SetCenter(center);
-		bossCollider_[joint.name]->attack->SetCenter(center);
-		bossCollider_[joint.name]->body->SetOrientation(orientation);
-		bossCollider_[joint.name]->attack->SetOrientation(orientation);
-		bossCollider_[joint.name]->body->SetSize(size);
-		bossCollider_[joint.name]->attack->SetSize(size);
+		bossCollider_[joint.name]->body->SetSegment(Segment(pos, parentPos));
+		bossCollider_[joint.name]->attack->SetSegment(Segment(pos, parentPos));
+		bossCollider_[joint.name]->body->SetRadius(colliderSize_[joint.name]);
+		bossCollider_[joint.name]->attack->SetRadius(colliderSize_[joint.name]);
 		bossCollider_[joint.name]->body->SetCallback([this](const ColliderDesc& collisionInfo) { OnCollisionBody(collisionInfo); });
 		bossCollider_[joint.name]->attack->SetCallback([this](const ColliderDesc& collisionInfo) { OnCollisionAttack(collisionInfo); });
 		bossCollider_[joint.name]->body->SetCollisionAttribute(CollisionAttribute::BossBody);
@@ -58,7 +59,7 @@ Boss::Boss() {
 		bossCollider_[joint.name]->body->SetCollisionMask(CollisionAttribute::Player | CollisionAttribute::PlayerBullet);
 		bossCollider_[joint.name]->body->SetCollisionMask(CollisionAttribute::Player);
 		bossCollider_[joint.name]->color = { 0.0f,1.0f,0.0f,1.0f };
-		if (born != Vector3(0.0f, 0.0f, 0.0f)) {
+		if (colliderSize_[joint.name] != 0.0f) {
 			bossCollider_[joint.name]->body->SetIsActive(true);
 			bossCollider_[joint.name]->attack->SetIsActive(false);
 		}
@@ -123,7 +124,7 @@ void Boss::Update(CommandContext& commandContext) {
 
 void Boss::Draw(const ViewProjection& viewProjection, CommandContext& commandContext) {
 	//ModelManager::GetInstance()->Draw(animationTransform_, animation_, viewProjection, bossModelHandle_, commandContext);
-	//gpuParticleManager_->CreateMeshParticle(bossModelHandle_, animation_, worldTransform_, commandContext);
+	gpuParticleManager_->CreateMeshParticle(bossModelHandle_, animation_, worldTransform_, commandContext);
 }
 
 void Boss::DrawImGui() {
@@ -270,23 +271,24 @@ void Boss::UpdateCollider() {
 		Matrix4x4 worldMatrix = joint.skeletonSpaceMatrix * animationTransform_.matWorld;
 		Matrix4x4 parentMatrix = animation_.skeleton.joints.at(*joint.parent).skeletonSpaceMatrix * animationTransform_.matWorld;
 
-		Vector3 born = (MakeTranslateMatrix(worldMatrix) - MakeTranslateMatrix(parentMatrix));
-		Vector3 center = MakeTranslateMatrix(parentMatrix) + born * 0.5f;
-		Quaternion orientation = MakeLookRotation(born.Normalized());
-		Vector3 size = { born.Length() * colliderSize_[joint.name], born.Length() * colliderSize_[joint.name],born.Length() };
-		bossCollider_[joint.name]->body->SetCenter(center);
-		bossCollider_[joint.name]->attack->SetCenter(center);
-		bossCollider_[joint.name]->body->SetOrientation(orientation);
-		bossCollider_[joint.name]->attack->SetOrientation(orientation);
-		bossCollider_[joint.name]->body->SetSize(size);
-		bossCollider_[joint.name]->attack->SetSize(size);
+		Vector3 pos = MakeTranslateMatrix(worldMatrix);
+		Vector3 parentPos = MakeTranslateMatrix(parentMatrix);
+
+		//Vector3 born = (MakeTranslateMatrix(worldMatrix) - MakeTranslateMatrix(parentMatrix));
+		//Vector3 center = MakeTranslateMatrix(parentMatrix) + born * 0.5f;
+		//Quaternion orientation = MakeLookRotation(born.Normalized());
+		//Vector3 size = { born.Length() * colliderSize_[joint.name], born.Length() * colliderSize_[joint.name],born.Length() };
+		bossCollider_[joint.name]->body->SetSegment(Segment(pos, parentPos));
+		bossCollider_[joint.name]->attack->SetSegment(Segment(pos, parentPos));
+		bossCollider_[joint.name]->body->SetRadius(colliderSize_[joint.name]);
+		bossCollider_[joint.name]->attack->SetRadius(colliderSize_[joint.name]);
 		bossCollider_[joint.name]->color = { 0.0f,1.0f,0.0f,1.0f };
 	}
 }
 
 void Boss::UpdateGPUParticle() {
 	for (auto& joint : animation_.skeleton.joints) {
-		if (!joint.parent.has_value()) {
+		if (!joint.parent.has_value() || colliderSize_[joint.name] == 0.0f) {
 			continue;
 		}
 		Matrix4x4 worldMatrix = joint.skeletonSpaceMatrix * worldTransform_.matWorld;
@@ -304,7 +306,7 @@ void Boss::UpdateGPUParticle() {
 							.origin = {worldPos},
 							.diff = {parentPos},
 						},
-						.radius = born.Length() * colliderSize_[joint.name],
+						.radius = colliderSize_[joint.name],
 					},
 					.position{0.0f,0.0f,0.0f},
 					.type = 2,
@@ -337,12 +339,12 @@ void Boss::UpdateGPUParticle() {
 		   .color{
 			   .range{
 				   .start{
-					   .min = {0.0f,1.0f,0.0f,1.0f},
-					   .max = {0.0f,1.0f,0.0f,1.0f},
+					   .min = {0.8f,0.8f,0.8f,1.0f},
+					   .max = {1.0f,1.0f,1.0f,1.0f},
 				   },
 				   .end{
-					   .min = {0.0f,0.2f,0.0f,1.0f},
-					   .max = {0.0f,0.2f,0.0f,1.0f},
+					   .min = {0.2f,0.2f,0.2f,1.0f},
+					   .max = {0.5f,0.5f,0.5f,1.0f},
 				   },
 			   },
 		   },
@@ -355,17 +357,17 @@ void Boss::UpdateGPUParticle() {
 
 		   .particleLifeSpan{
 			   .range{
-				   .min = 15,
-				   .max = 30,
+				   .min = 5,
+				   .max = 10,
 			   }
 		   },
 
-		   .textureIndex = 0,
+		   .textureIndex = TextureManager::GetInstance()->GetTexture(gpuTexture_).GetDescriptorIndex(),
 
-		   .createParticleNum = uint32_t(born.Length()) * 200,
+		   .createParticleNum = uint32_t(born.Length()) * uint32_t(std::pow(uint32_t(colliderSize_[joint.name]),3)),
 			};
 
-			//gpuParticleManager_->CreateParticle(emitterForGPU);
+			gpuParticleManager_->CreateParticle(emitterForGPU);
 		}
 	}
 }

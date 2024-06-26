@@ -57,7 +57,6 @@ void main(uint3 DTid : SV_DispatchThreadID)
 
     uint32_t seed = gRandom.random;
 for(uint32_t i=0;i<5;i++){
-
     int32_t createParticlenum = -1;
     InterlockedAdd(particleIndexCounter[0].count, -1, createParticlenum);
     if (createParticlenum > 0)
@@ -66,7 +65,7 @@ for(uint32_t i=0;i<5;i++){
         Output[index].particleLifeTime.maxTime = 1;
         Output[index].particleLifeTime.time = 0;
 
-        Output[index].scaleRange.min = float32_t3(0.1f, 0.1f, 0.1f);
+        Output[index].scaleRange.min = float32_t3(0.03f, 0.03f, 0.03f);
         Output[index].scaleRange.max = float32_t3(0.05f, 0.05f, 0.05f);
         Output[index].scale = Output[index].scaleRange.min;
 

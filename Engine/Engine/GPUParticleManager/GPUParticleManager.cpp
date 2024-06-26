@@ -44,13 +44,6 @@ namespace ParticleManager {
 		kAddEmitterRootSigunatureCount,
 	};
 
-	enum  AppendEmitterRootSigunature {
-		kSRVEmitter,
-		kAppendEmitter,
-
-		kAppendEmitterRootSigunatureCount,
-	};
-
 	enum ParticleUpdateRootSigunature {
 		kViewPrijection,
 		kParticleBuffer,
@@ -105,9 +98,11 @@ void GPUParticleManager::Update(const ViewProjection& viewProjection, CommandCon
 	UINT seed = static_cast<UINT>(std::chrono::system_clock::now().time_since_epoch().count());
 	randomBuffer_.Copy(&seed, sizeof(UINT));
 
-	commandContext.SetComputeRootSignature(*appendEmitterComputeRootSignature_);
-	commandContext.SetPipelineState(*appendEmitterComputePipelineState_);
-	gpuParticle_->AppendEmitter(commandContext);
+	
+
+	commandContext.SetComputeRootSignature(*checkEmitterComputeRootSignature_);
+	commandContext.SetPipelineState(*checkEmitterComputePipelineState_);
+	gpuParticle_->CheckEmitter(commandContext);
 
 	commandContext.SetComputeRootSignature(*addEmitterComputeRootSignature_);
 	commandContext.SetPipelineState(*addEmitterComputePipelineState_);
@@ -154,7 +149,7 @@ void GPUParticleManager::CreateMeshParticle(const ModelHandle& modelHandle, cons
 	gpuParticle_->CreateMeshParticle(modelHandle, worldTransform, randomBuffer_, commandContext);
 }
 
-void GPUParticleManager::CreateParticle(const GPUParticleShaderStructs::Emitter& emitter) {
+void GPUParticleManager::SetEmitter(const GPUParticleShaderStructs::EmitterForCPU& emitter) {
 	gpuParticle_->Create(emitter);
 }
 
@@ -275,6 +270,33 @@ void GPUParticleManager::CreateEmitter() {
 		desc.CS = CD3DX12_SHADER_BYTECODE(cs->GetBufferPointer(), cs->GetBufferSize());
 		emitterUpdateComputePipelineState_->Create(L"EmitterUpdateComputePipelineState", desc);
 	}
+	// アップデートシグネイチャー
+	{
+		checkEmitterComputeRootSignature_ = std::make_unique<RootSignature>();
+
+		//	createParticle用
+		CD3DX12_DESCRIPTOR_RANGE addParticleRange[1]{};
+		addParticleRange[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, ParticleManager::EmitterUpdateRootSigunature::kCreateParticleNum, 0);
+
+		CD3DX12_ROOT_PARAMETER rootParameters[2]{};
+		rootParameters[0].InitAsUnorderedAccessView(0);
+		rootParameters[1].InitAsUnorderedAccessView(1);
+
+		D3D12_ROOT_SIGNATURE_DESC desc{};
+		desc.pParameters = rootParameters;
+		desc.NumParameters = _countof(rootParameters);
+
+		checkEmitterComputeRootSignature_->Create(L"CheckEmitterComputeRootSignature", desc);
+	}
+	// アップデートパイプライン
+	{
+		checkEmitterComputePipelineState_ = std::make_unique<PipelineState>();
+		D3D12_COMPUTE_PIPELINE_STATE_DESC desc{};
+		desc.pRootSignature = *checkEmitterComputeRootSignature_;
+		auto cs = ShaderCompiler::Compile(L"Resources/Shaders/GPUParticle/CheckEmitter.CS.hlsl", L"cs_6_0");
+		desc.CS = CD3DX12_SHADER_BYTECODE(cs->GetBufferPointer(), cs->GetBufferSize());
+		checkEmitterComputePipelineState_->Create(L"CheckEmitterComputePipelineState", desc);
+	}
 }
 
 void GPUParticleManager::CreateAddEmitter() {
@@ -284,14 +306,10 @@ void GPUParticleManager::CreateAddEmitter() {
 	{
 		addEmitterComputeRootSignature_ = std::make_unique<RootSignature>();
 
-		//	createParticle用
-		CD3DX12_DESCRIPTOR_RANGE createParticleRange[1]{};
-		createParticleRange[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, ParticleManager::AddEmitterRootSigunature::kAddEmitter, 0);
-
 		CD3DX12_ROOT_PARAMETER rootParameters[ParticleManager::AddEmitterRootSigunature::kAddEmitterRootSigunatureCount]{};
-		rootParameters[ParticleManager::AddEmitterRootSigunature::kAddEmitter].InitAsDescriptorTable(_countof(createParticleRange), createParticleRange);
-		rootParameters[ParticleManager::AddEmitterRootSigunature::kOriginalEmitter].InitAsUnorderedAccessView(1);
-		rootParameters[ParticleManager::AddEmitterRootSigunature::kEmitterCounter].InitAsUnorderedAccessView(2);
+		rootParameters[ParticleManager::AddEmitterRootSigunature::kAddEmitter].InitAsShaderResourceView(0);
+		rootParameters[ParticleManager::AddEmitterRootSigunature::kOriginalEmitter].InitAsUnorderedAccessView(0);
+		rootParameters[ParticleManager::AddEmitterRootSigunature::kEmitterCounter].InitAsUnorderedAccessView(1);
 
 		D3D12_ROOT_SIGNATURE_DESC desc{};
 		desc.pParameters = rootParameters;
@@ -308,33 +326,6 @@ void GPUParticleManager::CreateAddEmitter() {
 		desc.CS = CD3DX12_SHADER_BYTECODE(cs->GetBufferPointer(), cs->GetBufferSize());
 		addEmitterComputePipelineState_->Create(L"GPUParticle AddEmitterUpdateCPSO", desc);
 	}
-	// アップデートシグネイチャー
-	{
-		appendEmitterComputeRootSignature_ = std::make_unique<RootSignature>();
-		// Append用
-		CD3DX12_DESCRIPTOR_RANGE appendRange[1]{};
-		appendRange[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 0, 0);
-		//	createParticle用
-		CD3DX12_ROOT_PARAMETER rootParameters[ParticleManager::AppendEmitterRootSigunature::kAppendEmitterRootSigunatureCount]{};
-		rootParameters[ParticleManager::AppendEmitterRootSigunature::kSRVEmitter].InitAsShaderResourceView(0);
-		rootParameters[ParticleManager::AppendEmitterRootSigunature::kAppendEmitter].InitAsDescriptorTable(_countof(appendRange), appendRange);
-
-		D3D12_ROOT_SIGNATURE_DESC desc{};
-		desc.pParameters = rootParameters;
-		desc.NumParameters = _countof(rootParameters);
-
-		appendEmitterComputeRootSignature_->Create(L"GPUParticle AppendEmitterUpdateCPSO", desc);
-	}
-	// アップデートパイプライン
-	{
-		appendEmitterComputePipelineState_ = std::make_unique<PipelineState>();
-		D3D12_COMPUTE_PIPELINE_STATE_DESC desc{};
-		desc.pRootSignature = *appendEmitterComputeRootSignature_;
-		auto cs = ShaderCompiler::Compile(L"Resources/Shaders/GPUParticle/AppendEmitter.hlsl", L"cs_6_0");
-		desc.CS = CD3DX12_SHADER_BYTECODE(cs->GetBufferPointer(), cs->GetBufferSize());
-		appendEmitterComputePipelineState_->Create(L"GPUParticle AppendEmitterUpdateCPSO", desc);
-	}
-
 }
 
 void GPUParticleManager::CreateUpdate() {

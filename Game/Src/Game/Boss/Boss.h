@@ -5,6 +5,7 @@
 #include <list>
 
 #include "Engine/Animation/Animation.h"
+#include "Engine/GPUParticleManager/GPUParticle/GPUParticleShaderStructs.h"
 #include "Engine/Math/WorldTransform.h"
 #include "Engine/Math/ViewProjection.h"
 #include "Engine/Model/ModelHandle.h"
@@ -57,10 +58,10 @@ private:
 
 	std::unordered_map<std::string,std::unique_ptr<BossCollider>> bossCollider_;
 
+	GPUParticleShaderStructs::EmitterForCPU boneEmitter_;
 
 	std::unique_ptr<BossStateManager> bossStateManager_;
 	std::unique_ptr<BossHP> bossHP_;
-
 #pragma region Collision
 	std::unordered_map<std::string, float> colliderSize_;
 	std::unordered_map<std::string, std::vector<std::string>> colliderType_;

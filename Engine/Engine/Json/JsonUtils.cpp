@@ -7,6 +7,10 @@
 //	json = value;
 //}
 
+void to_json(nlohmann::json& json, const bool& value) {
+	json = value;
+}
+
 void to_json(nlohmann::json& json, const int32_t& value) {
 	json = value;
 }
@@ -16,36 +20,83 @@ void to_json(nlohmann::json& json, const uint32_t& value) {
 }
 
 void to_json(nlohmann::json& json, const float& value) {
-	json = nlohmann::json{value};
+	json = value;
 }
 
 void to_json(nlohmann::json& json, const Vector2& value) {
-	json = nlohmann::json{ { value.x, value.y } };
+	json = nlohmann::json::array({ value.x, value.y });
 }
 
 void to_json(nlohmann::json& json, const Vector3& value) {
-	json = nlohmann::json{ { value.x, value.y, value.z } };
+	json = nlohmann::json::array({ value.x, value.y, value.z });
 }
 
 void to_json(nlohmann::json& json, const Vector4& value) {
-	json = nlohmann::json{ { value.x, value.y, value.z, value.w } };
+	json = nlohmann::json::array({ value.x, value.y, value.z, value.w });
 }
 
 void to_json(nlohmann::json& json, const Quaternion& value) {
-	json = nlohmann::json{ { value.x, value.y, value.z, value.w } };
+	json = nlohmann::json::array({ value.x, value.y, value.z, value.w });
 }
 
-//void from_json(const nlohmann::json& json, int& value) {
-//	if (!json.is_number_integer()) {
-//		throw std::invalid_argument("JSON value is not an integer");
-//	}
-//	value = json.get<int>();
-//}
+void to_json(nlohmann::json& json, const std::string& value) {
+	json = value;
+}
+
+void to_json(nlohmann::json& json, const GPUParticleShaderStructs::UintMinMax& value) {
+	to_json(json["Min"], value.min);
+	to_json(json["Max"], value.max);
+}
+
+void to_json(nlohmann::json& json, const GPUParticleShaderStructs::Vector3MinMax& value) {
+	to_json(json["Min"], value.min);
+	to_json(json["Max"], value.max);
+}
+
+void to_json(nlohmann::json& json, const GPUParticleShaderStructs::Vector4MinMax& value) {
+	to_json(json["Min"], value.min);
+	to_json(json["Max"], value.max);
+}
+
+void to_json(nlohmann::json& json, const GPUParticleShaderStructs::Vector3StartEnd& value) {
+	to_json(json["Start"], value.start);
+	to_json(json["End"], value.end);
+}
+
+void to_json(nlohmann::json& json, const GPUParticleShaderStructs::Vector4StartEnd& value) {
+	to_json(json["Start"], value.start);
+	to_json(json["End"], value.end);
+}
+
+void to_json(nlohmann::json& json, const GPUParticleShaderStructs::EmitterForCPU& value) {
+	to_json(json["EmitterArea"]["EmitterAABB"], value.emitterArea.aabb.area);
+	to_json(json["EmitterArea"]["EmitterSphere"]["radius"], value.emitterArea.sphere.radius);
+	to_json(json["EmitterArea"]["EmitterCapsule"]["EmitterSegment"]["start"], value.emitterArea.capsule.segment.origin);
+	to_json(json["EmitterArea"]["EmitterCapsule"]["EmitterSegment"]["end"], value.emitterArea.capsule.segment.diff);
+	to_json(json["EmitterArea"]["EmitterCapsule"]["EmitterSegment"]["radius"], value.emitterArea.capsule.radius);
+	to_json(json["EmitterArea"]["position"], value.emitterArea.position);
+	to_json(json["EmitterArea"]["type"], value.emitterArea.type);
+	to_json(json["ScaleAnimation"], value.scale.range);
+	to_json(json["RotateAnimation"]["rotate"], value.rotate.rotate);
+	to_json(json["Velocity3D"], value.velocity.range);
+	to_json(json["EmitterColor"], value.color.range);
+	to_json(json["EmitterFrequency"]["interval"], value.frequency.interval);
+	to_json(json["EmitterFrequency"]["isLoop"], value.frequency.isLoop);
+	to_json(json["EmitterFrequency"]["emitterLife"], value.frequency.emitterLife);
+	to_json(json["ParticleLifeSpan"], value.particleLifeSpan.range);
+	to_json(json["textureIndex"], value.particleLifeSpan.range);
+	to_json(json["createParticleNum"], value.particleLifeSpan.range);
+}
+
+void from_json(const nlohmann::json& json, bool& value) {
+	value = json.get<bool>();
+}
 
 // int32_t 型に対する from_json の実装
 void from_json(const nlohmann::json& json, int32_t& value) {
 	if (!json.is_number_integer()) {
 		throw std::invalid_argument("JSON value is not a 32-bit integer");
+		assert(0);
 	}
 	value = json.get<int32_t>();
 }
@@ -54,6 +105,7 @@ void from_json(const nlohmann::json& json, int32_t& value) {
 void from_json(const nlohmann::json& json, uint32_t& value) {
 	if (!json.is_number_unsigned()) {
 		throw std::invalid_argument("JSON value is not an unsigned 32-bit integer");
+		assert(0);
 	}
 	value = json.get<uint32_t>();
 }
@@ -83,6 +135,49 @@ void from_json(const nlohmann::json& json, Vector4& value) {
 void from_json(const nlohmann::json& json, Quaternion& value) {
 	assert(json.is_array() && json.size() == 4);
 	value = Quaternion(json.at(0), json.at(1), json.at(2), json.at(3));
+}
+
+void from_json(const nlohmann::json& json, std::string& value) {
+	value = json.get<std::string>();
+}
+void from_json(const nlohmann::json& json, GPUParticleShaderStructs::UintMinMax& value) {
+	from_json(json["Min"], value.min);
+	from_json(json["Max"], value.max);
+}
+void from_json(const nlohmann::json& json, GPUParticleShaderStructs::Vector3MinMax& value) {
+	from_json(json["Min"], value.min);
+	from_json(json["Max"], value.max);
+}
+void from_json(const nlohmann::json& json, GPUParticleShaderStructs::Vector4MinMax& value) {
+	from_json(json["Min"], value.min);
+	from_json(json["Max"], value.max);
+}
+void from_json(const nlohmann::json& json, GPUParticleShaderStructs::Vector3StartEnd& value) {
+	from_json(json["Start"], value.start);
+	from_json(json["End"], value.end);
+}
+void from_json(const nlohmann::json& json, GPUParticleShaderStructs::Vector4StartEnd& value) {
+	from_json(json["Start"], value.start);
+	from_json(json["End"], value.end);
+}
+void from_json(const nlohmann::json& json, GPUParticleShaderStructs::EmitterForCPU& value) {
+	from_json(json["EmitterArea"]["EmitterAABB"], value.emitterArea.aabb.area);
+	from_json(json["EmitterArea"]["EmitterSphere"]["radius"], value.emitterArea.sphere.radius);
+	from_json(json["EmitterArea"]["EmitterCapsule"]["EmitterSegment"]["start"], value.emitterArea.capsule.segment.origin);
+	from_json(json["EmitterArea"]["EmitterCapsule"]["EmitterSegment"]["end"], value.emitterArea.capsule.segment.diff);
+	from_json(json["EmitterArea"]["EmitterCapsule"]["EmitterSegment"]["radius"], value.emitterArea.capsule.radius);
+	from_json(json["EmitterArea"]["position"], value.emitterArea.position);
+	from_json(json["EmitterArea"]["type"], value.emitterArea.type);
+	from_json(json["ScaleAnimation"], value.scale.range);
+	from_json(json["RotateAnimation"]["rotate"], value.rotate.rotate);
+	from_json(json["Velocity3D"], value.velocity.range);
+	from_json(json["EmitterColor"], value.color.range);
+	from_json(json["EmitterFrequency"]["interval"], value.frequency.interval);
+	from_json(json["EmitterFrequency"]["isLoop"], value.frequency.isLoop);
+	from_json(json["EmitterFrequency"]["emitterLife"], value.frequency.emitterLife);
+	from_json(json["ParticleLifeSpan"], value.particleLifeSpan.range);
+	from_json(json["textureIndex"], value.particleLifeSpan.range);
+	from_json(json["createParticleNum"], value.particleLifeSpan.range);
 }
 namespace JsonHelper {
 
@@ -157,39 +252,39 @@ namespace JsonHelper {
 	}
 
 	void Save(const bool& value, const std::string& name) {
-		(*target)[name] = value;
+		to_json((*target)[name], value);
 	}
 
 	void Save(const int32_t& value, const std::string& name) {
-		(*target)[name] = value;
+		to_json((*target)[name], value);
 	}
 
 	void Save(const uint32_t& value, const std::string& name) {
-		(*target)[name] = value;
+		to_json((*target)[name], value);
 	}
 
 	void Save(const float& value, const std::string& name) {
-		(*target)[name] = value;
+		to_json((*target)[name], value);
 	}
 
 	void Save(const Vector2& value, const std::string& name) {
-		(*target)[name] = nlohmann::json::array({ value.x, value.y });
+		to_json((*target)[name], value);
 	}
 
 	void Save(const Vector3& value, const std::string& name) {
-		(*target)[name] = nlohmann::json::array({ value.x, value.y, value.z });
+		to_json((*target)[name], value);
 	}
 
 	void Save(const Vector4& value, const std::string& name) {
-		(*target)[name] = nlohmann::json::array({ value.x, value.y, value.z, value.w });
+		to_json((*target)[name], value);
 	}
 
 	void Save(const Quaternion& value, const std::string& name) {
-		(*target)[name] = nlohmann::json::array({ value.x, value.y, value.z, value.w });
+		to_json((*target)[name], value);
 	}
 
 	void Save(const std::string& value, const std::string& name) {
-		(*target)[name] = value;
+		to_json((*target)[name], value);
 	}
 
 	bool Load(bool& value, const std::string& name) {
@@ -198,9 +293,9 @@ namespace JsonHelper {
 		if (iter == target->end()) {
 			return false;
 		}
-		// bool型
+		// bool型かどうかの確認
 		assert(iter->is_boolean());
-		value = iter->get<bool>();
+		from_json(*iter, value);
 		return true;
 	}
 
@@ -248,7 +343,7 @@ namespace JsonHelper {
 		}
 		// 配列型かつ要素2
 		assert(iter->is_array() && iter->size() == 2);
-		from_json(*iter,value);
+		from_json(*iter, value);
 		return true;
 	}
 
@@ -260,7 +355,7 @@ namespace JsonHelper {
 		}
 		// 配列型かつ要素3
 		assert(iter->is_array() && iter->size() == 3);
-		from_json(*iter,value);
+		from_json(*iter, value);
 		return true;
 	}
 
@@ -272,7 +367,7 @@ namespace JsonHelper {
 		}
 		// 配列型かつ要素4
 		assert(iter->is_array() && iter->size() == 4);
-		from_json(*iter,value);
+		from_json(*iter, value);
 		return true;
 	}
 
@@ -284,7 +379,7 @@ namespace JsonHelper {
 		}
 		// 配列型かつ要素4
 		assert(iter->is_array() && iter->size() == 4);
-		from_json(*iter,value);
+		from_json(*iter, value);
 		return true;
 	}
 
@@ -296,7 +391,7 @@ namespace JsonHelper {
 		}
 		// 配列型かつ要素4
 		assert(iter->is_string());
-		value = iter->get<std::string>();
+		from_json(*iter, value);
 		return true;
 	}
 

@@ -54,7 +54,7 @@ private:
 
 	UploadBuffer emitterBuffer_;
 
-	GPUParticleShaderStructs::Emitter emitter_;
+	GPUParticleShaderStructs::EmitterForCPU emitter_;
 	uint32_t emitterLifeTimeMax_ = 60;
 	uint32_t square_ = 10;
 	uint32_t textureIndex_ = 0;

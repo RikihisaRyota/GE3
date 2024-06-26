@@ -20,7 +20,7 @@ void BossStateRoot::Update(CommandContext& commandContext) {
 		time_ = 0.0f;
 	}
 
-	if (inTransition_) {
+	/*if (inTransition_) {
 		time_ += 1.0f / data_.transitionFrame;
 	}
 	else {
@@ -37,7 +37,7 @@ void BossStateRoot::Update(CommandContext& commandContext) {
 			}
 		}
 		time_ = std::fmod(time_, 1.0f);
-	}
+	}*/
 
 	auto boss = manager_.boss_;
 	auto animation = manager_.boss_->GetAnimation();

@@ -435,6 +435,9 @@
     </ClCompile>
     <ClCompile Include="Engine\Engine\Graphics\CommandSignature.cpp" />
     <ClCompile Include="Engine\Engine\Graphics\StructuredBuffer.cpp" />
+    <ClCompile Include="Engine\Engine\GPUParticleManager\GPUParticle\GPUParticleShaderStructs.cpp">
+      <Filter>Engine\GPUParticleManager\GPUParticle</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\Engine\WinApp\WinApp.h">
@@ -876,6 +879,9 @@
       <Filter>Shaders\GPUParticle</Filter>
     </FxCompile>
     <FxCompile Include="Resources\Shaders\GPUParticle\MeshParticle.hlsl">
+      <Filter>Shaders\GPUParticle</Filter>
+    </FxCompile>
+    <FxCompile Include="Resources\Shaders\GPUParticle\CheckEmitter.CS.hlsl">
       <Filter>Shaders\GPUParticle</Filter>
     </FxCompile>
   </ItemGroup>

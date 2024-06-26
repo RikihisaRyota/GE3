@@ -38,7 +38,7 @@ public:
 	void Initialize();
 	void Spawn(CommandContext& commandContext,const UploadBuffer& random);
 	void EmitterUpdate(CommandContext& commandContext);
-	void AppendEmitter(CommandContext& commandContext);
+	void CheckEmitter(CommandContext& commandContext);
 	void AddEmitter(CommandContext& commandContext);
 	void ParticleUpdate(const ViewProjection& viewProjection,CommandContext& commandContext);
 	void BulletUpdate(CommandContext& commandContext);
@@ -47,9 +47,9 @@ public:
 	void CreateMeshParticle(const ModelHandle& modelHandle, const WorldTransform& worldTransform,const UploadBuffer& random, CommandContext& commandContext);
 	void SetDrawCommandSignature(CommandSignature* commandSignature) { commandSignature_ = commandSignature; }
 	void SetSpawnCommandSignature(CommandSignature* commandSignature) { spawnCommandSignature_ = commandSignature; }
-	void Create(const GPUParticleShaderStructs::Emitter& emitterForGPU);
+	void Create(const GPUParticleShaderStructs::EmitterForCPU& emitterForGPU);
 
-	void SetEmitter(const GPUParticleShaderStructs::Emitter& emitterForGPU);
+	void SetEmitter(const GPUParticleShaderStructs::EmitterForCPU& emitterForGPU);
 	void SetBullets(const std::vector<GPUParticleShaderStructs::BulletForGPU>& bullets);
 private:
 	void InitializeParticleBuffer();
@@ -88,13 +88,11 @@ private:
 	// 何個生成するか数える用
 	DefaultBuffer createParticleCounterCopySrcBuffer_;
 	// AddParticle用
-	DefaultBuffer addEmitterBuffer_;
-	UploadBuffer resetAddEmitterBuffer_;
-	UploadBuffer addEmitterCopyBuffer_;
+	UploadBuffer emitterCopyUploadBuffer_;
+	DefaultBuffer emitterCopyDefaultBuffer_;
 	// 追加するエミッターが何個あるか
 	UploadBuffer addEmitterCountBuffer_;
-	DescriptorHandle addEmitterUAVHandle_;
-	std::vector<GPUParticleShaderStructs::Emitter> emitterForGPUs_;
+	std::vector<GPUParticleShaderStructs::EmitterForGPU> emitterForGPUs_;
 	DefaultBuffer createEmitterBuffer_;
 	// 弾
 	StructuredBuffer bulletsBuffer_;

@@ -32,7 +32,7 @@ public:
 
 	void CreateMeshParticle(const ModelHandle& modelHandle, Animation::Animation& animation , const WorldTransform& worldTransform ,CommandContext& commandContext);
 	void CreateMeshParticle(const ModelHandle& modelHandle,const WorldTransform& worldTransform ,CommandContext& commandContext);
-	void CreateParticle(const GPUParticleShaderStructs::Emitter& emitterForGPU);
+	void SetEmitter(const GPUParticleShaderStructs::EmitterForCPU& emitterForCPU);
 	void SetBullets(const std::vector<GPUParticleShaderStructs::BulletForGPU>& bullets);
 
 private:
@@ -52,10 +52,10 @@ private:
 	std::unique_ptr<PipelineState> spawnComputePipelineState_;
 	std::unique_ptr<RootSignature> emitterUpdateComputeRootSignature_;
 	std::unique_ptr<PipelineState> emitterUpdateComputePipelineState_;
+	std::unique_ptr<RootSignature> checkEmitterComputeRootSignature_;
+	std::unique_ptr<PipelineState> checkEmitterComputePipelineState_;
 	std::unique_ptr<RootSignature> addEmitterComputeRootSignature_;
 	std::unique_ptr<PipelineState> addEmitterComputePipelineState_;
-	std::unique_ptr<RootSignature> appendEmitterComputeRootSignature_;
-	std::unique_ptr<PipelineState> appendEmitterComputePipelineState_;
 	std::unique_ptr<RootSignature> updateComputeRootSignature_;
 	std::unique_ptr<PipelineState> updateComputePipelineState_;
 	std::unique_ptr<CommandSignature> commandSignature_;

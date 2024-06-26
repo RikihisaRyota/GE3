@@ -67,141 +67,51 @@ void GPUParticleEditor::Update(CommandContext& commandContext) {
 
 void GPUParticleEditor::EmitterUpdate() {
 #pragma region エミッターCPU
-	if (emitter_.frequency.time <= 0) {
-		emitter_.frequency.time = emitter_.frequency.interval;
-	}
-	if (emitter_.frequency.lifeTime <= 0) {
-		emitter_.frequency.lifeTime = emitterLifeTimeMax_;
-	}
-	emitter_.frequency.lifeTime--;
-	emitter_.frequency.time--;
+
 #pragma endregion
-
-
-	ImGui::Begin("Emitter");
-	if (ImGui::TreeNode("Area")) {
-		if (ImGui::TreeNode("AABB")) {
-			ImGui::DragFloat3("Min", &emitter_.emitterArea.aabb.area.min.x, 0.1f);
-			ImGui::DragFloat3("Max", &emitter_.emitterArea.aabb.area.max.x, 0.1f);
-			ImGui::TreePop();
-		}
-		if (ImGui::TreeNode("Sphere")) {
-			ImGui::DragFloat("Radius", &emitter_.emitterArea.sphere.radius, 0.1f);
-			ImGui::TreePop();
-		}
-		ImGui::DragFloat3("Position", &emitter_.emitterArea.position.x, 0.1f);
-		int type = emitter_.emitterArea.type;
-		ImGui::DragInt("Type", &type);
-		emitter_.emitterArea.type = type;
-		ImGui::TreePop();
-	}
-	if (ImGui::TreeNode("Scale")) {
-		ImGui::DragFloat3("StartMin", &emitter_.scale.range.start.min.x, 0.1f);
-		ImGui::DragFloat3("StartMax", &emitter_.scale.range.start.max.x, 0.1f);
-		ImGui::DragFloat3("EndMin", &emitter_.scale.range.end.min.x, 0.1f);
-		ImGui::DragFloat3("EndMax", &emitter_.scale.range.end.max.x, 0.1f);
-		ImGui::TreePop();
-	}
-	if (ImGui::TreeNode("Rotate")) {
-		ImGui::DragFloat("rotate", &emitter_.rotate.rotate, 0.1f);
-		ImGui::TreePop();
-	}
-	if (ImGui::TreeNode("Velocity3D")) {
-		ImGui::DragFloat3("VelocityMin", &emitter_.velocity.range.min.x, 0.1f);
-		ImGui::DragFloat3("VelocityMax", &emitter_.velocity.range.max.x, 0.1f);
-		ImGui::TreePop();
-	}
-	if (ImGui::TreeNode("Color")) {
-		ImGui::DragFloat4("ColorStartMin", &emitter_.color.range.start.min.x, 0.1f, 0.0f, 1.0f);
-		ImGui::DragFloat4("ColorStartMax", &emitter_.color.range.start.max.x, 0.1f, 0.0f, 1.0f);
-		ImGui::DragFloat4("ColorEndMin", &emitter_.color.range.end.min.x, 0.1f, 0.0f, 1.0f);
-		ImGui::DragFloat4("ColorEndMax", &emitter_.color.range.end.max.x, 0.1f, 0.0f, 1.0f);
-		ImGui::TreePop();
-	}
-	if (ImGui::TreeNode("Frequency")) {
-		ImGui::SliderInt("Time", reinterpret_cast<int*>(&emitter_.frequency.time), 0, int(emitter_.frequency.interval));
-		ImGui::DragInt("Interval", reinterpret_cast<int*>(&emitter_.frequency.interval), 1, 0);
-		ImGui::Checkbox("IsLoop", reinterpret_cast<bool*>(&emitter_.frequency.isLoop));
-		ImGui::SliderInt("EmitterLifeTime", reinterpret_cast<int*>(&emitter_.frequency.lifeTime), 0, int(emitterLifeTimeMax_));
-		ImGui::DragInt("EmitterLifeTimeMax", reinterpret_cast<int*>(&emitterLifeTimeMax_), 0, int(emitterLifeTimeMax_));
-		ImGui::TreePop();
-	}
-	if (ImGui::TreeNode("ParticleLife")) {
-		ImGui::DragInt("Max", reinterpret_cast<int*>(&emitter_.particleLifeSpan.range.max), 1, 0);
-		ImGui::DragInt("Min", reinterpret_cast<int*>(&emitter_.particleLifeSpan.range.min), 1, 0);
-		ImGui::TreePop();
-	}
-	if (ImGui::TreeNode("TextureHandle")) {
-		std::list<std::string> stageList;
-		for (int i = 0; i < TextureManager::GetInstance()->GetTextureSize(); i++) {
-			stageList.emplace_back(TextureManager::GetInstance()->GetTexture(i).GetName().string());
-
-		}
-		// std::vector に変換する
-		std::vector<const char*> stageArray;
-		for (const auto& stage : stageList) {
-			stageArray.push_back(stage.c_str());
-		}
-
-		// Combo を使用する
-		if (ImGui::Combo("Texture", reinterpret_cast<int*>(&textureIndex_), stageArray.data(), static_cast<int>(stageArray.size()))) {
-			emitter_.textureIndex = TextureManager::GetInstance()->GetTexture(textureIndex_).GetDescriptorIndex();
-		}
-
-		ImGui::TreePop();
-	}
-	if (ImGui::TreeNode("CreateParticle")) {
-		ImGui::Text("Sum:%d", 1 << square_);
-		ImGui::DragInt("Square", reinterpret_cast<int*>(&square_), 1, 10, GPUParticleShaderStructs::MaxParticleShouldBeSquare);
-		emitter_.createParticleNum = 1 << square_;
-		ImGui::TreePop();
-	}
-	ImGui::End();
-	emitterBuffer_.Copy(&emitter_, sizeof(GPUParticleShaderStructs::Emitter));
+	GPUParticleShaderStructs::Debug("Editor", emitter_);
+	emitterBuffer_.Copy(&emitter_, sizeof(GPUParticleShaderStructs::EmitterForCPU));
 }
 
 void GPUParticleEditor::Spawn(CommandContext& commandContext) {
-	if (emitter_.frequency.time <= 0 /*&&
-		*static_cast<uint32_t*>(originalCommandCounterBuffer_.GetCPUData()) < GPUParticleShaderStructs::MaxParticleNum*/) {
-		commandContext.SetComputeRootSignature(*spawnComputeRootSignature_);
-		commandContext.SetPipelineState(*spawnComputePipelineState_);
 
-		commandContext.TransitionResource(emitterBuffer_, D3D12_RESOURCE_STATE_GENERIC_READ);
-		commandContext.TransitionResource(particleBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-		commandContext.TransitionResource(originalCommandBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+	commandContext.SetComputeRootSignature(*spawnComputeRootSignature_);
+	commandContext.SetPipelineState(*spawnComputePipelineState_);
 
-		commandContext.SetComputeConstantBuffer(GPUParticleEditorParameter::Spawn::kEmitter, emitterBuffer_.GetGPUVirtualAddress());
-		commandContext.SetComputeUAV(GPUParticleEditorParameter::Spawn::kParticleIndex, particleBuffer_.GetGPUVirtualAddress());
-		commandContext.SetComputeDescriptorTable(GPUParticleEditorParameter::Spawn::kConsumeParticleIndex, originalCommandUAVHandle_);
+	commandContext.TransitionResource(emitterBuffer_, D3D12_RESOURCE_STATE_GENERIC_READ);
+	commandContext.TransitionResource(particleBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+	commandContext.TransitionResource(originalCommandBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 
-		commandContext.Dispatch(static_cast<UINT>(ceil(emitter_.createParticleNum / GPUParticleShaderStructs::ComputeThreadBlockSize)), 1, 1);
+	commandContext.SetComputeConstantBuffer(GPUParticleEditorParameter::Spawn::kEmitter, emitterBuffer_.GetGPUVirtualAddress());
+	commandContext.SetComputeUAV(GPUParticleEditorParameter::Spawn::kParticleIndex, particleBuffer_.GetGPUVirtualAddress());
+	commandContext.SetComputeDescriptorTable(GPUParticleEditorParameter::Spawn::kConsumeParticleIndex, originalCommandUAVHandle_);
 
-		commandContext.CopyBufferRegion(originalCommandCounterBuffer_, 0, originalCommandBuffer_, particleIndexCounterOffset_, sizeof(UINT));
-	}
+	commandContext.Dispatch(static_cast<UINT>(ceil(emitter_.createParticleNum / GPUParticleShaderStructs::ComputeThreadBlockSize)), 1, 1);
+
+	commandContext.CopyBufferRegion(originalCommandCounterBuffer_, 0, originalCommandBuffer_, particleIndexCounterOffset_, sizeof(UINT));
+
 }
 
 void GPUParticleEditor::ParticleUpdate(CommandContext& commandContext) {
-	if (*static_cast<uint32_t*>(originalCommandCounterBuffer_.GetCPUData()) != 0) {
-		commandContext.SetComputeRootSignature(*updateComputeRootSignature_);
-		commandContext.SetPipelineState(*updateComputePipelineState_);
-		// リセット
-		commandContext.CopyBufferRegion(drawIndexCommandBuffers_, particleIndexCounterOffset_, resetAppendDrawIndexBufferCounterReset_, 0, sizeof(UINT));
+	commandContext.SetComputeRootSignature(*updateComputeRootSignature_);
+	commandContext.SetPipelineState(*updateComputePipelineState_);
+	// リセット
+	commandContext.CopyBufferRegion(drawIndexCommandBuffers_, particleIndexCounterOffset_, resetAppendDrawIndexBufferCounterReset_, 0, sizeof(UINT));
 
-		commandContext.TransitionResource(particleBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-		commandContext.TransitionResource(originalCommandBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-		commandContext.TransitionResource(drawIndexCommandBuffers_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+	commandContext.TransitionResource(particleBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+	commandContext.TransitionResource(originalCommandBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+	commandContext.TransitionResource(drawIndexCommandBuffers_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 
-		commandContext.SetComputeUAV(0, particleBuffer_->GetGPUVirtualAddress());
-		commandContext.SetComputeDescriptorTable(1, originalCommandUAVHandle_);
-		commandContext.SetComputeDescriptorTable(2, drawIndexCommandUAVHandle_);
+	commandContext.SetComputeUAV(0, particleBuffer_->GetGPUVirtualAddress());
+	commandContext.SetComputeDescriptorTable(1, originalCommandUAVHandle_);
+	commandContext.SetComputeDescriptorTable(2, drawIndexCommandUAVHandle_);
 
-		commandContext.Dispatch(static_cast<UINT>(ceil(GPUParticleShaderStructs::MaxParticleNum / float(GPUParticleShaderStructs::ComputeThreadBlockSize))), 1, 1);
+	commandContext.Dispatch(static_cast<UINT>(ceil(GPUParticleShaderStructs::MaxParticleNum / float(GPUParticleShaderStructs::ComputeThreadBlockSize))), 1, 1);
 
-		UINT64 destInstanceCountArgumentOffset = sizeof(GPUParticleShaderStructs::IndirectCommand::SRV) + sizeof(UINT);
-		UINT64 srcInstanceCountArgumentOffset = particleIndexCounterOffset_;
+	UINT64 destInstanceCountArgumentOffset = sizeof(GPUParticleShaderStructs::IndirectCommand::SRV) + sizeof(UINT);
+	UINT64 srcInstanceCountArgumentOffset = particleIndexCounterOffset_;
 
-		commandContext.CopyBufferRegion(drawArgumentBuffer_, destInstanceCountArgumentOffset, drawIndexCommandBuffers_, srcInstanceCountArgumentOffset, sizeof(UINT));
-	}
+	commandContext.CopyBufferRegion(drawArgumentBuffer_, destInstanceCountArgumentOffset, drawIndexCommandBuffers_, srcInstanceCountArgumentOffset, sizeof(UINT));
 }
 
 void GPUParticleEditor::Draw(const ViewProjection& viewProjection, CommandContext& commandContext) {
@@ -387,78 +297,39 @@ void GPUParticleEditor::CreateIndexBuffer() {
 }
 
 void GPUParticleEditor::CreateEmitterBuffer() {
-	emitter_ = {
-		.emitterArea{
-				.aabb{
-					.area{
-						.min = {-10.0f,-10.0f,-20.0f},
-						.max = {10.0f,10.0f,20.0f},
-					},
-				},
-				.sphere{
-					.radius = 10.0f,
-				},
-				.position = {0.0f,0.0f,0.0f},
-				.type = 0,
+	emitter_.emitterArea.aabb.area.min = { -10.0f, -10.0f, -20.0f };
+	emitter_.emitterArea.aabb.area.max = { 10.0f, 10.0f, 20.0f };
+	emitter_.emitterArea.sphere.radius = 10.0f;
+	emitter_.emitterArea.position = { 0.0f, 0.0f, 0.0f };
+	emitter_.emitterArea.type = 0;
 
-			},
+	emitter_.scale.range.start.min = { 0.5f, 0.5f, 0.5f };
+	emitter_.scale.range.start.max = { 0.5f, 0.5f, 0.5f };
+	emitter_.scale.range.end.min = { 0.1f, 0.1f, 0.1f };
+	emitter_.scale.range.end.max = { 0.1f, 0.1f, 0.1f };
 
-		.scale{
-			.range{
-				.start{
-					.min = {0.5f,0.5f,0.5f},
-					.max = {0.5f,0.5f,0.5f},
-				},
-				.end{
-					.min = {0.1f,0.1f,0.1f},
-					.max = {0.1f,0.1f,0.1f},
-				},
-			},
-		},
+	emitter_.rotate.rotate = 0.0f;
 
-		.rotate{
-			.rotate = 0.0f,
-		},
+	emitter_.velocity.range.min = { 0.0f, 0.0f, 0.0f };
+	emitter_.velocity.range.max = { 0.0f, 0.0f, 0.0f };
 
-		.velocity{
-			.range{
-				.min = {0.0f,0.0f,0.0f},
-				.max = {0.0f,0.0f,0.0f},
-			}
-		},
+	emitter_.color.range.start.min = { 1.0f, 1.0f, 1.0f, 1.0f };
+	emitter_.color.range.start.max = { 1.0f, 1.0f, 1.0f, 1.0f };
+	emitter_.color.range.end.min = { 1.0f, 1.0f, 1.0f, 1.0f };
+	emitter_.color.range.end.max = { 1.0f, 1.0f, 1.0f, 1.0f };
 
-		.color{
-			.range{
-				.start{
-					.min = {1.0f,1.0f,1.0f,1.0f},
-					.max = {1.0f,1.0f,1.0f,1.0f},
-				},
-				.end{
-					.min = {1.0f,1.0f,1.0f,1.0f},
-					.max = {1.0f,1.0f,1.0f,1.0f},
-				},
-			},
-		},
+	emitter_.frequency.interval = 1;
+	emitter_.frequency.isLoop = true;
+	// emitter_.frequency.lifeTime = 120; // Uncomment if needed
 
-		.frequency{
-			.interval = 1,
-			.isLoop = true,
-			//.lifeTime = 120,
-		},
+	emitter_.particleLifeSpan.range.min = 5;
+	emitter_.particleLifeSpan.range.max = 5;
 
-		.particleLifeSpan{
-			.range{
-				.min = 5,
-				.max = 5,
-			}
-		},
+	emitter_.textureIndex = TextureManager::GetInstance()->GetTexture(0).GetDescriptorIndex();
+	emitter_.createParticleNum = 1 << 10;
 
-		.textureIndex = TextureManager::GetInstance()->GetTexture(0).GetDescriptorIndex(),
-
-		.createParticleNum = 1 << 10,
-	};
-	emitterBuffer_.Create(L"EmitterBuffer", sizeof(GPUParticleShaderStructs::Emitter));
-	emitterBuffer_.Copy(&emitter_, sizeof(GPUParticleShaderStructs::Emitter));
+	emitterBuffer_.Create(L"EmitterBuffer", sizeof(GPUParticleShaderStructs::EmitterForGPU));
+	emitterBuffer_.Copy(&emitter_, sizeof(GPUParticleShaderStructs::EmitterForGPU));
 }
 
 void GPUParticleEditor::CreateParticleBuffer() {

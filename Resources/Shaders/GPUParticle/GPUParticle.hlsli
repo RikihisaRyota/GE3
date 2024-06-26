@@ -131,10 +131,16 @@ struct EmitterColor
 
 struct EmitterFrequency
 {
-    uint32_t time;
-    uint32_t interval;
-    uint32_t isLoop;
-    uint32_t lifeTime;
+	uint32_t interval;
+	uint32_t isLoop;
+	uint32_t emitterLife;
+	uint32_t pad;
+};
+
+struct EmitterTime {
+		uint32_t particleTime;
+		uint32_t emitterTime;
+		uint32_t2 pad;
 };
 
 struct ParticleLifeSpan
@@ -155,6 +161,8 @@ struct Emitter
     EmitterColor color;
 	
     EmitterFrequency frequency;
+
+    EmitterTime time;
     
     ParticleLifeSpan particleLifeSpan;
     
@@ -164,7 +172,7 @@ struct Emitter
 	
     uint32_t isAlive;
 
-    uint32_t pad;
+    int32_t emitterCount;
 };
 
 struct CreateParticle

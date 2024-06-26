@@ -1,7 +1,6 @@
 #pragma once
 
 #include <stdint.h>
-#pragma once
 
 #include <stdint.h>
 #include <string>
@@ -11,7 +10,9 @@
 #include "Engine/Math/Vector3.h"
 #include "Engine/Math/Vector4.h"
 #include "Engine/Math/Quaternion.h"
+#include "Engine/GPUParticleManager/GPUParticle/GPUParticleShaderStructs.h"
 
+void to_json(nlohmann::json& json, const bool& value);
 void to_json(nlohmann::json& json, const int32_t& value);
 void to_json(nlohmann::json& json, const uint32_t& value);
 void to_json(nlohmann::json& json, const float& value);
@@ -19,7 +20,16 @@ void to_json(nlohmann::json& json, const Vector2& value);
 void to_json(nlohmann::json& json, const Vector3& value);
 void to_json(nlohmann::json& json, const Vector4& value);
 void to_json(nlohmann::json& json, const Quaternion& value);
+void to_json(nlohmann::json& json, const std::string& value);
+void to_json(nlohmann::json& json, const GPUParticleShaderStructs::UintMinMax& value);
+void to_json(nlohmann::json& json, const GPUParticleShaderStructs::Vector3MinMax& value);
+void to_json(nlohmann::json& json, const GPUParticleShaderStructs::Vector4MinMax& value);
+void to_json(nlohmann::json& json, const GPUParticleShaderStructs::Vector3StartEnd& value);
+void to_json(nlohmann::json& json, const GPUParticleShaderStructs::Vector4StartEnd& value);
 
+void to_json(nlohmann::json& json, const GPUParticleShaderStructs::EmitterForCPU& value);
+
+void from_json(const nlohmann::json& json, bool& value);
 void from_json(const nlohmann::json& json, int32_t& value);
 void from_json(const nlohmann::json& json, uint32_t& value);
 void from_json(const nlohmann::json& json, float& value);
@@ -27,6 +37,14 @@ void from_json(const nlohmann::json& json, Vector2& value);
 void from_json(const nlohmann::json& json, Vector3& value);
 void from_json(const nlohmann::json& json, Vector4& value);
 void from_json(const nlohmann::json& json, Quaternion& value);
+void from_json(const nlohmann::json& json, std::string& value);
+void from_json(const nlohmann::json& json, GPUParticleShaderStructs::UintMinMax& value);
+void from_json(const nlohmann::json& json, GPUParticleShaderStructs::Vector3MinMax& value);
+void from_json(const nlohmann::json& json, GPUParticleShaderStructs::Vector4MinMax& value);
+void from_json(const nlohmann::json& json, GPUParticleShaderStructs::Vector3StartEnd& value);
+void from_json(const nlohmann::json& json, GPUParticleShaderStructs::Vector4StartEnd& value);
+
+void from_json(const nlohmann::json& json, GPUParticleShaderStructs::EmitterForCPU& value);
 
 namespace JsonHelper {
 

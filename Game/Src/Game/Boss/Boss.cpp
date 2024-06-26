@@ -6,7 +6,7 @@
 #include "Engine/Math/MyMath.h"
 #include "Engine/Collision/CollisionAttribute.h"
 #include "Engine/GPUParticleManager/GPUParticleManager.h"
-#include "Engine/GPUParticleManager/GPUParticle/GPUParticleShaderStructs.h"
+
 #include "Engine/ImGui/ImGuiManager.h"
 #include "Engine/Texture/TextureManager.h"
 
@@ -100,6 +100,44 @@ Boss::Boss() {
 	JSON_LOAD(animationWorldTransformOffset_);
 	JSON_ROOT();
 	JSON_CLOSE();
+	// emitterArea初期化
+	boneEmitter_.emitterArea.capsule.segment.origin = { 0.0f, 0.0f, 0.0f };
+	boneEmitter_.emitterArea.capsule.segment.diff = { 0.0f, 0.0f, 0.0f };
+	boneEmitter_.emitterArea.capsule.radius = 0.0f;
+	boneEmitter_.emitterArea.position = { 0.0f, 0.0f, 0.0f };
+	boneEmitter_.emitterArea.type = GPUParticleShaderStructs::Type::kCapsule;
+
+	// scale初期化
+	boneEmitter_.scale.range.start.min = { 0.1f, 0.1f, 0.1f };
+	boneEmitter_.scale.range.start.max = { 0.1f, 0.1f, 0.1f };
+	boneEmitter_.scale.range.end.min = { 0.01f, 0.01f, 0.01f };
+	boneEmitter_.scale.range.end.max = { 0.01f, 0.01f, 0.01f };
+
+	// rotate初期化
+	boneEmitter_.rotate.rotate = 0.0f;
+
+	// velocity初期化
+	boneEmitter_.velocity.range.min = { 0.0f, 0.0f, 0.0f };
+	boneEmitter_.velocity.range.max = { 0.0f, 0.0f, 0.0f };
+
+	// color初期化
+	boneEmitter_.color.range.start.min = { 0.8f, 0.8f, 0.8f, 1.0f };
+	boneEmitter_.color.range.start.max = { 1.0f, 1.0f, 1.0f, 1.0f };
+	boneEmitter_.color.range.end.min = { 0.2f, 0.2f, 0.2f, 1.0f };
+	boneEmitter_.color.range.end.max = { 0.5f, 0.5f, 0.5f, 1.0f };
+
+	// frequency初期化
+	boneEmitter_.frequency.interval = 1;
+	boneEmitter_.frequency.isLoop = false;
+	// boneEmitter_.frequency.emitterLife = 120; // Uncomment if needed
+
+	// particleLifeSpan初期化
+	boneEmitter_.particleLifeSpan.range.min = 5;
+	boneEmitter_.particleLifeSpan.range.max = 10;
+
+	// その他のメンバー変数初期化
+	boneEmitter_.textureIndex = TextureManager::GetInstance()->GetTexture(gpuTexture_).GetDescriptorIndex();
+	boneEmitter_.createParticleNum = 0;
 }
 
 void Boss::Initialize() {
@@ -120,11 +158,15 @@ void Boss::Update(CommandContext& commandContext) {
 	bossStateManager_->Update(commandContext);
 	UpdateTransform();
 	UpdateCollider();
+	if (ImGui::Button("BossMesh")) {
+		gpuParticleManager_->CreateMeshParticle(bossModelHandle_, animation_, worldTransform_, commandContext);
+	}
 }
 
 void Boss::Draw(const ViewProjection& viewProjection, CommandContext& commandContext) {
 	//ModelManager::GetInstance()->Draw(animationTransform_, animation_, viewProjection, bossModelHandle_, commandContext);
 	gpuParticleManager_->CreateMeshParticle(bossModelHandle_, animation_, worldTransform_, commandContext);
+
 }
 
 void Boss::DrawImGui() {
@@ -250,7 +292,7 @@ void Boss::DrawImGui() {
 	ImGui::End();
 	bossStateManager_->DrawImGui();
 	bossHP_->DrawImGui();
-
+	GPUParticleShaderStructs::Debug("Boss", boneEmitter_);
 }
 
 void Boss::DrawDebug(const ViewProjection& viewProjection) {
@@ -299,75 +341,38 @@ void Boss::UpdateGPUParticle() {
 		Vector3 born = (worldPos - parentPos);
 		// 0
 		{
-			GPUParticleShaderStructs::Emitter emitterForGPU = {
-		   .emitterArea{
-				   .capsule{
-						.segment{
-							.origin = {worldPos},
-							.diff = {parentPos},
-						},
-						.radius = colliderSize_[joint.name],
-					},
-					.position{0.0f,0.0f,0.0f},
-					.type = 2,
-			   },
+			GPUParticleShaderStructs::EmitterForCPU emitterForGPU{};
+			emitterForGPU.emitterArea.capsule.segment.origin = worldPos;
+			emitterForGPU.emitterArea.capsule.segment.diff = parentPos;
+			emitterForGPU.emitterArea.capsule.radius = colliderSize_[joint.name];
+			emitterForGPU.emitterArea.position = { 0.0f, 0.0f, 0.0f };
+			emitterForGPU.emitterArea.type = GPUParticleShaderStructs::Type::kCapsule;
 
-		   .scale{
-			   .range{
-				   .start{
-					   .min = {0.1f,0.1f,0.1f},
-					   .max = {0.1f,0.1f,0.1f},
-				   },
-				   .end{
-					   .min = {0.01f,0.01f,0.01f},
-					   .max = {0.01f,0.01f,0.01f},
-				   },
-			   },
-		   },
 
-		   .rotate{
-			   .rotate = 0.0f,
-		   },
+			// scale初期化
+			emitterForGPU.scale = boneEmitter_.scale;
 
-		   .velocity{
-			   .range{
-				   .min = {0.0f,0.0f,0.0f},
-				   .max = {0.0f,0.0f,0.0f},
-			   }
-		   },
+			// rotate初期化
+			emitterForGPU.rotate = boneEmitter_.rotate;
 
-		   .color{
-			   .range{
-				   .start{
-					   .min = {0.8f,0.8f,0.8f,1.0f},
-					   .max = {1.0f,1.0f,1.0f,1.0f},
-				   },
-				   .end{
-					   .min = {0.2f,0.2f,0.2f,1.0f},
-					   .max = {0.5f,0.5f,0.5f,1.0f},
-				   },
-			   },
-		   },
+			// velocity初期化
+			emitterForGPU.velocity = boneEmitter_.velocity;
 
-		   .frequency{
-			   .interval = 1,
-			   .isLoop = false,
-			   //.lifeTime = 120,
-		   },
+			// color初期化
+			emitterForGPU.color = boneEmitter_.color;
 
-		   .particleLifeSpan{
-			   .range{
-				   .min = 5,
-				   .max = 10,
-			   }
-		   },
+			// frequency初期化
+			emitterForGPU.frequency = boneEmitter_.frequency;
 
-		   .textureIndex = TextureManager::GetInstance()->GetTexture(gpuTexture_).GetDescriptorIndex(),
+			// particleLifeSpan初期化
+			emitterForGPU.particleLifeSpan = boneEmitter_.particleLifeSpan;
 
-		   .createParticleNum = uint32_t(born.Length()) * uint32_t(std::pow(uint32_t(colliderSize_[joint.name]),3)),
-			};
+			// その他のメンバー変数初期化
+			emitterForGPU.textureIndex = boneEmitter_.textureIndex;
 
-			gpuParticleManager_->CreateParticle(emitterForGPU);
+			emitterForGPU.createParticleNum = uint32_t(born.Length()) * uint32_t(std::pow(uint32_t(colliderSize_[joint.name]), 3));
+			
+			//gpuParticleManager_->SetEmitter(emitterForGPU);
 		}
 	}
 }

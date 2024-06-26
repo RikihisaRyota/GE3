@@ -42,9 +42,9 @@ private:
 	std::vector<std::unique_ptr<GameObject> >gameObject_;
 
 	TextureHandle gpuTexture_;
-	WorldTransform worldTransform_;
 	int32_t soundHandle_;
 	int32_t playHandle_;
-	Vector4 color_;
+
+	GPUParticleShaderStructs::EmitterForCPU test_;
 
 };

@@ -1,4 +1,8 @@
 #pragma once
+
+#include <string>
+#include <limits>
+
 #include <d3d12.h>
 
 #include "Engine/Texture/TextureHandle.h"
@@ -59,7 +63,7 @@ namespace GPUParticleShaderStructs {
 		uint32_t pad[2];
 	};
 	/*
-	* 
+	*
 struct Particle
 {
 	struct Float3MinMax
@@ -95,7 +99,6 @@ struct Particle
 } Element;
 
 	*/
-
 	struct Particle {
 		Vector3MinMax scaleRange;
 		ParticleLifeTime particleLifeTime;
@@ -105,12 +108,12 @@ struct Particle
 
 		Vector3 scale;
 		uint32_t textureInidex;
-		
+
 		float rotateVelocity;
 		float rotate;
 		uint32_t isAlive;
 		uint32_t pad1;
-		
+
 		Vector3 translate;
 		uint32_t pad2;
 
@@ -143,7 +146,12 @@ struct Particle
 		float radius;
 		Vector3 pad;
 	};
-
+	enum Type {
+		kAABB,
+		kSphere,
+		kCapsule,
+		kCount,
+	};
 	struct EmitterArea {
 		EmitterAABB aabb;
 		EmitterSphere sphere;
@@ -177,10 +185,16 @@ struct Particle
 
 	// エミッターの生成間隔
 	struct EmitterFrequency {
-		uint32_t time = 0;
 		uint32_t interval;
 		uint32_t isLoop;
-		uint32_t lifeTime;
+		uint32_t emitterLife;
+		uint32_t pad;
+	};
+
+	struct EmitterTime {
+		uint32_t particleTime = 0;
+		uint32_t emitterTime = 0;
+		Vector2 pad;
 	};
 
 	// パーティクルのランダム寿命
@@ -188,8 +202,15 @@ struct Particle
 		UintMinMax range;
 	};
 
-	// エミッター
-	struct Emitter {
+	// エミッター(CPUとGPUある)
+	struct EmitterForCPU {
+		EmitterForCPU() {
+			if (staticEmitterCount == (std::numeric_limits<int32_t>::max)()) {
+				staticEmitterCount = 0;
+			}
+			emitterCount = staticEmitterCount;
+			staticEmitterCount++;
+		}
 		EmitterArea emitterArea;
 
 		ScaleAnimation scale;
@@ -202,6 +223,8 @@ struct Particle
 
 		EmitterFrequency frequency;
 
+		EmitterTime time;
+
 		ParticleLifeSpan particleLifeSpan;
 
 		uint32_t textureIndex;
@@ -210,7 +233,37 @@ struct Particle
 
 		uint32_t isAlive = true;
 
-		uint32_t pad;
+		int32_t emitterCount;
+		// クラス内でstatic宣言されたメンバ変数のサイズは0
+		static int32_t staticEmitterCount;
+	};
+
+	// エミッター(CPUとGPUある)
+	struct EmitterForGPU {
+
+		EmitterArea emitterArea;
+
+		ScaleAnimation scale;
+
+		RotateAnimation rotate;
+
+		Velocity3D velocity;
+
+		EmitterColor color;
+
+		EmitterFrequency frequency;
+
+		EmitterTime time;
+
+		ParticleLifeSpan particleLifeSpan;
+
+		uint32_t textureIndex;
+
+		uint32_t createParticleNum;
+
+		uint32_t isAlive = false;
+
+		int32_t emitterCount = -1;
 	};
 
 	struct CreateParticle {
@@ -235,4 +288,7 @@ struct Particle
 		D3D12_DRAW_INDEXED_ARGUMENTS drawIndex;
 	};
 
+	void Debug(const std::string name, EmitterForCPU& emitter);
+	//void Save(const std::string name, EmitterForCPU& emitter);
+	//EmitterForCPU Load(const std::string name);
 }

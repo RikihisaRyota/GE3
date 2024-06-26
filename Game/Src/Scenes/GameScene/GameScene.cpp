@@ -37,11 +37,9 @@ GameScene::GameScene() {
 
 
 	gpuTexture_ = TextureManager::GetInstance()->Load("Resources/Images/GPUParticle.png");
-	color_ = { 1.0f,1.0f,1.0f,1.0 };
+
 	soundHandle_ = Audio::GetInstance()->SoundLoad("Resources/Audios/walk.mp3");
 	playHandle_ = Audio::GetInstance()->SoundPlayLoopStart(soundHandle_);
-
-	worldTransform_.Initialize();
 
 	//gpuParticleEditor_->Initialize();
 	gpuParticleManager_->Initialize();
@@ -153,77 +151,40 @@ void GameScene::Initialize() {
 	//	gpuParticleManager_->CreateParticle(emitterForGPU);
 	//}
 
-	//// 0
-	//{
-	//	GPUParticleShaderStructs::Emitter emitterForGPU = {
-	//   .emitterArea{
-	//			.aabb{
-	//				.area{
-	//					.min = {-10.0f,-10.0f,-20.0f},
-	//					.max = {10.0f,10.0f,20.0f},
-	//					},
-	//			},
-	//			.position = {0.0f,0.0f,0.0f},
-	//			.type = 0,
+	// 0
+	{
+		test_.emitterArea.aabb.area.min = { -10.0f,-10.0f,-20.0f };
+		test_.emitterArea.aabb.area.max = { 10.0f,10.0f,20.0f };
+		test_.emitterArea.position = { 0.0f,0.0f,0.0f };
+		test_.emitterArea.type = GPUParticleShaderStructs::Type::kAABB;
 
-	//	   },
+		test_.scale.range.start.min = { 0.1f,0.1f,0.1f };
+		test_.scale.range.start.max = { 0.3f,0.3f,0.3f };
+		test_.scale.range.end.max = { 0.1f,0.1f,0.1f };
+		test_.scale.range.end.max = { 0.1f,0.1f,0.1f };
 
-	//   .scale{
-	//	   .range{
-	//		   .start{
-	//			   .min = {0.01f,0.01f,0.01f},
-	//			   .max = {0.05f,0.05f,0.05f},
-	//		   },
-	//		   .end{
-	//			   .min = {0.1f,0.1f,0.1f},
-	//			   .max = {0.1f,0.1f,0.1f},
-	//		   },
-	//	   },
-	//   },
+		test_.rotate.rotate = 0.3f;
 
-	//   .rotate{
-	//	   .rotate = 0.3f,
-	//   },
+		test_.velocity.range.min = { 0.0f,0.0f,0.1f };
+		test_.velocity.range.max = { 0.0f,0.0f,0.5f };
 
-	//   .velocity{
-	//	   .range{
-	//		   .min = {0.0f,0.0f,0.1f},
-	//		   .max = {0.0f,0.0f,0.5f},
-	//	   }
-	//   },
+		test_.color.range.start.min = { 0.5f,0.5f,0.5f,1.0f };
+		test_.color.range.start.max = { 0.5f,0.5f,0.5f,1.0f };
+		test_.color.range.end.min = { 0.5f,0.5f,0.5f,1.0f };
+		test_.color.range.end.max = { 0.5f,0.5f,0.5f,1.0f };
 
-	//   .color{
-	//	   .range{
-	//		   .start{
-	//			   .min = {0.5f,0.5f,0.5f,1.0f},
-	//			   .max = {0.5f,0.5f,0.5f,1.0f},
-	//		   },
-	//		   .end{
-	//			   .min = {0.01f,0.01f,0.01f,0.01f},
-	//			   .max = {0.01f,0.01f,0.01f,0.01f},
-	//		   },
-	//	   },
-	//   },
+		test_.frequency.interval = 5;
+		test_.frequency.isLoop = true;
+		test_.frequency.emitterLife = 120;
 
-	//   .frequency{
-	//	   .interval = 2,
-	//	   .isLoop = true,
-	//	   //.lifeTime = 120,
-	//   },
+		test_.particleLifeSpan.range.min = 1;
+		test_.particleLifeSpan.range.min = 90;
 
-	//   .particleLifeSpan{
-	//	   .range{
-	//		   .min = 1,
-	//		   .max = 90,
-	//	   }
-	//   },
+		test_.textureIndex = TextureManager::GetInstance()->GetTexture(gpuTexture_).GetDescriptorIndex(),
 
-	//   .textureIndex = TextureManager::GetInstance()->GetTexture(gpuTexture_).GetDescriptorIndex(),
-
-	//   .createParticleNum = 1 << 10,
-	//	};
-	//	gpuParticleManager_->CreateParticle(emitterForGPU);
-	//}
+		test_.createParticleNum = 333;
+		//gpuParticleManager_->SetEmitter(test_);
+	}
 }
 
 void GameScene::Update(CommandContext& commandContext) {
@@ -242,7 +203,9 @@ void GameScene::Update(CommandContext& commandContext) {
 		object->Update();
 	}
 
-	worldTransform_.UpdateMatrix();
+	GPUParticleShaderStructs::Debug("test", test_);
+
+	gpuParticleManager_->SetEmitter(test_);
 	gpuParticleManager_->Update(*viewProjection_, RenderManager::GetInstance()->GetCommandContext());
 	//gpuParticleEditor_->Update(RenderManager::GetInstance()->GetCommandContext());
 

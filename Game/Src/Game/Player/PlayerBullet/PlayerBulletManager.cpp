@@ -13,11 +13,11 @@ PlayerBulletManager::PlayerBulletManager() {
 	ModelManager::GetInstance()->Load("Resources/Models/Bullet/bullet.gltf");
 	JSON_OPEN("Resources/Data/Player/playerBullet.json");
 	JSON_OBJECT("bulletProperties");
-	JSON_LOAD(reticleDistance_);
 	JSON_LOAD(bulletLifeTime_);
 	JSON_LOAD(bulletCoolTime_);
 	JSON_LOAD(bulletSpeed_);
 	JSON_LOAD(offset_);
+	JSON_LOAD(reticleDistance_);
 	JSON_ROOT();
 	JSON_CLOSE();
 }

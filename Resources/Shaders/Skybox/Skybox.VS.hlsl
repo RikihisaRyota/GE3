@@ -10,7 +10,7 @@ ConstantBuffer<ViewProjection> gViewProjection : register(b1);
 VertexShaderOutput main(VertexShaderInput input)
 {
 	VertexShaderOutput output;
-	output.position= mul(input.position,mul(gWorldTransform.world, mul(gViewProjection.view, gViewProjection.projection))).xyww;
+	output.position= mul(mul(input.position, gWorldTransform.world), mul(gViewProjection.view, gViewProjection.projection)).xyww;
 	output.texcoord=input.position.xyz;
 	return output;
 }

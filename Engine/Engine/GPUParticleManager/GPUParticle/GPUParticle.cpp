@@ -179,9 +179,71 @@ void GPUParticle::Draw(const ViewProjection& viewProjection, CommandContext& com
 	);
 }
 
-void GPUParticle::CreateMeshParticle(const ModelHandle& modelHandle, Animation::Animation& animation, const WorldTransform& worldTransform, const UploadBuffer& random, CommandContext& commandContext) {
+void GPUParticle::CreateMeshParticle(const ModelHandle& modelHandle, Animation::Animation& animation, const WorldTransform& worldTransform, const GPUParticleShaderStructs::MeshEmitterDesc& mesh, const UploadBuffer& random, CommandContext& commandContext) {
 	// あと何個生成できるかコピー
+	if (mesh.numCreate != 0) {
+		commandContext.CopyBufferRegion(originalCounterBuffer_, 0, originalCommandBuffer_, particleIndexCounterOffset_, sizeof(UINT));
+
+		mesh.buffer.Copy(&mesh.emitter, sizeof(mesh.emitter));
+
+		commandContext.TransitionResource(particleBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+		commandContext.TransitionResource(originalCommandBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+		commandContext.TransitionResource(animation.skinCluster.vertexBuffer, D3D12_RESOURCE_STATE_GENERIC_READ);
+		commandContext.TransitionResource(ModelManager::GetInstance()->GetModel(modelHandle).GetMeshData().at(0)->indexBuffer, D3D12_RESOURCE_STATE_GENERIC_READ);
+
+		commandContext.SetComputeUAV(0, particleBuffer_.GetGPUVirtualAddress());
+		commandContext.SetComputeDescriptorTable(1, originalCommandUAVHandle_);
+		commandContext.SetComputeUAV(2, originalCounterBuffer_.GetGPUVirtualAddress());
+		commandContext.SetComputeShaderResource(3, animation.skinCluster.vertexBuffer.GetGPUVirtualAddress());
+		commandContext.SetComputeShaderResource(4, ModelManager::GetInstance()->GetModel(modelHandle).GetMeshData().at(0)->indexBuffer.GetGPUVirtualAddress());
+		commandContext.SetComputeConstantBuffer(5, random.GetGPUVirtualAddress());
+		commandContext.SetComputeConstantBuffer(6, worldTransform.constBuff.get()->GetGPUVirtualAddress());
+		commandContext.SetComputeConstantBuffer(7, ModelManager::GetInstance()->GetModel(modelHandle).GetMeshData().at(0)->indexCountBuffer.GetGPUVirtualAddress());
+		commandContext.SetComputeConstantBuffer(8, mesh.buffer.GetGPUVirtualAddress());
+
+		size_t indexCount = ModelManager::GetInstance()->GetModel(modelHandle).GetMeshData().at(0)->meshes->indexCount;
+		size_t numTriangles = indexCount / 3;
+		size_t numThreadGroups = (numTriangles + GPUParticleShaderStructs::ComputeThreadBlockSize - 1) / GPUParticleShaderStructs::ComputeThreadBlockSize;
+		uint32_t createParticleNum = mesh.numCreate;
+		commandContext.Dispatch(UINT(numThreadGroups), createParticleNum, 1);
+	}
+}
+
+void GPUParticle::CreateMeshParticle(const ModelHandle& modelHandle, const WorldTransform& worldTransform, const GPUParticleShaderStructs::MeshEmitterDesc& mesh, const UploadBuffer& random, CommandContext& commandContext) {
+	// auto model = ModelManager::GetInstance()->GetModel(modelHandle);
+	// あと何個生成できるかコピー
+	if (mesh.numCreate != 0) {
+		commandContext.CopyBufferRegion(originalCounterBuffer_, 0, originalCommandBuffer_, particleIndexCounterOffset_, sizeof(UINT));
+
+		mesh.buffer.Copy(&mesh.emitter, sizeof(mesh.emitter));
+
+		commandContext.TransitionResource(particleBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+		commandContext.TransitionResource(originalCommandBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+		commandContext.TransitionResource(ModelManager::GetInstance()->GetModel(modelHandle).GetMeshData().at(0)->vertexBuffer, D3D12_RESOURCE_STATE_GENERIC_READ);
+		commandContext.TransitionResource(ModelManager::GetInstance()->GetModel(modelHandle).GetMeshData().at(0)->indexBuffer, D3D12_RESOURCE_STATE_GENERIC_READ);
+
+		commandContext.SetComputeUAV(0, particleBuffer_.GetGPUVirtualAddress());
+		commandContext.SetComputeDescriptorTable(1, originalCommandUAVHandle_);
+		commandContext.SetComputeUAV(2, originalCounterBuffer_.GetGPUVirtualAddress());
+		commandContext.SetComputeShaderResource(3, ModelManager::GetInstance()->GetModel(modelHandle).GetMeshData().at(0)->vertexBuffer.GetGPUVirtualAddress());
+		commandContext.SetComputeShaderResource(4, ModelManager::GetInstance()->GetModel(modelHandle).GetMeshData().at(0)->indexBuffer.GetGPUVirtualAddress());
+		commandContext.SetComputeConstantBuffer(5, random.GetGPUVirtualAddress());
+		commandContext.SetComputeConstantBuffer(6, worldTransform.constBuff.get()->GetGPUVirtualAddress());
+		commandContext.SetComputeConstantBuffer(7, ModelManager::GetInstance()->GetModel(modelHandle).GetMeshData().at(0)->indexCountBuffer.GetGPUVirtualAddress());
+		commandContext.SetComputeConstantBuffer(8, mesh.buffer.GetGPUVirtualAddress());
+
+		size_t indexCount = ModelManager::GetInstance()->GetModel(modelHandle).GetMeshData().at(0)->meshes->indexCount;
+		size_t numTriangles = indexCount / 3;
+		size_t numThreadGroups = (numTriangles + GPUParticleShaderStructs::ComputeThreadBlockSize - 1) / GPUParticleShaderStructs::ComputeThreadBlockSize;
+		uint32_t createParticleNum = mesh.numCreate;
+		commandContext.Dispatch(UINT(numThreadGroups), createParticleNum, 1);
+	}
+}
+
+void GPUParticle::CreateVertexParticle(const ModelHandle& modelHandle, Animation::Animation& animation, const WorldTransform& worldTransform, const GPUParticleShaderStructs::VertexEmitterDesc& mesh, const UploadBuffer& random, CommandContext& commandContext) {
 	commandContext.CopyBufferRegion(originalCounterBuffer_, 0, originalCommandBuffer_, particleIndexCounterOffset_, sizeof(UINT));
+
+	mesh.buffer.Copy(&mesh.emitter, sizeof(mesh.emitter));
 
 	commandContext.TransitionResource(particleBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 	commandContext.TransitionResource(originalCommandBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
@@ -192,22 +254,22 @@ void GPUParticle::CreateMeshParticle(const ModelHandle& modelHandle, Animation::
 	commandContext.SetComputeDescriptorTable(1, originalCommandUAVHandle_);
 	commandContext.SetComputeUAV(2, originalCounterBuffer_.GetGPUVirtualAddress());
 	commandContext.SetComputeShaderResource(3, animation.skinCluster.vertexBuffer.GetGPUVirtualAddress());
-	commandContext.SetComputeShaderResource(4, ModelManager::GetInstance()->GetModel(modelHandle).GetMeshData().at(0)->indexBuffer.GetGPUVirtualAddress());
-	commandContext.SetComputeConstantBuffer(5, random.GetGPUVirtualAddress());
-	commandContext.SetComputeConstantBuffer(6, worldTransform.constBuff.get()->GetGPUVirtualAddress());
-	commandContext.SetComputeConstantBuffer(7, ModelManager::GetInstance()->GetModel(modelHandle).GetMeshData().at(0)->indexCountBuffer.GetGPUVirtualAddress());
+	commandContext.SetComputeConstantBuffer(4, random.GetGPUVirtualAddress());
+	commandContext.SetComputeConstantBuffer(5, worldTransform.constBuff.get()->GetGPUVirtualAddress());
+	commandContext.SetComputeConstantBuffer(6, ModelManager::GetInstance()->GetModel(modelHandle).GetMeshData().at(0)->vertexCountBuffer.GetGPUVirtualAddress());
+	commandContext.SetComputeConstantBuffer(7, mesh.buffer.GetGPUVirtualAddress());
 
-	size_t indexCount = ModelManager::GetInstance()->GetModel(modelHandle).GetMeshData().at(0)->meshes->indexCount;
-	size_t numTriangles = indexCount / 3;
-	size_t numThreadGroups = (numTriangles + GPUParticleShaderStructs::ComputeThreadBlockSize - 1) / GPUParticleShaderStructs::ComputeThreadBlockSize;
+	size_t vertexCount = ModelManager::GetInstance()->GetModel(modelHandle).GetMeshData().at(0)->vertices.size();
+	size_t numThreadGroups = (vertexCount + GPUParticleShaderStructs::ComputeThreadBlockSize - 1) / GPUParticleShaderStructs::ComputeThreadBlockSize;
 
 	commandContext.Dispatch(UINT(numThreadGroups), 1, 1);
 }
 
-void GPUParticle::CreateMeshParticle(const ModelHandle& modelHandle, const WorldTransform& worldTransform, const UploadBuffer& random, CommandContext& commandContext) {
-	// auto model = ModelManager::GetInstance()->GetModel(modelHandle);
+void GPUParticle::CreateVertexParticle(const ModelHandle& modelHandle, const WorldTransform& worldTransform, const GPUParticleShaderStructs::VertexEmitterDesc& mesh, const UploadBuffer& random, CommandContext& commandContext) {
 	// あと何個生成できるかコピー
 	commandContext.CopyBufferRegion(originalCounterBuffer_, 0, originalCommandBuffer_, particleIndexCounterOffset_, sizeof(UINT));
+
+	mesh.buffer.Copy(&mesh.emitter, sizeof(mesh.emitter));
 
 	commandContext.TransitionResource(particleBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 	commandContext.TransitionResource(originalCommandBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
@@ -218,13 +280,12 @@ void GPUParticle::CreateMeshParticle(const ModelHandle& modelHandle, const World
 	commandContext.SetComputeDescriptorTable(1, originalCommandUAVHandle_);
 	commandContext.SetComputeUAV(2, originalCounterBuffer_.GetGPUVirtualAddress());
 	commandContext.SetComputeShaderResource(3, ModelManager::GetInstance()->GetModel(modelHandle).GetMeshData().at(0)->vertexBuffer.GetGPUVirtualAddress());
-	commandContext.SetComputeShaderResource(4, ModelManager::GetInstance()->GetModel(modelHandle).GetMeshData().at(0)->indexBuffer.GetGPUVirtualAddress());
-	commandContext.SetComputeConstantBuffer(5, random.GetGPUVirtualAddress());
-	commandContext.SetComputeConstantBuffer(6, worldTransform.constBuff.get()->GetGPUVirtualAddress());
-	commandContext.SetComputeConstantBuffer(7, ModelManager::GetInstance()->GetModel(modelHandle).GetMeshData().at(0)->vertexCountBuffer.GetGPUVirtualAddress());
+	commandContext.SetComputeConstantBuffer(4, random.GetGPUVirtualAddress());
+	commandContext.SetComputeConstantBuffer(5, worldTransform.constBuff.get()->GetGPUVirtualAddress());
+	commandContext.SetComputeConstantBuffer(6, ModelManager::GetInstance()->GetModel(modelHandle).GetMeshData().at(0)->vertexCountBuffer.GetGPUVirtualAddress());
+	commandContext.SetComputeConstantBuffer(7, mesh.buffer.GetGPUVirtualAddress());
 
 	size_t vertexCount = ModelManager::GetInstance()->GetModel(modelHandle).GetMeshData().at(0)->vertices.size();
-
 	size_t numThreadGroups = (vertexCount + GPUParticleShaderStructs::ComputeThreadBlockSize - 1) / GPUParticleShaderStructs::ComputeThreadBlockSize;
 
 	commandContext.Dispatch(UINT(numThreadGroups), 1, 1);

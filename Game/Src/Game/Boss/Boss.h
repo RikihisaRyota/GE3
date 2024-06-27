@@ -53,6 +53,8 @@ private:
 	Animation::Animation animation_;
 
 	WorldTransform animationTransform_;
+	GPUParticleShaderStructs::MeshEmitterDesc meshEmitterDesc_;
+	GPUParticleShaderStructs::VertexEmitterDesc vertexEmitterDesc_;
 
 	WorldTransform worldTransform_;
 

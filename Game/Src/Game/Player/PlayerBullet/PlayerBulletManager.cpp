@@ -43,7 +43,7 @@ void PlayerBulletManager::Update() {
 		else {
 			bullets.emplace_back(GPUParticleShaderStructs::BulletForGPU());
 			bullets.back().position = (*iter)->GetPosition();
-			bullets.back().radius = (*iter)->GetRadius() * 10.0f;
+			bullets.back().radius = (*iter)->GetRadius()*5.0f;
 			bullets.back().speed = bulletSpeed_ * 0.1f;
 			++iter; // 次の弾へ移動
 		}

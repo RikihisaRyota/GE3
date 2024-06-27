@@ -148,6 +148,22 @@ struct ParticleLifeSpan
     UintMinMax range;
 };
 
+struct MeshEmitter {
+	ScaleAnimation scale;
+
+	RotateAnimation rotateAnimation;
+
+	Velocity3D velocity3D;
+
+	EmitterColor color;
+
+	ParticleLifeSpan particleLifeSpan;
+
+	uint32_t textureIndex;
+
+    float32_t3 pad;
+};
+
 struct Emitter
 {
     EmitterArea area;

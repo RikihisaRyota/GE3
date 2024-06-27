@@ -2,6 +2,7 @@
 
 #include <cassert>
 #include <fstream>
+#include <stack>
 
 //void to_json(nlohmann::json& json, const int& value) {
 //	json = value;
@@ -41,51 +42,6 @@ void to_json(nlohmann::json& json, const Quaternion& value) {
 
 void to_json(nlohmann::json& json, const std::string& value) {
 	json = value;
-}
-
-void to_json(nlohmann::json& json, const GPUParticleShaderStructs::UintMinMax& value) {
-	to_json(json["Min"], value.min);
-	to_json(json["Max"], value.max);
-}
-
-void to_json(nlohmann::json& json, const GPUParticleShaderStructs::Vector3MinMax& value) {
-	to_json(json["Min"], value.min);
-	to_json(json["Max"], value.max);
-}
-
-void to_json(nlohmann::json& json, const GPUParticleShaderStructs::Vector4MinMax& value) {
-	to_json(json["Min"], value.min);
-	to_json(json["Max"], value.max);
-}
-
-void to_json(nlohmann::json& json, const GPUParticleShaderStructs::Vector3StartEnd& value) {
-	to_json(json["Start"], value.start);
-	to_json(json["End"], value.end);
-}
-
-void to_json(nlohmann::json& json, const GPUParticleShaderStructs::Vector4StartEnd& value) {
-	to_json(json["Start"], value.start);
-	to_json(json["End"], value.end);
-}
-
-void to_json(nlohmann::json& json, const GPUParticleShaderStructs::EmitterForCPU& value) {
-	to_json(json["EmitterArea"]["EmitterAABB"], value.emitterArea.aabb.area);
-	to_json(json["EmitterArea"]["EmitterSphere"]["radius"], value.emitterArea.sphere.radius);
-	to_json(json["EmitterArea"]["EmitterCapsule"]["EmitterSegment"]["start"], value.emitterArea.capsule.segment.origin);
-	to_json(json["EmitterArea"]["EmitterCapsule"]["EmitterSegment"]["end"], value.emitterArea.capsule.segment.diff);
-	to_json(json["EmitterArea"]["EmitterCapsule"]["EmitterSegment"]["radius"], value.emitterArea.capsule.radius);
-	to_json(json["EmitterArea"]["position"], value.emitterArea.position);
-	to_json(json["EmitterArea"]["type"], value.emitterArea.type);
-	to_json(json["ScaleAnimation"], value.scale.range);
-	to_json(json["RotateAnimation"]["rotate"], value.rotate.rotate);
-	to_json(json["Velocity3D"], value.velocity.range);
-	to_json(json["EmitterColor"], value.color.range);
-	to_json(json["EmitterFrequency"]["interval"], value.frequency.interval);
-	to_json(json["EmitterFrequency"]["isLoop"], value.frequency.isLoop);
-	to_json(json["EmitterFrequency"]["emitterLife"], value.frequency.emitterLife);
-	to_json(json["ParticleLifeSpan"], value.particleLifeSpan.range);
-	to_json(json["textureIndex"], value.particleLifeSpan.range);
-	to_json(json["createParticleNum"], value.particleLifeSpan.range);
 }
 
 void from_json(const nlohmann::json& json, bool& value) {
@@ -140,92 +96,56 @@ void from_json(const nlohmann::json& json, Quaternion& value) {
 void from_json(const nlohmann::json& json, std::string& value) {
 	value = json.get<std::string>();
 }
-void from_json(const nlohmann::json& json, GPUParticleShaderStructs::UintMinMax& value) {
-	from_json(json["Min"], value.min);
-	from_json(json["Max"], value.max);
-}
-void from_json(const nlohmann::json& json, GPUParticleShaderStructs::Vector3MinMax& value) {
-	from_json(json["Min"], value.min);
-	from_json(json["Max"], value.max);
-}
-void from_json(const nlohmann::json& json, GPUParticleShaderStructs::Vector4MinMax& value) {
-	from_json(json["Min"], value.min);
-	from_json(json["Max"], value.max);
-}
-void from_json(const nlohmann::json& json, GPUParticleShaderStructs::Vector3StartEnd& value) {
-	from_json(json["Start"], value.start);
-	from_json(json["End"], value.end);
-}
-void from_json(const nlohmann::json& json, GPUParticleShaderStructs::Vector4StartEnd& value) {
-	from_json(json["Start"], value.start);
-	from_json(json["End"], value.end);
-}
-void from_json(const nlohmann::json& json, GPUParticleShaderStructs::EmitterForCPU& value) {
-	from_json(json["EmitterArea"]["EmitterAABB"], value.emitterArea.aabb.area);
-	from_json(json["EmitterArea"]["EmitterSphere"]["radius"], value.emitterArea.sphere.radius);
-	from_json(json["EmitterArea"]["EmitterCapsule"]["EmitterSegment"]["start"], value.emitterArea.capsule.segment.origin);
-	from_json(json["EmitterArea"]["EmitterCapsule"]["EmitterSegment"]["end"], value.emitterArea.capsule.segment.diff);
-	from_json(json["EmitterArea"]["EmitterCapsule"]["EmitterSegment"]["radius"], value.emitterArea.capsule.radius);
-	from_json(json["EmitterArea"]["position"], value.emitterArea.position);
-	from_json(json["EmitterArea"]["type"], value.emitterArea.type);
-	from_json(json["ScaleAnimation"], value.scale.range);
-	from_json(json["RotateAnimation"]["rotate"], value.rotate.rotate);
-	from_json(json["Velocity3D"], value.velocity.range);
-	from_json(json["EmitterColor"], value.color.range);
-	from_json(json["EmitterFrequency"]["interval"], value.frequency.interval);
-	from_json(json["EmitterFrequency"]["isLoop"], value.frequency.isLoop);
-	from_json(json["EmitterFrequency"]["emitterLife"], value.frequency.emitterLife);
-	from_json(json["ParticleLifeSpan"], value.particleLifeSpan.range);
-	from_json(json["textureIndex"], value.particleLifeSpan.range);
-	from_json(json["createParticleNum"], value.particleLifeSpan.range);
-}
+
 namespace JsonHelper {
 
 	static std::filesystem::path openPath;
 	static nlohmann::json root;
 	static nlohmann::json* target;
+	static std::stack<nlohmann::json*> targetStack;
 
 	bool Open(const std::filesystem::path& path) {
 		assert(!target);
-		// クリア
 		root.clear();
 		if (std::filesystem::exists(path)) {
-			// ファイルを開く
 			std::ifstream file;
 			file.open(path);
-			// 開けなかった
 			assert(file.is_open());
-			// 読み込む
 			file >> root;
 			file.close();
 		}
 		openPath = path;
 		target = &root;
-		// ファイルがあったか
+		while (!targetStack.empty()) {
+			targetStack.pop();
+		}
 		return !root.empty();
 	}
 
 	bool Object(const std::string& name) {
 		assert(target);
-
 		bool contains = false;
-
-		// rootに挿入する
 		if (name.empty()) {
 			target = &root;
 		}
-		// オブジェクトを追加
 		else {
 			contains = target->contains(name);
-			// まだObjectがない
 			if (!contains) {
-				// 新しいオブジェクトを追加
 				target->emplace(name, nlohmann::json::object());
 			}
-			// 追加したオブジェクトが次のターゲット
+			targetStack.push(target);
 			target = &target->at(name);
 		}
 		return contains;
+	}
+
+	bool Parent() {
+		if (targetStack.empty()) {
+			return false;
+		}
+		target = targetStack.top();
+		targetStack.pop();
+		return true;
 	}
 
 	bool Close() {
@@ -233,21 +153,19 @@ namespace JsonHelper {
 		assert(target);
 		bool exists = std::filesystem::exists(openPath);
 		if (!root.empty()) {
-			// ディレクトリを作成しとく
 			std::filesystem::create_directories(openPath.parent_path());
-			// ファイルを開く
 			std::ofstream file;
 			file.open(openPath);
-			// 開けなかった
 			assert(file.is_open());
-			// 書き込む
 			file << std::setw(4) << root << std::endl;
 			file.close();
 		}
-		// 消す
 		openPath.clear();
 		root.clear();
 		target = nullptr;
+		while (!targetStack.empty()) {
+			targetStack.pop();
+		}
 		return exists;
 	}
 

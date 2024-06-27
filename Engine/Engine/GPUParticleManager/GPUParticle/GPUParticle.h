@@ -36,15 +36,17 @@ public:
 	GPUParticle();
 	~GPUParticle();
 	void Initialize();
-	void Spawn(CommandContext& commandContext,const UploadBuffer& random);
+	void Spawn(CommandContext& commandContext, const UploadBuffer& random);
 	void EmitterUpdate(CommandContext& commandContext);
 	void CheckEmitter(CommandContext& commandContext);
 	void AddEmitter(CommandContext& commandContext);
-	void ParticleUpdate(const ViewProjection& viewProjection,CommandContext& commandContext);
+	void ParticleUpdate(const ViewProjection& viewProjection, CommandContext& commandContext);
 	void BulletUpdate(CommandContext& commandContext);
 	void Draw(const ViewProjection& viewProjection, CommandContext& commandContext);
-	void CreateMeshParticle(const ModelHandle& modelHandle, Animation::Animation& animation, const WorldTransform& worldTransform, const UploadBuffer& random, CommandContext& commandContext);
-	void CreateMeshParticle(const ModelHandle& modelHandle, const WorldTransform& worldTransform,const UploadBuffer& random, CommandContext& commandContext);
+	void CreateMeshParticle(const ModelHandle& modelHandle, Animation::Animation& animation, const WorldTransform& worldTransform, const GPUParticleShaderStructs::MeshEmitterDesc& mesh, const UploadBuffer& random, CommandContext& commandContext);
+	void CreateMeshParticle(const ModelHandle& modelHandle, const WorldTransform& worldTransform, const GPUParticleShaderStructs::MeshEmitterDesc& mesh, const UploadBuffer& random, CommandContext& commandContext);
+	void CreateVertexParticle(const ModelHandle& modelHandle, Animation::Animation& animation, const WorldTransform& worldTransform, const GPUParticleShaderStructs::VertexEmitterDesc& mesh, const UploadBuffer& random, CommandContext& commandContext);
+	void CreateVertexParticle(const ModelHandle& modelHandle, const WorldTransform& worldTransform, const GPUParticleShaderStructs::VertexEmitterDesc& mesh, const UploadBuffer& random, CommandContext& commandContext);
 	void SetDrawCommandSignature(CommandSignature* commandSignature) { commandSignature_ = commandSignature; }
 	void SetSpawnCommandSignature(CommandSignature* commandSignature) { spawnCommandSignature_ = commandSignature; }
 	void Create(const GPUParticleShaderStructs::EmitterForCPU& emitterForGPU);

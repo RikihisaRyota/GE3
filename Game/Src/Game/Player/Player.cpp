@@ -41,6 +41,9 @@ Player::Player() {
 	JSON_ROOT();
 	JSON_CLOSE();
 
+	GPUParticleShaderStructs::Load("player", meshEmitterDesc_); 
+	GPUParticleShaderStructs::Load("player", vertexEmitterDesc_);
+
 #pragma region コライダー
 	collider_ = std::make_unique<CapsuleCollider>();
 	collider_->SetName("Player");
@@ -137,7 +140,8 @@ void Player::Draw(const ViewProjection& viewProjection, CommandContext& commandC
 	//ModelManager::GetInstance()->Draw(animationTransform_, animation_, *viewProjection_, playerModelHandle_, commandContext);
 
 	playerBulletManager_->Draw(viewProjection, commandContext);
-	gpuParticleManager_->CreateMeshParticle(playerModelHandle_, animation_, worldTransform_, commandContext);
+	gpuParticleManager_->CreateMeshParticle(playerModelHandle_, animation_, worldTransform_, meshEmitterDesc_,commandContext);
+	gpuParticleManager_->CreateVertexParticle(playerModelHandle_, animation_, worldTransform_, vertexEmitterDesc_,commandContext);
 }
 
 void Player::DrawSprite(CommandContext& commandContext) {
@@ -414,6 +418,8 @@ void Player::DrawImGui() {
 	ImGui::End();
 	playerBulletManager_->DrawImGui();
 	playerHP_->DrawImGui();
+	GPUParticleShaderStructs::Debug("player", meshEmitterDesc_);
+	GPUParticleShaderStructs::Debug("player", vertexEmitterDesc_);
 }
 
 void Player::AnimationUpdate(CommandContext& commandContext) {

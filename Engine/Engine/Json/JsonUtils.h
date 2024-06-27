@@ -21,13 +21,6 @@ void to_json(nlohmann::json& json, const Vector3& value);
 void to_json(nlohmann::json& json, const Vector4& value);
 void to_json(nlohmann::json& json, const Quaternion& value);
 void to_json(nlohmann::json& json, const std::string& value);
-void to_json(nlohmann::json& json, const GPUParticleShaderStructs::UintMinMax& value);
-void to_json(nlohmann::json& json, const GPUParticleShaderStructs::Vector3MinMax& value);
-void to_json(nlohmann::json& json, const GPUParticleShaderStructs::Vector4MinMax& value);
-void to_json(nlohmann::json& json, const GPUParticleShaderStructs::Vector3StartEnd& value);
-void to_json(nlohmann::json& json, const GPUParticleShaderStructs::Vector4StartEnd& value);
-
-void to_json(nlohmann::json& json, const GPUParticleShaderStructs::EmitterForCPU& value);
 
 void from_json(const nlohmann::json& json, bool& value);
 void from_json(const nlohmann::json& json, int32_t& value);
@@ -38,19 +31,14 @@ void from_json(const nlohmann::json& json, Vector3& value);
 void from_json(const nlohmann::json& json, Vector4& value);
 void from_json(const nlohmann::json& json, Quaternion& value);
 void from_json(const nlohmann::json& json, std::string& value);
-void from_json(const nlohmann::json& json, GPUParticleShaderStructs::UintMinMax& value);
-void from_json(const nlohmann::json& json, GPUParticleShaderStructs::Vector3MinMax& value);
-void from_json(const nlohmann::json& json, GPUParticleShaderStructs::Vector4MinMax& value);
-void from_json(const nlohmann::json& json, GPUParticleShaderStructs::Vector3StartEnd& value);
-void from_json(const nlohmann::json& json, GPUParticleShaderStructs::Vector4StartEnd& value);
-
-void from_json(const nlohmann::json& json, GPUParticleShaderStructs::EmitterForCPU& value);
 
 namespace JsonHelper {
 
     bool Open(const std::filesystem::path& path);
     bool Object(const std::string& name = "");
+    bool Parent();
     bool Close();
+
 
     void Save(const bool& value, const std::string& name);
     void Save(const int32_t& value, const std::string& name);
@@ -101,3 +89,4 @@ namespace JsonHelper {
 // 読み込めたらTrue
 #define JSON_LOAD_BY_NAME(name, x) (JsonHelper::Load(x, name))
 #define JSON_LOAD(x) (JsonHelper::Load(x, STRINGIFY(x)))
+#define JSON_PARENT() (JsonHelper::Parent())

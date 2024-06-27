@@ -100,6 +100,10 @@ Boss::Boss() {
 	JSON_LOAD(animationWorldTransformOffset_);
 	JSON_ROOT();
 	JSON_CLOSE();
+
+	GPUParticleShaderStructs::Load("boss", meshEmitterDesc_);
+	GPUParticleShaderStructs::Load("boss", vertexEmitterDesc_);
+
 	// emitterArea初期化
 	boneEmitter_.emitterArea.capsule.segment.origin = { 0.0f, 0.0f, 0.0f };
 	boneEmitter_.emitterArea.capsule.segment.diff = { 0.0f, 0.0f, 0.0f };
@@ -158,14 +162,12 @@ void Boss::Update(CommandContext& commandContext) {
 	bossStateManager_->Update(commandContext);
 	UpdateTransform();
 	UpdateCollider();
-	if (ImGui::Button("BossMesh")) {
-		gpuParticleManager_->CreateMeshParticle(bossModelHandle_, animation_, worldTransform_, commandContext);
-	}
 }
 
 void Boss::Draw(const ViewProjection& viewProjection, CommandContext& commandContext) {
 	//ModelManager::GetInstance()->Draw(animationTransform_, animation_, viewProjection, bossModelHandle_, commandContext);
-	gpuParticleManager_->CreateMeshParticle(bossModelHandle_, animation_, worldTransform_, commandContext);
+	gpuParticleManager_->CreateMeshParticle(bossModelHandle_, animation_, worldTransform_, meshEmitterDesc_, commandContext);
+	gpuParticleManager_->CreateVertexParticle(bossModelHandle_, animation_, worldTransform_, vertexEmitterDesc_, commandContext);
 
 }
 
@@ -292,7 +294,9 @@ void Boss::DrawImGui() {
 	ImGui::End();
 	bossStateManager_->DrawImGui();
 	bossHP_->DrawImGui();
-	GPUParticleShaderStructs::Debug("Boss", boneEmitter_);
+	GPUParticleShaderStructs::Debug("boss", boneEmitter_);
+	GPUParticleShaderStructs::Debug("boss", meshEmitterDesc_);
+	GPUParticleShaderStructs::Debug("boss", vertexEmitterDesc_);
 }
 
 void Boss::DrawDebug(const ViewProjection& viewProjection) {

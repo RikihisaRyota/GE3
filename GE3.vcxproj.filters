@@ -884,5 +884,8 @@
     <FxCompile Include="Resources\Shaders\GPUParticle\CheckEmitter.CS.hlsl">
       <Filter>Shaders\GPUParticle</Filter>
     </FxCompile>
+    <FxCompile Include="Resources\Shaders\GPUParticle\VertexParticle.hlsl">
+      <Filter>Shaders\GPUParticle</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

@@ -5,6 +5,7 @@
 
 #include <d3d12.h>
 
+#include "Engine/Graphics/UploadBuffer.h"
 #include "Engine/Texture/TextureHandle.h"
 #include "Engine/Math/Vector2.h"
 #include "Engine/Math/Vector3.h"
@@ -202,6 +203,35 @@ struct Particle
 		UintMinMax range;
 	};
 
+	struct MeshEmitter {
+		ScaleAnimation scale;
+
+		RotateAnimation rotate;
+
+		Velocity3D velocity;
+
+		EmitterColor color;
+
+		ParticleLifeSpan particleLifeSpan;
+
+		uint32_t textureIndex;
+
+		Vector3 pad;
+	};
+
+	struct MeshEmitterDesc {
+		MeshEmitterDesc();
+		UploadBuffer buffer;
+		MeshEmitter emitter;
+		uint32_t numCreate;
+	};
+
+	struct VertexEmitterDesc {
+		VertexEmitterDesc();
+		UploadBuffer buffer;
+		MeshEmitter emitter;
+	};
+
 	// エミッター(CPUとGPUある)
 	struct EmitterForCPU {
 		EmitterForCPU() {
@@ -289,6 +319,12 @@ struct Particle
 	};
 
 	void Debug(const std::string name, EmitterForCPU& emitter);
-	//void Save(const std::string name, EmitterForCPU& emitter);
-	//EmitterForCPU Load(const std::string name);
+	void Debug(const std::string name, MeshEmitterDesc& desc);
+	void Debug(const std::string name, VertexEmitterDesc& desc);
+	void Save(const std::string name, EmitterForCPU& emitter);
+	void Load(const std::string name, EmitterForCPU& emitter);
+	void Save(const std::string name, MeshEmitterDesc& desc);
+	void Load(const std::string name, MeshEmitterDesc& desc);
+	void Save(const std::string name, VertexEmitterDesc& desc);
+	void Load(const std::string name, VertexEmitterDesc& desc);
 }

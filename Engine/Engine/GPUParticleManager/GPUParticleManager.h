@@ -26,12 +26,15 @@ class GPUParticleManager {
 public:
 	void Initialize();
 
-	void Update(const ViewProjection& viewProjection,CommandContext& commandContext);
+	void Update(const ViewProjection& viewProjection, CommandContext& commandContext);
 
-	void Draw(const ViewProjection& viewProjection,CommandContext& commandContext);
+	void Draw(const ViewProjection& viewProjection, CommandContext& commandContext);
 
-	void CreateMeshParticle(const ModelHandle& modelHandle, Animation::Animation& animation , const WorldTransform& worldTransform ,CommandContext& commandContext);
-	void CreateMeshParticle(const ModelHandle& modelHandle,const WorldTransform& worldTransform ,CommandContext& commandContext);
+	void CreateMeshParticle(const ModelHandle& modelHandle, Animation::Animation& animation, const WorldTransform& worldTransform, const GPUParticleShaderStructs::MeshEmitterDesc& mesh, CommandContext& commandContext);
+	void CreateMeshParticle(const ModelHandle& modelHandle, const WorldTransform& worldTransform, const GPUParticleShaderStructs::MeshEmitterDesc& mesh, CommandContext& commandContext);
+	void CreateVertexParticle(const ModelHandle& modelHandle, Animation::Animation& animation, const WorldTransform& worldTransform, const GPUParticleShaderStructs::VertexEmitterDesc& mesh, CommandContext& commandContext);
+	void CreateVertexParticle(const ModelHandle& modelHandle, const WorldTransform& worldTransform, const GPUParticleShaderStructs::VertexEmitterDesc& mesh, CommandContext& commandContext);
+
 	void SetEmitter(const GPUParticleShaderStructs::EmitterForCPU& emitterForCPU);
 	void SetBullets(const std::vector<GPUParticleShaderStructs::BulletForGPU>& bullets);
 
@@ -64,6 +67,8 @@ private:
 	std::unique_ptr<RootSignature> bulletRootSignature_;
 	std::unique_ptr<PipelineState> meshParticlePipelineState_;
 	std::unique_ptr<RootSignature> meshParticleRootSignature_;
+	std::unique_ptr<PipelineState> vertexParticlePipelineState_;
+	std::unique_ptr<RootSignature> vertexParticleRootSignature_;
 
 	UploadBuffer vertexBuffer_;
 	D3D12_VERTEX_BUFFER_VIEW vbView_{};

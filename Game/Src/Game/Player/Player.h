@@ -16,6 +16,8 @@
 #include "Engine/Animation/Animation.h"
 #include "Engine/Collision/Collider.h"
 
+#include "Engine/GPUParticleManager/GPUParticle/GPUParticleShaderStructs.h"
+
 class GPUParticleManager;
 class CommandContext;
 class Player {
@@ -91,6 +93,8 @@ private:
 	std::unordered_map<std::string, AnimationInfo> animationInfo_;
 	Animation::AnimationHandle currentAnimationHandle_;
 	Animation::AnimationHandle preAnimationHandle_;
+	GPUParticleShaderStructs::MeshEmitterDesc meshEmitterDesc_;
+	GPUParticleShaderStructs::VertexEmitterDesc vertexEmitterDesc_;
 	
 	State state_;
 	State preState_;

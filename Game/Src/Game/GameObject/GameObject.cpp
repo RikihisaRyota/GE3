@@ -46,16 +46,21 @@ void GameObject::Update() {
 
 void GameObject::Draw(const ViewProjection& viewProjection, CommandContext& commandContext) {
 	ModelManager::GetInstance()->Draw(worldTransform_, viewProjection, modelHandle_, commandContext);
+}
+
+void GameObject::DrawDebug(const ViewProjection& viewProjection) {
 	collider_->DrawCollision(viewProjection, colliderColor_);
 }
 
 void GameObject::DrawImGui() {
+#ifdef _DEBUG
 	ImGui::PushID(this);
 	if (ImGui::TreeNode(("GameObject"))) {
 		ImGui::DragFloat3("Translate", &worldTransform_.translate.x);
 		ImGui::TreePop();
 	}
 	ImGui::PopID();
+#endif // _DEBUG
 }
 
 void GameObject::UpdateTransform() {

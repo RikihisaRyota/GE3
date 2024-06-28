@@ -121,7 +121,6 @@ void GameScene::Initialize() {
 }
 
 void GameScene::Update(CommandContext& commandContext) {
-	DrawLine::GetInstance()->SetLine({ -10.0f,0.0f,0.0f }, { 10.0f,0.0f,0.0f }, { 1.0f,1.0f,1.0f,1.0f });
 
 	skybox_->Update();
 
@@ -136,7 +135,6 @@ void GameScene::Update(CommandContext& commandContext) {
 		object->Update();
 	}
 
-	GPUParticleShaderStructs::Debug("test", test_);
 
 	gpuParticleManager_->SetEmitter(test_);
 	gpuParticleManager_->Update(*viewProjection_, RenderManager::GetInstance()->GetCommandContext());
@@ -144,6 +142,8 @@ void GameScene::Update(CommandContext& commandContext) {
 
 	CollisionManager::GetInstance()->Collision();
 #ifdef _DEBUG
+	GPUParticleShaderStructs::Debug("test", test_);
+	gpuParticleManager_->DrawImGui();
 	skybox_->DrawImGui();
 	followCamera_->DrawImGui();
 	player_->DrawImGui();
@@ -187,6 +187,9 @@ void GameScene::Draw(CommandContext& commandContext) {
 	ImGui::Checkbox("BossDebug", &bossDebug);
 	if (bossDebug) {
 		boss_->DrawDebug(*viewProjection_);
+	}
+	for (auto& object : gameObject_) {
+		object->DrawDebug(*viewProjection_);
 	}
 #endif // _DEBUG
 

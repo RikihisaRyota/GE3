@@ -42,7 +42,7 @@ namespace {
 	}
 
 	void DrawMinMax(GPUParticleShaderStructs::UintMinMax& startEnd, float v_speed = 1.0f, int v_min = 0, int v_max = 0) {
-
+#ifdef _DEBUG
 		int min = static_cast<int>(startEnd.min);
 		int max = static_cast<int>(startEnd.max);
 
@@ -51,17 +51,21 @@ namespace {
 
 		startEnd.min = static_cast<uint32_t>(min);
 		startEnd.max = static_cast<uint32_t>(max);
+#endif // _DEBUG
 	}
 
 	void DrawMinMax(GPUParticleShaderStructs::Vector3MinMax& startEnd, float v_speed = 1.0f, float v_min = 0.0f, float v_max = 0.0f) {
-
+#ifdef _DEBUG
 		ImGui::DragFloat3("Min", &startEnd.min.x, v_speed, v_min, v_max);
 		ImGui::DragFloat3("Max", &startEnd.max.x, v_speed, v_min, v_max);
+#endif // _DEBUG
 	}
 
 	void DrawMinMax(GPUParticleShaderStructs::Vector4MinMax& startEnd, float v_speed = 1.0f, float v_min = 0.0f, float v_max = 0.0f) {
+#ifdef _DEBUG
 		ImGui::DragFloat4("Min", &startEnd.min.x, v_speed, v_min, v_max);
 		ImGui::DragFloat4("Max", &startEnd.max.x, v_speed, v_min, v_max);
+#endif // _DEBUG
 	}
 
 	void LoadStartEnd(GPUParticleShaderStructs::Vector3StartEnd& startEnd) {
@@ -102,6 +106,7 @@ namespace {
 
 
 	void DrawStartEnd(GPUParticleShaderStructs::Vector3StartEnd& startEnd, float v_speed = 1.0f, float v_min = 0.0f, float v_max = 0.0f) {
+#ifdef _DEBUG
 		if (ImGui::TreeNode("Start")) {
 			DrawMinMax(startEnd.start, v_speed, v_min, v_max);
 			ImGui::TreePop();
@@ -111,8 +116,10 @@ namespace {
 			DrawMinMax(startEnd.end, v_speed, v_min, v_max);
 			ImGui::TreePop();
 		}
+#endif // _DEBUG
 	}
 	void DrawStartEnd(GPUParticleShaderStructs::Vector4StartEnd& startEnd, float v_speed = 1.0f, float v_min = 0.0f, float v_max = 0.0f) {
+#ifdef _DEBUG
 		if (ImGui::TreeNode("Start")) {
 			DrawMinMax(startEnd.start, v_speed, v_min, v_max);
 			ImGui::TreePop();
@@ -122,10 +129,12 @@ namespace {
 			DrawMinMax(startEnd.end, v_speed, v_min, v_max);
 			ImGui::TreePop();
 		}
+#endif // _DEBUG
 	}
 }
 
 void GPUParticleShaderStructs::Debug(const std::string name, GPUParticleShaderStructs::EmitterForCPU& emitter) {
+#ifdef _DEBUG
 	ImGui::Begin("GPUParticle");
 	if (ImGui::BeginMenu("Emitter")) {
 		if (ImGui::TreeNode(name.c_str())) {
@@ -230,9 +239,11 @@ void GPUParticleShaderStructs::Debug(const std::string name, GPUParticleShaderSt
 		ImGui::EndMenu();
 	}
 	ImGui::End();
+#endif // _DEBUG
 }
 
 void GPUParticleShaderStructs::Debug(const std::string name, GPUParticleShaderStructs::MeshEmitterDesc& desc) {
+#ifdef _DEBUG
 	ImGui::Begin("GPUParticle");
 	if (ImGui::BeginMenu("MeshParticle")) {
 		if (ImGui::TreeNode(name.c_str())) {
@@ -293,9 +304,11 @@ void GPUParticleShaderStructs::Debug(const std::string name, GPUParticleShaderSt
 		ImGui::EndMenu();
 	}
 	ImGui::End();
+#endif // _DEBUG
 }
 
 void GPUParticleShaderStructs::Debug(const std::string name, GPUParticleShaderStructs::VertexEmitterDesc& desc) {
+#ifdef _DEBUG
 	ImGui::Begin("GPUParticle");
 	if (ImGui::BeginMenu("VertexParticle")) {
 		if (ImGui::TreeNode(name.c_str())) {
@@ -351,6 +364,7 @@ void GPUParticleShaderStructs::Debug(const std::string name, GPUParticleShaderSt
 		ImGui::EndMenu();
 	}
 	ImGui::End();
+#endif // _DEBUG
 }
 
 

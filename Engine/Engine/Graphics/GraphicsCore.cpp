@@ -57,7 +57,7 @@ void GraphicsCore::CreateDevice() {
 		//更にGPU側でもチェックを行うようにする
 		//debugController->SetEnableGPUBasedValidation(TRUE);
 	}
-#endif
+#endif // _DEBUG
 	// DXGIファクトリーの生成
 	ComPtr<IDXGIFactory7> factory;
 	hr = CreateDXGIFactory1(IID_PPV_ARGS(&factory));

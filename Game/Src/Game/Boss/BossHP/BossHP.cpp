@@ -20,6 +20,7 @@ void BossHP::Update() {
 }
 
 void BossHP::DrawImGui() {
+#ifdef _DEBUG
 	ImGui::Begin("InGame");
 	if (ImGui::BeginMenu("Boss")) {
 		if (ImGui::TreeNode("BossHP")) {
@@ -41,6 +42,7 @@ void BossHP::DrawImGui() {
 		ImGui::EndMenu();
 	}
 	ImGui::End();
+#endif // _DEBUG
 }
 
 void BossHP::HitDamage(int32_t damage) {

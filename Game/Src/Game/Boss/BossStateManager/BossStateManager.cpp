@@ -172,6 +172,7 @@ void BossStateManager::Update(CommandContext& commandContext) {
 }
 
 void BossStateManager::DrawImGui() {
+#ifdef _DEBUG
 	ImGui::Begin("InGame");
 	if (ImGui::BeginMenu("Boss")) {
 		if (ImGui::TreeNode("BossStateManager")) {
@@ -235,6 +236,7 @@ void BossStateManager::DrawImGui() {
 		ImGui::EndMenu();
 	}
 	ImGui::End();
+#endif // _DEBUG
 }
 // 特定の型に対する GetStateEnum の特殊化
 template<>

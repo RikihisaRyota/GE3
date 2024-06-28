@@ -172,6 +172,7 @@ void Boss::Draw(const ViewProjection& viewProjection, CommandContext& commandCon
 }
 
 void Boss::DrawImGui() {
+#ifdef _DEBUG
 	ImGui::Begin("InGame");
 	if (ImGui::BeginMenu("Boss")) {
 		auto& color = ModelManager::GetInstance()->GetModel(bossModelHandle_).GetMaterialColor();
@@ -297,6 +298,7 @@ void Boss::DrawImGui() {
 	GPUParticleShaderStructs::Debug("boss", boneEmitter_);
 	GPUParticleShaderStructs::Debug("boss", meshEmitterDesc_);
 	GPUParticleShaderStructs::Debug("boss", vertexEmitterDesc_);
+#endif // _DEBUG
 }
 
 void Boss::DrawDebug(const ViewProjection& viewProjection) {

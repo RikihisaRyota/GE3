@@ -144,6 +144,7 @@ void GPUParticle::ParticleUpdate(const ViewProjection& viewProjection, CommandCo
 	UINT64 srcInstanceCountArgumentOffset = particleIndexCounterOffset_;
 
 	commandContext.CopyBufferRegion(drawArgumentBuffer_, destInstanceCountArgumentOffset, drawIndexCommandBuffers_, srcInstanceCountArgumentOffset, sizeof(UINT));
+	commandContext.CopyBufferRegion(drawIndexCountBuffer_, 0, drawIndexCommandBuffers_, srcInstanceCountArgumentOffset, sizeof(UINT));
 }
 
 void GPUParticle::BulletUpdate(CommandContext& commandContext) {
@@ -177,6 +178,13 @@ void GPUParticle::Draw(const ViewProjection& viewProjection, CommandContext& com
 		nullptr,
 		0
 	);
+}
+
+void GPUParticle::DrawImGui() {
+	ImGui::Begin("GPUParticle");
+	ImGui::Text("MaxParticleNum:%d", GPUParticleShaderStructs::MaxParticleNum);
+	ImGui::Text("CurrentParticleNum:%d", *static_cast<uint32_t*>(drawIndexCountBuffer_.GetCPUData()));
+	ImGui::End();
 }
 
 void GPUParticle::CreateMeshParticle(const ModelHandle& modelHandle, Animation::Animation& animation, const WorldTransform& worldTransform, const GPUParticleShaderStructs::MeshEmitterDesc& mesh, const UploadBuffer& random, CommandContext& commandContext) {
@@ -379,6 +387,9 @@ void GPUParticle::InitializeUpdateParticle() {
 	UINT resetValue = 0;
 	resetAppendDrawIndexBufferCounterReset_.Create(L"ResetAppendDrawIndexBufferCounterReset", sizeof(resetValue));
 	resetAppendDrawIndexBufferCounterReset_.Copy(resetValue);
+
+	drawIndexCountBuffer_.Create(L"DrawIndexCountBuffer", sizeof(UINT));
+	drawIndexCountBuffer_.ResetBuffer();
 
 	//originalCommandCounterBuffer_.Create(L"originalCommandCounterBuffer", sizeof(resetValue));
 	//originalCommandCounterBuffer_.Copy(resetValue);

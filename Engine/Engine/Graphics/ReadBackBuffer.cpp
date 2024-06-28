@@ -40,9 +40,8 @@ void ReadBackBuffer::Create(const std::wstring& name, size_t numElements, size_t
 	Create(name, numElements * elementSize);
 }
 
-void ReadBackBuffer::Copy(const void* srcData, size_t copySize) const {
-	assert(copySize <= bufferSize_);
-	memcpy(cpuData_, srcData, copySize);
+void ReadBackBuffer::ResetBuffer() {
+	memset(cpuData_, 0, bufferSize_);
 }
 
 void ReadBackBuffer::Destroy() {

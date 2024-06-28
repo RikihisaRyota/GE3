@@ -135,6 +135,10 @@ void GPUParticleManager::Draw(const ViewProjection& viewProjection, CommandConte
 	gpuParticle_->Draw(viewProjection, commandContext);
 }
 
+void GPUParticleManager::DrawImGui() {
+	gpuParticle_->DrawImGui();
+}
+
 void GPUParticleManager::CreateMeshParticle(const ModelHandle& modelHandle, Animation::Animation& animation, const WorldTransform& worldTransform, const GPUParticleShaderStructs::MeshEmitterDesc& mesh, CommandContext& commandContext) {
 	commandContext.SetComputeRootSignature(*meshParticleRootSignature_);
 	commandContext.SetPipelineState(*meshParticlePipelineState_);

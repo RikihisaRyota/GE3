@@ -43,6 +43,7 @@ public:
 	void ParticleUpdate(const ViewProjection& viewProjection, CommandContext& commandContext);
 	void BulletUpdate(CommandContext& commandContext);
 	void Draw(const ViewProjection& viewProjection, CommandContext& commandContext);
+	void DrawImGui();
 	void CreateMeshParticle(const ModelHandle& modelHandle, Animation::Animation& animation, const WorldTransform& worldTransform, const GPUParticleShaderStructs::MeshEmitterDesc& mesh, const UploadBuffer& random, CommandContext& commandContext);
 	void CreateMeshParticle(const ModelHandle& modelHandle, const WorldTransform& worldTransform, const GPUParticleShaderStructs::MeshEmitterDesc& mesh, const UploadBuffer& random, CommandContext& commandContext);
 	void CreateVertexParticle(const ModelHandle& modelHandle, Animation::Animation& animation, const WorldTransform& worldTransform, const GPUParticleShaderStructs::VertexEmitterDesc& mesh, const UploadBuffer& random, CommandContext& commandContext);
@@ -73,6 +74,7 @@ private:
 	//ReadBackBuffer originalCommandCounterBuffer_;
 	// 何番目のパーティクルが生きているか積み込みよう(ExecuteIndirect用)
 	DefaultBuffer drawIndexCommandBuffers_;
+	ReadBackBuffer drawIndexCountBuffer_;
 	DescriptorHandle drawIndexCommandUAVHandle_;
 	UploadBuffer resetAppendDrawIndexBufferCounterReset_;
 	// 描画引数用

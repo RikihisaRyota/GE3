@@ -21,6 +21,7 @@ void PlayerHP::Update() {
 }
 
 void PlayerHP::DrawImGui() {
+#ifdef _DEBUG
 	ImGui::Begin("InGame");
 	if (ImGui::BeginMenu("Player")) {
 		if (ImGui::TreeNode("PlayerHP")) {
@@ -42,6 +43,7 @@ void PlayerHP::DrawImGui() {
 		ImGui::EndMenu();
 	}
 	ImGui::End();
+#endif // _DEBUG
 }
 
 void PlayerHP::HitDamage(int32_t damage) {

@@ -52,6 +52,7 @@ void PlayerBulletManager::Update() {
 }
 
 void PlayerBulletManager::DrawImGui() {
+#ifdef _DEBUG
 	ImGui::Begin("InGame");
 	if (ImGui::BeginMenu("Player")) {
 		if (ImGui::TreeNode("PlayerBullet")) {
@@ -80,6 +81,7 @@ void PlayerBulletManager::DrawImGui() {
 		ImGui::EndMenu();
 	}
 	ImGui::End();
+#endif // _DEBUG
 }
 
 void PlayerBulletManager::Draw(const ViewProjection& viewProjection, CommandContext& commandContext) {

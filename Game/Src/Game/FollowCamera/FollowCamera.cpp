@@ -24,6 +24,7 @@ void FollowCamera::Update() {
 }
 
 void FollowCamera::DrawImGui() {
+#ifdef _DEBUG
 	ImGui::Begin("InGame");
 	if (ImGui::BeginMenu("FollowCamera")) {
 		ImGui::DragFloat3("Offset", &offset_.x, 0.1f);
@@ -36,6 +37,7 @@ void FollowCamera::DrawImGui() {
 		ImGui::EndMenu();
 	}
 	ImGui::End();
+#endif // _DEBUG
 }
 
 void FollowCamera::GamePad() {

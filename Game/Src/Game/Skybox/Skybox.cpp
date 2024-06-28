@@ -167,10 +167,12 @@ void Skybox::Draw(CommandContext& commandContext, const ViewProjection& viewProj
 }
 
 void Skybox::DrawImGui() {
+#ifdef _DEBUG
 	ImGui::Begin("InGame");
 	if (ImGui::BeginMenu("Skybox")) {
 		ImGui::DragFloat3("scale", &worldTransform_.scale.x, 1.0f, 0.0f);
 		ImGui::EndMenu();
 	}
 	ImGui::End();
+#endif // _DEBUG
 }

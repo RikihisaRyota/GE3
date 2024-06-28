@@ -410,7 +410,7 @@ void GPUParticleEditor::CreateUpdateParticle() {
 	resetAppendDrawIndexBufferCounterReset_.Copy(resetValue);
 
 	originalCommandCounterBuffer_.Create(L"EditorOriginalCommandCounterBuffer", sizeof(UINT));
-	originalCommandCounterBuffer_.Copy(0);
+	originalCommandCounterBuffer_.ResetBuffer();
 
 	// パーティクルのindexをAppend,Consumeするよう
 	originalCommandBuffer_.Create(

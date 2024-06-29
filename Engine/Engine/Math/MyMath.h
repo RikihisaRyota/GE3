@@ -1,5 +1,6 @@
 #pragma once
 #include <algorithm> // std::min, std::max
+#include <string>
 #include <vector>
 
 #include "AABB.h"
@@ -220,3 +221,5 @@ void OBBIndex(const OBB& obb, std::vector<Vector3>& output_vertices);
 bool SeparationAxis(const Vector3 axis, const OBB obb_1, const OBB obb_2);
 
 float Angle(const Vector3& from, const Vector3& to);
+
+std::string EraseName(const std::string& name, const std::string& eraseName);

@@ -1,4 +1,8 @@
 {
+    "CollisionInfo": {
+        "attribute": 0,
+        "mask": 16
+    },
     "EmitterArea": {
         "EmitterAABB": {
             "Max": [

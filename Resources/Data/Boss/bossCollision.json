@@ -1,39 +1,63 @@
 {
+    "attackColor_.range.end.max": [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+    ],
+    "attackColor_.range.end.min": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+    ],
+    "attackColor_.range.start.max": [
+        1.0,
+        0.0,
+        0.0,
+        1.0
+    ],
+    "attackColor_.range.start.min": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+    ],
     "bossCollider": {
+        "Head": 8.0,
+        "HeadTop_End": 8.0,
+        "Hips": 0.0,
+        "LeftArm": 4.0,
+        "LeftFoot": 4.0,
+        "LeftForeArm": 4.0,
+        "LeftHand": 4.0,
+        "LeftHandIndex1": 0.0,
+        "LeftHandIndex2": 0.0,
+        "LeftHandIndex3": 0.0,
+        "LeftHandIndex4": 5.0,
+        "LeftLeg": 4.0,
+        "LeftShoulder": 0.0,
+        "LeftToeBase": 4.0,
+        "LeftToe_End": 5.0,
+        "LeftUpLeg": 0.0,
+        "Neck": 0.0,
+        "RightArm": 4.0,
+        "RightFoot": 4.0,
+        "RightForeArm": 4.0,
+        "RightHand": 4.0,
+        "RightHandIndex1": 0.0,
+        "RightHandIndex2": 0.0,
+        "RightHandIndex3": 0.0,
+        "RightHandIndex4": 5.0,
+        "RightLeg": 4.0,
+        "RightShoulder": 0.0,
+        "RightToeBase": 4.0,
+        "RightToe_End": 5.0,
+        "RightUpLeg": 0.0,
         "Sphere.001": 0.0,
-        "mixamorig:Head": 8.0,
-        "mixamorig:HeadTop_End": 8.0,
-        "mixamorig:Hips": 0.0,
-        "mixamorig:LeftArm": 4.0,
-        "mixamorig:LeftFoot": 4.0,
-        "mixamorig:LeftForeArm": 4.0,
-        "mixamorig:LeftHand": 4.0,
-        "mixamorig:LeftHandIndex1": 4.0,
-        "mixamorig:LeftHandIndex2": 0.0,
-        "mixamorig:LeftHandIndex3": 0.0,
-        "mixamorig:LeftHandIndex4": 5.0,
-        "mixamorig:LeftLeg": 4.0,
-        "mixamorig:LeftShoulder": 0.0,
-        "mixamorig:LeftToeBase": 4.0,
-        "mixamorig:LeftToe_End": 5.0,
-        "mixamorig:LeftUpLeg": 4.0,
-        "mixamorig:Neck": 0.0,
-        "mixamorig:RightArm": 4.0,
-        "mixamorig:RightFoot": 4.0,
-        "mixamorig:RightForeArm": 4.0,
-        "mixamorig:RightHand": 4.0,
-        "mixamorig:RightHandIndex1": 4.0,
-        "mixamorig:RightHandIndex2": 5.0,
-        "mixamorig:RightHandIndex3": 0.0,
-        "mixamorig:RightHandIndex4": 0.0,
-        "mixamorig:RightLeg": 4.0,
-        "mixamorig:RightShoulder": 4.0,
-        "mixamorig:RightToeBase": 4.0,
-        "mixamorig:RightToe_End": 5.0,
-        "mixamorig:RightUpLeg": 4.0,
-        "mixamorig:Spine": 0.0,
-        "mixamorig:Spine1": 0.0,
-        "mixamorig:Spine2": 10.0
+        "Spine": 0.0,
+        "Spine1": 0.0,
+        "Spine2": 10.0
     },
     "colliderTypes": {
         "None": {
@@ -44,39 +68,65 @@
         },
         "TwoHandAttack": {
             "colliderNames": {
-                "mixamorig:Head": "mixamorig:Head",
-                "mixamorig:HeadTop_End": "mixamorig:HeadTop_End",
-                "mixamorig:LeftArm": "mixamorig:LeftArm",
-                "mixamorig:LeftForeArm": "mixamorig:LeftForeArm",
-                "mixamorig:LeftHand": "mixamorig:LeftHand",
-                "mixamorig:LeftHandIndex1": "mixamorig:LeftHandIndex1",
-                "mixamorig:LeftHandIndex2": "mixamorig:LeftHandIndex2",
-                "mixamorig:LeftHandIndex4": "mixamorig:LeftHandIndex4",
-                "mixamorig:LeftShoulder": "mixamorig:LeftShoulder",
-                "mixamorig:Neck": "mixamorig:Neck",
-                "mixamorig:RightArm": "mixamorig:RightArm",
-                "mixamorig:RightForeArm": "mixamorig:RightForeArm",
-                "mixamorig:RightHandIndex1": "mixamorig:RightHandIndex1",
-                "mixamorig:RightHandIndex2": "mixamorig:RightHandIndex2",
-                "mixamorig:RightHandIndex3": "mixamorig:RightHandIndex3",
-                "mixamorig:RightHandIndex4": "mixamorig:RightHandIndex4",
-                "mixamorig:RightShoulder": "mixamorig:RightShoulder",
-                "mixamorig:Spine": "mixamorig:Spine",
-                "mixamorig:Spine1": "mixamorig:Spine1",
-                "mixamorig:Spine2": "mixamorig:Spine2"
+                "Head": "Head",
+                "HeadTop_End": "HeadTop_End",
+                "LeftArm": "LeftArm",
+                "LeftForeArm": "LeftForeArm",
+                "LeftHand": "LeftHand",
+                "LeftHandIndex1": "LeftHandIndex1",
+                "LeftHandIndex2": "LeftHandIndex2",
+                "LeftHandIndex4": "LeftHandIndex4",
+                "LeftShoulder": "LeftShoulder",
+                "Neck": "Neck",
+                "RightArm": "RightArm",
+                "RightForeArm": "RightForeArm",
+                "RightHand": "RightHand",
+                "RightHandIndex1": "RightHandIndex1",
+                "RightHandIndex2": "RightHandIndex2",
+                "RightHandIndex3": "RightHandIndex3",
+                "RightHandIndex4": "RightHandIndex4",
+                "RightShoulder": "RightShoulder",
+                "Spine": "Spine",
+                "Spine1": "Spine1",
+                "Spine2": "Spine2"
             }
         },
         "UpperAttack": {
             "colliderNames": {
-                "mixamorig:LeftToe_End": "mixamorig:LeftToe_End",
-                "mixamorig:RightArm": "mixamorig:RightArm",
-                "mixamorig:RightForeArm": "mixamorig:RightForeArm",
-                "mixamorig:RightHand": "mixamorig:RightHand",
-                "mixamorig:RightHandIndex1": "mixamorig:RightHandIndex1",
-                "mixamorig:RightHandIndex2": "mixamorig:RightHandIndex2",
-                "mixamorig:RightShoulder": "mixamorig:RightShoulder",
-                "mixamorig:RightUpLeg": "mixamorig:RightUpLeg"
+                "LeftToe_End": "LeftToe_End",
+                "RightArm": "RightArm",
+                "RightForeArm": "RightForeArm",
+                "RightHand": "RightHand",
+                "RightHandIndex1": "RightHandIndex1",
+                "RightHandIndex2": "RightHandIndex2",
+                "RightHandIndex4": "RightHandIndex4",
+                "RightShoulder": "RightShoulder",
+                "RightUpLeg": "RightUpLeg"
             }
         }
-    }
+    },
+    "defaultColor_.range.end.max": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+    ],
+    "defaultColor_.range.end.min": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+    ],
+    "defaultColor_.range.start.max": [
+        1.0,
+        1.0,
+        1.0,
+        1.0
+    ],
+    "defaultColor_.range.start.min": [
+        1.0,
+        1.0,
+        1.0,
+        1.0
+    ]
 }

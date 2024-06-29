@@ -6,6 +6,7 @@
 #include "Engine/Json/JsonUtils.h"
 #include "Engine/Texture/TextureManager.h"
 #include "Engine/ImGui/ImGuiManager.h"
+#include "Engine/Collision/CollisionAttribute.h"
 
 int32_t GPUParticleShaderStructs::EmitterForCPU::staticEmitterCount = 0;
 
@@ -229,6 +230,30 @@ void GPUParticleShaderStructs::Debug(const std::string name, GPUParticleShaderSt
 				ImGui::DragInt("Num", reinterpret_cast<int*>(&emitter.createParticleNum));
 				ImGui::TreePop();
 			}
+
+			if (ImGui::TreeNode("CollisionInfo")) {
+				if (ImGui::TreeNode("Mask")) {
+					ImGui::Text("Collision Mask:");
+					ImGui::CheckboxFlags("Player", &emitter.collisionInfo.mask, CollisionAttribute::Player);
+					ImGui::CheckboxFlags("Player Bullet", &emitter.collisionInfo.mask, CollisionAttribute::PlayerBullet);
+					ImGui::CheckboxFlags("Boss Body", &emitter.collisionInfo.mask, CollisionAttribute::BossBody);
+					ImGui::CheckboxFlags("Boss Attack", &emitter.collisionInfo.mask, CollisionAttribute::BossAttack);
+					ImGui::CheckboxFlags("GameObject", &emitter.collisionInfo.mask, CollisionAttribute::GameObject);
+
+					ImGui::TreePop();
+				}
+				if (ImGui::TreeNode("Attribute")) {
+					ImGui::Text("Collision Attribute:");
+					ImGui::CheckboxFlags("Player", &emitter.collisionInfo.attribute, CollisionAttribute::Player);
+					ImGui::CheckboxFlags("Player Bullet", &emitter.collisionInfo.attribute, CollisionAttribute::PlayerBullet);
+					ImGui::CheckboxFlags("Boss Body", &emitter.collisionInfo.attribute, CollisionAttribute::BossBody);
+					ImGui::CheckboxFlags("Boss Attack", &emitter.collisionInfo.attribute, CollisionAttribute::BossAttack);
+					ImGui::CheckboxFlags("GameObject", &emitter.collisionInfo.attribute, CollisionAttribute::GameObject);
+					ImGui::TreePop();
+				}
+				ImGui::TreePop();
+			}
+
 			if (ImGui::Button("Save")) {
 				GPUParticleShaderStructs::Save(name, emitter);
 			}
@@ -282,7 +307,7 @@ void GPUParticleShaderStructs::Debug(const std::string name, GPUParticleShaderSt
 
 				int currentTexture = TextureManager::GetInstance()->GetTextureLocation(desc.emitter.textureIndex);
 				// Combo を使用する
-				if (ImGui::Combo("Texture",&currentTexture, stageArray.data(), static_cast<int>(stageArray.size()))) {
+				if (ImGui::Combo("Texture", &currentTexture, stageArray.data(), static_cast<int>(stageArray.size()))) {
 					desc.emitter.textureIndex = TextureManager::GetInstance()->GetTexture(currentTexture).GetDescriptorIndex();
 				}
 
@@ -290,10 +315,34 @@ void GPUParticleShaderStructs::Debug(const std::string name, GPUParticleShaderSt
 			}
 			if (ImGui::TreeNode("NumCreate")) {
 				int num = desc.numCreate;
-				ImGui::DragInt("num", &num, 1.0f, 0,50);
+				ImGui::DragInt("num", &num, 1.0f, 0, 50);
 				desc.numCreate = num;
 				ImGui::TreePop();
 			}
+
+			if (ImGui::TreeNode("CollisionInfo")) {
+				if (ImGui::TreeNode("Mask")) {
+					ImGui::Text("Collision Mask:");
+					ImGui::CheckboxFlags("Player", &desc.emitter.collisionInfo.mask, CollisionAttribute::Player);
+					ImGui::CheckboxFlags("Player Bullet", &desc.emitter.collisionInfo.mask, CollisionAttribute::PlayerBullet);
+					ImGui::CheckboxFlags("Boss Body", &desc.emitter.collisionInfo.mask, CollisionAttribute::BossBody);
+					ImGui::CheckboxFlags("Boss Attack", &desc.emitter.collisionInfo.mask, CollisionAttribute::BossAttack);
+					ImGui::CheckboxFlags("GameObject", &desc.emitter.collisionInfo.mask, CollisionAttribute::GameObject);
+
+					ImGui::TreePop();
+				}
+				if (ImGui::TreeNode("Attribute")) {
+					ImGui::Text("Collision Attribute:");
+					ImGui::CheckboxFlags("Player", &desc.emitter.collisionInfo.attribute, CollisionAttribute::Player);
+					ImGui::CheckboxFlags("Player Bullet", &desc.emitter.collisionInfo.attribute, CollisionAttribute::PlayerBullet);
+					ImGui::CheckboxFlags("Boss Body", &desc.emitter.collisionInfo.attribute, CollisionAttribute::BossBody);
+					ImGui::CheckboxFlags("Boss Attack", &desc.emitter.collisionInfo.attribute, CollisionAttribute::BossAttack);
+					ImGui::CheckboxFlags("GameObject", &desc.emitter.collisionInfo.attribute, CollisionAttribute::GameObject);
+					ImGui::TreePop();
+				}
+				ImGui::TreePop();
+			}
+
 			if (ImGui::Button("Save")) {
 				GPUParticleShaderStructs::Save(name, desc);
 			}
@@ -351,6 +400,29 @@ void GPUParticleShaderStructs::Debug(const std::string name, GPUParticleShaderSt
 					desc.emitter.textureIndex = TextureManager::GetInstance()->GetTexture(currentTexture).GetDescriptorIndex();
 				}
 
+				ImGui::TreePop();
+			}
+
+			if (ImGui::TreeNode("CollisionInfo")) {
+				if (ImGui::TreeNode("Mask")) {
+					ImGui::Text("Collision Mask:");
+					ImGui::CheckboxFlags("Player", &desc.emitter.collisionInfo.mask, CollisionAttribute::Player);
+					ImGui::CheckboxFlags("Player Bullet", &desc.emitter.collisionInfo.mask, CollisionAttribute::PlayerBullet);
+					ImGui::CheckboxFlags("Boss Body", &desc.emitter.collisionInfo.mask, CollisionAttribute::BossBody);
+					ImGui::CheckboxFlags("Boss Attack", &desc.emitter.collisionInfo.mask, CollisionAttribute::BossAttack);
+					ImGui::CheckboxFlags("GameObject", &desc.emitter.collisionInfo.mask, CollisionAttribute::GameObject);
+
+					ImGui::TreePop();
+				}
+				if (ImGui::TreeNode("Attribute")) {
+					ImGui::Text("Collision Attribute:");
+					ImGui::CheckboxFlags("Player", &desc.emitter.collisionInfo.attribute, CollisionAttribute::Player);
+					ImGui::CheckboxFlags("Player Bullet", &desc.emitter.collisionInfo.attribute, CollisionAttribute::PlayerBullet);
+					ImGui::CheckboxFlags("Boss Body", &desc.emitter.collisionInfo.attribute, CollisionAttribute::BossBody);
+					ImGui::CheckboxFlags("Boss Attack", &desc.emitter.collisionInfo.attribute, CollisionAttribute::BossAttack);
+					ImGui::CheckboxFlags("GameObject", &desc.emitter.collisionInfo.attribute, CollisionAttribute::GameObject);
+					ImGui::TreePop();
+				}
 				ImGui::TreePop();
 			}
 
@@ -415,6 +487,11 @@ void GPUParticleShaderStructs::Load(const std::string name, GPUParticleShaderStr
 	LoadMinMax(emitter.velocity.range);
 	JSON_ROOT();
 
+	JSON_OBJECT("CollisionInfo");
+	JSON_LOAD_BY_NAME("mask", emitter.collisionInfo.mask);
+	JSON_LOAD_BY_NAME("attribute", emitter.collisionInfo.attribute);
+	JSON_ROOT();
+
 	JSON_LOAD_BY_NAME("createParticleNum", emitter.createParticleNum);
 	JSON_LOAD_BY_NAME("textureIndex", emitter.textureIndex);
 
@@ -471,6 +548,11 @@ void GPUParticleShaderStructs::Save(const std::string name, GPUParticleShaderStr
 	JSON_SAVE_BY_NAME("createParticleNum", emitter.createParticleNum);
 	JSON_SAVE_BY_NAME("textureIndex", emitter.textureIndex);
 
+	JSON_OBJECT("CollisionInfo");
+	JSON_SAVE_BY_NAME("mask", emitter.collisionInfo.mask);
+	JSON_SAVE_BY_NAME("attribute", emitter.collisionInfo.attribute);
+	JSON_ROOT();
+
 	JSON_CLOSE();
 }
 
@@ -499,6 +581,11 @@ void GPUParticleShaderStructs::Load(const std::string name, GPUParticleShaderStr
 
 	JSON_LOAD_BY_NAME("NumCreate", desc.numCreate);
 	JSON_LOAD_BY_NAME("textureIndex", desc.emitter.textureIndex);
+
+	JSON_OBJECT("CollisionInfo");
+	JSON_LOAD_BY_NAME("mask", desc.emitter.collisionInfo.mask);
+	JSON_LOAD_BY_NAME("attribute", desc.emitter.collisionInfo.attribute);
+	JSON_ROOT();
 
 	JSON_CLOSE();
 }
@@ -530,6 +617,11 @@ void GPUParticleShaderStructs::Save(const std::string name, GPUParticleShaderStr
 
 	JSON_SAVE_BY_NAME("textureIndex", desc.emitter.textureIndex);
 
+	JSON_OBJECT("CollisionInfo");
+	JSON_SAVE_BY_NAME("mask", desc.emitter.collisionInfo.mask);
+	JSON_SAVE_BY_NAME("attribute", desc.emitter.collisionInfo.attribute);
+	JSON_ROOT();
+
 	JSON_CLOSE();
 }
 
@@ -558,6 +650,11 @@ void GPUParticleShaderStructs::Load(const std::string name, GPUParticleShaderStr
 
 	JSON_LOAD_BY_NAME("textureIndex", desc.emitter.textureIndex);
 
+	JSON_OBJECT("CollisionInfo");
+	JSON_LOAD_BY_NAME("mask", desc.emitter.collisionInfo.mask);
+	JSON_LOAD_BY_NAME("attribute", desc.emitter.collisionInfo.attribute);
+	JSON_ROOT();
+
 	JSON_CLOSE();
 }
 
@@ -585,6 +682,11 @@ void GPUParticleShaderStructs::Save(const std::string name, GPUParticleShaderStr
 	JSON_ROOT();
 
 	JSON_SAVE_BY_NAME("textureIndex", desc.emitter.textureIndex);
+
+	JSON_OBJECT("CollisionInfo");
+	JSON_SAVE_BY_NAME("mask", desc.emitter.collisionInfo.mask);
+	JSON_SAVE_BY_NAME("attribute", desc.emitter.collisionInfo.attribute);
+	JSON_ROOT();
 
 	JSON_CLOSE();
 }

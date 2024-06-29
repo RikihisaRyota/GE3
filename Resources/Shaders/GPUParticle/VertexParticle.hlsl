@@ -56,6 +56,7 @@ void main(uint3 DTid : SV_DispatchThreadID)
     if (createParticlenum > 0)
     {
         int32_t index = particleIndexCommands.Consume();
+        Output[index].collisionInfo = meshEmitter.collisionInfo;
         Output[index].particleLifeTime.maxTime =randomRange(meshEmitter.particleLifeSpan.range.min, meshEmitter.particleLifeSpan.range.max, seed);
         Output[index].particleLifeTime.time = 0;
 
@@ -84,5 +85,6 @@ void main(uint3 DTid : SV_DispatchThreadID)
         Output[index].textureIndex = meshEmitter.textureIndex;;
 
         Output[index].isAlive = 1;
+        Output[index].isHit = 0;
     }
 }

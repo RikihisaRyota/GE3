@@ -53,6 +53,12 @@ struct ParticleLifeTime
     uint32_t2 pad;
 };
 
+struct ParticleAttributes {
+	uint32_t mask;
+	uint32_t attribute;
+	float32_t2 pad;
+};
+
 struct Particle
 {
     Float3MinMax scaleRange;
@@ -68,7 +74,7 @@ struct Particle
     float32_t rotateVelocity;
     float32_t rotate;
     uint32_t isAlive;
-    uint32_t pad1;
+    uint32_t isHit;
     
     float32_t3 translate;
     uint32_t pad2;
@@ -77,6 +83,8 @@ struct Particle
     uint32_t pad3;    
 
     float32_t4x4 worldMatrix;
+
+    ParticleAttributes collisionInfo;
 };
 
 struct EmitterAABB
@@ -159,6 +167,8 @@ struct MeshEmitter {
 
 	ParticleLifeSpan particleLifeSpan;
 
+    ParticleAttributes collisionInfo;
+
 	uint32_t textureIndex;
 
     float32_t3 pad;
@@ -189,6 +199,8 @@ struct Emitter
     uint32_t isAlive;
 
     int32_t emitterCount;
+
+    ParticleAttributes collisionInfo;
 };
 
 struct CreateParticle
@@ -361,9 +373,9 @@ float32_t random(float32_t2 uv, float32_t seed)
 
 }
 
-matrix MakeScaleMatrix(float3 scale)
+float32_t4x4 MakeScaleMatrix(float32_t3  scale)
 {
-    return matrix(
+    return float32_t4x4(
     scale.x, 0.0f, 0.0f, 0.0f,
     0.0f, scale.y, 0.0f, 0.0f,
     0.0f, 0.0f, scale.z, 0.0f,
@@ -371,9 +383,9 @@ matrix MakeScaleMatrix(float3 scale)
 );
 }
 
-matrix MakeScaleMatrix(float scale)
+float32_t4x4 MakeScaleMatrix(float32_t scale)
 {
-    return matrix(
+    return float32_t4x4(
     scale, 0.0f, 0.0f, 0.0f,
     0.0f, scale, 0.0f, 0.0f,
     0.0f, 0.0f, scale, 0.0f,
@@ -381,11 +393,11 @@ matrix MakeScaleMatrix(float scale)
 );
 }
 
-matrix MakeRotationMatrixX(float x)
+float32_t4x4 MakeRotationMatrixX(float32_t x)
 {
     float cosine = cos(x);
     float sine = sin(x);
-    return matrix(
+    return float32_t4x4(
         1.0f, 0.0f, 0.0f, 0.0f,
         0.0f, cosine, sine, 0.0f,
         0.0f, -sine, cosine, 0.0f,
@@ -393,11 +405,11 @@ matrix MakeRotationMatrixX(float x)
     );
 }
 
-matrix MakeRotationMatrixY(float y)
+float32_t4x4 MakeRotationMatrixY(float32_t y)
 {
     float cosine = cos(y);
     float sine = sin(y);
-    return matrix(
+    return float32_t4x4(
         cosine, 0.0f, -sine, 0.0f,
         0.0f, 1.0f, 0.0f, 0.0f,
         sine, 0.0f, cosine, 0.0f,
@@ -405,11 +417,11 @@ matrix MakeRotationMatrixY(float y)
     );
 }
 
-matrix MakeRotationMatrixZ(float z)
+float32_t4x4 MakeRotationMatrixZ(float32_t z)
 {
     float cosine = cos(z);
     float sine = sin(z);
-    return matrix(
+    return float32_t4x4(
         cosine, sine, 0.0f, 0.0f,
         -sine, cosine, 0.0f, 0.0f,
         0.0f, 0.0f, 1.0f, 0.0f,
@@ -417,15 +429,15 @@ matrix MakeRotationMatrixZ(float z)
     );
 }
 
-matrix MakeRotationMatrix(float3 rotate)
+float32_t4x4 MakeRotationMatrix(float32_t3  rotate)
 {
     return mul(mul(MakeRotationMatrixX(rotate.x), MakeRotationMatrixY(rotate.y)), MakeRotationMatrixZ(rotate.z));
 
 }
 
-matrix MakeTranslationMatrix(float3 translate)
+float32_t4x4 MakeTranslationMatrix(float32_t3  translate)
 {
-    return matrix(
+    return float32_t4x4(
     1.0f, 0.0f, 0.0f, 0.0f,
     0.0f, 1.0f, 0.0f, 0.0f,
     0.0f, 0.0f, 1.0f, 0.0f,
@@ -434,14 +446,14 @@ matrix MakeTranslationMatrix(float3 translate)
 }
 
 
-matrix MakeAffine(float3 scale, float3 rotate, float3 translate)
+float32_t4x4 MakeAffine(float32_t3  scale, float32_t3  rotate, float32_t3  translate)
 {
-    return matrix(mul(mul(MakeScaleMatrix(scale), MakeRotationMatrix(rotate)), MakeTranslationMatrix(translate)));
+    return float32_t4x4(mul(mul(MakeScaleMatrix(scale), MakeRotationMatrix(rotate)), MakeTranslationMatrix(translate)));
 
 }
 
-matrix MakeAffine(float scale, float3 rotate, float3 translate)
+float32_t4x4 MakeAffine(float32_t scale, float32_t3 rotate, float32_t3 translate)
 {
-    return matrix(mul(mul(MakeScaleMatrix(scale), MakeRotationMatrix(rotate)), MakeTranslationMatrix(translate)));
+    return float32_t4x4(mul(mul(MakeScaleMatrix(scale), MakeRotationMatrix(rotate)), MakeTranslationMatrix(translate)));
 
 }

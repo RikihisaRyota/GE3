@@ -978,6 +978,16 @@ float Angle(const Vector3& from, const Vector3& to) {
 	//}
 }
 
+std::string EraseName(const std::string& name, const std::string& eraseName) {
+	// `jointName` から `prefix` を探し、見つかった場合は削除
+	std::string result = name;
+	size_t pos = result.find(eraseName);
+	if (pos != std::string::npos) {
+		return result.erase(pos, eraseName.length());
+	}
+	return result;
+}
+
 
 Quaternion IdentityQuaternion() {
 	return Quaternion(0.0f, 0.0f, 0.0f, 1.0f);

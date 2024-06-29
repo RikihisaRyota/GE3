@@ -15,6 +15,7 @@ void CommandQueue::Create() {
 
 	// コマンドリストキューを作成
 	D3D12_COMMAND_QUEUE_DESC commandQueueDesc{};
+
 	hr = device->CreateCommandQueue(
 		&commandQueueDesc,
 		IID_PPV_ARGS(&commandQueue_));
@@ -35,7 +36,7 @@ void CommandQueue::Create() {
 
 void CommandQueue::Execute(const CommandContext& commandContext) {
 	// GPUにコマンドリストの実行を行わせる
-	ID3D12CommandList* cmdLists[] = { commandContext};
+	ID3D12CommandList* cmdLists[] = { commandContext };
 	commandQueue_->ExecuteCommandLists(_countof(cmdLists), cmdLists);
  } 
 

@@ -9,6 +9,8 @@
 #include "../PlayerUI/PlayerUI.h"
 #include "Engine/Sprite/SpriteManager.h"
 #include "Engine/ImGui/ImGuiManager.h"
+
+#include "Engine/Collision/CollisionAttribute.h"
 PlayerBulletManager::PlayerBulletManager() {
 	ModelManager::GetInstance()->Load("Resources/Models/Bullet/bullet.gltf");
 	JSON_OPEN("Resources/Data/Player/playerBullet.json");
@@ -42,9 +44,13 @@ void PlayerBulletManager::Update() {
 		}
 		else {
 			bullets.emplace_back(GPUParticleShaderStructs::BulletForGPU());
-			bullets.back().position = (*iter)->GetPosition();
-			bullets.back().radius = (*iter)->GetRadius()*5.0f;
-			bullets.back().speed = bulletSpeed_ * 0.1f;
+			bullets.back().collisionInfo.mask = CollisionAttribute::PlayerBullet;
+			bullets.back().collisionInfo.attribute = CollisionAttribute::BossBody;
+			bullets.back().bullet.position = (*iter)->GetPosition();
+			bullets.back().bullet.radius = (*iter)->GetRadius()*5.0f;
+			bullets.back().bullet.speed = bulletSpeed_ * 0.1f;
+			bullets.back().emitter.particleLifeSpan.range.min=60;
+			bullets.back().emitter.particleLifeSpan.range.max=360;
 			++iter; // 次の弾へ移動
 		}
 	}

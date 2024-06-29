@@ -37,7 +37,11 @@ public:
 	void DrawImGui(); 
 	void DrawDebug(const ViewProjection& viewProjection);
 	std::unordered_map<std::string, std::unique_ptr<BossCollider>>& GetCollider() {	return bossCollider_;}
+	std::unordered_map<std::string, GPUParticleShaderStructs::EmitterForCPU>& GetEmitters() {	return emitters_;}
 	const std::vector<std::string>& GetColliderType(const std::string& name) { return colliderType_[name]; }
+
+	const GPUParticleShaderStructs::EmitterColor& GetAttackColor() { return attackColor_; }
+	const GPUParticleShaderStructs::EmitterColor& GetDefaultColor() { return defaultColor_; }
 private:
 	void UpdateCollider();
 	void UpdateGPUParticle();
@@ -60,12 +64,14 @@ private:
 
 	std::unordered_map<std::string,std::unique_ptr<BossCollider>> bossCollider_;
 
-	GPUParticleShaderStructs::EmitterForCPU boneEmitter_;
-
 	std::unique_ptr<BossStateManager> bossStateManager_;
 	std::unique_ptr<BossHP> bossHP_;
 #pragma region Collision
 	std::unordered_map<std::string, float> colliderSize_;
+	std::unordered_map<std::string, GPUParticleShaderStructs::EmitterForCPU> emitters_;
+	GPUParticleShaderStructs::EmitterColor attackColor_;
+	GPUParticleShaderStructs::EmitterColor defaultColor_;
+
 	std::unordered_map<std::string, std::vector<std::string>> colliderType_;
 	std::unordered_map<std::string, int> selectedNodeNameIndices_;
 	std::unordered_map<std::string, int> selectedEntryNodeNameIndices_;

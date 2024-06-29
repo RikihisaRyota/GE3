@@ -20,7 +20,7 @@ void BossStateRoot::Update(CommandContext& commandContext) {
 		time_ = 0.0f;
 	}
 
-	/*if (inTransition_) {
+	if (inTransition_) {
 		time_ += 1.0f / data_.transitionFrame;
 	}
 	else {
@@ -37,7 +37,7 @@ void BossStateRoot::Update(CommandContext& commandContext) {
 			}
 		}
 		time_ = std::fmod(time_, 1.0f);
-	}*/
+	}
 
 	auto boss = manager_.boss_;
 	auto animation = manager_.boss_->GetAnimation();
@@ -55,6 +55,7 @@ void BossStateTwoHandAttack::Initialize() {
 	time_ = 0.0f;
 	manager_.SetAttackColliderActive(BossStateManager::kTwoHandAttack, true);
 	manager_.SetBodyColliderActive(BossStateManager::kTwoHandAttack, false);
+	manager_.SetColliderColor(BossStateManager::kTwoHandAttack, manager_.boss_->GetAttackColor());
 }
 
 void BossStateTwoHandAttack::SetDesc() {
@@ -90,6 +91,7 @@ void BossStateTwoHandAttack::Update(CommandContext& commandContext) {
 		manager_.ChangeState<BossStateRoot>();
 		manager_.SetAttackColliderActive(BossStateManager::kTwoHandAttack, false);
 		manager_.SetBodyColliderActive(BossStateManager::kTwoHandAttack, true);
+		manager_.SetColliderColor(BossStateManager::kTwoHandAttack, manager_.boss_->GetDefaultColor());
 	}
 }
 
@@ -99,6 +101,7 @@ void BossStateUpperAttack::Initialize() {
 	time_ = 0.0f;
 	manager_.SetAttackColliderActive(BossStateManager::kUpperAttack, true);
 	manager_.SetBodyColliderActive(BossStateManager::kUpperAttack, false);
+	manager_.SetColliderColor(BossStateManager::kUpperAttack, manager_.boss_->GetAttackColor());
 }
 
 void BossStateUpperAttack::SetDesc() {
@@ -134,6 +137,7 @@ void BossStateUpperAttack::Update(CommandContext& commandContext) {
 		manager_.ChangeState<BossStateRoot>();
 		manager_.SetAttackColliderActive(BossStateManager::kUpperAttack, false);
 		manager_.SetBodyColliderActive(BossStateManager::kUpperAttack, true);
+		manager_.SetColliderColor(BossStateManager::kUpperAttack, manager_.boss_->GetDefaultColor());
 	}
 }
 
@@ -273,6 +277,18 @@ void BossStateManager::SetBodyColliderActive(const BossStateManager::State& stat
 		for (auto& typeName : colliderTypes) {
 			if (collider.first == typeName) {
 				collider.second->body->SetIsActive(flag);
+			}
+		}
+	}
+}
+
+void BossStateManager::SetColliderColor(const BossStateManager::State& state, const GPUParticleShaderStructs::EmitterColor& color) {
+	auto& emitters = boss_->GetEmitters();
+	auto& colliderTypes = boss_->GetColliderType(stateNames_.at(state));
+	for (auto& emitter : emitters) {
+		for (auto& typeName : colliderTypes) {
+			if (emitter.first == typeName) {
+				emitter.second.color = color;
 			}
 		}
 	}

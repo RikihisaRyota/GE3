@@ -65,6 +65,7 @@ namespace GPUParticleShaderStructs {
 	};
 	/*
 	*
+
 struct Particle
 {
 	struct Float3MinMax
@@ -96,10 +97,23 @@ struct Particle
 	uint pad2;
 	float3 velocity;
 	uint pad3;
-	float4x4 worldMatrix;
+	float4x4 worldMatrix; // row_major
+	struct ParticleAttributes
+	{
+		uint mask;
+		uint attribute;
+		float2 pad;
+	} collisionInfo;
 } Element;
 
+
 	*/
+	struct ParticleAttributes {
+		uint32_t mask;
+		uint32_t attribute;
+		Vector2 pad;
+	};
+
 	struct Particle {
 		Vector3MinMax scaleRange;
 		ParticleLifeTime particleLifeTime;
@@ -113,7 +127,7 @@ struct Particle
 		float rotateVelocity;
 		float rotate;
 		uint32_t isAlive;
-		uint32_t pad1;
+		uint32_t isHit;
 
 		Vector3 translate;
 		uint32_t pad2;
@@ -122,6 +136,8 @@ struct Particle
 		uint32_t pad3;
 
 		Matrix4x4 matWorld;
+
+		ParticleAttributes collisionInfo;
 	};
 
 	// hlsli側も変更すること
@@ -214,6 +230,8 @@ struct Particle
 
 		ParticleLifeSpan particleLifeSpan;
 
+		ParticleAttributes collisionInfo;
+
 		uint32_t textureIndex;
 
 		Vector3 pad;
@@ -264,6 +282,9 @@ struct Particle
 		uint32_t isAlive = true;
 
 		int32_t emitterCount;
+
+		ParticleAttributes collisionInfo;
+
 		// クラス内でstatic宣言されたメンバ変数のサイズは0
 		static int32_t staticEmitterCount;
 	};
@@ -294,6 +315,8 @@ struct Particle
 		uint32_t isAlive = false;
 
 		int32_t emitterCount = -1;
+
+		ParticleAttributes collisionInfo;
 	};
 
 	struct CreateParticle {
@@ -303,10 +326,16 @@ struct Particle
 
 	// 弾
 	struct BulletForGPU {
-		Vector3 position;
-		float radius;
-		float speed;
-		Vector3 pad;
+		ParticleAttributes collisionInfo;
+		struct Bullet {
+			Vector3 position;
+			float radius;
+			float speed;
+			Vector3 pad;
+		}bullet;
+		struct Emitter {
+			ParticleLifeSpan particleLifeSpan;
+		}emitter;
 	};
 
 	struct IndirectCommand {

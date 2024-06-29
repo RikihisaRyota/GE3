@@ -86,6 +86,7 @@ void GPUParticle::EmitterUpdate(CommandContext& commandContext) {
 	commandContext.SetComputeUAV(2, createParticleCounterCopySrcBuffer_->GetGPUVirtualAddress());
 
 	commandContext.Dispatch(1, 1, 1);
+	commandContext.UAVBarrier(createParticleBuffer_);
 	commandContext.CopyBufferRegion(spawnArgumentBuffer_, 0, createParticleCounterCopySrcBuffer_, 0, sizeof(UINT));
 }
 
@@ -97,8 +98,9 @@ void GPUParticle::Spawn(CommandContext& commandContext, const UploadBuffer& rand
 	commandContext.TransitionResource(emitterForGPUBuffer_, D3D12_RESOURCE_STATE_GENERIC_READ);
 	commandContext.TransitionResource(originalCommandBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 	commandContext.TransitionResource(createParticleBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-
+	commandContext.TransitionResource(originalCounterBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 	commandContext.TransitionResource(spawnArgumentBuffer_, D3D12_RESOURCE_STATE_INDIRECT_ARGUMENT);
+
 
 	commandContext.SetComputeUAV(0, particleBuffer_->GetGPUVirtualAddress());
 	commandContext.SetComputeShaderResource(1, emitterForGPUBuffer_->GetGPUVirtualAddress());
@@ -147,7 +149,7 @@ void GPUParticle::ParticleUpdate(const ViewProjection& viewProjection, CommandCo
 	commandContext.CopyBufferRegion(drawIndexCountBuffer_, 0, drawIndexCommandBuffers_, srcInstanceCountArgumentOffset, sizeof(UINT));
 }
 
-void GPUParticle::BulletUpdate(CommandContext& commandContext) {
+void GPUParticle::BulletUpdate(CommandContext& commandContext, const UploadBuffer& random) {
 	if (*static_cast<uint32_t*>(bulletCountBuffer_.GetCPUData()) != 0) {
 		commandContext.TransitionResource(particleBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 		commandContext.TransitionResource(bulletsBuffer_.GetBuffer(), D3D12_RESOURCE_STATE_GENERIC_READ);
@@ -155,6 +157,7 @@ void GPUParticle::BulletUpdate(CommandContext& commandContext) {
 		commandContext.SetComputeDescriptorTable(0, bulletsBuffer_.GetSRV());
 		commandContext.SetComputeConstantBuffer(1, bulletCountBuffer_.GetGPUVirtualAddress());
 		commandContext.SetComputeUAV(2, particleBuffer_.GetGPUVirtualAddress());
+		commandContext.SetComputeConstantBuffer(3, random.GetGPUVirtualAddress());
 		commandContext.Dispatch(static_cast<UINT>(ceil(GPUParticleShaderStructs::MaxParticleNum / float(GPUParticleShaderStructs::ComputeThreadBlockSize))), 1, 1);
 		commandContext.UAVBarrier(particleBuffer_);
 
@@ -196,6 +199,7 @@ void GPUParticle::CreateMeshParticle(const ModelHandle& modelHandle, Animation::
 
 		commandContext.TransitionResource(particleBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 		commandContext.TransitionResource(originalCommandBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+		commandContext.TransitionResource(originalCounterBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 		commandContext.TransitionResource(animation.skinCluster.vertexBuffer, D3D12_RESOURCE_STATE_GENERIC_READ);
 		commandContext.TransitionResource(ModelManager::GetInstance()->GetModel(modelHandle).GetMeshData().at(0)->indexBuffer, D3D12_RESOURCE_STATE_GENERIC_READ);
 
@@ -227,6 +231,7 @@ void GPUParticle::CreateMeshParticle(const ModelHandle& modelHandle, const World
 
 		commandContext.TransitionResource(particleBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 		commandContext.TransitionResource(originalCommandBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+		commandContext.TransitionResource(originalCounterBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 		commandContext.TransitionResource(ModelManager::GetInstance()->GetModel(modelHandle).GetMeshData().at(0)->vertexBuffer, D3D12_RESOURCE_STATE_GENERIC_READ);
 		commandContext.TransitionResource(ModelManager::GetInstance()->GetModel(modelHandle).GetMeshData().at(0)->indexBuffer, D3D12_RESOURCE_STATE_GENERIC_READ);
 
@@ -255,6 +260,7 @@ void GPUParticle::CreateVertexParticle(const ModelHandle& modelHandle, Animation
 
 	commandContext.TransitionResource(particleBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 	commandContext.TransitionResource(originalCommandBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+	commandContext.TransitionResource(originalCounterBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 	commandContext.TransitionResource(animation.skinCluster.vertexBuffer, D3D12_RESOURCE_STATE_GENERIC_READ);
 	commandContext.TransitionResource(ModelManager::GetInstance()->GetModel(modelHandle).GetMeshData().at(0)->indexBuffer, D3D12_RESOURCE_STATE_GENERIC_READ);
 
@@ -281,6 +287,7 @@ void GPUParticle::CreateVertexParticle(const ModelHandle& modelHandle, const Wor
 
 	commandContext.TransitionResource(particleBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 	commandContext.TransitionResource(originalCommandBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+	commandContext.TransitionResource(originalCounterBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 	commandContext.TransitionResource(ModelManager::GetInstance()->GetModel(modelHandle).GetMeshData().at(0)->vertexBuffer, D3D12_RESOURCE_STATE_GENERIC_READ);
 	commandContext.TransitionResource(ModelManager::GetInstance()->GetModel(modelHandle).GetMeshData().at(0)->indexBuffer, D3D12_RESOURCE_STATE_GENERIC_READ);
 
@@ -314,6 +321,7 @@ void GPUParticle::Create(const GPUParticleShaderStructs::EmitterForCPU& emitterF
 	emitterForGPU.createParticleNum = emitterForCPU.createParticleNum;
 	emitterForGPU.isAlive = emitterForCPU.isAlive;
 	emitterForGPU.emitterCount = emitterForCPU.emitterCount;
+	emitterForGPU.collisionInfo = emitterForCPU.collisionInfo;
 	emitterForGPUs_.emplace_back(emitterForGPU);
 }
 
@@ -332,6 +340,7 @@ void GPUParticle::SetEmitter(const GPUParticleShaderStructs::EmitterForCPU& emit
 	emitterForGPU.createParticleNum = emitterForCPU.createParticleNum;
 	emitterForGPU.isAlive = emitterForCPU.isAlive;
 	emitterForGPU.emitterCount = emitterForCPU.emitterCount;
+	emitterForGPU.collisionInfo = emitterForCPU.collisionInfo;
 	emitterForGPUs_.emplace_back(emitterForGPU);
 }
 

@@ -41,7 +41,7 @@ public:
 	void CheckEmitter(CommandContext& commandContext);
 	void AddEmitter(CommandContext& commandContext);
 	void ParticleUpdate(const ViewProjection& viewProjection, CommandContext& commandContext);
-	void BulletUpdate(CommandContext& commandContext);
+	void BulletUpdate(CommandContext& commandContext,  const UploadBuffer& random);
 	void Draw(const ViewProjection& viewProjection, CommandContext& commandContext);
 	void DrawImGui();
 	void CreateMeshParticle(const ModelHandle& modelHandle, Animation::Animation& animation, const WorldTransform& worldTransform, const GPUParticleShaderStructs::MeshEmitterDesc& mesh, const UploadBuffer& random, CommandContext& commandContext);

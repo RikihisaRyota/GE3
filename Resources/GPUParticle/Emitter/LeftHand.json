@@ -1,0 +1,126 @@
+{
+    "CollisionInfo": {
+        "attribute": 2,
+        "mask": 4
+    },
+    "EmitterArea": {
+        "EmitterAABB": {
+            "Max": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "Min": [
+                0.0,
+                0.0,
+                0.0
+            ]
+        },
+        "EmitterCapsule": {
+            "EmitterSegment": {
+                "end": [
+                    -19.593242645263672,
+                    11.972488403320313,
+                    17.86505126953125
+                ],
+                "start": [
+                    -20.432092666625977,
+                    4.450067520141602,
+                    18.023073196411133
+                ]
+            },
+            "radius": 4.0
+        },
+        "EmitterSphere": {
+            "radius": 0.0
+        },
+        "position": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "type": 2
+    },
+    "EmitterColor": {
+        "End": {
+            "Max": [
+                1.0,
+                1.0,
+                1.0,
+                0.0
+            ],
+            "Min": [
+                1.0,
+                1.0,
+                1.0,
+                0.0
+            ]
+        },
+        "Start": {
+            "Max": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+            ],
+            "Min": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+            ]
+        }
+    },
+    "EmitterFrequency": {
+        "emitterLife": 1,
+        "interval": 1,
+        "isLoop": 1
+    },
+    "ParticleLifeSpan": {
+        "Max": 15,
+        "Min": 5
+    },
+    "RotateAnimation": {
+        "rotate": 0.0
+    },
+    "ScaleAnimation": {
+        "End": {
+            "Max": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "Min": [
+                0.0,
+                0.0,
+                0.0
+            ]
+        },
+        "Start": {
+            "Max": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "Min": [
+                1.0,
+                1.0,
+                1.0
+            ]
+        }
+    },
+    "Velocity3D": {
+        "Max": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Min": [
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    "createParticleNum": 1024,
+    "textureIndex": 23
+}

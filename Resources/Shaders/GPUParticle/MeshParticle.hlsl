@@ -52,7 +52,7 @@ ConstantBuffer<MeshEmitter> meshEmitter : register(b3);
 void main(uint3 DTid : SV_DispatchThreadID)
 {
     uint triIndex = DTid.x;
-    if (triIndex >= indexCount.count)
+    if (triIndex > indexCount.count)
     {
         return;
     }
@@ -63,6 +63,7 @@ void main(uint3 DTid : SV_DispatchThreadID)
     if (createParticlenum > 0)
     {
         int32_t index = particleIndexCommands.Consume();
+        Output[index].collisionInfo = meshEmitter.collisionInfo;
         Output[index].particleLifeTime.maxTime =randomRange(meshEmitter.particleLifeSpan.range.min, meshEmitter.particleLifeSpan.range.max, seed);
         Output[index].particleLifeTime.time = 0;
 
@@ -104,7 +105,7 @@ void main(uint3 DTid : SV_DispatchThreadID)
         float32_t3 p = v0 + u * (v1 - v0) + v * (v2 - v0);
         Output[index].translate = p;
 
-         Output[index].velocity = randomRange(meshEmitter.velocity3D.range.min, meshEmitter.velocity3D.range.max, seed);
+        Output[index].velocity = randomRange(meshEmitter.velocity3D.range.min, meshEmitter.velocity3D.range.max, seed);
         
         // 各頂点の法線を使用してカラーを設定
         Output[index].colorRange.min=randomRange(meshEmitter.color.range.start.min, meshEmitter.color.range.start.max, seed);
@@ -114,5 +115,6 @@ void main(uint3 DTid : SV_DispatchThreadID)
         Output[index].textureIndex = meshEmitter.textureIndex;;
 
         Output[index].isAlive = 1;
+        Output[index].isHit = 0;
     }
 }

@@ -90,8 +90,10 @@ void Color(uint index,  uint32_t emitterIndex,inout uint32_t seed)
 void Create(uint index,  uint32_t emitterIndex,uint32_t seed)
 {
     Output[index].textureIndex = gEmitter[emitterIndex].textureIndex;
+    Output[index].collisionInfo = gEmitter[emitterIndex].collisionInfo;
     
     Output[index].isAlive = 1;
+    Output[index].isHit = 0;
     
     LifeTime(index, emitterIndex,seed);
     

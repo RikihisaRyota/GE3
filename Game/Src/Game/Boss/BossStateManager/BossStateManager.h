@@ -5,6 +5,7 @@
 
 #include "Engine/Math/Random.h"
 #include "Engine/Animation/Animation.h"
+#include "Engine/GPUParticleManager/GPUParticle/GPUParticleShaderStructs.h"
 
 struct ColliderDesc;
 class Boss;
@@ -105,6 +106,7 @@ public:
 
 	void SetAttackColliderActive(const BossStateManager::State& state,bool flag);
 	void SetBodyColliderActive(const BossStateManager::State& state,bool flag);
+	void SetColliderColor(const BossStateManager::State& state, const GPUParticleShaderStructs::EmitterColor& color);
 
 	const Animation::AnimationHandle GetAnimationHandle() const {
 		if (preAnimationHandle_.has_value()) {

@@ -13,7 +13,7 @@
 #include "Engine/Json/JsonUtils.h"
 
 Boss::Boss() {
-	bossModelHandle_ = ModelManager::GetInstance()->Load("Resources/Models/Boss/boss_ts.gltf");
+	bossModelHandle_ = ModelManager::GetInstance()->Load("Resources/Models/Boss/boss.gltf");
 	animation_.Initialize("Resources/Animation/Boss/animation.gltf", bossModelHandle_);
 	gpuTexture_ = TextureManager::GetInstance()->Load("Resources/Images/GPUParticle.png");
 	bossStateManager_ = std::make_unique<BossStateManager>();
@@ -30,14 +30,16 @@ Boss::Boss() {
 		if (!joint.parent) {
 			continue;
 		}
+		std::string jointName = EraseName(joint.name, "mixamorig:");
+
 		JSON_OBJECT("bossCollider");
-		JSON_LOAD_BY_NAME(joint.name, colliderSize_[joint.name]);
+		JSON_LOAD_BY_NAME(jointName, colliderSize_[jointName]);
 		JSON_ROOT();
-		bossCollider_[joint.name] = std::make_unique<BossCollider>();
-		bossCollider_[joint.name]->body = std::make_unique<CapsuleCollider>();
-		bossCollider_[joint.name]->attack = std::make_unique<CapsuleCollider>();
-		bossCollider_[joint.name]->body->SetName("Boss");
-		bossCollider_[joint.name]->attack->SetName("BossAttack");
+		bossCollider_[jointName] = std::make_unique<BossCollider>();
+		bossCollider_[jointName]->body = std::make_unique<CapsuleCollider>();
+		bossCollider_[jointName]->attack = std::make_unique<CapsuleCollider>();
+		bossCollider_[jointName]->body->SetName("Boss");
+		bossCollider_[jointName]->attack->SetName("BossAttack");
 		Matrix4x4 worldMatrix = joint.skeletonSpaceMatrix * animationTransform_.matWorld;
 		Matrix4x4 parentMatrix = animation_.skeleton.joints.at(*joint.parent).skeletonSpaceMatrix * animationTransform_.matWorld;
 
@@ -48,24 +50,24 @@ Boss::Boss() {
 		//Quaternion orientation = MakeLookRotation(born.Normalized());
 		//Vector3 size = { born.Length() * colliderSize_[joint.name], born.Length() * colliderSize_[joint.name],born.Length() };
 
-		bossCollider_[joint.name]->body->SetSegment(Segment(pos, parentPos));
-		bossCollider_[joint.name]->attack->SetSegment(Segment(pos, parentPos));
-		bossCollider_[joint.name]->body->SetRadius(colliderSize_[joint.name]);
-		bossCollider_[joint.name]->attack->SetRadius(colliderSize_[joint.name]);
-		bossCollider_[joint.name]->body->SetCallback([this](const ColliderDesc& collisionInfo) { OnCollisionBody(collisionInfo); });
-		bossCollider_[joint.name]->attack->SetCallback([this](const ColliderDesc& collisionInfo) { OnCollisionAttack(collisionInfo); });
-		bossCollider_[joint.name]->body->SetCollisionAttribute(CollisionAttribute::BossBody);
-		bossCollider_[joint.name]->attack->SetCollisionAttribute(CollisionAttribute::BossAttack);
-		bossCollider_[joint.name]->body->SetCollisionMask(CollisionAttribute::Player | CollisionAttribute::PlayerBullet);
-		bossCollider_[joint.name]->body->SetCollisionMask(CollisionAttribute::Player);
-		bossCollider_[joint.name]->color = { 0.0f,1.0f,0.0f,1.0f };
-		if (colliderSize_[joint.name] != 0.0f) {
-			bossCollider_[joint.name]->body->SetIsActive(true);
-			bossCollider_[joint.name]->attack->SetIsActive(false);
+		bossCollider_[jointName]->body->SetSegment(Segment(pos, parentPos));
+		bossCollider_[jointName]->attack->SetSegment(Segment(pos, parentPos));
+		bossCollider_[jointName]->body->SetRadius(colliderSize_[jointName]);
+		bossCollider_[jointName]->attack->SetRadius(colliderSize_[jointName]);
+		bossCollider_[jointName]->body->SetCallback([this](const ColliderDesc& collisionInfo) { OnCollisionBody(collisionInfo); });
+		bossCollider_[jointName]->attack->SetCallback([this](const ColliderDesc& collisionInfo) { OnCollisionAttack(collisionInfo); });
+		bossCollider_[jointName]->body->SetCollisionAttribute(CollisionAttribute::BossBody);
+		bossCollider_[jointName]->attack->SetCollisionAttribute(CollisionAttribute::BossAttack);
+		bossCollider_[jointName]->body->SetCollisionMask(CollisionAttribute::Player | CollisionAttribute::PlayerBullet);
+		bossCollider_[jointName]->body->SetCollisionMask(CollisionAttribute::Player);
+		bossCollider_[jointName]->color = { 0.0f,1.0f,0.0f,1.0f };
+		if (colliderSize_[jointName] != 0.0f) {
+			bossCollider_[jointName]->body->SetIsActive(true);
+			bossCollider_[jointName]->attack->SetIsActive(false);
 		}
 		else {
-			bossCollider_[joint.name]->body->SetIsActive(false);
-			bossCollider_[joint.name]->attack->SetIsActive(false);
+			bossCollider_[jointName]->body->SetIsActive(false);
+			bossCollider_[jointName]->attack->SetIsActive(false);
 		}
 	}
 #pragma endregion
@@ -91,6 +93,15 @@ Boss::Boss() {
 		colliderNames.clear();
 		JSON_ROOT();
 	}
+	JSON_LOAD(attackColor_.range.start.min);
+	JSON_LOAD(attackColor_.range.start.max);
+	JSON_LOAD(attackColor_.range.end.min);
+	JSON_LOAD(attackColor_.range.end.max);
+	JSON_LOAD(defaultColor_.range.start.min);
+	JSON_LOAD(defaultColor_.range.start.max);
+	JSON_LOAD(defaultColor_.range.end.min);
+	JSON_LOAD(defaultColor_.range.end.max);
+
 	JSON_ROOT();
 
 	JSON_CLOSE();
@@ -100,48 +111,11 @@ Boss::Boss() {
 	JSON_LOAD(animationWorldTransformOffset_);
 	JSON_ROOT();
 	JSON_CLOSE();
-
+	for (auto& colliderName : colliderSize_) {
+		GPUParticleShaderStructs::Load(colliderName.first, emitters_[colliderName.first]);
+	}
 	GPUParticleShaderStructs::Load("boss", meshEmitterDesc_);
 	GPUParticleShaderStructs::Load("boss", vertexEmitterDesc_);
-
-	// emitterArea初期化
-	boneEmitter_.emitterArea.capsule.segment.origin = { 0.0f, 0.0f, 0.0f };
-	boneEmitter_.emitterArea.capsule.segment.diff = { 0.0f, 0.0f, 0.0f };
-	boneEmitter_.emitterArea.capsule.radius = 0.0f;
-	boneEmitter_.emitterArea.position = { 0.0f, 0.0f, 0.0f };
-	boneEmitter_.emitterArea.type = GPUParticleShaderStructs::Type::kCapsule;
-
-	// scale初期化
-	boneEmitter_.scale.range.start.min = { 0.1f, 0.1f, 0.1f };
-	boneEmitter_.scale.range.start.max = { 0.1f, 0.1f, 0.1f };
-	boneEmitter_.scale.range.end.min = { 0.01f, 0.01f, 0.01f };
-	boneEmitter_.scale.range.end.max = { 0.01f, 0.01f, 0.01f };
-
-	// rotate初期化
-	boneEmitter_.rotate.rotate = 0.0f;
-
-	// velocity初期化
-	boneEmitter_.velocity.range.min = { 0.0f, 0.0f, 0.0f };
-	boneEmitter_.velocity.range.max = { 0.0f, 0.0f, 0.0f };
-
-	// color初期化
-	boneEmitter_.color.range.start.min = { 0.8f, 0.8f, 0.8f, 1.0f };
-	boneEmitter_.color.range.start.max = { 1.0f, 1.0f, 1.0f, 1.0f };
-	boneEmitter_.color.range.end.min = { 0.2f, 0.2f, 0.2f, 1.0f };
-	boneEmitter_.color.range.end.max = { 0.5f, 0.5f, 0.5f, 1.0f };
-
-	// frequency初期化
-	boneEmitter_.frequency.interval = 1;
-	boneEmitter_.frequency.isLoop = false;
-	// boneEmitter_.frequency.emitterLife = 120; // Uncomment if needed
-
-	// particleLifeSpan初期化
-	boneEmitter_.particleLifeSpan.range.min = 5;
-	boneEmitter_.particleLifeSpan.range.max = 10;
-
-	// その他のメンバー変数初期化
-	boneEmitter_.textureIndex = TextureManager::GetInstance()->GetTexture(gpuTexture_).GetDescriptorIndex();
-	boneEmitter_.createParticleNum = 0;
 }
 
 void Boss::Initialize() {
@@ -166,8 +140,9 @@ void Boss::Update(CommandContext& commandContext) {
 
 void Boss::Draw(const ViewProjection& viewProjection, CommandContext& commandContext) {
 	//ModelManager::GetInstance()->Draw(animationTransform_, animation_, viewProjection, bossModelHandle_, commandContext);
-	gpuParticleManager_->CreateMeshParticle(bossModelHandle_, animation_, worldTransform_, meshEmitterDesc_, commandContext);
-	gpuParticleManager_->CreateVertexParticle(bossModelHandle_, animation_, worldTransform_, vertexEmitterDesc_, commandContext);
+
+	//gpuParticleManager_->CreateMeshParticle(bossModelHandle_, animation_, worldTransform_, meshEmitterDesc_, commandContext);
+	//gpuParticleManager_->CreateVertexParticle(bossModelHandle_, animation_, worldTransform_, vertexEmitterDesc_, commandContext);
 
 }
 
@@ -195,10 +170,54 @@ void Boss::DrawImGui() {
 		}
 
 		if (ImGui::TreeNode("Collision")) {
+			if (ImGui::TreeNode("Color")) {
+
+				if (ImGui::TreeNode("AttackColor")) {
+					if (ImGui::TreeNode("Start")) {
+						ImGui::DragFloat4("Min", &attackColor_.range.start.min.x, 0.01f, 0.0f, 1.0f);
+						ImGui::DragFloat4("Max", &attackColor_.range.start.max.x, 0.01f, 0.0f, 1.0f);
+						ImGui::TreePop();
+					}
+					if (ImGui::TreeNode("End")) {
+						ImGui::DragFloat4("Min", &attackColor_.range.end.min.x, 0.01f, 0.0f, 1.0f);
+						ImGui::DragFloat4("Max", &attackColor_.range.end.max.x, 0.01f, 0.0f, 1.0f);
+						ImGui::TreePop();
+					}
+
+					ImGui::TreePop();
+				}
+				if (ImGui::TreeNode("DefaultColor")) {
+					if (ImGui::TreeNode("Start")) {
+						ImGui::DragFloat4("Min", &defaultColor_.range.start.min.x, 0.01f, 0.0f, 1.0f);
+						ImGui::DragFloat4("Max", &defaultColor_.range.start.max.x, 0.01f, 0.0f, 1.0f);
+						ImGui::TreePop();
+					}
+					if (ImGui::TreeNode("End")) {
+						ImGui::DragFloat4("Min", &defaultColor_.range.end.min.x, 0.01f, 0.0f, 1.0f);
+						ImGui::DragFloat4("Max", &defaultColor_.range.end.max.x, 0.01f, 0.0f, 1.0f);
+						ImGui::TreePop();
+					}
+
+					ImGui::TreePop();
+				}
+				if (ImGui::Button("Save")) {
+					JSON_OPEN("Resources/Data/Boss/bossCollision.json");
+					JSON_SAVE(attackColor_.range.start.min);
+					JSON_SAVE(attackColor_.range.start.max);
+					JSON_SAVE(attackColor_.range.end.min);
+					JSON_SAVE(attackColor_.range.end.max);
+					JSON_SAVE(defaultColor_.range.start.min);
+					JSON_SAVE(defaultColor_.range.start.max);
+					JSON_SAVE(defaultColor_.range.end.min);
+					JSON_SAVE(defaultColor_.range.end.max);
+					JSON_CLOSE();
+
+				}
+				ImGui::TreePop();
+			}
 			if (ImGui::TreeNode("Size")) {
 				for (auto& size : colliderSize_) {
 					ImGui::DragFloat(size.first.c_str(), &size.second, 0.1f, 0.0f);
-					//bossCollider_[size.first]->color = { 0.0f,0.0f,1.0f,1.0f };
 				}
 				if (ImGui::Button("Save")) {
 					JSON_OPEN("Resources/Data/Boss/bossCollision.json");
@@ -282,6 +301,14 @@ void Boss::DrawImGui() {
 						JSON_ROOT();
 					}
 					JSON_ROOT();
+					JSON_LOAD(attackColor_.range.start.min);
+					JSON_LOAD(attackColor_.range.start.max);
+					JSON_LOAD(attackColor_.range.end.min);
+					JSON_LOAD(attackColor_.range.end.max);
+					JSON_LOAD(defaultColor_.range.start.min);
+					JSON_LOAD(defaultColor_.range.start.max);
+					JSON_LOAD(defaultColor_.range.end.min);
+					JSON_LOAD(defaultColor_.range.end.max);
 					JSON_CLOSE();
 
 				}
@@ -295,7 +322,11 @@ void Boss::DrawImGui() {
 	ImGui::End();
 	bossStateManager_->DrawImGui();
 	bossHP_->DrawImGui();
-	GPUParticleShaderStructs::Debug("boss", boneEmitter_);
+	for (auto& colliderSizeName : colliderSize_) {
+		if (colliderSizeName.second != 0.0f) {
+			GPUParticleShaderStructs::Debug(colliderSizeName.first, emitters_[colliderSizeName.first]);
+		}
+	}
 	GPUParticleShaderStructs::Debug("boss", meshEmitterDesc_);
 	GPUParticleShaderStructs::Debug("boss", vertexEmitterDesc_);
 #endif // _DEBUG
@@ -316,6 +347,7 @@ void Boss::UpdateCollider() {
 		if (!joint.parent) {
 			continue;
 		}
+		std::string jointName = EraseName(joint.name, "mixamorig:");
 		Matrix4x4 worldMatrix = joint.skeletonSpaceMatrix * animationTransform_.matWorld;
 		Matrix4x4 parentMatrix = animation_.skeleton.joints.at(*joint.parent).skeletonSpaceMatrix * animationTransform_.matWorld;
 
@@ -326,17 +358,18 @@ void Boss::UpdateCollider() {
 		//Vector3 center = MakeTranslateMatrix(parentMatrix) + born * 0.5f;
 		//Quaternion orientation = MakeLookRotation(born.Normalized());
 		//Vector3 size = { born.Length() * colliderSize_[joint.name], born.Length() * colliderSize_[joint.name],born.Length() };
-		bossCollider_[joint.name]->body->SetSegment(Segment(pos, parentPos));
-		bossCollider_[joint.name]->attack->SetSegment(Segment(pos, parentPos));
-		bossCollider_[joint.name]->body->SetRadius(colliderSize_[joint.name]);
-		bossCollider_[joint.name]->attack->SetRadius(colliderSize_[joint.name]);
-		bossCollider_[joint.name]->color = { 0.0f,1.0f,0.0f,1.0f };
+		bossCollider_[jointName]->body->SetSegment(Segment(pos, parentPos));
+		bossCollider_[jointName]->attack->SetSegment(Segment(pos, parentPos));
+		bossCollider_[jointName]->body->SetRadius(colliderSize_[jointName]);
+		bossCollider_[jointName]->attack->SetRadius(colliderSize_[jointName]);
+		bossCollider_[jointName]->color = { 0.0f,1.0f,0.0f,1.0f };
 	}
 }
 
 void Boss::UpdateGPUParticle() {
 	for (auto& joint : animation_.skeleton.joints) {
-		if (!joint.parent.has_value() || colliderSize_[joint.name] == 0.0f) {
+		std::string jointName = EraseName(joint.name, "mixamorig:");
+		if (!joint.parent.has_value() || colliderSize_[jointName] == 0.0f) {
 			continue;
 		}
 		Matrix4x4 worldMatrix = joint.skeletonSpaceMatrix * worldTransform_.matWorld;
@@ -347,38 +380,12 @@ void Boss::UpdateGPUParticle() {
 		Vector3 born = (worldPos - parentPos);
 		// 0
 		{
-			GPUParticleShaderStructs::EmitterForCPU emitterForGPU{};
-			emitterForGPU.emitterArea.capsule.segment.origin = worldPos;
-			emitterForGPU.emitterArea.capsule.segment.diff = parentPos;
-			emitterForGPU.emitterArea.capsule.radius = colliderSize_[joint.name];
-			emitterForGPU.emitterArea.position = { 0.0f, 0.0f, 0.0f };
-			emitterForGPU.emitterArea.type = GPUParticleShaderStructs::Type::kCapsule;
-
-
-			// scale初期化
-			emitterForGPU.scale = boneEmitter_.scale;
-
-			// rotate初期化
-			emitterForGPU.rotate = boneEmitter_.rotate;
-
-			// velocity初期化
-			emitterForGPU.velocity = boneEmitter_.velocity;
-
-			// color初期化
-			emitterForGPU.color = boneEmitter_.color;
-
-			// frequency初期化
-			emitterForGPU.frequency = boneEmitter_.frequency;
-
-			// particleLifeSpan初期化
-			emitterForGPU.particleLifeSpan = boneEmitter_.particleLifeSpan;
-
-			// その他のメンバー変数初期化
-			emitterForGPU.textureIndex = boneEmitter_.textureIndex;
-
-			emitterForGPU.createParticleNum = uint32_t(born.Length()) * uint32_t(std::pow(uint32_t(colliderSize_[joint.name]), 3));
-			
-			//gpuParticleManager_->SetEmitter(emitterForGPU);
+			emitters_.at(jointName).emitterArea.capsule.segment.origin = worldPos;
+			emitters_.at(jointName).emitterArea.capsule.segment.diff = parentPos;
+			emitters_.at(jointName).emitterArea.capsule.radius = colliderSize_[jointName];
+			emitters_.at(jointName).emitterArea.position = { 0.0f, 0.0f, 0.0f };
+			emitters_.at(jointName).emitterArea.type = GPUParticleShaderStructs::Type::kCapsule;
+			gpuParticleManager_->SetEmitter(emitters_.at(jointName));
 		}
 	}
 }

@@ -75,6 +75,7 @@ namespace ParticleManager {
 		kBullets,
 		kBulletNum,
 		kAllParticle,
+		kRandomBuff,
 		kBulletForGPUSigunatureCount,
 	};
 }
@@ -122,7 +123,7 @@ void GPUParticleManager::Update(const ViewProjection& viewProjection, CommandCon
 
 	commandContext.SetComputeRootSignature(*bulletRootSignature_);
 	commandContext.SetPipelineState(*bulletPipelineState_);
-	gpuParticle_->BulletUpdate(commandContext);
+	gpuParticle_->BulletUpdate(commandContext,randomBuffer_);
 }
 
 void GPUParticleManager::Draw(const ViewProjection& viewProjection, CommandContext& commandContext) {
@@ -482,6 +483,7 @@ void GPUParticleManager::CreateBullet() {
 		rootParameters[ParticleManager::BulletForGPUSigunature::kBullets].InitAsDescriptorTable(_countof(bulletRange), bulletRange);
 		rootParameters[ParticleManager::BulletForGPUSigunature::kBulletNum].InitAsConstantBufferView(0);
 		rootParameters[ParticleManager::BulletForGPUSigunature::kAllParticle].InitAsUnorderedAccessView(0);
+		rootParameters[ParticleManager::BulletForGPUSigunature::kRandomBuff].InitAsConstantBufferView(1);
 		D3D12_ROOT_SIGNATURE_DESC desc{};
 		desc.pParameters = rootParameters;
 		desc.NumParameters = _countof(rootParameters);

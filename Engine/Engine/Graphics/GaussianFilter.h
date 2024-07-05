@@ -18,5 +18,6 @@ public:
 private:
 	RootSignature rootSignature_;
 	PipelineState pipelineState_;
+	PipelineState depthPipelineState_;
 	ColorBuffer temporaryBuffer_;
 };

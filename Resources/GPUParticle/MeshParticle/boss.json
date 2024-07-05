@@ -1,7 +1,7 @@
 {
     "CollisionInfo": {
-        "attribute": 2,
-        "mask": 4
+        "attribute": 4,
+        "mask": 2
     },
     "EmitterColor": {
         "End": {

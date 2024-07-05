@@ -34,17 +34,18 @@ public:
 
 	Animation::Animation* GetAnimation() { return &animation_; }
 	const ModelHandle& GetModelHandle() { return bossModelHandle_; }
-	void DrawImGui(); 
+	void DrawImGui();
 	void DrawDebug(const ViewProjection& viewProjection);
-	std::unordered_map<std::string, std::unique_ptr<BossCollider>>& GetCollider() {	return bossCollider_;}
-	std::unordered_map<std::string, GPUParticleShaderStructs::EmitterForCPU>& GetEmitters() {	return emitters_;}
+	std::unordered_map<std::string, std::unique_ptr<BossCollider>>& GetCollider() { return bossCollider_; }
+	std::unordered_map<std::string, GPUParticleShaderStructs::EmitterForCPU>& GetEmitters() { return emitters_; }
+	std::unordered_map<std::string, uint32_t>& GetInitializeParticleNum() { return initializeParticleNum_; }
 	const std::vector<std::string>& GetColliderType(const std::string& name) { return colliderType_[name]; }
 
 	const GPUParticleShaderStructs::EmitterColor& GetAttackColor() { return attackColor_; }
 	const GPUParticleShaderStructs::EmitterColor& GetDefaultColor() { return defaultColor_; }
 private:
 	void UpdateCollider();
-	void UpdateGPUParticle();
+	void UpdateGPUParticle(CommandContext& commandContext);
 	void UpdateTransform();
 	void OnCollisionBody(const ColliderDesc& desc);
 	void OnCollisionAttack(const ColliderDesc& desc);
@@ -57,18 +58,23 @@ private:
 	Animation::Animation animation_;
 
 	WorldTransform animationTransform_;
+	/// <summary>
+	GPUParticleShaderStructs::ParticleLifeSpan particleLifeSpan;
+	GPUParticleShaderStructs::ScaleAnimation scaleAnimation;
+	/// </summary>
 	GPUParticleShaderStructs::MeshEmitterDesc meshEmitterDesc_;
 	GPUParticleShaderStructs::VertexEmitterDesc vertexEmitterDesc_;
 
 	WorldTransform worldTransform_;
 
-	std::unordered_map<std::string,std::unique_ptr<BossCollider>> bossCollider_;
+	std::unordered_map<std::string, std::unique_ptr<BossCollider>> bossCollider_;
 
 	std::unique_ptr<BossStateManager> bossStateManager_;
 	std::unique_ptr<BossHP> bossHP_;
 #pragma region Collision
 	std::unordered_map<std::string, float> colliderSize_;
 	std::unordered_map<std::string, GPUParticleShaderStructs::EmitterForCPU> emitters_;
+	std::unordered_map<std::string, uint32_t> initializeParticleNum_;
 	GPUParticleShaderStructs::EmitterColor attackColor_;
 	GPUParticleShaderStructs::EmitterColor defaultColor_;
 

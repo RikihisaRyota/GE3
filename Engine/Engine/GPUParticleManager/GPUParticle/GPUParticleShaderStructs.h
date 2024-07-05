@@ -1,7 +1,9 @@
 #pragma once
 
+
 #include <string>
 #include <limits>
+#include <tuple>
 
 #include <d3d12.h>
 
@@ -20,6 +22,7 @@ namespace GPUParticleShaderStructs {
 	static const UINT MaxParticleNum = 1 << MaxParticleShouldBeSquare;
 	static const UINT MaxEmitterNum = 1024;
 	static const UINT MaxBulletNum = 10;
+	static const UINT MaxProcessNum = 1;
 
 
 #pragma region Utility
@@ -145,11 +148,13 @@ struct Particle
 	// エミッターの生成範囲と生成場所
 	struct EmitterAABB {
 		Vector3MinMax area;
+		Vector3 position;
+		float pad;
 	};
 
 	struct EmitterSphere {
 		float radius;
-		Vector3 pad;
+		Vector3 position;
 	};
 
 	struct EmitterSegment {
@@ -173,8 +178,8 @@ struct Particle
 		EmitterAABB aabb;
 		EmitterSphere sphere;
 		EmitterCapsule capsule;
-		Vector3 position;
 		uint32_t type;
+		Vector3 pad;
 	};
 
 	// エミッターの生成範囲と生成場所
@@ -332,7 +337,7 @@ struct Particle
 			float radius;
 			float speed;
 			Vector3 pad;
-		}bullet;
+		} bullet;
 		struct Emitter {
 			ParticleLifeSpan particleLifeSpan;
 		}emitter;
@@ -347,13 +352,55 @@ struct Particle
 		D3D12_DRAW_INDEXED_ARGUMENTS drawIndex;
 	};
 
+	void EmitterEditor(const std::string name, std::tuple<bool*, EmitterForCPU*> emitter);
+	void EmitterEditor(const std::string name, std::tuple<bool*, MeshEmitterDesc*> desc);
+	void EmitterEditor(const std::string name, std::tuple<bool*, VertexEmitterDesc*> desc);
+
 	void Debug(const std::string name, EmitterForCPU& emitter);
 	void Debug(const std::string name, MeshEmitterDesc& desc);
 	void Debug(const std::string name, VertexEmitterDesc& desc);
+
+	void Update();
+
 	void Save(const std::string name, EmitterForCPU& emitter);
 	void Load(const std::string name, EmitterForCPU& emitter);
 	void Save(const std::string name, MeshEmitterDesc& desc);
 	void Load(const std::string name, MeshEmitterDesc& desc);
 	void Save(const std::string name, VertexEmitterDesc& desc);
 	void Load(const std::string name, VertexEmitterDesc& desc);
+
+
+	void SaveMinMax(GPUParticleShaderStructs::UintMinMax& startEnd);
+
+	void LoadMinMax(GPUParticleShaderStructs::UintMinMax& startEnd);
+
+	void SaveMinMax(GPUParticleShaderStructs::Vector3MinMax& startEnd);
+
+	void LoadMinMax(GPUParticleShaderStructs::Vector3MinMax& startEnd);
+
+	void SaveMinMax(GPUParticleShaderStructs::Vector4MinMax& startEnd);
+
+	void LoadMinMax(GPUParticleShaderStructs::Vector4MinMax& startEnd);
+
+	void DrawMinMax(GPUParticleShaderStructs::UintMinMax& startEnd, float v_speed = 1.0f, int v_min = 0, int v_max = 0);
+
+	void DrawMinMax(GPUParticleShaderStructs::Vector3MinMax& startEnd, float v_speed = 1.0f, float v_min = 0.0f, float v_max = 0.0f);
+
+	void DrawMinMax(GPUParticleShaderStructs::Vector4MinMax& startEnd, float v_speed = 1.0f, float v_min = 0.0f, float v_max = 0.0f);
+
+	void DrawColorMinMax(GPUParticleShaderStructs::Vector4MinMax& startEnd);
+
+	void LoadStartEnd(GPUParticleShaderStructs::Vector3StartEnd& startEnd);
+
+	void SaveStartEnd(GPUParticleShaderStructs::Vector3StartEnd& startEnd);
+
+	void LoadStartEnd(GPUParticleShaderStructs::Vector4StartEnd& startEnd);
+
+	void SaveStartEnd(GPUParticleShaderStructs::Vector4StartEnd& startEnd);
+
+	void DrawStartEnd(GPUParticleShaderStructs::Vector3StartEnd& startEnd, float v_speed = 1.0f, float v_min = 0.0f, float v_max = 0.0f);
+
+	void DrawStartEnd(GPUParticleShaderStructs::Vector4StartEnd& startEnd, float v_speed = 1.0f, float v_min = 0.0f, float v_max = 0.0f);
+
+	void DrawColor(GPUParticleShaderStructs::Vector4StartEnd& startEnd);
 }

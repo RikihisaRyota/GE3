@@ -11,6 +11,7 @@
 #include "Engine/Texture/TextureHandle.h"
 #include "Engine/Collision/Collider.h"
 
+class Boss;
 class CommandContext;
 class PlayerBullet {
 public:
@@ -22,11 +23,12 @@ public:
 
 	const Vector3 GetPosition()const { return worldTransform_.translate; }
 	const float GetRadius() const { return radius_; }
-
+	void SetBoss(Boss* boss) { boss_ = boss; }
 private:
 	void OnCollision(const ColliderDesc& desc);
 	void UpdateTransform();
 
+	Boss* boss_;
 	GPUParticleManager* gpuParticleManager_;
 
 	std::unique_ptr<SphereCollider> collider_;

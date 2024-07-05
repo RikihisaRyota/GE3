@@ -18,12 +18,19 @@ AppendStructuredBuffer<uint> outputDrawIndexCommands : register(u2);
 [numthreads(threadBlockSize, 1, 1)]
 void main(uint3 DTid : SV_DispatchThreadID)
 {
-    uint index = DTid.x;
+    //uint index = DTid.x ;
+    for(uint32_t i=0;i<processNum ;i++){
+    uint index = DTid.x * processNum + i;
+    if( index > maxParticleNum){
+        return;
+    }
     if (input[index].isAlive)
     {
         float t = float(input[index].particleLifeTime.time) / float(input[index].particleLifeTime.maxTime);
 
         // 移動
+        //float gravity=0.01f;
+        //input[index].velocity.y-=gravity;
         input[index].translate += input[index].velocity;
 
         float32_t4x4 translateMatrix=MakeTranslationMatrix(input[index].translate);
@@ -69,4 +76,5 @@ void main(uint3 DTid : SV_DispatchThreadID)
         }
         input[index].particleLifeTime.time++;
     }
+}
 }

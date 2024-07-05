@@ -46,10 +46,16 @@ void DepthBuffer::CreateViews() {
 	if (dsvHandle_.IsNull()) {
 		dsvHandle_ = graphics->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
 	}
+	if (readOnlyDSVHandle_.IsNull()) {
+		readOnlyDSVHandle_ = graphics->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
+	}
 	if (srvHandle_.IsNull()) {
 		srvHandle_ = graphics->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 	}
 	auto device = graphics->GetDevice();
 	device->CreateDepthStencilView(resource_.Get(), &dsvDesc, dsvHandle_);
 	device->CreateShaderResourceView(resource_.Get(), &srvDesc, srvHandle_);
+
+	dsvDesc.Flags = D3D12_DSV_FLAG_READ_ONLY_DEPTH;
+	device->CreateDepthStencilView(resource_.Get(), &dsvDesc, readOnlyDSVHandle_);
 }

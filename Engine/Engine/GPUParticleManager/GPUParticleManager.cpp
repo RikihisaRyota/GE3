@@ -99,8 +99,6 @@ void GPUParticleManager::Update(const ViewProjection& viewProjection, CommandCon
 	UINT seed = static_cast<UINT>(std::chrono::system_clock::now().time_since_epoch().count());
 	randomBuffer_.Copy(&seed, sizeof(UINT));
 
-
-
 	commandContext.SetComputeRootSignature(*checkEmitterComputeRootSignature_);
 	commandContext.SetPipelineState(*checkEmitterComputePipelineState_);
 	gpuParticle_->CheckEmitter(commandContext);
@@ -123,10 +121,15 @@ void GPUParticleManager::Update(const ViewProjection& viewProjection, CommandCon
 
 	commandContext.SetComputeRootSignature(*bulletRootSignature_);
 	commandContext.SetPipelineState(*bulletPipelineState_);
-	gpuParticle_->BulletUpdate(commandContext,randomBuffer_);
+	gpuParticle_->BulletUpdate(commandContext, randomBuffer_);
 }
 
 void GPUParticleManager::Draw(const ViewProjection& viewProjection, CommandContext& commandContext) {
+	//commandContext.TransitionResource(RenderManager::GetInstance()->GetMainDepthBuffer(), D3D12_RESOURCE_STATE_DEPTH_READ);
+	//commandContext.FlushResourceBarriers();
+
+	//commandContext.SetRenderTarget(RenderManager::GetInstance()->GetMainColorBuffer().GetRTV(), RenderManager::GetInstance()->GetMainDepthBuffer().GetReadOnlyDSV());
+
 	commandContext.SetGraphicsRootSignature(*graphicsRootSignature_);
 	commandContext.SetPipelineState(*graphicsPipelineState_);
 
@@ -134,6 +137,8 @@ void GPUParticleManager::Draw(const ViewProjection& viewProjection, CommandConte
 	commandContext.SetVertexBuffer(0, vbView_);
 	commandContext.SetIndexBuffer(ibView_);
 	gpuParticle_->Draw(viewProjection, commandContext);
+	//commandContext.TransitionResource(RenderManager::GetInstance()->GetMainDepthBuffer(), D3D12_RESOURCE_STATE_DEPTH_WRITE);
+	//commandContext.FlushResourceBarriers();
 }
 
 void GPUParticleManager::DrawImGui() {
@@ -162,18 +167,32 @@ void GPUParticleManager::CreateVertexParticle(const ModelHandle& modelHandle, An
 }
 
 void GPUParticleManager::CreateVertexParticle(const ModelHandle& modelHandle, const WorldTransform& worldTransform, const GPUParticleShaderStructs::VertexEmitterDesc& mesh, CommandContext& commandContext) {
-	commandContext.SetComputeRootSignature(*vertexParticleRootSignature_);
-	commandContext.SetPipelineState(*vertexParticlePipelineState_);
+	commandContext.SetComputeRootSignature(*edgeParticleRootSignature_);
+	commandContext.SetPipelineState(*edgeParticlePipelineState_);
 
 	gpuParticle_->CreateVertexParticle(modelHandle, worldTransform, mesh, randomBuffer_, commandContext);
+}
+
+void GPUParticleManager::CreateEdgeParticle(const ModelHandle& modelHandle, Animation::Animation& animation, const WorldTransform& worldTransform, const GPUParticleShaderStructs::MeshEmitterDesc& mesh, CommandContext& commandContext) {
+	commandContext.SetComputeRootSignature(*edgeParticleRootSignature_);
+	commandContext.SetPipelineState(*edgeParticlePipelineState_);
+
+	gpuParticle_->CreateEdgeParticle(modelHandle, animation, worldTransform, mesh, randomBuffer_, commandContext);
+}
+
+void GPUParticleManager::CreateEdgeParticle(const ModelHandle& modelHandle, const WorldTransform& worldTransform, const GPUParticleShaderStructs::MeshEmitterDesc& mesh, CommandContext& commandContext) {
+	commandContext.SetComputeRootSignature(*edgeParticleRootSignature_);
+	commandContext.SetPipelineState(*edgeParticlePipelineState_);
+
+	gpuParticle_->CreateEdgeParticle(modelHandle, worldTransform, mesh, randomBuffer_, commandContext);
 }
 
 void GPUParticleManager::SetEmitter(const GPUParticleShaderStructs::EmitterForCPU& emitter) {
 	gpuParticle_->Create(emitter);
 }
 
-void GPUParticleManager::SetBullets(const std::vector<GPUParticleShaderStructs::BulletForGPU>& bullets) {
-	gpuParticle_->SetBullets(bullets);
+void GPUParticleManager::SetBullet(const GPUParticleShaderStructs::BulletForGPU& bullets) {
+	gpuParticle_->SetBullet(bullets);
 }
 
 void GPUParticleManager::CreateParticleBuffer() {
@@ -246,7 +265,7 @@ void GPUParticleManager::CreateGraphics() {
 		desc.VS = CD3DX12_SHADER_BYTECODE(vs->GetBufferPointer(), vs->GetBufferSize());
 		desc.PS = CD3DX12_SHADER_BYTECODE(ps->GetBufferPointer(), ps->GetBufferSize());
 		desc.BlendState = Helper::BlendAdditive;
-		desc.DepthStencilState = Helper::DepthStateReadWrite;
+		desc.DepthStencilState = Helper::DepthStateRead;
 		desc.RasterizerState = Helper::RasterizerNoCull;
 		desc.NumRenderTargets = 1;
 		desc.RTVFormats[0] = RenderManager::GetInstance()->GetRenderTargetFormat();
@@ -589,4 +608,51 @@ void GPUParticleManager::CreateMeshParticle() {
 		desc.CS = CD3DX12_SHADER_BYTECODE(cs->GetBufferPointer(), cs->GetBufferSize());
 		vertexParticlePipelineState_->Create(L"VertexParticle CPSO", desc);
 	}
+
+	{
+		enum {
+			kParticle,
+			kParticleIndex,
+			kParticleIndexCounter,
+			kVertices,
+			kIndices,
+			kRandom,
+			kWorldTransform,
+			kIndexCount,
+			kMeshEmitter,
+			kCount,
+		};
+
+		edgeParticleRootSignature_ = std::make_unique<RootSignature>();
+
+		CD3DX12_DESCRIPTOR_RANGE particleIndexCommandsRange[1]{};
+		particleIndexCommandsRange[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 1, 0);
+
+		CD3DX12_ROOT_PARAMETER rootParameters[kCount]{};
+
+		rootParameters[kParticle].InitAsUnorderedAccessView(0);
+		rootParameters[kParticleIndex].InitAsDescriptorTable(_countof(particleIndexCommandsRange), particleIndexCommandsRange);
+		rootParameters[kParticleIndexCounter].InitAsUnorderedAccessView(2);
+		rootParameters[kVertices].InitAsShaderResourceView(0);
+		rootParameters[kIndices].InitAsShaderResourceView(1);
+		rootParameters[kRandom].InitAsConstantBufferView(0);
+		rootParameters[kWorldTransform].InitAsConstantBufferView(1);
+		rootParameters[kIndexCount].InitAsConstantBufferView(2);
+		rootParameters[kMeshEmitter].InitAsConstantBufferView(3);
+
+		D3D12_ROOT_SIGNATURE_DESC desc{};
+		desc.pParameters = rootParameters;
+		desc.NumParameters = _countof(rootParameters);
+
+		edgeParticleRootSignature_->Create(L"EdgeParticleRootSignature", desc);
+	}
+	{
+		edgeParticlePipelineState_ = std::make_unique<PipelineState>();
+		D3D12_COMPUTE_PIPELINE_STATE_DESC desc{};
+		desc.pRootSignature = *edgeParticleRootSignature_;
+		auto cs = ShaderCompiler::Compile(L"Resources/Shaders/GPUParticle/EdgeParticle.hlsl", L"cs_6_0");
+		desc.CS = CD3DX12_SHADER_BYTECODE(cs->GetBufferPointer(), cs->GetBufferSize());
+		edgeParticlePipelineState_->Create(L"EdgeParticle CPSO", desc);
+	}
+
 }

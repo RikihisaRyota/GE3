@@ -30,9 +30,16 @@ public:
 	Dissolve& GetDissolve() { return dissolve_; }
 
 	CommandContext& GetCommandContext() { return commandContexts_[swapChain_.GetBufferIndex()]; }
+
+	ColorBuffer& GetMainColorBuffer() { return mainColorBuffer_; }
+	DepthBuffer& GetMainDepthBuffer() { return mainDepthBuffer_; }
+
 	SwapChain& GetSwapChain() { return swapChain_; }
 	DXGI_FORMAT GetRenderTargetFormat() { return mainColorBufferFormat_; }
 	DXGI_FORMAT GetDepthFormat() { return mainDepthBufferFormat_; }
+
+	void SetRenderTarget(ColorBuffer& target);
+	void SetRenderTarget(ColorBuffer& target,DepthBuffer& depth);
 private:
 	RenderManager() = default;
 	RenderManager(const RenderManager&) = delete;

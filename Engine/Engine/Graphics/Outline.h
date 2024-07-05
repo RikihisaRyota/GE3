@@ -17,12 +17,15 @@ public:
 		kCount
 	};
 
-	void Initialize(const ColorBuffer& target, const DepthBuffer& depth);
+	void Initialize(const ColorBuffer& target);
 	void Render(CommandContext& commandContext,ColorBuffer& texture,DepthBuffer& depth ,const ViewProjection& viewProjection);
+	void SetFlag(bool flag) { isUsed_ = flag; }
+	bool GetFlag() { return isUsed_; }
 private:
 	RootSignature rootSignature_;
 	PipelineState pipelineState_;
 	ColorBuffer temporaryBuffer_;
 
 	UploadBuffer inverseCameraBuffer_;
+	bool isUsed_;
 };

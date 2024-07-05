@@ -36,9 +36,12 @@ public:
 	void CreateMeshParticle(const ModelHandle& modelHandle, const WorldTransform& worldTransform, const GPUParticleShaderStructs::MeshEmitterDesc& mesh, CommandContext& commandContext);
 	void CreateVertexParticle(const ModelHandle& modelHandle, Animation::Animation& animation, const WorldTransform& worldTransform, const GPUParticleShaderStructs::VertexEmitterDesc& mesh, CommandContext& commandContext);
 	void CreateVertexParticle(const ModelHandle& modelHandle, const WorldTransform& worldTransform, const GPUParticleShaderStructs::VertexEmitterDesc& mesh, CommandContext& commandContext);
+	void CreateEdgeParticle(const ModelHandle& modelHandle, Animation::Animation& animation, const WorldTransform& worldTransform, const GPUParticleShaderStructs::MeshEmitterDesc& mesh, CommandContext& commandContext);
+	void CreateEdgeParticle(const ModelHandle& modelHandle, const WorldTransform& worldTransform, const GPUParticleShaderStructs::MeshEmitterDesc& mesh, CommandContext& commandContext);
+
 
 	void SetEmitter(const GPUParticleShaderStructs::EmitterForCPU& emitterForCPU);
-	void SetBullets(const std::vector<GPUParticleShaderStructs::BulletForGPU>& bullets);
+	void SetBullet(const GPUParticleShaderStructs::BulletForGPU& bullets);
 
 private:
 	void CreateParticleBuffer();
@@ -71,6 +74,8 @@ private:
 	std::unique_ptr<RootSignature> meshParticleRootSignature_;
 	std::unique_ptr<PipelineState> vertexParticlePipelineState_;
 	std::unique_ptr<RootSignature> vertexParticleRootSignature_;
+	std::unique_ptr<PipelineState> edgeParticlePipelineState_;
+	std::unique_ptr<RootSignature> edgeParticleRootSignature_;
 
 	UploadBuffer vertexBuffer_;
 	D3D12_VERTEX_BUFFER_VIEW vbView_{};

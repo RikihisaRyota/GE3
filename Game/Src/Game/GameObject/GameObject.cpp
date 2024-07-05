@@ -7,7 +7,7 @@
 #include "Engine/ImGui/ImGuiManager.h"
 
 GameObject::GameObject(const LevelDataLoader::GameObject& desc, const WorldTransform* worldTransform) {
-	
+
 	desc_ = desc;
 
 	modelHandle_ = ModelManager::GetInstance()->Load(desc.fileName);
@@ -25,7 +25,7 @@ GameObject::GameObject(const LevelDataLoader::GameObject& desc, const WorldTrans
 		collider_->SetSize(desc.collider->size);
 		collider_->SetCallback([this](const ColliderDesc& collisionInfo) { OnCollision(collisionInfo); });
 		collider_->SetCollisionAttribute(CollisionAttribute::GameObject);
-		collider_->SetCollisionMask(CollisionAttribute::Player | CollisionAttribute::PlayerBullet| CollisionAttribute::BossBody);
+		collider_->SetCollisionMask(CollisionAttribute::Player | CollisionAttribute::PlayerBullet | CollisionAttribute::BossBody);
 		collider_->SetIsActive(true);
 	}
 }
@@ -49,7 +49,9 @@ void GameObject::Draw(const ViewProjection& viewProjection, CommandContext& comm
 }
 
 void GameObject::DrawDebug(const ViewProjection& viewProjection) {
-	collider_->DrawCollision(viewProjection, colliderColor_);
+	if (collider_) {
+		collider_->DrawCollision(viewProjection, colliderColor_);
+	}
 }
 
 void GameObject::DrawImGui() {

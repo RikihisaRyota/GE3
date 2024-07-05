@@ -16,7 +16,7 @@
 #include "Engine/Math/ViewProjection.h"
 #include "Engine/Math/MyMath.h"
 
-void Outline::Initialize(const ColorBuffer& target,const DepthBuffer& depth) {
+void Outline::Initialize(const ColorBuffer& target) {
 	auto graphics = GraphicsCore::GetInstance();
 	auto device = graphics->GetDevice();
 	{
@@ -31,7 +31,7 @@ void Outline::Initialize(const ColorBuffer& target,const DepthBuffer& depth) {
 		rootParameters[RootParameter::kDepthTexture].InitAsDescriptorTable(_countof(depthTextureRange), depthTextureRange, D3D12_SHADER_VISIBILITY_PIXEL);
 
 		CD3DX12_STATIC_SAMPLER_DESC staticSampler[2];
-		staticSampler[0]= CD3DX12_STATIC_SAMPLER_DESC(
+		staticSampler[0] = CD3DX12_STATIC_SAMPLER_DESC(
 			0,
 			D3D12_FILTER_MIN_MAG_MIP_LINEAR,
 			D3D12_TEXTURE_ADDRESS_MODE_CLAMP,
@@ -75,42 +75,43 @@ void Outline::Initialize(const ColorBuffer& target,const DepthBuffer& depth) {
 		desc.VS = CD3DX12_SHADER_BYTECODE(vs->GetBufferPointer(), vs->GetBufferSize());
 		desc.PS = CD3DX12_SHADER_BYTECODE(ps->GetBufferPointer(), ps->GetBufferSize());
 		desc.BlendState = Helper::BlendAlpha;
-		desc.DepthStencilState = Helper::DepthStateRead;
+		desc.DepthStencilState = Helper::DepthStateDisabled;
 		desc.RasterizerState = Helper::RasterizerNoCull;
 		desc.NumRenderTargets = 1;
 		desc.RTVFormats[0] = target.GetFormat();
-		desc.DSVFormat = depth.GetFormat();
 		desc.SampleMask = D3D12_DEFAULT_SAMPLE_MASK;
 		desc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 		desc.SampleDesc.Count = 1;
 		pipelineState_.Create(L"OutlinePipeLine", desc);
 	}
 	{
-		inverseCameraBuffer_.Create(L"OutlineCameraInverse",sizeof(Matrix4x4));
+		inverseCameraBuffer_.Create(L"OutlineCameraInverse", sizeof(Matrix4x4));
 		temporaryBuffer_.Create(L"OutlineTempBuffer", target.GetWidth(), target.GetHeight(), target.GetFormat());
 	}
 }
 
-void Outline::Render(CommandContext& commandContext,ColorBuffer& texture, DepthBuffer& depth, const ViewProjection& viewProjection) {
-	Matrix4x4 tmp = Inverse(Mul(viewProjection.matView_, viewProjection.matProjection_));
-	inverseCameraBuffer_.Copy(&tmp,sizeof(Matrix4x4));
+void Outline::Render(CommandContext& commandContext, ColorBuffer& texture, DepthBuffer& depth, const ViewProjection& viewProjection) {
+	if (isUsed_) {
+		Matrix4x4 tmp = Inverse(Mul(viewProjection.matView_, viewProjection.matProjection_));
+		inverseCameraBuffer_.Copy(&tmp, sizeof(Matrix4x4));
 
-	commandContext.TransitionResource(temporaryBuffer_, D3D12_RESOURCE_STATE_RENDER_TARGET);
-	commandContext.SetRenderTarget(temporaryBuffer_.GetRTV());
-	commandContext.ClearColor(temporaryBuffer_);
-	commandContext.SetViewportAndScissorRect(0, 0, temporaryBuffer_.GetWidth(), temporaryBuffer_.GetHeight());
+		commandContext.TransitionResource(temporaryBuffer_, D3D12_RESOURCE_STATE_RENDER_TARGET);
+		commandContext.SetRenderTarget(temporaryBuffer_.GetRTV());
+		commandContext.ClearColor(temporaryBuffer_);
+		commandContext.SetViewportAndScissorRect(0, 0, temporaryBuffer_.GetWidth(), temporaryBuffer_.GetHeight());
 
-	commandContext.SetGraphicsRootSignature(rootSignature_);
-	commandContext.SetPipelineState(pipelineState_);
+		commandContext.SetGraphicsRootSignature(rootSignature_);
+		commandContext.SetPipelineState(pipelineState_);
 
-	commandContext.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		commandContext.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	commandContext.TransitionResource(texture, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-	commandContext.TransitionResource(depth, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-	commandContext.SetGraphicsConstantBuffer(RootParameter::kInverseCamera,inverseCameraBuffer_.GetGPUVirtualAddress());
-	commandContext.SetGraphicsDescriptorTable(RootParameter::kTexture, texture.GetSRV());
-	commandContext.SetGraphicsDescriptorTable(RootParameter::kDepthTexture, depth.GetSRV());
-	commandContext.Draw(3);
+		commandContext.TransitionResource(texture, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+		commandContext.TransitionResource(depth, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+		commandContext.SetGraphicsConstantBuffer(RootParameter::kInverseCamera, inverseCameraBuffer_.GetGPUVirtualAddress());
+		commandContext.SetGraphicsDescriptorTable(RootParameter::kTexture, texture.GetSRV());
+		commandContext.SetGraphicsDescriptorTable(RootParameter::kDepthTexture, depth.GetSRV());
+		commandContext.Draw(3);
 
-	commandContext.CopyBuffer(texture, temporaryBuffer_);
+		commandContext.CopyBuffer(texture, temporaryBuffer_);
+	}
 }

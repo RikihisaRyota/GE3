@@ -48,12 +48,15 @@ public:
 	void CreateMeshParticle(const ModelHandle& modelHandle, const WorldTransform& worldTransform, const GPUParticleShaderStructs::MeshEmitterDesc& mesh, const UploadBuffer& random, CommandContext& commandContext);
 	void CreateVertexParticle(const ModelHandle& modelHandle, Animation::Animation& animation, const WorldTransform& worldTransform, const GPUParticleShaderStructs::VertexEmitterDesc& mesh, const UploadBuffer& random, CommandContext& commandContext);
 	void CreateVertexParticle(const ModelHandle& modelHandle, const WorldTransform& worldTransform, const GPUParticleShaderStructs::VertexEmitterDesc& mesh, const UploadBuffer& random, CommandContext& commandContext);
+	void CreateEdgeParticle(const ModelHandle& modelHandle, Animation::Animation& animation, const WorldTransform& worldTransform, const GPUParticleShaderStructs::MeshEmitterDesc& mesh, const UploadBuffer& random, CommandContext& commandContext);
+	void CreateEdgeParticle(const ModelHandle& modelHandle, const WorldTransform& worldTransform, const GPUParticleShaderStructs::MeshEmitterDesc& mesh, const UploadBuffer& random, CommandContext& commandContext);
+
 	void SetDrawCommandSignature(CommandSignature* commandSignature) { commandSignature_ = commandSignature; }
 	void SetSpawnCommandSignature(CommandSignature* commandSignature) { spawnCommandSignature_ = commandSignature; }
 	void Create(const GPUParticleShaderStructs::EmitterForCPU& emitterForGPU);
 
 	void SetEmitter(const GPUParticleShaderStructs::EmitterForCPU& emitterForGPU);
-	void SetBullets(const std::vector<GPUParticleShaderStructs::BulletForGPU>& bullets);
+	void SetBullet(const GPUParticleShaderStructs::BulletForGPU& bullet);
 private:
 	void InitializeParticleBuffer();
 	void InitializeUpdateParticle();
@@ -101,6 +104,7 @@ private:
 	// 弾
 	StructuredBuffer bulletsBuffer_;
 	UploadBuffer bulletCountBuffer_;
+	std::vector<GPUParticleShaderStructs::BulletForGPU> bullets_;
 	// メッシュパーティクル
 
 	UINT particleIndexSize_;

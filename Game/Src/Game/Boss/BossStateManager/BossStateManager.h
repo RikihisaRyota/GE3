@@ -75,6 +75,36 @@ private:
 	JsonData data_;
 };
 
+class BossStateRightHandHook :
+	public BossState {
+public:
+	struct JsonData {
+		float allFrame;
+		float transitionFrame;
+	};
+	using BossState::BossState;
+	void Initialize() override;
+	void SetDesc() override;
+	void Update(CommandContext& commandContext) override;
+private:
+	JsonData data_;
+};
+
+class BossStateRightKick :
+	public BossState {
+public:
+	struct JsonData {
+		float allFrame;
+		float transitionFrame;
+	};
+	using BossState::BossState;
+	void Initialize() override;
+	void SetDesc() override;
+	void Update(CommandContext& commandContext) override;
+private:
+	JsonData data_;
+};
+
 
 class BossStateManager {
 public:
@@ -82,13 +112,17 @@ public:
 		"None",
 		"Root",
 		"TwoHandAttack",
-		"UpperAttack"
+		"UpperAttack",
+		"RightHandHook",
+		"RightKick",
 	};
 	enum State {
 		kNone,
 		kRoot,
 		kTwoHandAttack,
 		kUpperAttack,
+		kRightHandHook,
+		kRightKick,
 		kCount,
 	};
 
@@ -96,6 +130,8 @@ public:
 		BossStateRoot::JsonData root;
 		BossStateTwoHandAttack::JsonData twoHand;
 		BossStateUpperAttack::JsonData upper;
+		BossStateRightHandHook::JsonData rightHandHook;
+		BossStateRightKick::JsonData rightKick;
 	};
 
 	void SetBoss(Boss* boss) { boss_ = boss; }

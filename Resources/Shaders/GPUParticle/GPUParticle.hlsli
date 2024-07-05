@@ -2,6 +2,8 @@
 #define threadBlockSize 1024
 #define meshThreadBlockSize  1024
 #define emitterSize 1024
+#define processNum 1
+#define maxParticleNum 2<<22
 
 // Utility
 struct UintMinMax
@@ -90,12 +92,14 @@ struct Particle
 struct EmitterAABB
 {
     Float3MinMax range;
+    float32_t3 position;
+    float pad;
 };
 
 struct EmitterSphere
 {
     float32_t radius;
-    float32_t3 pad;
+    float32_t3 position;
 };
 struct EmitterSegment {
 		float32_t3 origin;
@@ -112,8 +116,8 @@ struct EmitterArea{
     EmitterAABB aabb;
     EmitterSphere sphere;
     EmitterCapsule capsule;
-    float32_t3 position;
     uint32_t type;
+    float32_t3 pad;
 };
 
 struct ScaleAnimation

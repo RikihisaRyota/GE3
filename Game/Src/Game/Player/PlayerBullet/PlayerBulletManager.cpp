@@ -11,6 +11,9 @@
 #include "Engine/ImGui/ImGuiManager.h"
 
 #include "Engine/Collision/CollisionAttribute.h"
+
+#include "Src/Game/Boss/Boss.h"
+
 PlayerBulletManager::PlayerBulletManager() {
 	ModelManager::GetInstance()->Load("Resources/Models/Bullet/bullet.gltf");
 	JSON_OPEN("Resources/Data/Player/playerBullet.json");
@@ -31,7 +34,7 @@ void PlayerBulletManager::Initialize() {
 void PlayerBulletManager::Update() {
 	bulletTime_++;
 	bulletTime_ = std::clamp(bulletTime_, 0, bulletCoolTime_);
-	std::vector<GPUParticleShaderStructs::BulletForGPU> bullets;
+	GPUParticleShaderStructs::BulletForGPU bullet;
 	// 弾の更新と生存状態の確認
 	auto iter = playerBullets_.begin();
 	while (iter != playerBullets_.end()) {
@@ -43,18 +46,17 @@ void PlayerBulletManager::Update() {
 			iter = playerBullets_.erase(iter); // 削除して、次の要素を指す
 		}
 		else {
-			bullets.emplace_back(GPUParticleShaderStructs::BulletForGPU());
-			bullets.back().collisionInfo.mask = CollisionAttribute::PlayerBullet;
-			bullets.back().collisionInfo.attribute = CollisionAttribute::BossBody;
-			bullets.back().bullet.position = (*iter)->GetPosition();
-			bullets.back().bullet.radius = (*iter)->GetRadius()*5.0f;
-			bullets.back().bullet.speed = bulletSpeed_ * 0.1f;
-			bullets.back().emitter.particleLifeSpan.range.min=60;
-			bullets.back().emitter.particleLifeSpan.range.max=360;
+			bullet.collisionInfo.attribute = CollisionAttribute::PlayerBullet;
+			bullet.collisionInfo.mask = CollisionAttribute::BossBody;
+			bullet.bullet.position = (*iter)->GetPosition();
+			bullet.bullet.radius = (*iter)->GetRadius() * 5.0f;
+			bullet.bullet.speed = bulletSpeed_ * 0.1f;
+			bullet.emitter.particleLifeSpan.range.min = 60;
+			bullet.emitter.particleLifeSpan.range.max = 360;
 			++iter; // 次の弾へ移動
+			gpuParticleManager_->SetBullet(bullet);
 		}
 	}
-	gpuParticleManager_->SetBullets(bullets);
 }
 
 void PlayerBulletManager::DrawImGui() {
@@ -139,6 +141,7 @@ void PlayerBulletManager::Create(const WorldTransform& worldTransform) {
 		}
 		// 弾を作成
 		playerBullets_.emplace_back(std::make_unique<PlayerBullet>());
+		playerBullets_.back()->SetBoss(boss_);
 		playerBullets_.back()->Create(gpuParticleManager_, playerPosition, bulletVelocity, bulletLifeTime_);
 	}
 

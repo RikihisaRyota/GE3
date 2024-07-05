@@ -45,9 +45,9 @@ GameScene::GameScene() {
 	//gpuParticleEditor_->Initialize();
 	gpuParticleManager_->Initialize();
 
+	player_->SetBoss(boss_.get());
 	player_->SetGPUParticleManager(gpuParticleManager_.get());
 	boss_->SetGPUParticleManager(gpuParticleManager_.get());
-
 
 	GPUParticleShaderStructs::Load("test", test_);
 
@@ -136,14 +136,13 @@ void GameScene::Update(CommandContext& commandContext) {
 	}
 
 
-	gpuParticleManager_->SetEmitter(test_);
+	//gpuParticleManager_->SetEmitter(test_);
 	gpuParticleManager_->Update(*viewProjection_, RenderManager::GetInstance()->GetCommandContext());
 	//gpuParticleEditor_->Update(RenderManager::GetInstance()->GetCommandContext());
 
 	CollisionManager::GetInstance()->Collision();
 #ifdef _DEBUG
 	gpuParticleManager_->DrawImGui();
-	GPUParticleShaderStructs::Debug("test", test_);
 	skybox_->DrawImGui();
 	followCamera_->DrawImGui();
 	player_->DrawImGui();
@@ -151,6 +150,8 @@ void GameScene::Update(CommandContext& commandContext) {
 	for (auto& object : gameObject_) {
 		object->DrawImGui();
 	}
+	GPUParticleShaderStructs::Debug("test", test_);
+	GPUParticleShaderStructs::Update();
 	if (Input::GetInstance()->PushKey(DIK_R)) {
 		skybox_->Initialize();
 		followCamera_->Initialize();
@@ -165,16 +166,14 @@ void GameScene::Update(CommandContext& commandContext) {
 }
 
 void GameScene::Draw(CommandContext& commandContext) {
-	gpuParticleManager_->Draw(*viewProjection_, commandContext);
-
 	player_->Draw(*viewProjection_, commandContext);
 	boss_->Draw(*viewProjection_, commandContext);
 	for (auto& object : gameObject_) {
 		object->Draw(*viewProjection_, commandContext);
 	}
 
-	//gpuParticleEditor_->Draw(*viewProjection_, commandContext);
 
+	gpuParticleManager_->Draw(*viewProjection_, commandContext);
 	//skybox_->Draw(commandContext, *viewProjection_);
 	player_->DrawSprite(commandContext);
 #ifdef _DEBUG

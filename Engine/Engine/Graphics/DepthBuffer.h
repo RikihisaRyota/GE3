@@ -13,10 +13,12 @@ public:
 
 	const DescriptorHandle& GetSRV(void) const { return srvHandle_; }
 	const DescriptorHandle& GetDSV(void) const { return dsvHandle_; }
+	const DescriptorHandle& GetReadOnlyDSV(void) const { return readOnlyDSVHandle_; }
 private:
 	void CreateViews();
 
 	float clearValue_ = 1.0f;
 	DescriptorHandle dsvHandle_;
+	DescriptorHandle readOnlyDSVHandle_;
 	DescriptorHandle srvHandle_;
 };

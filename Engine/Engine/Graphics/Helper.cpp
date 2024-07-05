@@ -70,13 +70,13 @@ namespace Helper {
 
     const D3D12_BLEND_DESC BlendDisable =
         CreateBlendDesc(FALSE,
-            D3D12_BLEND_SRC_ALPHA,
-            D3D12_BLEND_INV_SRC_ALPHA,
+            D3D12_BLEND_ONE,
+            D3D12_BLEND_ZERO,
             D3D12_BLEND_OP_ADD,
             D3D12_BLEND_ONE,
             D3D12_BLEND_ZERO,
             D3D12_BLEND_OP_ADD,
-            0); // ブレンド無効
+            D3D12_COLOR_WRITE_ENABLE_ALL); // ブレンド無効
 
     const D3D12_BLEND_DESC BlendAlpha =
         CreateBlendDesc(TRUE,
@@ -119,7 +119,8 @@ namespace Helper {
             D3D12_COLOR_WRITE_ENABLE_ALL); // 減算合成
 
 
+
     const D3D12_DEPTH_STENCIL_DESC DepthStateDisabled = CreateDepthState(FALSE, D3D12_DEPTH_WRITE_MASK_ZERO, D3D12_COMPARISON_FUNC_ALWAYS);
-    const D3D12_DEPTH_STENCIL_DESC DepthStateRead = CreateDepthState(FALSE, D3D12_DEPTH_WRITE_MASK_ZERO, D3D12_COMPARISON_FUNC_LESS_EQUAL);
+    const D3D12_DEPTH_STENCIL_DESC DepthStateRead = CreateDepthState(TRUE, D3D12_DEPTH_WRITE_MASK_ZERO, D3D12_COMPARISON_FUNC_LESS_EQUAL);
     const D3D12_DEPTH_STENCIL_DESC DepthStateReadWrite = CreateDepthState(TRUE, D3D12_DEPTH_WRITE_MASK_ALL, D3D12_COMPARISON_FUNC_LESS_EQUAL);
 }

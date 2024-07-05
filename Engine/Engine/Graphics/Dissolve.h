@@ -26,6 +26,8 @@ public:
 	void Render(CommandContext& commandContext, ColorBuffer& texture);
 	void DrawImGui();
 	Desc& GetDesc() { return desc_; }
+	void SetFlag(bool flag) { isUsed_ = flag; }
+	bool GetFlag() { return isUsed_; }
 private:
 	RootSignature rootSignature_;
 	PipelineState pipelineState_;
@@ -34,4 +36,5 @@ private:
 	UploadBuffer thresholdBuffer_;
 
 	Desc desc_;
+	bool isUsed_;
 };

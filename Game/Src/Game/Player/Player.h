@@ -18,6 +18,7 @@
 
 #include "Engine/GPUParticleManager/GPUParticle/GPUParticleShaderStructs.h"
 
+class Boss;
 class GPUParticleManager;
 class CommandContext;
 class Player {
@@ -57,6 +58,10 @@ public:
 	}
 	const WorldTransform& GetWorldTransform() const { return worldTransform_; }
 	void DrawImGui();
+
+	void SetBoss(Boss* boss) { boss_ = boss; 
+	playerBulletManager_->SetBoss(boss_);
+	}
 private:
 	struct AnimationInfo {
 		Animation::AnimationHandle handle;
@@ -74,8 +79,9 @@ private:
 	void Shot();
 	void OnCollision(const ColliderDesc& desc);
 
-	void GPUParticleSpawn();
+	void GPUParticleSpawn(CommandContext& commandContext);
 
+	Boss* boss_;
 	ViewProjection* viewProjection_;
 	GPUParticleManager* gpuParticleManager_;
 

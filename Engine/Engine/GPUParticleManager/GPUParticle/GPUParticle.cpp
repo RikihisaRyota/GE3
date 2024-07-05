@@ -87,7 +87,10 @@ void GPUParticle::EmitterUpdate(CommandContext& commandContext) {
 
 	commandContext.Dispatch(1, 1, 1);
 	commandContext.UAVBarrier(createParticleBuffer_);
+	// x
 	commandContext.CopyBufferRegion(spawnArgumentBuffer_, 0, createParticleCounterCopySrcBuffer_, 0, sizeof(UINT));
+	// y
+	commandContext.CopyBufferRegion(spawnArgumentBuffer_, sizeof(UINT), createParticleBuffer_, emitterIndexCounterOffset_, sizeof(UINT));
 }
 
 void GPUParticle::Spawn(CommandContext& commandContext, const UploadBuffer& random) {
@@ -138,7 +141,7 @@ void GPUParticle::ParticleUpdate(const ViewProjection& viewProjection, CommandCo
 	commandContext.SetComputeDescriptorTable(2, originalCommandUAVHandle_);
 	commandContext.SetComputeDescriptorTable(3, drawIndexCommandUAVHandle_);
 
-	commandContext.Dispatch(static_cast<UINT>(ceil(GPUParticleShaderStructs::MaxParticleNum / float(GPUParticleShaderStructs::ComputeThreadBlockSize))), 1, 1);
+	commandContext.Dispatch(static_cast<UINT>(ceil((GPUParticleShaderStructs::MaxParticleNum / GPUParticleShaderStructs::MaxProcessNum) / GPUParticleShaderStructs::ComputeThreadBlockSize)), 1, 1);
 	commandContext.UAVBarrier(particleBuffer_);
 	commandContext.UAVBarrier(drawIndexCommandBuffers_);
 
@@ -150,7 +153,12 @@ void GPUParticle::ParticleUpdate(const ViewProjection& viewProjection, CommandCo
 }
 
 void GPUParticle::BulletUpdate(CommandContext& commandContext, const UploadBuffer& random) {
-	if (*static_cast<uint32_t*>(bulletCountBuffer_.GetCPUData()) != 0) {
+	if (!bullets_.empty()) {
+		size_t size = bullets_.size();
+		bulletCountBuffer_.Copy(&size, sizeof(UINT));
+
+		bulletsBuffer_.Copy(bullets_.data(), sizeof(GPUParticleShaderStructs::BulletForGPU) * size);
+
 		commandContext.TransitionResource(particleBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 		commandContext.TransitionResource(bulletsBuffer_.GetBuffer(), D3D12_RESOURCE_STATE_GENERIC_READ);
 
@@ -161,6 +169,7 @@ void GPUParticle::BulletUpdate(CommandContext& commandContext, const UploadBuffe
 		commandContext.Dispatch(static_cast<UINT>(ceil(GPUParticleShaderStructs::MaxParticleNum / float(GPUParticleShaderStructs::ComputeThreadBlockSize))), 1, 1);
 		commandContext.UAVBarrier(particleBuffer_);
 
+		bullets_.clear();
 	}
 }
 
@@ -218,6 +227,7 @@ void GPUParticle::CreateMeshParticle(const ModelHandle& modelHandle, Animation::
 		size_t numThreadGroups = (numTriangles + GPUParticleShaderStructs::ComputeThreadBlockSize - 1) / GPUParticleShaderStructs::ComputeThreadBlockSize;
 		uint32_t createParticleNum = mesh.numCreate;
 		commandContext.Dispatch(UINT(numThreadGroups), createParticleNum, 1);
+		commandContext.UAVBarrier(originalCommandBuffer_);
 	}
 }
 
@@ -250,10 +260,12 @@ void GPUParticle::CreateMeshParticle(const ModelHandle& modelHandle, const World
 		size_t numThreadGroups = (numTriangles + GPUParticleShaderStructs::ComputeThreadBlockSize - 1) / GPUParticleShaderStructs::ComputeThreadBlockSize;
 		uint32_t createParticleNum = mesh.numCreate;
 		commandContext.Dispatch(UINT(numThreadGroups), createParticleNum, 1);
+		commandContext.UAVBarrier(originalCommandBuffer_);
 	}
 }
 
 void GPUParticle::CreateVertexParticle(const ModelHandle& modelHandle, Animation::Animation& animation, const WorldTransform& worldTransform, const GPUParticleShaderStructs::VertexEmitterDesc& mesh, const UploadBuffer& random, CommandContext& commandContext) {
+
 	commandContext.CopyBufferRegion(originalCounterBuffer_, 0, originalCommandBuffer_, particleIndexCounterOffset_, sizeof(UINT));
 
 	mesh.buffer.Copy(&mesh.emitter, sizeof(mesh.emitter));
@@ -277,8 +289,8 @@ void GPUParticle::CreateVertexParticle(const ModelHandle& modelHandle, Animation
 	size_t numThreadGroups = (vertexCount + GPUParticleShaderStructs::ComputeThreadBlockSize - 1) / GPUParticleShaderStructs::ComputeThreadBlockSize;
 
 	commandContext.Dispatch(UINT(numThreadGroups), 1, 1);
+	commandContext.UAVBarrier(originalCommandBuffer_);
 }
-
 void GPUParticle::CreateVertexParticle(const ModelHandle& modelHandle, const WorldTransform& worldTransform, const GPUParticleShaderStructs::VertexEmitterDesc& mesh, const UploadBuffer& random, CommandContext& commandContext) {
 	// あと何個生成できるかコピー
 	commandContext.CopyBufferRegion(originalCounterBuffer_, 0, originalCommandBuffer_, particleIndexCounterOffset_, sizeof(UINT));
@@ -304,6 +316,71 @@ void GPUParticle::CreateVertexParticle(const ModelHandle& modelHandle, const Wor
 	size_t numThreadGroups = (vertexCount + GPUParticleShaderStructs::ComputeThreadBlockSize - 1) / GPUParticleShaderStructs::ComputeThreadBlockSize;
 
 	commandContext.Dispatch(UINT(numThreadGroups), 1, 1);
+	commandContext.UAVBarrier(originalCommandBuffer_);
+}
+
+void GPUParticle::CreateEdgeParticle(const ModelHandle& modelHandle, Animation::Animation& animation, const WorldTransform& worldTransform, const GPUParticleShaderStructs::MeshEmitterDesc& mesh, const UploadBuffer& random, CommandContext& commandContext) {
+	// あと何個生成できるかコピー
+	if (mesh.numCreate != 0) {
+		commandContext.CopyBufferRegion(originalCounterBuffer_, 0, originalCommandBuffer_, particleIndexCounterOffset_, sizeof(UINT));
+
+		mesh.buffer.Copy(&mesh.emitter, sizeof(mesh.emitter));
+
+		commandContext.TransitionResource(particleBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+		commandContext.TransitionResource(originalCommandBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+		commandContext.TransitionResource(originalCounterBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+		commandContext.TransitionResource(animation.skinCluster.vertexBuffer, D3D12_RESOURCE_STATE_GENERIC_READ);
+		commandContext.TransitionResource(ModelManager::GetInstance()->GetModel(modelHandle).GetMeshData().at(0)->indexBuffer, D3D12_RESOURCE_STATE_GENERIC_READ);
+
+		commandContext.SetComputeUAV(0, particleBuffer_.GetGPUVirtualAddress());
+		commandContext.SetComputeDescriptorTable(1, originalCommandUAVHandle_);
+		commandContext.SetComputeUAV(2, originalCounterBuffer_.GetGPUVirtualAddress());
+		commandContext.SetComputeShaderResource(3, animation.skinCluster.vertexBuffer.GetGPUVirtualAddress());
+		commandContext.SetComputeShaderResource(4, ModelManager::GetInstance()->GetModel(modelHandle).GetMeshData().at(0)->indexBuffer.GetGPUVirtualAddress());
+		commandContext.SetComputeConstantBuffer(5, random.GetGPUVirtualAddress());
+		commandContext.SetComputeConstantBuffer(6, worldTransform.constBuff.get()->GetGPUVirtualAddress());
+		commandContext.SetComputeConstantBuffer(7, ModelManager::GetInstance()->GetModel(modelHandle).GetMeshData().at(0)->indexCountBuffer.GetGPUVirtualAddress());
+		commandContext.SetComputeConstantBuffer(8, mesh.buffer.GetGPUVirtualAddress());
+
+		size_t indexCount = ModelManager::GetInstance()->GetModel(modelHandle).GetMeshData().at(0)->meshes->indexCount;
+		size_t numTriangles = indexCount / 3;
+		size_t numThreadGroups = (numTriangles + GPUParticleShaderStructs::ComputeThreadBlockSize - 1) / GPUParticleShaderStructs::ComputeThreadBlockSize;
+		//uint32_t createParticleNum = mesh.numCreate;
+		commandContext.Dispatch(UINT(numThreadGroups), 1, 1);
+		commandContext.UAVBarrier(originalCommandBuffer_);
+	}
+}
+
+void GPUParticle::CreateEdgeParticle(const ModelHandle& modelHandle, const WorldTransform& worldTransform, const GPUParticleShaderStructs::MeshEmitterDesc& mesh, const UploadBuffer& random, CommandContext& commandContext) {
+	// あと何個生成できるかコピー
+	if (mesh.numCreate != 0) {
+		commandContext.CopyBufferRegion(originalCounterBuffer_, 0, originalCommandBuffer_, particleIndexCounterOffset_, sizeof(UINT));
+
+		mesh.buffer.Copy(&mesh.emitter, sizeof(mesh.emitter));
+
+		commandContext.TransitionResource(particleBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+		commandContext.TransitionResource(originalCommandBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+		commandContext.TransitionResource(originalCounterBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+		commandContext.TransitionResource(ModelManager::GetInstance()->GetModel(modelHandle).GetMeshData().at(0)->vertexBuffer, D3D12_RESOURCE_STATE_GENERIC_READ);
+		commandContext.TransitionResource(ModelManager::GetInstance()->GetModel(modelHandle).GetMeshData().at(0)->indexBuffer, D3D12_RESOURCE_STATE_GENERIC_READ);
+
+		commandContext.SetComputeUAV(0, particleBuffer_.GetGPUVirtualAddress());
+		commandContext.SetComputeDescriptorTable(1, originalCommandUAVHandle_);
+		commandContext.SetComputeUAV(2, originalCounterBuffer_.GetGPUVirtualAddress());
+		commandContext.SetComputeShaderResource(3, ModelManager::GetInstance()->GetModel(modelHandle).GetMeshData().at(0)->vertexBuffer.GetGPUVirtualAddress());
+		commandContext.SetComputeShaderResource(4, ModelManager::GetInstance()->GetModel(modelHandle).GetMeshData().at(0)->indexBuffer.GetGPUVirtualAddress());
+		commandContext.SetComputeConstantBuffer(5, random.GetGPUVirtualAddress());
+		commandContext.SetComputeConstantBuffer(6, worldTransform.constBuff.get()->GetGPUVirtualAddress());
+		commandContext.SetComputeConstantBuffer(7, ModelManager::GetInstance()->GetModel(modelHandle).GetMeshData().at(0)->indexCountBuffer.GetGPUVirtualAddress());
+		commandContext.SetComputeConstantBuffer(8, mesh.buffer.GetGPUVirtualAddress());
+
+		size_t indexCount = ModelManager::GetInstance()->GetModel(modelHandle).GetMeshData().at(0)->meshes->indexCount;
+		size_t numTriangles = indexCount / 3;
+		size_t numThreadGroups = (numTriangles + GPUParticleShaderStructs::ComputeThreadBlockSize - 1) / GPUParticleShaderStructs::ComputeThreadBlockSize;
+		//uint32_t createParticleNum = mesh.numCreate;
+		commandContext.Dispatch(UINT(numThreadGroups), 1, 1);
+		commandContext.UAVBarrier(originalCommandBuffer_);
+	}
 }
 
 void GPUParticle::Create(const GPUParticleShaderStructs::EmitterForCPU& emitterForCPU) {
@@ -344,12 +421,8 @@ void GPUParticle::SetEmitter(const GPUParticleShaderStructs::EmitterForCPU& emit
 	emitterForGPUs_.emplace_back(emitterForGPU);
 }
 
-void GPUParticle::SetBullets(const std::vector<GPUParticleShaderStructs::BulletForGPU>& bullets) {
-	size_t size = bullets.size();
-
-	bulletCountBuffer_.Copy(&size, sizeof(UINT));
-
-	bulletsBuffer_.Copy(bullets.data(), sizeof(GPUParticleShaderStructs::BulletForGPU) * size);
+void GPUParticle::SetBullet(const GPUParticleShaderStructs::BulletForGPU& bullet) {
+	bullets_.emplace_back(bullet);
 }
 
 void GPUParticle::InitializeParticleBuffer() {

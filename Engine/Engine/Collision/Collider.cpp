@@ -428,13 +428,17 @@ bool SphereCollider::IsCollision(CapsuleCollider* other, ColliderDesc& desc) {
 	Vector3 diff = closestPoint - sphere_.center;
 	float distSquared = diff.LengthSquared();
 
-	// Check if the closest point is inside the sphere
-	if (distSquared <= sphere_.radius * sphere_.radius) {
+	// Calculate the sum of the sphere's radius and the capsule's radius
+	float combinedRadius = sphere_.radius + other->capsule_.radius;
+	float combinedRadiusSquared = combinedRadius * combinedRadius;
+
+	// Check if the closest point is within the combined radius
+	if (distSquared <= combinedRadiusSquared) {
 		// Collision detected
 		float dist = sqrtf(distSquared);
 		desc.collider = this;
 		desc.normal = (dist > 0.0f) ? diff / dist : Vector3(0.0f, 0.0f, 0.0f);
-		desc.depth = sphere_.radius - dist;
+		desc.depth = combinedRadius - dist;
 		return true;
 	}
 

@@ -52,7 +52,31 @@ void GaussianFilter::Initialize(const ColorBuffer& target) {
 		desc.VS = CD3DX12_SHADER_BYTECODE(vs->GetBufferPointer(), vs->GetBufferSize());
 		desc.PS = CD3DX12_SHADER_BYTECODE(ps->GetBufferPointer(), ps->GetBufferSize());
 		desc.BlendState = Helper::BlendAlpha;
-		desc.DepthStencilState = Helper::DepthStateRead;
+		desc.DepthStencilState = Helper::DepthStateDisabled;
+		desc.RasterizerState = Helper::RasterizerNoCull;
+		desc.NumRenderTargets = 1;
+		desc.RTVFormats[0] = target.GetFormat();
+		desc.SampleMask = D3D12_DEFAULT_SAMPLE_MASK;
+		desc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+		desc.SampleDesc.Count = 1;
+		depthPipelineState_.Create(L"GaussianFilterDepthPipeLine", desc);
+	}
+	{
+		D3D12_GRAPHICS_PIPELINE_STATE_DESC desc{};
+
+		desc.pRootSignature = rootSignature_;
+
+		D3D12_INPUT_LAYOUT_DESC inputLayoutDesc{};
+		inputLayoutDesc.pInputElementDescs = nullptr;
+		inputLayoutDesc.NumElements = 0;
+		desc.InputLayout = inputLayoutDesc;
+
+		auto vs = ShaderCompiler::Compile(L"Resources/Shaders/Fullscreen.VS.hlsl", L"vs_6_0");
+		auto ps = ShaderCompiler::Compile(L"Resources/Shaders/GaussianFilter/GaussianFilter.PS.hlsl", L"ps_6_0");
+		desc.VS = CD3DX12_SHADER_BYTECODE(vs->GetBufferPointer(), vs->GetBufferSize());
+		desc.PS = CD3DX12_SHADER_BYTECODE(ps->GetBufferPointer(), ps->GetBufferSize());
+		desc.BlendState = Helper::BlendAlpha;
+		desc.DepthStencilState = Helper::DepthStateDisabled;
 		desc.RasterizerState = Helper::RasterizerNoCull;
 		desc.NumRenderTargets = 1;
 		desc.RTVFormats[0] = target.GetFormat();

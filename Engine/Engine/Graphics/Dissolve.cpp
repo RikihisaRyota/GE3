@@ -58,7 +58,7 @@ void Dissolve::Initialize(const ColorBuffer& target) {
 		desc.VS = CD3DX12_SHADER_BYTECODE(vs->GetBufferPointer(), vs->GetBufferSize());
 		desc.PS = CD3DX12_SHADER_BYTECODE(ps->GetBufferPointer(), ps->GetBufferSize());
 		desc.BlendState = Helper::BlendAlpha;
-		desc.DepthStencilState = Helper::DepthStateRead;
+		desc.DepthStencilState = Helper::DepthStateDisabled;
 		desc.RasterizerState = Helper::RasterizerNoCull;
 		desc.NumRenderTargets = 1;
 		desc.RTVFormats[0] = target.GetFormat();
@@ -79,24 +79,27 @@ void Dissolve::Initialize(const ColorBuffer& target) {
 }
 
 void Dissolve::Render(CommandContext& commandContext, ColorBuffer& texture) {
-	thresholdBuffer_.Copy(&desc_, sizeof(Desc));
-	commandContext.TransitionResource(temporaryBuffer_, D3D12_RESOURCE_STATE_RENDER_TARGET);
-	commandContext.SetRenderTarget(temporaryBuffer_.GetRTV());
-	commandContext.ClearColor(temporaryBuffer_);
-	commandContext.SetViewportAndScissorRect(0, 0, temporaryBuffer_.GetWidth(), temporaryBuffer_.GetHeight());
+	if (isUsed_) {
 
-	commandContext.SetGraphicsRootSignature(rootSignature_);
-	commandContext.SetPipelineState(pipelineState_);
+		thresholdBuffer_.Copy(&desc_, sizeof(Desc));
+		commandContext.TransitionResource(temporaryBuffer_, D3D12_RESOURCE_STATE_RENDER_TARGET);
+		commandContext.SetRenderTarget(temporaryBuffer_.GetRTV());
+		commandContext.ClearColor(temporaryBuffer_);
+		commandContext.SetViewportAndScissorRect(0, 0, temporaryBuffer_.GetWidth(), temporaryBuffer_.GetHeight());
 
-	commandContext.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		commandContext.SetGraphicsRootSignature(rootSignature_);
+		commandContext.SetPipelineState(pipelineState_);
 
-	commandContext.TransitionResource(texture, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-	commandContext.SetGraphicsDescriptorTable(RootParameter::kTexture, texture.GetSRV());
-	commandContext.SetGraphicsDescriptorTable(RootParameter::kMaskTexture, TextureManager::GetInstance()->GetTexture(maskTextureHandle_).GetSRV());
-	commandContext.SetGraphicsConstantBuffer(RootParameter::kThreshold, thresholdBuffer_.GetGPUVirtualAddress());
-	commandContext.Draw(3);
+		commandContext.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	commandContext.CopyBuffer(texture, temporaryBuffer_);
+		commandContext.TransitionResource(texture, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+		commandContext.SetGraphicsDescriptorTable(RootParameter::kTexture, texture.GetSRV());
+		commandContext.SetGraphicsDescriptorTable(RootParameter::kMaskTexture, TextureManager::GetInstance()->GetTexture(maskTextureHandle_).GetSRV());
+		commandContext.SetGraphicsConstantBuffer(RootParameter::kThreshold, thresholdBuffer_.GetGPUVirtualAddress());
+		commandContext.Draw(3);
+
+		commandContext.CopyBuffer(texture, temporaryBuffer_);
+	}
 }
 
 void Dissolve::DrawImGui() {

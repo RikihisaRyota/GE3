@@ -10,6 +10,8 @@
 #include "Engine/Collision/CollisionAttribute.h"
 #include "Engine/Collision/CollisionManager.h"
 
+#include "Src/Game/Boss/Boss.h"
+
 void PlayerBullet::Create(GPUParticleManager* GPUParticleManager, const Vector3& position, const Vector3& velocity, uint32_t time) {
 	modelHandle_ = ModelManager::GetInstance()->Load("Resources/Models/Bullet/bullet.gltf");
 	gpuTexture_ = TextureManager::GetInstance()->Load("Resources/Images/GPUParticle.png");
@@ -55,8 +57,12 @@ void PlayerBullet::DrawDebug(const ViewProjection& viewProjection) {
 }
 
 void PlayerBullet::OnCollision(const ColliderDesc& desc) {
-	if (desc.collider->GetName() == "Boss" ||
+	if (desc.collider->GetName().find("Boss") != std::string::npos ||
 		desc.collider->GetName() == "GameObject") {
+		std::string jointName = EraseName(desc.collider->GetName(), "Boss_");
+		float ratio = float(boss_->GetEmitters()[jointName].createParticleNum) / float(boss_->GetInitializeParticleNum()[jointName]);
+		ratio -= 0.05f;
+		boss_->GetEmitters()[jointName].createParticleNum = uint32_t(boss_->GetInitializeParticleNum()[jointName] * ratio);
 		isAlive_ = false;
 	}
 }

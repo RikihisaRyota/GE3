@@ -85,7 +85,7 @@ void RenderManager::Initialize() {
 			auto ps = ShaderCompiler::Compile(L"Resources/Shaders/Fullscreen.PS.hlsl", L"ps_6_0");
 			desc.VS = CD3DX12_SHADER_BYTECODE(vs->GetBufferPointer(), vs->GetBufferSize());
 			desc.PS = CD3DX12_SHADER_BYTECODE(ps->GetBufferPointer(), ps->GetBufferSize());
-			desc.BlendState = Helper::BlendAdditive;
+			desc.BlendState = Helper::BlendDisable;
 			desc.DepthStencilState = Helper::DepthStateRead;
 			desc.RasterizerState = Helper::RasterizerNoCull;
 			desc.NumRenderTargets = 1;
@@ -99,7 +99,7 @@ void RenderManager::Initialize() {
 
 	postEffect_.Initialize(mainColorBuffer_);
 
-	outLine_.Initialize(mainColorBuffer_,mainDepthBuffer_);
+	outLine_.Initialize(mainColorBuffer_);
 
 	gaussianFilter_.Initialize(mainColorBuffer_);
 
@@ -121,9 +121,7 @@ void RenderManager::Reset() {
 void RenderManager::BeginRender() {
 	auto& commandContext = commandContexts_[swapChain_.GetBufferIndex()];
 
-	commandContext.TransitionResource(mainColorBuffer_, D3D12_RESOURCE_STATE_RENDER_TARGET);
-	commandContext.TransitionResource(mainDepthBuffer_, D3D12_RESOURCE_STATE_DEPTH_WRITE);
-	commandContext.SetRenderTarget(mainColorBuffer_.GetRTV(), mainDepthBuffer_.GetDSV());
+	SetRenderTarget(mainColorBuffer_, mainDepthBuffer_);
 	commandContext.ClearColor(mainColorBuffer_);
 	commandContext.ClearDepth(mainDepthBuffer_);
 	commandContext.SetViewportAndScissorRect(0, 0, mainColorBuffer_.GetWidth(), mainColorBuffer_.GetHeight());
@@ -134,8 +132,8 @@ void RenderManager::EndRender(const ViewProjection& viewProjection) {
 	auto& swapChainColorBuffer = swapChain_.GetColorBuffer();
 
 	//outLine_.Render(commandContext, mainColorBuffer_, mainDepthBuffer_, viewProjection);
-	//postEffect_.Render(commandContext,mainColorBuffer_ );
-	//gaussianFilter_.Render(commandContext, mainColorBuffer_);
+	postEffect_.Render(commandContext,mainColorBuffer_ );
+	gaussianFilter_.Render(commandContext, mainColorBuffer_);
 	//radialBlur_.Render(commandContext, mainColorBuffer_);
 	//dissolve_.Render(commandContext, mainColorBuffer_);
 
@@ -143,7 +141,7 @@ void RenderManager::EndRender(const ViewProjection& viewProjection) {
 	commandContext.SetRenderTarget(swapChainColorBuffer.GetRTV());
 	commandContext.ClearColor(swapChainColorBuffer);
 	commandContext.SetViewportAndScissorRect(0, 0, swapChainColorBuffer.GetWidth(), swapChainColorBuffer.GetHeight());
-	
+
 	commandContext.SetGraphicsRootSignature(rootSignature_);
 	commandContext.SetPipelineState(pipelineState_);
 	commandContext.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -169,4 +167,20 @@ void RenderManager::EndRender(const ViewProjection& viewProjection) {
 void RenderManager::Shutdown() {
 	graphicsCore_->Shutdown();
 	ImGuiManager::GetInstance()->Shutdown();
+}
+
+void RenderManager::SetRenderTarget(ColorBuffer& target) {
+	auto& commandContext = commandContexts_[swapChain_.GetBufferIndex()];
+
+	commandContext.TransitionResource(target, D3D12_RESOURCE_STATE_RENDER_TARGET);
+	commandContext.SetRenderTarget(target.GetRTV());
+
+}
+
+void RenderManager::SetRenderTarget(ColorBuffer& target, DepthBuffer& depth) {
+	auto& commandContext = commandContexts_[swapChain_.GetBufferIndex()];
+
+	commandContext.TransitionResource(target, D3D12_RESOURCE_STATE_RENDER_TARGET);
+	commandContext.TransitionResource(depth, D3D12_RESOURCE_STATE_DEPTH_WRITE);
+	commandContext.SetRenderTarget(target.GetRTV(), depth.GetDSV());
 }

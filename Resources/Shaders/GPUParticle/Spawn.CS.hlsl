@@ -52,10 +52,10 @@ void Rotate(uint index, uint32_t emitterIndex,inout uint32_t seed)
 void Translate(uint index,  uint32_t emitterIndex,inout uint32_t seed)
 {
     if(gEmitter[emitterIndex].area.type==0){
-        Output[index].translate = gEmitter[emitterIndex].area.position;
+        Output[index].translate = gEmitter[emitterIndex].area.aabb.position;
         Output[index].translate += randomRange(gEmitter[emitterIndex].area.aabb.range.min, gEmitter[emitterIndex].area.aabb.range.max, seed);
     }else if(gEmitter[emitterIndex].area.type==1){
-        Output[index].translate = gEmitter[emitterIndex].area.position;
+        Output[index].translate = gEmitter[emitterIndex].area.sphere.position;
         float32_t3 normal,direction;
         normal.x = randomRange(-1.0f, 1.0f,seed);
         normal.y = randomRange(-1.0f, 1.0f,seed);
@@ -110,26 +110,26 @@ void Create(uint index,  uint32_t emitterIndex,uint32_t seed)
 
 
 [numthreads(1, 1, 1)]
-void main(uint3 DTid : SV_DispatchThreadID)
+void main(uint3 DTid : SV_DispatchThreadID, uint3 GTid : SV_GroupThreadID, uint3 GID : SV_GroupID)
 {
-    for (int i = 0; i < emitterSize; i++)
-    {
-        if(createParticle[i].createParticleNum > 0){
-            int32_t createNum=-1; 
-            InterlockedAdd(createParticle[i].createParticleNum, -1,createNum);
-          
-                if (createNum > 0)
-                { 
-                    int32_t counter=-1;
-                    InterlockedAdd(particleIndexCounter[0].count, -1,counter);
-                    if(counter>0){
-                    int index = particleIndexCommands.Consume();
-                    uint32_t seed = setSeed(index * gRandom.random);
-                    uint32_t emitterIndex = createParticle[i].emitterNum;
-                    Create(index, emitterIndex,seed);
-                    break;
-                    }
-                }
+    // グループスレッドIDを使用して、オリジナルエミッターのインデックスを取得
+    uint32_t origalIndex = GTid.x;
+
+    // グループIDを使用(dispach数)
+    uint32_t emitterNum  = GID.y;
+    if(createParticle[emitterNum].createParticleNum > 0){
+        int32_t createNum=-1; 
+        InterlockedAdd(createParticle[emitterNum].createParticleNum, -1,createNum);
+        if (createNum > 0)
+        { 
+            int32_t counter=-1;
+            InterlockedAdd(particleIndexCounter[0].count, -1,counter);
+            if(counter>0){
+                int index = particleIndexCommands.Consume();
+                uint32_t seed = setSeed(index * gRandom.random);
+                uint32_t emitterIndex=createParticle[emitterNum].emitterNum;
+                Create(index, emitterIndex,seed);
+            }
         }
     }
 }

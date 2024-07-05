@@ -6,6 +6,9 @@
 
 void BossStateRoot::Initialize() {
 	SetDesc();
+	manager_.SetColliderColor(BossStateManager::kRoot, manager_.boss_->GetDefaultColor());
+	manager_.SetAttackColliderActive(BossStateManager::kRoot, false);
+	manager_.SetBodyColliderActive(BossStateManager::kRoot, true);
 	animationHandle_ = manager_.boss_->GetAnimation()->GetAnimationHandle("idle");
 	time_ = 0.0f;
 }
@@ -25,7 +28,7 @@ void BossStateRoot::Update(CommandContext& commandContext) {
 	}
 	else {
 		time_ += 1.0f / data_.allFrame;
-		if (time_ >= 1.0f) {
+		/*if (time_ >= 1.0f) {
 			BossStateManager::State tmp = static_cast<BossStateManager::State>((rnd_.NextUIntLimit() % 2)+ int(BossStateManager::State::kTwoHandAttack));
 			switch (tmp) {
 			case BossStateManager::State::kTwoHandAttack:
@@ -35,7 +38,7 @@ void BossStateRoot::Update(CommandContext& commandContext) {
 				manager_.ChangeState<BossStateUpperAttack>();
 				break;
 			}
-		}
+		}*/
 		time_ = std::fmod(time_, 1.0f);
 	}
 
@@ -141,6 +144,98 @@ void BossStateUpperAttack::Update(CommandContext& commandContext) {
 	}
 }
 
+void BossStateRightHandHook::Initialize() {
+	SetDesc();
+	animationHandle_ = manager_.boss_->GetAnimation()->GetAnimationHandle("rightHandHook");
+	time_ = 0.0f;
+	manager_.SetAttackColliderActive(BossStateManager::kRightHandHook, true);
+	manager_.SetBodyColliderActive(BossStateManager::kRightHandHook, false);
+	manager_.SetColliderColor(BossStateManager::kRightHandHook, manager_.boss_->GetAttackColor());
+}
+
+void BossStateRightHandHook::SetDesc() {
+	data_ = manager_.jsonData_.rightHandHook;
+}
+
+void BossStateRightHandHook::Update(CommandContext& commandContext) {
+	auto boss = manager_.boss_;
+	auto animation = boss->GetAnimation();
+
+	if (inTransition_) {
+		time_ += 1.0f / data_.transitionFrame;
+		if (time_ >= 1.0f) {
+			inTransition_ = false;
+			time_ = 0.0f;
+		}
+	}
+
+	if (!inTransition_) {
+		time_ += 1.0f / data_.allFrame;
+	}
+
+	time_ = std::clamp(time_, 0.0f, 1.0f);
+
+	if (inTransition_) {
+		animation->Update(manager_.GetAnimationHandle(), manager_.GetAnimationTime(), animationHandle_, 0.0f, time_, commandContext, boss->GetModelHandle());
+	}
+	else {
+		animation->Update(animationHandle_, time_, commandContext, boss->GetModelHandle());
+	}
+
+	if (time_ >= 1.0f && !inTransition_) {
+		manager_.ChangeState<BossStateRoot>();
+		manager_.SetAttackColliderActive(BossStateManager::kRightHandHook, false);
+		manager_.SetBodyColliderActive(BossStateManager::kRightHandHook, true);
+		manager_.SetColliderColor(BossStateManager::kRightHandHook, manager_.boss_->GetDefaultColor());
+	}
+}
+
+void BossStateRightKick::Initialize() {
+	SetDesc();
+	animationHandle_ = manager_.boss_->GetAnimation()->GetAnimationHandle("rightKick");
+	time_ = 0.0f;
+	manager_.SetAttackColliderActive(BossStateManager::kRightKick, true);
+	manager_.SetBodyColliderActive(BossStateManager::kRightKick, false);
+	manager_.SetColliderColor(BossStateManager::kRightKick, manager_.boss_->GetAttackColor());
+}
+
+void BossStateRightKick::SetDesc() {
+	data_ = manager_.jsonData_.rightKick;
+}
+
+void BossStateRightKick::Update(CommandContext& commandContext) {
+	auto boss = manager_.boss_;
+	auto animation = boss->GetAnimation();
+
+	if (inTransition_) {
+		time_ += 1.0f / data_.transitionFrame;
+		if (time_ >= 1.0f) {
+			inTransition_ = false;
+			time_ = 0.0f;
+		}
+	}
+
+	if (!inTransition_) {
+		time_ += 1.0f / data_.allFrame;
+	}
+
+	time_ = std::clamp(time_, 0.0f, 1.0f);
+
+	if (inTransition_) {
+		animation->Update(manager_.GetAnimationHandle(), manager_.GetAnimationTime(), animationHandle_, 0.0f, time_, commandContext, boss->GetModelHandle());
+	}
+	else {
+		animation->Update(animationHandle_, time_, commandContext, boss->GetModelHandle());
+	}
+
+	if (time_ >= 1.0f && !inTransition_) {
+		manager_.ChangeState<BossStateRoot>();
+		manager_.SetAttackColliderActive(BossStateManager::kRightKick, false);
+		manager_.SetBodyColliderActive(BossStateManager::kRightKick, true);
+		manager_.SetColliderColor(BossStateManager::kRightKick, manager_.boss_->GetDefaultColor());
+	}
+}
+
 
 void BossStateManager::Initialize() {
 	JSON_OPEN("Resources/Data/Boss/bossState.json");
@@ -155,6 +250,14 @@ void BossStateManager::Initialize() {
 	JSON_OBJECT("StateUpperAttack");
 	JSON_LOAD(jsonData_.upper.allFrame);
 	JSON_LOAD(jsonData_.upper.transitionFrame);
+	JSON_ROOT();
+	JSON_OBJECT("StateRightHandHook");
+	JSON_LOAD(jsonData_.rightHandHook.allFrame);
+	JSON_LOAD(jsonData_.rightHandHook.transitionFrame);
+	JSON_ROOT();
+	JSON_OBJECT("StateRightKick");
+	JSON_LOAD(jsonData_.rightKick.allFrame);
+	JSON_LOAD(jsonData_.rightKick.transitionFrame);
 	JSON_ROOT();
 	JSON_CLOSE();
 	activeStateEnum_ = kRoot;
@@ -200,6 +303,12 @@ void BossStateManager::DrawImGui() {
 				case kUpperAttack:
 					ChangeState<BossStateUpperAttack>();
 					break;
+				case kRightHandHook:
+					ChangeState<BossStateRightHandHook>();
+					break;
+				case kRightKick:
+					ChangeState<BossStateRightKick>();
+					break;
 				default:
 					break;
 				}
@@ -219,6 +328,16 @@ void BossStateManager::DrawImGui() {
 				ImGui::DragFloat("遷移フレーム", &jsonData_.upper.transitionFrame, 0.1f);
 				ImGui::TreePop();
 			}
+			if (ImGui::TreeNode("RightHandHook")) {
+				ImGui::DragFloat("全体フレーム", &jsonData_.rightHandHook.allFrame, 0.1f);
+				ImGui::DragFloat("遷移フレーム", &jsonData_.rightHandHook.transitionFrame, 0.1f);
+				ImGui::TreePop();
+			}
+			if (ImGui::TreeNode("RightKick")) {
+				ImGui::DragFloat("全体フレーム", &jsonData_.rightKick.allFrame, 0.1f);
+				ImGui::DragFloat("遷移フレーム", &jsonData_.rightKick.transitionFrame, 0.1f);
+				ImGui::TreePop();
+			}
 			if (ImGui::Button("Save")) {
 				JSON_OPEN("Resources/Data/Boss/BossState.json");
 				JSON_OBJECT("StateRoot");
@@ -232,6 +351,14 @@ void BossStateManager::DrawImGui() {
 				JSON_OBJECT("StateUpperAttack");
 				JSON_SAVE(jsonData_.upper.allFrame);
 				JSON_SAVE(jsonData_.upper.transitionFrame);
+				JSON_ROOT();
+				JSON_OBJECT("StateRightHandHook");
+				JSON_SAVE(jsonData_.rightHandHook.allFrame);
+				JSON_SAVE(jsonData_.rightHandHook.transitionFrame);
+				JSON_ROOT();
+				JSON_OBJECT("StateRightKick");
+				JSON_SAVE(jsonData_.rightKick.allFrame);
+				JSON_SAVE(jsonData_.rightKick.transitionFrame);
 				JSON_ROOT();
 				JSON_CLOSE();
 			}
@@ -256,6 +383,16 @@ BossStateManager::State BossStateManager::GetStateEnum<BossStateTwoHandAttack>()
 template<>
 BossStateManager::State BossStateManager::GetStateEnum<BossStateUpperAttack>() {
 	return kUpperAttack;
+}
+
+template<>
+BossStateManager::State BossStateManager::GetStateEnum<BossStateRightHandHook>() {
+	return kRightHandHook;
+}
+
+template<>
+BossStateManager::State BossStateManager::GetStateEnum<BossStateRightKick>() {
+	return kRightKick;
 }
 
 void BossStateManager::SetAttackColliderActive(const BossStateManager::State& state, bool flag) {

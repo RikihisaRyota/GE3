@@ -5,7 +5,7 @@
 
 #include "PlayerBullet.h"
 
-
+class Boss;
 class PlayerUI;
 class GPUParticleManager;
 class CommandContext;
@@ -23,7 +23,9 @@ public:
 	void SetPlayerUI(PlayerUI* playerUI) { playerUI_ = playerUI; }
 	void SetGPUParticleManager(GPUParticleManager* GPUParticleManager) { gpuParticleManager_ = GPUParticleManager; }
 	void SetViewProjection(ViewProjection* viewProjection) { viewProjection_ = viewProjection; }
+	void SetBoss(Boss* boss) { boss_ = boss; }
 private:
+	Boss* boss_;
 	PlayerUI* playerUI_;
 	GPUParticleManager* gpuParticleManager_;
 	ViewProjection* viewProjection_;

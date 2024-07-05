@@ -19,10 +19,11 @@ PixelShaderOutPut main(VertexShaderOutPut input)
     PixelShaderOutPut output;
     float32_t2 samplePoint = input.texcoord;
     float32_t4 textureColor=tex.Sample(smp, input.texcoord);
-    output.color = Random(input.texcoord);
+    output.color=textureColor;
+    //output.color = Random(input.texcoord);
     //output.color.rgb = Sepia(textureColor.rgb);
     //output.color.rgb += Vignette(textureColor.rgb,samplePoint);
-    //output.color.rgb = Grayscale(textureColor.rgb);
+    output.color.rgb = Grayscale(textureColor.rgb);
     //output.color.rgb = Smoothing(samplePoint,tex,smp);
     
     //float2 center = float2(0.5f, 0.5f); // 画面中央

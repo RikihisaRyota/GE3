@@ -53,7 +53,7 @@ void PostEffect::Initialize(const ColorBuffer& target) {
 		desc.VS = CD3DX12_SHADER_BYTECODE(vs->GetBufferPointer(), vs->GetBufferSize());
 		desc.PS = CD3DX12_SHADER_BYTECODE(ps->GetBufferPointer(), ps->GetBufferSize());
 		desc.BlendState = Helper::BlendAlpha;
-		desc.DepthStencilState = Helper::DepthStateRead;
+		desc.DepthStencilState = Helper::DepthStateDisabled;
 		desc.RasterizerState = Helper::RasterizerNoCull;
 		desc.NumRenderTargets = 1;
 		desc.RTVFormats[0] = target.GetFormat();
@@ -64,24 +64,26 @@ void PostEffect::Initialize(const ColorBuffer& target) {
 	}
 	{
 		temporaryBuffer_.Create(L"PostEffectTempBuffer", target.GetWidth(), target.GetHeight(), target.GetFormat());
-	
+
 	}
 }
 
 void PostEffect::Render(CommandContext& commandContext, ColorBuffer& texture) {
-	commandContext.TransitionResource(temporaryBuffer_, D3D12_RESOURCE_STATE_RENDER_TARGET);
-	commandContext.SetRenderTarget(temporaryBuffer_.GetRTV());
-	commandContext.ClearColor(temporaryBuffer_);
-	commandContext.SetViewportAndScissorRect(0, 0, temporaryBuffer_.GetWidth(), temporaryBuffer_.GetHeight());
+	if (isUsed_) {
+		commandContext.TransitionResource(temporaryBuffer_, D3D12_RESOURCE_STATE_RENDER_TARGET);
+		commandContext.SetRenderTarget(temporaryBuffer_.GetRTV());
+		commandContext.ClearColor(temporaryBuffer_);
+		commandContext.SetViewportAndScissorRect(0, 0, temporaryBuffer_.GetWidth(), temporaryBuffer_.GetHeight());
 
-	commandContext.SetGraphicsRootSignature(rootSignature_);
-	commandContext.SetPipelineState(pipelineState_);
+		commandContext.SetGraphicsRootSignature(rootSignature_);
+		commandContext.SetPipelineState(pipelineState_);
 
-	commandContext.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		commandContext.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	commandContext.TransitionResource(texture, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-	commandContext.SetGraphicsDescriptorTable(RootParameter::kTexture, texture.GetSRV());
-	commandContext.Draw(3);
+		commandContext.TransitionResource(texture, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+		commandContext.SetGraphicsDescriptorTable(RootParameter::kTexture, texture.GetSRV());
+		commandContext.Draw(3);
 
-	commandContext.CopyBuffer(texture, temporaryBuffer_);
+		commandContext.CopyBuffer(texture, temporaryBuffer_);
+	}
 }

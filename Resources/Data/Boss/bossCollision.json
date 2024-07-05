@@ -1,26 +1,26 @@
 {
     "attackColor_.range.end.max": [
-        1.0,
-        0.0,
-        0.0,
+        0.6690391302108765,
+        0.36955133080482483,
+        0.05476120486855507,
         0.0
     ],
     "attackColor_.range.end.min": [
-        0.0,
-        0.0,
+        0.5,
+        0.36298930644989014,
         0.0,
         0.0
     ],
     "attackColor_.range.start.max": [
-        1.0,
-        0.0,
-        0.0,
+        0.2241992950439453,
+        0.044680286198854446,
+        0.044680286198854446,
         1.0
     ],
     "attackColor_.range.start.min": [
-        0.0,
-        0.0,
-        0.0,
+        0.145907461643219,
+        0.029077641665935516,
+        0.029077641665935516,
         1.0
     ],
     "bossCollider": {
@@ -63,8 +63,44 @@
         "None": {
             "colliderNames": {}
         },
+        "RightHandHook": {
+            "colliderNames": {
+                "RightArm": "RightArm",
+                "RightForeArm": "RightForeArm",
+                "RightHand": "RightHand",
+                "RightHandIndex4": "RightHandIndex4"
+            }
+        },
+        "RightKick": {
+            "colliderNames": {
+                "RightFoot": "RightFoot",
+                "RightLeg": "RightLeg",
+                "RightToeBase": "RightToeBase",
+                "RightToe_End": "RightToe_End"
+            }
+        },
         "Root": {
-            "colliderNames": {}
+            "colliderNames": {
+                "Head": "Head",
+                "HeadTop_End": "HeadTop_End",
+                "LeftArm": "LeftArm",
+                "LeftFoot": "LeftFoot",
+                "LeftForeArm": "LeftForeArm",
+                "LeftHand": "LeftHand",
+                "LeftHandIndex4": "LeftHandIndex4",
+                "LeftLeg": "LeftLeg",
+                "LeftToeBase": "LeftToeBase",
+                "LeftToe_End": "LeftToe_End",
+                "RightArm": "RightArm",
+                "RightFoot": "RightFoot",
+                "RightForeArm": "RightForeArm",
+                "RightHand": "RightHand",
+                "RightHandIndex4": "RightHandIndex4",
+                "RightLeg": "RightLeg",
+                "RightToeBase": "RightToeBase",
+                "RightToe_End": "RightToe_End",
+                "Spine2": "Spine2"
+            }
         },
         "TwoHandAttack": {
             "colliderNames": {
@@ -118,15 +154,15 @@
         0.0
     ],
     "defaultColor_.range.start.max": [
-        1.0,
-        1.0,
-        1.0,
+        0.12922367453575134,
+        0.36298930644989014,
+        0.05167108029127121,
         1.0
     ],
     "defaultColor_.range.start.min": [
-        1.0,
-        1.0,
-        1.0,
+        0.1580878496170044,
+        0.6939501762390137,
+        0.06914805620908737,
         1.0
     ]
 }

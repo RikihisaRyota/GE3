@@ -11,6 +11,9 @@
 #include "Engine/Collision/CollisionAttribute.h"
 #include "Engine/GPUParticleManager/GPUParticleManager.h"
 #include "Engine/WinApp/WinApp.h"
+#include "Engine/Graphics/RenderManager.h"
+
+#include "Src/Game/Boss/Boss.h"
 
 Player::Player() {
 	playerModelHandle_ = ModelManager::GetInstance()->Load("Resources/Models/Player/player.gltf");
@@ -22,6 +25,7 @@ Player::Player() {
 	animationTransform_.Initialize();
 	playerBulletManager_ = std::make_unique<PlayerBulletManager>();
 	playerUI_ = std::make_unique<PlayerUI>();
+	
 	playerBulletManager_->SetPlayerUI(playerUI_.get());
 	playerHP_ = std::make_unique<PlayerHP>();
 	JSON_OPEN("Resources/Data/Player/player.json");
@@ -41,7 +45,7 @@ Player::Player() {
 	JSON_ROOT();
 	JSON_CLOSE();
 
-	GPUParticleShaderStructs::Load("player", meshEmitterDesc_); 
+	GPUParticleShaderStructs::Load("player", meshEmitterDesc_);
 	GPUParticleShaderStructs::Load("player", vertexEmitterDesc_);
 
 #pragma region コライダー
@@ -50,7 +54,7 @@ Player::Player() {
 	auto& mesh = ModelManager::GetInstance()->GetModel(playerModelHandle_).GetMeshData().at(0);
 	Vector3 modelSize = mesh->meshes->max - mesh->meshes->min;
 	Vector3 pos = MakeTranslateMatrix(worldTransform_.matWorld);
-	collider_->SetSegment(Segment(pos + Vector3(0.0f, mesh->meshes->max.y-colliderRadius_, 0.0f), pos + Vector3(0.0f, mesh->meshes->min.y+ colliderRadius_, 0.0f)));
+	collider_->SetSegment(Segment(pos + Vector3(0.0f, mesh->meshes->max.y - colliderRadius_, 0.0f), pos + Vector3(0.0f, mesh->meshes->min.y + colliderRadius_, 0.0f)));
 	collider_->SetRadius(colliderRadius_);
 	collider_->SetCallback([this](const ColliderDesc& collisionInfo) { OnCollision(collisionInfo); });
 	collider_->SetCollisionAttribute(CollisionAttribute::Player);
@@ -130,7 +134,7 @@ void Player::Update(CommandContext& commandContext) {
 
 	UpdateTransform();
 
-	GPUParticleSpawn();
+	GPUParticleSpawn(commandContext);
 
 	playerUI_->Update();
 
@@ -140,8 +144,6 @@ void Player::Draw(const ViewProjection& viewProjection, CommandContext& commandC
 	//ModelManager::GetInstance()->Draw(animationTransform_, animation_, *viewProjection_, playerModelHandle_, commandContext);
 
 	playerBulletManager_->Draw(viewProjection, commandContext);
-	gpuParticleManager_->CreateMeshParticle(playerModelHandle_, animation_, worldTransform_, meshEmitterDesc_,commandContext);
-	gpuParticleManager_->CreateVertexParticle(playerModelHandle_, animation_, worldTransform_, vertexEmitterDesc_,commandContext);
 }
 
 void Player::DrawSprite(CommandContext& commandContext) {
@@ -166,7 +168,7 @@ void Player::Shot() {
 }
 
 void Player::OnCollision(const ColliderDesc& desc) {
-	if (desc.collider->GetName() == "Boss" ||
+	if (desc.collider->GetName().find("Boss") != std::string::npos ||
 		desc.collider->GetName() == "GameObject") {
 		// ワールド空間の押し出しベクトル
 		Vector3 pushVector = desc.normal * desc.depth;
@@ -204,91 +206,10 @@ void Player::OnCollision(const ColliderDesc& desc) {
 	}
 }
 
-void Player::GPUParticleSpawn() {
-	//for (auto& joint : animation_.skeleton.joints) {
-	//	if (!joint.parent.has_value()) {
-	//		continue;
-	//	}
-	//	Matrix4x4 worldMatrix = joint.skeletonSpaceMatrix * worldTransform_.matWorld;
-	//	Matrix4x4 parentMatrix = animation_.skeleton.joints.at(*joint.parent).skeletonSpaceMatrix * worldTransform_.matWorld;
-
-	//	Vector3 worldPos = MakeTranslateMatrix(worldMatrix);
-	//	Vector3 parentPos = MakeTranslateMatrix(parentMatrix);
-	//	Vector3 born = (worldPos - parentPos);
-
-	//	// 0
-	//	{
-	//		float startScaleMax = 0.25f;
-	//		float startScaleMin = 0.125f;
-	//		float scaleMax = born.Length() * startScaleMax;
-	//		float scaleMin = born.Length() * startScaleMin;
-	//		GPUParticleShaderStructs::Emitter emitterForGPU = {
-	//	   .emitterArea{
-	//			   .sphere{
-	//					.radius = born.Length() * 0.5f,
-	//				},
-	//				.position{worldPos},
-	//				.type = 1,
-	//		   },
-
-	//	   .scale{
-	//		   .range{
-	//			   .start{
-	//				   .min = {scaleMin,scaleMin,scaleMin},
-	//				   .max = {scaleMax,scaleMax,scaleMax},
-	//			   },
-	//			   .end{
-	//				   .min = {0.0f,0.0f,0.0f},
-	//				   .max = {0.0f,0.0f,0.0f},
-	//			   },
-	//		   },
-	//	   },
-
-	//	   .rotate{
-	//		   .rotate = 0.0f,
-	//	   },
-
-	//	   .velocity{
-	//		   .range{
-	//			   .min = {0.0f,0.0f,0.0f},
-	//			   .max = {0.0f,0.0f,0.0f},
-	//		   }
-	//	   },
-
-	//	   .color{
-	//		   .range{
-	//			   .start{
-	//				   .min = {0.0f,0.8f,0.2f,1.0f},
-	//				   .max = {0.0f,1.0f,0.5f,1.0f},
-	//			   },
-	//			   .end{
-	//				   .min = {0.0f,0.6f,0.1f,1.0f},
-	//				   .max = {0.0f,0.8f,0.3f,1.0f},
-	//			   },
-	//		   },
-	//	   },
-
-	//	   .frequency{
-	//		   .interval = 0,
-	//		   .isLoop = false,
-	//		   //.lifeTime = 120,
-	//	   },
-
-	//	   .particleLifeSpan{
-	//		   .range{
-	//			   .min = 1,
-	//			   .max = 1,
-	//		   }
-	//	   },
-
-	//	   .textureIndex = 0,
-
-	//	   .createParticleNum = 1 << 10,
-	//		};
-
-	//		gpuParticleManager_->CreateParticle(emitterForGPU);
-	//	}
-	//}
+void Player::GPUParticleSpawn(CommandContext& commandContext) {
+	//gpuParticleManager_->CreateMeshParticle(playerModelHandle_, animation_, worldTransform_, meshEmitterDesc_, commandContext);
+	gpuParticleManager_->CreateEdgeParticle(playerModelHandle_, animation_, worldTransform_, meshEmitterDesc_, commandContext);
+	//gpuParticleManager_->CreateVertexParticle(playerModelHandle_, animation_, worldTransform_, vertexEmitterDesc_, commandContext);
 }
 
 void Player::UpdateTransform() {
@@ -296,7 +217,7 @@ void Player::UpdateTransform() {
 	auto& mesh = ModelManager::GetInstance()->GetModel(playerModelHandle_).GetMeshData().at(0);
 	Vector3 modelSize = mesh->meshes->max - mesh->meshes->min;
 	Vector3 pos = MakeTranslateMatrix(worldTransform_.matWorld);
-	collider_->SetSegment(Segment(pos + Vector3(0.0f, mesh->meshes->max.y- colliderRadius_, 0.0f), pos + Vector3(0.0f, mesh->meshes->min.y+ colliderRadius_, 0.0f)));
+	collider_->SetSegment(Segment(pos + Vector3(0.0f, mesh->meshes->max.y - colliderRadius_, 0.0f), pos + Vector3(0.0f, mesh->meshes->min.y + colliderRadius_, 0.0f)));
 	collider_->SetRadius(colliderRadius_);
 	animationTransform_.UpdateMatrix();
 }
@@ -346,8 +267,12 @@ void Player::Move() {
 	}
 	if (input->PushKey(DIK_LSHIFT) ||
 		input->PushGamepadButton(Button::LT)) {
+		RenderManager::GetInstance()->GetPostEffect().SetFlag(true);
 		tmpState_ = kShootingWalk;
 		worldTransform_.rotate = Slerp(worldTransform_.rotate, MakeRotateYAngleQuaternion(viewProjection_->rotation_.y), 0.6f);
+	}
+	else {
+		RenderManager::GetInstance()->GetPostEffect().SetFlag(false);
 	}
 	float speed = 0.0f;
 	switch (state_) {

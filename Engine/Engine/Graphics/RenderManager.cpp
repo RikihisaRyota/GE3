@@ -132,8 +132,8 @@ void RenderManager::EndRender(const ViewProjection& viewProjection) {
 	auto& swapChainColorBuffer = swapChain_.GetColorBuffer();
 
 	//outLine_.Render(commandContext, mainColorBuffer_, mainDepthBuffer_, viewProjection);
-	postEffect_.Render(commandContext,mainColorBuffer_ );
-	gaussianFilter_.Render(commandContext, mainColorBuffer_);
+	//postEffect_.Render(commandContext,mainColorBuffer_ );
+	//gaussianFilter_.Render(commandContext, mainColorBuffer_);
 	//radialBlur_.Render(commandContext, mainColorBuffer_);
 	//dissolve_.Render(commandContext, mainColorBuffer_);
 

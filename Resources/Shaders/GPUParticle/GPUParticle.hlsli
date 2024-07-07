@@ -236,7 +236,7 @@ float32_t3 closestPointOnSegment(float32_t3 p, float32_t3 a, float32_t3 b)
 {
     float32_t3 pa = p - a;
     float32_t3 ba = b - a;
-    float32_t t = clamp(dot(pa, ba) / dot(ba, ba), 0.0, 1.0);
+    float t = saturate(dot(pa, ba) / dot(ba, ba));
     return a + t * ba;
 }
 

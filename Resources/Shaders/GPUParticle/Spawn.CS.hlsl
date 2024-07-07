@@ -71,7 +71,7 @@ void Translate(uint index,  uint32_t emitterIndex,inout uint32_t seed)
             normal.z = randomRange(-1.0f, 1.0f,seed);
             direction=normalize(normal);
             direction*= randomRange(0.0f, gEmitter[emitterIndex].area.capsule.radius, seed);
-            Output[index].translate =  pointOnCapsule(p + direction,gEmitter[emitterIndex].area.capsule.segment.origin,gEmitter[emitterIndex].area.capsule.segment.diff,gEmitter[emitterIndex].area.capsule.radius ,randomRange(-1.0f, 0.0f,seed));
+            Output[index].translate =  pointOnCapsule(p + direction, gEmitter[emitterIndex].area.capsule.segment.origin ,gEmitter[emitterIndex].area.capsule.segment.diff ,gEmitter[emitterIndex].area.capsule.radius ,0.0f);
     }
 }
 

@@ -20,9 +20,9 @@
         },
         "Start": {
             "Max": [
-                1.0,
-                0.0,
-                0.0,
+                0.08315496891736984,
+                0.1743772029876709,
+                0.11107349395751953,
                 1.0
             ],
             "Min": [
@@ -35,7 +35,7 @@
     },
     "NumCreate": 1,
     "ParticleLifeTime": {
-        "Max": 12,
+        "Max": 1,
         "Min": 1
     },
     "RotateAnimation": {
@@ -79,5 +79,5 @@
             0.0
         ]
     },
-    "textureIndex": 10
+    "textureIndex": "Resources/Images/GPUParticle.png"
 }

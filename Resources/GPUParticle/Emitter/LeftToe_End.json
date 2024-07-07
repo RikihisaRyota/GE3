@@ -132,5 +132,5 @@
         ]
     },
     "createParticleNum": 1024,
-    "textureIndex": 23
+    "textureIndex": "Resources/Images/GPUParticle.png"
 }

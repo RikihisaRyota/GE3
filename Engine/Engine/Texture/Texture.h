@@ -15,6 +15,7 @@ public:
 	const D3D12_RESOURCE_DESC& GetDesc() const { return desc_; }
 	const DescriptorHandle& GetSRV() const { return srvHandle_; }
 	const std::filesystem::path GetName() const { return name_.stem(); }
+	const std::filesystem::path GetPath() const { return name_; }
 	const uint32_t GetDescriptorIndex() const { return descriptorIndex_; }
 private:
 	DirectX::ScratchImage LoadTexture(const std::filesystem::path& path);

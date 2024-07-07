@@ -249,9 +249,10 @@ void GPUParticleShaderStructs::EmitterEditor(const std::string name, std::tuple<
 			stageArray.push_back(stage.c_str());
 		}
 
+		int currentTexture = TextureManager::GetInstance()->GetTextureLocation(emitter->textureIndex);
 		// Combo を使用する
-		if (ImGui::Combo("Texture", reinterpret_cast<int*>(&emitter->textureIndex), stageArray.data(), static_cast<int>(stageArray.size()))) {
-			emitter->textureIndex = TextureManager::GetInstance()->GetTexture(emitter->textureIndex).GetDescriptorIndex();
+		if (ImGui::Combo("Texture", &currentTexture, stageArray.data(), static_cast<int>(stageArray.size()))) {
+			emitter->textureIndex = TextureManager::GetInstance()->GetTexture(currentTexture).GetDescriptorIndex();
 		}
 
 		ImGui::TreePop();
@@ -617,7 +618,9 @@ void GPUParticleShaderStructs::Load(const std::string name, GPUParticleShaderStr
 	JSON_ROOT();
 
 	JSON_LOAD_BY_NAME("createParticleNum", emitter.createParticleNum);
-	JSON_LOAD_BY_NAME("textureIndex", emitter.textureIndex);
+	std::string path{};
+	JSON_LOAD_BY_NAME("textureIndex", path);
+	emitter.textureIndex = TextureManager::GetInstance()->GetTexture(TextureManager::GetInstance()->Load(path)).GetDescriptorIndex();
 
 	JSON_CLOSE();
 }
@@ -671,7 +674,7 @@ void GPUParticleShaderStructs::Save(const std::string name, GPUParticleShaderStr
 	JSON_ROOT();
 
 	JSON_SAVE_BY_NAME("createParticleNum", emitter.createParticleNum);
-	JSON_SAVE_BY_NAME("textureIndex", emitter.textureIndex);
+	JSON_SAVE_BY_NAME("textureIndex", TextureManager::GetInstance()->GetTexture(TextureManager::GetInstance()->GetTextureLocation(emitter.textureIndex)).GetPath().string());
 
 	JSON_OBJECT("CollisionInfo");
 	JSON_SAVE_BY_NAME("mask", emitter.collisionInfo.mask);
@@ -705,8 +708,9 @@ void GPUParticleShaderStructs::Load(const std::string name, GPUParticleShaderStr
 	JSON_ROOT();
 
 	JSON_LOAD_BY_NAME("NumCreate", desc.numCreate);
-	JSON_LOAD_BY_NAME("textureIndex", desc.emitter.textureIndex);
-
+	std::string path{};
+	JSON_LOAD_BY_NAME("textureIndex", path);
+	desc.emitter.textureIndex = TextureManager::GetInstance()->GetTexture(TextureManager::GetInstance()->Load(path)).GetDescriptorIndex();
 	JSON_OBJECT("CollisionInfo");
 	JSON_LOAD_BY_NAME("mask", desc.emitter.collisionInfo.mask);
 	JSON_LOAD_BY_NAME("attribute", desc.emitter.collisionInfo.attribute);
@@ -742,7 +746,7 @@ void GPUParticleShaderStructs::Save(const std::string name, GPUParticleShaderStr
 
 	JSON_SAVE_BY_NAME("NumCreate", desc.numCreate);
 
-	JSON_SAVE_BY_NAME("textureIndex", desc.emitter.textureIndex);
+	JSON_SAVE_BY_NAME("textureIndex", TextureManager::GetInstance()->GetTexture(TextureManager::GetInstance()->GetTextureLocation(desc.emitter.textureIndex)).GetPath().string());
 
 	JSON_OBJECT("CollisionInfo");
 	JSON_SAVE_BY_NAME("mask", desc.emitter.collisionInfo.mask);
@@ -775,8 +779,9 @@ void GPUParticleShaderStructs::Load(const std::string name, GPUParticleShaderStr
 	LoadMinMax(desc.emitter.velocity.range);
 	JSON_ROOT();
 
-	JSON_LOAD_BY_NAME("textureIndex", desc.emitter.textureIndex);
-
+	std::string path{};
+	JSON_LOAD_BY_NAME("textureIndex", path);
+	desc.emitter.textureIndex = TextureManager::GetInstance()->GetTexture(TextureManager::GetInstance()->Load(path)).GetDescriptorIndex();
 	JSON_OBJECT("CollisionInfo");
 	JSON_LOAD_BY_NAME("mask", desc.emitter.collisionInfo.mask);
 	JSON_LOAD_BY_NAME("attribute", desc.emitter.collisionInfo.attribute);
@@ -808,7 +813,7 @@ void GPUParticleShaderStructs::Save(const std::string name, GPUParticleShaderStr
 	SaveMinMax(desc.emitter.velocity.range);
 	JSON_ROOT();
 
-	JSON_SAVE_BY_NAME("textureIndex", desc.emitter.textureIndex);
+	JSON_SAVE_BY_NAME("textureIndex", TextureManager::GetInstance()->GetTexture(TextureManager::GetInstance()->GetTextureLocation(desc.emitter.textureIndex)).GetPath().string());
 
 	JSON_OBJECT("CollisionInfo");
 	JSON_SAVE_BY_NAME("mask", desc.emitter.collisionInfo.mask);

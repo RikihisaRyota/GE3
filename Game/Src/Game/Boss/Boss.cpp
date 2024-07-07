@@ -397,10 +397,10 @@ void Boss::UpdateGPUParticle(CommandContext& commandContext) {
 			emitters_.at(jointName).emitterArea.type = GPUParticleShaderStructs::Type::kCapsule;
 			emitters_.at(jointName).scale = scaleAnimation;
 			emitters_.at(jointName).particleLifeSpan = particleLifeSpan;
-			gpuParticleManager_->SetEmitter(emitters_.at(jointName));
+			//gpuParticleManager_->SetEmitter(emitters_.at(jointName));
 		}
 	}
-	//gpuParticleManager_->CreateEdgeParticle(bossModelHandle_, animation_, worldTransform_, meshEmitterDesc_, commandContext);
+	gpuParticleManager_->CreateEdgeParticle(bossModelHandle_, animation_, worldTransform_, meshEmitterDesc_, commandContext);
 	//gpuParticleManager_->CreateMeshParticle(bossModelHandle_, animation_, worldTransform_, meshEmitterDesc_, commandContext);
 	//gpuParticleManager_->CreateVertexParticle(bossModelHandle_, animation_, worldTransform_, vertexEmitterDesc_, commandContext);
 

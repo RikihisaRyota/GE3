@@ -13,6 +13,13 @@ struct UintMinMax
     uint32_t2 pad;
 };
 
+struct FloatMinMax
+{
+    float32_t min;
+    float32_t max;
+    float32_t2 pad;
+};
+
 
 struct Float3MinMax
 {
@@ -127,8 +134,8 @@ struct ScaleAnimation
 
 struct RotateAnimation
 {
-    float32_t rotate;
-    uint32_t3 pad;
+    FloatMinMax initializeAngle;
+    FloatMinMax rotateSpeed;
 };
 
 struct Velocity3D

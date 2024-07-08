@@ -25,6 +25,16 @@ namespace GPUParticleShaderStructs {
 		JSON_LOAD_BY_NAME("Max", startEnd.max);
 	}
 
+	void SaveMinMax(GPUParticleShaderStructs::FloatMinMax& startEnd) {
+		JSON_SAVE_BY_NAME("Min", startEnd.min);
+		JSON_SAVE_BY_NAME("Max", startEnd.max);
+	}
+
+	void LoadMinMax(GPUParticleShaderStructs::FloatMinMax& startEnd) {
+		JSON_LOAD_BY_NAME("Min", startEnd.min);
+		JSON_LOAD_BY_NAME("Max", startEnd.max);
+	}
+
 	void SaveMinMax(GPUParticleShaderStructs::Vector3MinMax& startEnd) {
 		JSON_SAVE_BY_NAME("Min", startEnd.min);
 		JSON_SAVE_BY_NAME("Max", startEnd.max);
@@ -57,6 +67,14 @@ namespace GPUParticleShaderStructs {
 		startEnd.max = static_cast<uint32_t>(max);
 #endif // _DEBUG
 	}
+
+	void DrawMinMax(GPUParticleShaderStructs::FloatMinMax& startEnd, float v_speed, float v_min, float v_max) {
+#ifdef _DEBUG
+		ImGui::DragFloat("Min", &startEnd.min, v_speed, v_min, v_max);
+		ImGui::DragFloat("Max", &startEnd.max, v_speed, v_min, v_max);
+#endif // _DEBUG
+	}
+
 
 	void DrawMinMax(GPUParticleShaderStructs::Vector3MinMax& startEnd, float v_speed, float v_min, float v_max) {
 #ifdef _DEBUG
@@ -214,7 +232,14 @@ void GPUParticleShaderStructs::EmitterEditor(const std::string name, std::tuple<
 		ImGui::TreePop();
 	}
 	if (ImGui::TreeNode("Rotate")) {
-		ImGui::DragFloat("rotate", &emitter->rotate.rotate, 0.1f);
+		if (ImGui::TreeNode("InitializeAngle")) {
+			DrawMinMax(emitter->rotate.initializeAngle);
+			ImGui::TreePop();
+		}
+		if (ImGui::TreeNode("RotateSpeed")) {
+			DrawMinMax(emitter->rotate.rotateSpeed);
+			ImGui::TreePop();
+		}
 		ImGui::TreePop();
 	}
 	if (ImGui::TreeNode("Velocity3D")) {
@@ -228,7 +253,7 @@ void GPUParticleShaderStructs::EmitterEditor(const std::string name, std::tuple<
 	if (ImGui::TreeNode("Frequency")) {
 		ImGui::DragInt("Interval", reinterpret_cast<int*>(&emitter->frequency.interval), 1, 0);
 		if (!emitter->frequency.isLoop) {
-			ImGui::SliderInt("EmitterLifeTime", reinterpret_cast<int*>(&emitter->frequency.emitterLife), 1, 0);
+			ImGui::DragInt("EmitterLifeTime", reinterpret_cast<int*>(&emitter->frequency.emitterLife), 1, 0);
 		}
 		ImGui::Checkbox("IsLoop", reinterpret_cast<bool*>(&emitter->frequency.isLoop));
 		ImGui::TreePop();
@@ -306,7 +331,14 @@ void GPUParticleShaderStructs::EmitterEditor(const std::string name, std::tuple<
 		ImGui::TreePop();
 	}
 	if (ImGui::TreeNode("Rotate")) {
-		ImGui::DragFloat("rotate", &desc->emitter.rotate.rotate, 0.1f);
+		if (ImGui::TreeNode("InitializeAngle")) {
+			DrawMinMax(desc->emitter.rotate.initializeAngle);
+			ImGui::TreePop();
+		}
+		if (ImGui::TreeNode("RotateSpeed")) {
+			DrawMinMax(desc->emitter.rotate.rotateSpeed);
+			ImGui::TreePop();
+		}
 		ImGui::TreePop();
 	}
 	if (ImGui::TreeNode("Velocity3D")) {
@@ -393,7 +425,14 @@ void GPUParticleShaderStructs::EmitterEditor(const std::string name, std::tuple<
 		ImGui::TreePop();
 	}
 	if (ImGui::TreeNode("Rotate")) {
-		ImGui::DragFloat("rotate", &desc->emitter.rotate.rotate, 0.1f);
+		if (ImGui::TreeNode("InitializeAngle")) {
+			DrawMinMax(desc->emitter.rotate.initializeAngle);
+			ImGui::TreePop();
+		}
+		if (ImGui::TreeNode("RotateSpeed")) {
+			DrawMinMax(desc->emitter.rotate.rotateSpeed);
+			ImGui::TreePop();
+		}
 		ImGui::TreePop();
 	}
 	if (ImGui::TreeNode("Velocity3D")) {
@@ -601,7 +640,11 @@ void GPUParticleShaderStructs::Load(const std::string name, GPUParticleShaderStr
 	JSON_ROOT();
 
 	JSON_OBJECT("RotateAnimation");
-	JSON_LOAD_BY_NAME("rotate", emitter.rotate.rotate);
+	JSON_OBJECT("rotateSpeed");
+	LoadMinMax(emitter.rotate.rotateSpeed);
+	JSON_PARENT();
+	JSON_OBJECT("initializeAngle");
+	LoadMinMax(emitter.rotate.initializeAngle);
 	JSON_ROOT();
 
 	JSON_OBJECT("ScaleAnimation");
@@ -620,7 +663,9 @@ void GPUParticleShaderStructs::Load(const std::string name, GPUParticleShaderStr
 	JSON_LOAD_BY_NAME("createParticleNum", emitter.createParticleNum);
 	std::string path{};
 	JSON_LOAD_BY_NAME("textureIndex", path);
-	emitter.textureIndex = TextureManager::GetInstance()->GetTexture(TextureManager::GetInstance()->Load(path)).GetDescriptorIndex();
+	if (!path.empty()) {
+		emitter.textureIndex = TextureManager::GetInstance()->GetTexture(TextureManager::GetInstance()->Load(path)).GetDescriptorIndex();
+	}
 
 	JSON_CLOSE();
 }
@@ -662,7 +707,11 @@ void GPUParticleShaderStructs::Save(const std::string name, GPUParticleShaderStr
 	JSON_ROOT();
 
 	JSON_OBJECT("RotateAnimation");
-	JSON_SAVE_BY_NAME("rotate", emitter.rotate.rotate);
+	JSON_OBJECT("rotateSpeed");
+	SaveMinMax(emitter.rotate.rotateSpeed);
+	JSON_PARENT();
+	JSON_OBJECT("initializeAngle");
+	SaveMinMax(emitter.rotate.initializeAngle);
 	JSON_ROOT();
 
 	JSON_OBJECT("ScaleAnimation");
@@ -700,7 +749,11 @@ void GPUParticleShaderStructs::Load(const std::string name, GPUParticleShaderStr
 	JSON_ROOT();
 
 	JSON_OBJECT("RotateAnimation");
-	JSON_LOAD_BY_NAME("rotate", desc.emitter.rotate.rotate);
+	JSON_OBJECT("rotateSpeed");
+	LoadMinMax(desc.emitter.rotate.rotateSpeed);
+	JSON_PARENT();
+	JSON_OBJECT("initializeAngle");
+	LoadMinMax(desc.emitter.rotate.initializeAngle);
 	JSON_ROOT();
 
 	JSON_OBJECT("Velocity3D");
@@ -710,7 +763,10 @@ void GPUParticleShaderStructs::Load(const std::string name, GPUParticleShaderStr
 	JSON_LOAD_BY_NAME("NumCreate", desc.numCreate);
 	std::string path{};
 	JSON_LOAD_BY_NAME("textureIndex", path);
-	desc.emitter.textureIndex = TextureManager::GetInstance()->GetTexture(TextureManager::GetInstance()->Load(path)).GetDescriptorIndex();
+	if (!path.empty()) {
+		desc.emitter.textureIndex = TextureManager::GetInstance()->GetTexture(TextureManager::GetInstance()->Load(path)).GetDescriptorIndex();
+	}
+
 	JSON_OBJECT("CollisionInfo");
 	JSON_LOAD_BY_NAME("mask", desc.emitter.collisionInfo.mask);
 	JSON_LOAD_BY_NAME("attribute", desc.emitter.collisionInfo.attribute);
@@ -737,7 +793,11 @@ void GPUParticleShaderStructs::Save(const std::string name, GPUParticleShaderStr
 	JSON_ROOT();
 
 	JSON_OBJECT("RotateAnimation");
-	JSON_SAVE_BY_NAME("rotate", desc.emitter.rotate.rotate);
+	JSON_OBJECT("rotateSpeed");
+	SaveMinMax(desc.emitter.rotate.rotateSpeed);
+	JSON_PARENT();
+	JSON_OBJECT("initializeAngle");
+	SaveMinMax(desc.emitter.rotate.initializeAngle);
 	JSON_ROOT();
 
 	JSON_OBJECT("Velocity3D");
@@ -771,8 +831,13 @@ void GPUParticleShaderStructs::Load(const std::string name, GPUParticleShaderStr
 	LoadStartEnd(desc.emitter.color.range);
 	JSON_ROOT();
 
+
 	JSON_OBJECT("RotateAnimation");
-	JSON_LOAD_BY_NAME("rotate", desc.emitter.rotate.rotate);
+	JSON_OBJECT("rotateSpeed");
+	LoadMinMax(desc.emitter.rotate.rotateSpeed);
+	JSON_PARENT();
+	JSON_OBJECT("initializeAngle");
+	LoadMinMax(desc.emitter.rotate.initializeAngle);
 	JSON_ROOT();
 
 	JSON_OBJECT("Velocity3D");
@@ -781,7 +846,9 @@ void GPUParticleShaderStructs::Load(const std::string name, GPUParticleShaderStr
 
 	std::string path{};
 	JSON_LOAD_BY_NAME("textureIndex", path);
-	desc.emitter.textureIndex = TextureManager::GetInstance()->GetTexture(TextureManager::GetInstance()->Load(path)).GetDescriptorIndex();
+	if (!path.empty()) {
+		desc.emitter.textureIndex = TextureManager::GetInstance()->GetTexture(TextureManager::GetInstance()->Load(path)).GetDescriptorIndex();
+	}
 	JSON_OBJECT("CollisionInfo");
 	JSON_LOAD_BY_NAME("mask", desc.emitter.collisionInfo.mask);
 	JSON_LOAD_BY_NAME("attribute", desc.emitter.collisionInfo.attribute);
@@ -805,8 +872,13 @@ void GPUParticleShaderStructs::Save(const std::string name, GPUParticleShaderStr
 	SaveStartEnd(desc.emitter.color.range);
 	JSON_ROOT();
 
+
 	JSON_OBJECT("RotateAnimation");
-	JSON_SAVE_BY_NAME("rotate", desc.emitter.rotate.rotate);
+	JSON_OBJECT("rotateSpeed");
+	SaveMinMax(desc.emitter.rotate.rotateSpeed);
+	JSON_PARENT();
+	JSON_OBJECT("initializeAngle");
+	SaveMinMax(desc.emitter.rotate.initializeAngle);
 	JSON_ROOT();
 
 	JSON_OBJECT("Velocity3D");

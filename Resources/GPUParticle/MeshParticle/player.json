@@ -36,10 +36,12 @@
     "NumCreate": 3,
     "ParticleLifeTime": {
         "Max": 10,
-        "Min": 3
+        "Min": 1
     },
     "RotateAnimation": {
-        "rotate": 0.0
+        "initializeAngle": {},
+        "rotate": 0.0,
+        "rotateSpeed": {}
     },
     "ScaleAnimation": {
         "End": {

@@ -119,8 +119,9 @@ void main(uint3 DTid : SV_DispatchThreadID) {
                 Output[index].scaleRange.max.z = randomRange(meshEmitter.scale.range.end.min.z, meshEmitter.scale.range.end.max.z, seed);
 
                 Output[index].scale = Output[index].scaleRange.min;
-                Output[index].rotateVelocity = meshEmitter.rotateAnimation.rotate;
-                Output[index].rotate = 0.0f;
+
+                Output[index].rotateVelocity =  randomRange(meshEmitter.rotateAnimation.rotateSpeed.min,meshEmitter.rotateAnimation.rotateSpeed.max,seed);
+                Output[index].rotate =  randomRange(meshEmitter.rotateAnimation.initializeAngle.min,meshEmitter.rotateAnimation.initializeAngle.max,seed);
 
                 // ランダムな点を計算
                 float32_t t = float32_t(j) / float32_t(sumCreateParticleNum);

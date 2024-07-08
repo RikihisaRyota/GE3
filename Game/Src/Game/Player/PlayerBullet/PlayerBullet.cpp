@@ -2,7 +2,6 @@
 
 #include <numbers>
 
-#include "Engine/GPUParticleManager/GPUParticle/GPUParticleShaderStructs.h"
 #include "Engine/Graphics/CommandContext.h"
 #include "Engine/Math/MyMath.h"
 #include "Engine/Model/ModelManager.h"
@@ -10,14 +9,16 @@
 #include "Engine/Collision/CollisionAttribute.h"
 #include "Engine/Collision/CollisionManager.h"
 
+
 #include "Src/Game/Boss/Boss.h"
 
-void PlayerBullet::Create(GPUParticleManager* GPUParticleManager, const Vector3& position, const Vector3& velocity, uint32_t time) {
+void PlayerBullet::Create(GPUParticleManager* GPUParticleManager, const Vector3& position, const Vector3& velocity, uint32_t time, const BulletEmitter& emitter) {
 	modelHandle_ = ModelManager::GetInstance()->Load("Resources/Models/Bullet/bullet.gltf");
 	gpuTexture_ = TextureManager::GetInstance()->Load("Resources/Images/GPUParticle.png");
 	gpuParticleManager_ = GPUParticleManager;
 	velocity_ = velocity;
 	time_ = time;
+	emitter_ = emitter;
 	isAlive_ = true;
 
 	worldTransform_.Initialize();
@@ -57,12 +58,18 @@ void PlayerBullet::DrawDebug(const ViewProjection& viewProjection) {
 }
 
 void PlayerBullet::OnCollision(const ColliderDesc& desc) {
-	if (desc.collider->GetName().find("Boss") != std::string::npos ||
-		desc.collider->GetName() == "GameObject") {
+	if (desc.collider->GetName() == "GameObject") {
+		isAlive_ = false;
+	}
+	if (desc.collider->GetName().find("Boss") != std::string::npos) {
 		std::string jointName = EraseName(desc.collider->GetName(), "Boss_");
 		float ratio = float(boss_->GetEmitters()[jointName].createParticleNum) / float(boss_->GetInitializeParticleNum()[jointName]);
 		ratio -= 0.05f;
 		boss_->GetEmitters()[jointName].createParticleNum = uint32_t(boss_->GetInitializeParticleNum()[jointName] * ratio);
+		emitter_.sharp.emitterArea.sphere.position = MakeTranslateMatrix(worldTransform_.matWorld);
+		emitter_.crescent.emitterArea.sphere.position = MakeTranslateMatrix(worldTransform_.matWorld);
+		gpuParticleManager_->SetEmitter(emitter_.sharp);
+		gpuParticleManager_->SetEmitter(emitter_.crescent);
 		isAlive_ = false;
 	}
 }

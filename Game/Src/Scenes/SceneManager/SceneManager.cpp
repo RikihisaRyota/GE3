@@ -32,7 +32,7 @@ void SceneManager::Update(CommandContext& commandContext, ViewProjection* viewPr
 	}
 	ImGui::End();
 	ImGui::Begin("fps");
-	ImGui::Text("Frame rate: %3.0f fps", ImGui::GetIO().Framerate);
+	ImGui::Text("Frame rate: %3.00f fps", ImGui::GetIO().Framerate);
 	ImGui::Text("Delta Time: %.4f", ImGui::GetIO().DeltaTime);
 	ImGui::End();
 #endif // ENABLE_IMGUI

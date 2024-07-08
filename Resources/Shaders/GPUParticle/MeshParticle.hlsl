@@ -77,8 +77,8 @@ void main(uint3 DTid : SV_DispatchThreadID)
     
         Output[index].scale = Output[index].scaleRange.min;
 
-        Output[index].rotateVelocity = meshEmitter.rotateAnimation.rotate;
-        Output[index].rotate = 0.0f;
+        Output[index].rotateVelocity =  randomRange(meshEmitter.rotateAnimation.rotateSpeed.min,meshEmitter.rotateAnimation.rotateSpeed.max,seed);
+        Output[index].rotate =  randomRange(meshEmitter.rotateAnimation.initializeAngle.min,meshEmitter.rotateAnimation.initializeAngle.max,seed);
         // 三角形の頂点インデックスを取得
         uint32_t3 triIndices = uint32_t3(
             indices[triIndex * 3].index,

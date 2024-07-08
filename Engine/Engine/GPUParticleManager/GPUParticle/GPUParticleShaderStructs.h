@@ -32,6 +32,12 @@ namespace GPUParticleShaderStructs {
 		uint32_t pad[2];
 	};
 
+	struct FloatMinMax {
+		float min;
+		float max;
+		Vector2 pad;
+	};
+
 	struct Vector3MinMax {
 		Vector3 min;
 		uint32_t pad1;
@@ -191,8 +197,8 @@ struct Particle
 
 	// パーティクルの回転	
 	struct RotateAnimation {
-		float rotate;
-		uint32_t pad[3];
+		FloatMinMax initializeAngle;
+		FloatMinMax rotateSpeed;
 	};
 
 	// パーティクルの移動
@@ -384,6 +390,8 @@ struct Particle
 
 	void DrawMinMax(GPUParticleShaderStructs::UintMinMax& startEnd, float v_speed = 1.0f, int v_min = 0, int v_max = 0);
 
+	void DrawMinMax(GPUParticleShaderStructs::FloatMinMax& startEnd, float v_speed = 1.0f, float v_min = 0.0f, float v_max = 0.0f);
+	
 	void DrawMinMax(GPUParticleShaderStructs::Vector3MinMax& startEnd, float v_speed = 1.0f, float v_min = 0.0f, float v_max = 0.0f);
 
 	void DrawMinMax(GPUParticleShaderStructs::Vector4MinMax& startEnd, float v_speed = 1.0f, float v_min = 0.0f, float v_max = 0.0f);

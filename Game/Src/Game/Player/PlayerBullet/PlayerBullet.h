@@ -2,6 +2,8 @@
 
 #include <array>
 
+
+#include "Engine/GPUParticleManager/GPUParticle/GPUParticleShaderStructs.h"
 #include "Engine/GPUParticleManager/GPUParticleManager.h"
 #include "Engine/Math/Vector3.h"
 #include "Engine/Math/Vector3.h"
@@ -15,7 +17,12 @@ class Boss;
 class CommandContext;
 class PlayerBullet {
 public:
-	void Create(GPUParticleManager* GPUParticleManager, const Vector3& position, const Vector3& velocity, uint32_t time);
+	struct BulletEmitter {
+		GPUParticleShaderStructs::EmitterForCPU sharp;
+		GPUParticleShaderStructs::EmitterForCPU crescent;
+
+	};
+	void Create(GPUParticleManager* GPUParticleManager, const Vector3& position, const Vector3& velocity, uint32_t time,const BulletEmitter& emitter);
 	void Update();
 	void Draw(const ViewProjection& viewProjection, CommandContext& commandContext);
 	void DrawDebug(const ViewProjection& viewProjection);
@@ -30,7 +37,7 @@ private:
 
 	Boss* boss_;
 	GPUParticleManager* gpuParticleManager_;
-
+	BulletEmitter emitter_;
 	std::unique_ptr<SphereCollider> collider_;
 
 	ModelHandle modelHandle_;

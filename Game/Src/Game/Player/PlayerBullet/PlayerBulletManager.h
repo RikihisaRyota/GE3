@@ -38,4 +38,5 @@ private:
 	uint32_t bulletLifeTime_;
 	int32_t bulletCoolTime_;
 	Vector3 offset_;
+	PlayerBullet::BulletEmitter  emitter_;
 };

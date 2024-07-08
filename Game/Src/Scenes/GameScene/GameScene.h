@@ -45,6 +45,9 @@ private:
 	int32_t soundHandle_;
 	int32_t playHandle_;
 
+	//ModelHandle field_ ;
+	//WorldTransform fieldWorldTransform_;
+
 	GPUParticleShaderStructs::EmitterForCPU test_;
 
 };

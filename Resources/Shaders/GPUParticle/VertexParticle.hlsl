@@ -70,8 +70,8 @@ void main(uint3 DTid : SV_DispatchThreadID)
     
         Output[index].scale = Output[index].scaleRange.min;
 
-        Output[index].rotateVelocity = meshEmitter.rotateAnimation.rotate;
-        Output[index].rotate = 0.0f;
+        Output[index].rotateVelocity =  randomRange(meshEmitter.rotateAnimation.rotateSpeed.min,meshEmitter.rotateAnimation.rotateSpeed.max,seed);
+        Output[index].rotate =  randomRange(meshEmitter.rotateAnimation.initializeAngle.min,meshEmitter.rotateAnimation.initializeAngle.max,seed);
 
         Output[index].translate =  mul(vertices[triIndex].position, worldTransform.world).xyz;
 

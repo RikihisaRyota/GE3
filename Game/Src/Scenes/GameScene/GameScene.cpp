@@ -38,6 +38,8 @@ GameScene::GameScene() {
 
 
 	gpuTexture_ = TextureManager::GetInstance()->Load("Resources/Images/GPUParticle.png");
+	TextureManager::GetInstance()->Load("Resources/Images/smoke.png");
+	TextureManager::GetInstance()->Load("Resources/Images/crescent.png");
 
 	soundHandle_ = Audio::GetInstance()->SoundLoad("Resources/Audios/walk.mp3");
 	playHandle_ = Audio::GetInstance()->SoundPlayLoopStart(soundHandle_);
@@ -51,6 +53,9 @@ GameScene::GameScene() {
 
 	GPUParticleShaderStructs::Load("test", test_);
 
+	//fieldWorldTransform_.Initialize();
+	//field_ = ModelManager::GetInstance()->Load("Resources/Models/Ground/ground_1.gltf");
+
 }
 
 GameScene::~GameScene() {
@@ -60,7 +65,6 @@ GameScene::~GameScene() {
 void GameScene::Initialize() {
 	//DrawLine::GetInstance()->SetLine({ -10.0f,1.0f,0.0f }, { 10.0f,1.0f,0.0f }, { 0.0f,1.0f,0.0f,1.0f });
 	//Audio::GetInstance()->SoundPlayLoopStart(playHandle_);
-
 
 	// しゃーなし
 	player_->SetViewProjection(viewProjection_);
@@ -83,41 +87,6 @@ void GameScene::Initialize() {
 			break;
 		}
 	}
-
-	//// 0
-	//{
-	//	test_.emitterArea.aabb.area.min = { -10.0f,-10.0f,-20.0f };
-	//	test_.emitterArea.aabb.area.max = { 10.0f,10.0f,20.0f };
-	//	test_.emitterArea.position = { 0.0f,0.0f,0.0f };
-	//	test_.emitterArea.type = GPUParticleShaderStructs::Type::kAABB;
-
-	//	test_.scale.range.start.min = { 0.1f,0.1f,0.1f };
-	//	test_.scale.range.start.max = { 0.3f,0.3f,0.3f };
-	//	test_.scale.range.end.max = { 0.1f,0.1f,0.1f };
-	//	test_.scale.range.end.max = { 0.1f,0.1f,0.1f };
-
-	//	test_.rotate.rotate = 0.3f;
-
-	//	test_.velocity.range.min = { 0.0f,0.0f,0.1f };
-	//	test_.velocity.range.max = { 0.0f,0.0f,0.5f };
-
-	//	test_.color.range.start.min = { 0.5f,0.5f,0.5f,1.0f };
-	//	test_.color.range.start.max = { 0.5f,0.5f,0.5f,1.0f };
-	//	test_.color.range.end.min = { 0.5f,0.5f,0.5f,1.0f };
-	//	test_.color.range.end.max = { 0.5f,0.5f,0.5f,1.0f };
-
-	//	test_.frequency.interval = 5;
-	//	test_.frequency.isLoop = true;
-	//	test_.frequency.emitterLife = 120;
-
-	//	test_.particleLifeSpan.range.min = 1;
-	//	test_.particleLifeSpan.range.min = 90;
-
-	//	test_.textureIndex = TextureManager::GetInstance()->GetTexture(gpuTexture_).GetDescriptorIndex(),
-
-	//		test_.createParticleNum = 333;
-		//gpuParticleManager_->SetEmitter(test_);
-	//}
 }
 
 void GameScene::Update(CommandContext& commandContext) {
@@ -142,6 +111,9 @@ void GameScene::Update(CommandContext& commandContext) {
 
 	CollisionManager::GetInstance()->Collision();
 #ifdef _DEBUG
+	//ImGui::DragFloat3("FieldScale", &fieldWorldTransform_.scale.x, 0.1f);
+	//ImGui::DragFloat3("FieldTranslate", &fieldWorldTransform_.translate.x, 0.1f);
+	//fieldWorldTransform_.UpdateMatrix();
 	gpuParticleManager_->DrawImGui();
 	skybox_->DrawImGui();
 	followCamera_->DrawImGui();
@@ -166,6 +138,7 @@ void GameScene::Update(CommandContext& commandContext) {
 }
 
 void GameScene::Draw(CommandContext& commandContext) {
+	//ModelManager::GetInstance()->Draw(fieldWorldTransform_, *viewProjection_, field_, commandContext);
 	player_->Draw(*viewProjection_, commandContext);
 	boss_->Draw(*viewProjection_, commandContext);
 	for (auto& object : gameObject_) {

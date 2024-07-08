@@ -46,7 +46,8 @@ void Scale(uint index,  uint32_t emitterIndex,inout uint32_t seed)
 
 void Rotate(uint index, uint32_t emitterIndex,inout uint32_t seed)
 {
-    Output[index].rotateVelocity = gEmitter[emitterIndex].rotateAnimation.rotate;
+    Output[index].rotateVelocity =  randomRange(gEmitter[emitterIndex].rotateAnimation.rotateSpeed.min,gEmitter[emitterIndex].rotateAnimation.rotateSpeed.max,seed);
+    Output[index].rotate =  randomRange(gEmitter[emitterIndex].rotateAnimation.initializeAngle.min,gEmitter[emitterIndex].rotateAnimation.initializeAngle.max,seed);
 }
 
 void Translate(uint index,  uint32_t emitterIndex,inout uint32_t seed)

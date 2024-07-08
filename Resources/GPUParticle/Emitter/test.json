@@ -82,8 +82,8 @@
         }
     },
     "EmitterFrequency": {
-        "emitterLife": 120,
-        "interval": 5,
+        "emitterLife": 1,
+        "interval": 1,
         "isLoop": 1
     },
     "ParticleLifeSpan": {
@@ -91,7 +91,15 @@
         "Min": 90
     },
     "RotateAnimation": {
-        "rotate": 0.30000001192092896
+        "initializeAngle": {
+            "Max": 0.0,
+            "Min": 0.0
+        },
+        "rotate": 0.30000001192092896,
+        "rotateSpeed": {
+            "Max": 0.0,
+            "Min": 0.0
+        }
     },
     "ScaleAnimation": {
         "End": {

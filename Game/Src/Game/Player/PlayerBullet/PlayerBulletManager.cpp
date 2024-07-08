@@ -25,6 +25,8 @@ PlayerBulletManager::PlayerBulletManager() {
 	JSON_LOAD(reticleDistance_);
 	JSON_ROOT();
 	JSON_CLOSE();
+	GPUParticleShaderStructs::Load("sharp", emitter_.sharp);
+	GPUParticleShaderStructs::Load("crescent", emitter_.crescent);
 }
 
 void PlayerBulletManager::Initialize() {
@@ -89,6 +91,8 @@ void PlayerBulletManager::DrawImGui() {
 		ImGui::EndMenu();
 	}
 	ImGui::End();
+	GPUParticleShaderStructs::Debug("sharp", emitter_.sharp);
+	GPUParticleShaderStructs::Debug("crescent", emitter_.crescent);
 #endif // _DEBUG
 }
 
@@ -142,7 +146,7 @@ void PlayerBulletManager::Create(const WorldTransform& worldTransform) {
 		// 弾を作成
 		playerBullets_.emplace_back(std::make_unique<PlayerBullet>());
 		playerBullets_.back()->SetBoss(boss_);
-		playerBullets_.back()->Create(gpuParticleManager_, playerPosition, bulletVelocity, bulletLifeTime_);
+		playerBullets_.back()->Create(gpuParticleManager_, playerPosition, bulletVelocity, bulletLifeTime_, emitter_);
 	}
 
 }

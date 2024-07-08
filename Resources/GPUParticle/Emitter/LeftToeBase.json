@@ -91,7 +91,9 @@
         "Min": 10
     },
     "RotateAnimation": {
-        "rotate": 0.0
+        "initializeAngle": {},
+        "rotate": 0.0,
+        "rotateSpeed": {}
     },
     "ScaleAnimation": {
         "End": {

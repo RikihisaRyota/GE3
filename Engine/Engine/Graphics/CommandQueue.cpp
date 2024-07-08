@@ -1,7 +1,6 @@
 #include "CommandQueue.h"
 
 #include <assert.h>
-#include <chrono>
 #include <thread>
 
 #include "CommandContext.h"

@@ -387,7 +387,10 @@ void GPUParticle::Create(const GPUParticleShaderStructs::EmitterForCPU& emitterF
 	GPUParticleShaderStructs::EmitterForGPU emitterForGPU{};
 	emitterForGPU.emitterArea = emitterForCPU.emitterArea;
 	emitterForGPU.scale = emitterForCPU.scale;
-	emitterForGPU.rotate = emitterForCPU.rotate;
+	emitterForGPU.rotate.initializeAngle.min = DegToRad(emitterForCPU.rotate.initializeAngle.min);
+	emitterForGPU.rotate.initializeAngle.max= DegToRad(emitterForCPU.rotate.initializeAngle.max);
+	emitterForGPU.rotate.rotateSpeed.min = DegToRad(emitterForCPU.rotate.rotateSpeed.min);
+	emitterForGPU.rotate.rotateSpeed.max = DegToRad(emitterForCPU.rotate.rotateSpeed.max);
 	emitterForGPU.velocity = emitterForCPU.velocity;
 	emitterForGPU.color = emitterForCPU.color;
 	emitterForGPU.frequency = emitterForCPU.frequency;
@@ -406,7 +409,10 @@ void GPUParticle::SetEmitter(const GPUParticleShaderStructs::EmitterForCPU& emit
 	GPUParticleShaderStructs::EmitterForGPU emitterForGPU{};
 	emitterForGPU.emitterArea = emitterForCPU.emitterArea;
 	emitterForGPU.scale = emitterForCPU.scale;
-	emitterForGPU.rotate = emitterForCPU.rotate;
+	emitterForGPU.rotate.initializeAngle.min = DegToRad(emitterForCPU.rotate.initializeAngle.min);
+	emitterForGPU.rotate.initializeAngle.max = DegToRad(emitterForCPU.rotate.initializeAngle.max);
+	emitterForGPU.rotate.rotateSpeed.min = DegToRad(emitterForCPU.rotate.rotateSpeed.min);
+	emitterForGPU.rotate.rotateSpeed.max = DegToRad(emitterForCPU.rotate.rotateSpeed.max);
 	emitterForGPU.velocity = emitterForCPU.velocity;
 	emitterForGPU.color = emitterForCPU.color;
 	emitterForGPU.frequency = emitterForCPU.frequency;

@@ -309,7 +309,7 @@ void GPUParticleEditor::CreateEmitterBuffer() {
 	emitter_.scale.range.end.min = { 0.1f, 0.1f, 0.1f };
 	emitter_.scale.range.end.max = { 0.1f, 0.1f, 0.1f };
 
-	emitter_.rotate.rotate = 0.0f;
+	//emitter_.rotate.rotateSpeed = 0.0f;
 
 	emitter_.velocity.range.min = { 0.0f, 0.0f, 0.0f };
 	emitter_.velocity.range.max = { 0.0f, 0.0f, 0.0f };

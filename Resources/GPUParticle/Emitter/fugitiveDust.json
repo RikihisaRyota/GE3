@@ -1,0 +1,139 @@
+{
+    "CollisionInfo": {
+        "attribute": 0,
+        "mask": 0
+    },
+    "EmitterArea": {
+        "EmitterAABB": {
+            "Max": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "Min": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "position": [
+                -1.2718544006347656,
+                5.982889175415039,
+                -12.320645332336426
+            ]
+        },
+        "EmitterCapsule": {
+            "EmitterSegment": {
+                "end": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "start": [
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            },
+            "radius": 0.0
+        },
+        "EmitterSphere": {
+            "position": [
+                -1.2718544006347656,
+                5.982889175415039,
+                -12.320645332336426
+            ],
+            "radius": 0.5
+        },
+        "type": 1
+    },
+    "EmitterColor": {
+        "End": {
+            "Max": [
+                0.0,
+                0.0,
+                0.0,
+                0.0
+            ],
+            "Min": [
+                0.0,
+                0.0,
+                0.0,
+                0.0
+            ]
+        },
+        "Start": {
+            "Max": [
+                0.7188611030578613,
+                0.0,
+                1.0,
+                1.0
+            ],
+            "Min": [
+                0.3154844641685486,
+                0.10565976053476334,
+                0.3665480613708496,
+                1.0
+            ]
+        }
+    },
+    "EmitterFrequency": {
+        "emitterLife": 0,
+        "interval": 1,
+        "isLoop": 1
+    },
+    "ParticleLifeSpan": {
+        "Max": 30,
+        "Min": 15
+    },
+    "RotateAnimation": {
+        "initializeAngle": {
+            "Max": 0.0,
+            "Min": 0.0
+        },
+        "rotateSpeed": {
+            "Max": 0.0,
+            "Min": 0.0
+        }
+    },
+    "ScaleAnimation": {
+        "End": {
+            "Max": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "Min": [
+                0.0,
+                0.0,
+                0.0
+            ]
+        },
+        "Start": {
+            "Max": [
+                0.5,
+                0.5,
+                0.5
+            ],
+            "Min": [
+                0.10000000149011612,
+                0.10000000149011612,
+                0.10000000149011612
+            ]
+        },
+        "isSame": 1
+    },
+    "Velocity3D": {
+        "Max": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Min": [
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    "createParticleNum": 30,
+    "textureIndex": "Resources/Images/smoke.png"
+}

@@ -48,19 +48,20 @@ public:
 	void DrawSprite(CommandContext& commandContext);
 	void DrawDebug(const ViewProjection& viewProjection);
 
-	void SetGPUParticleManager(GPUParticleManager* GPUParticleManager) { 
-		gpuParticleManager_ = GPUParticleManager; 
+	void SetGPUParticleManager(GPUParticleManager* GPUParticleManager) {
+		gpuParticleManager_ = GPUParticleManager;
 		playerBulletManager_->SetGPUParticleManager(GPUParticleManager);
 	}
-	void SetViewProjection(ViewProjection* viewProjection) { 
-		viewProjection_ = viewProjection; 
+	void SetViewProjection(ViewProjection* viewProjection) {
+		viewProjection_ = viewProjection;
 		playerBulletManager_->SetViewProjection(viewProjection);
 	}
 	const WorldTransform& GetWorldTransform() const { return worldTransform_; }
 	void DrawImGui();
 
-	void SetBoss(Boss* boss) { boss_ = boss; 
-	playerBulletManager_->SetBoss(boss_);
+	void SetBoss(Boss* boss) {
+		boss_ = boss;
+		playerBulletManager_->SetBoss(boss_);
 	}
 private:
 	struct AnimationInfo {
@@ -71,7 +72,7 @@ private:
 	void UpdateTransform();
 
 	void Move();
-	
+
 	void AnimationUpdate(CommandContext& commandContext);
 	void PlayerRotate(const Vector3& vector);
 
@@ -99,9 +100,13 @@ private:
 	std::unordered_map<std::string, AnimationInfo> animationInfo_;
 	Animation::AnimationHandle currentAnimationHandle_;
 	Animation::AnimationHandle preAnimationHandle_;
+	struct FootEmitter {
+		GPUParticleShaderStructs::EmitterForCPU fugitiveDust;
+	};
+	FootEmitter footEmitter_;
 	GPUParticleShaderStructs::MeshEmitterDesc meshEmitterDesc_;
 	GPUParticleShaderStructs::VertexEmitterDesc vertexEmitterDesc_;
-	
+
 	State state_;
 	State preState_;
 	std::optional<State> tmpState_;

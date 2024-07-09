@@ -25,7 +25,7 @@ Player::Player() {
 	animationTransform_.Initialize();
 	playerBulletManager_ = std::make_unique<PlayerBulletManager>();
 	playerUI_ = std::make_unique<PlayerUI>();
-	
+
 	playerBulletManager_->SetPlayerUI(playerUI_.get());
 	playerHP_ = std::make_unique<PlayerHP>();
 	JSON_OPEN("Resources/Data/Player/player.json");
@@ -46,6 +46,7 @@ Player::Player() {
 	JSON_CLOSE();
 
 	GPUParticleShaderStructs::Load("player", meshEmitterDesc_);
+	GPUParticleShaderStructs::Load("fugitiveDust", footEmitter_.fugitiveDust);
 	GPUParticleShaderStructs::Load("player", vertexEmitterDesc_);
 
 #pragma region コライダー
@@ -126,6 +127,10 @@ void Player::Update(CommandContext& commandContext) {
 	Vector3 playerForward = Vector3(velocity_.x, 0.0f, velocity_.z);
 	if (playerForward.Length() != 0.0f) {
 		PlayerRotate(playerForward.Normalized());
+		footEmitter_.fugitiveDust.isAlive = true;
+	}
+	else {
+		footEmitter_.fugitiveDust.isAlive = false;
 	}
 
 	AnimationUpdate(commandContext);
@@ -210,6 +215,9 @@ void Player::GPUParticleSpawn(CommandContext& commandContext) {
 	//gpuParticleManager_->CreateMeshParticle(playerModelHandle_, animation_, worldTransform_, meshEmitterDesc_, commandContext);
 	gpuParticleManager_->CreateEdgeParticle(playerModelHandle_, animation_, worldTransform_, meshEmitterDesc_, commandContext);
 	//gpuParticleManager_->CreateVertexParticle(playerModelHandle_, animation_, worldTransform_, vertexEmitterDesc_, commandContext);
+	footEmitter_.fugitiveDust.emitterArea.aabb.position = MakeTranslateMatrix(worldTransform_.matWorld);
+	footEmitter_.fugitiveDust.emitterArea.sphere.position = MakeTranslateMatrix(worldTransform_.matWorld);
+	gpuParticleManager_->SetEmitter(footEmitter_.fugitiveDust);
 }
 
 void Player::UpdateTransform() {
@@ -345,6 +353,7 @@ void Player::DrawImGui() {
 	playerHP_->DrawImGui();
 	GPUParticleShaderStructs::Debug("player", meshEmitterDesc_);
 	GPUParticleShaderStructs::Debug("player", vertexEmitterDesc_);
+	GPUParticleShaderStructs::Debug("fugitiveDust", footEmitter_.fugitiveDust);
 }
 
 void Player::AnimationUpdate(CommandContext& commandContext) {

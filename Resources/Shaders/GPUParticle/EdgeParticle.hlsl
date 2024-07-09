@@ -110,15 +110,19 @@ void main(uint3 DTid : SV_DispatchThreadID) {
                 Output[index].particleLifeTime.maxTime = randomRange(meshEmitter.particleLifeSpan.range.min, meshEmitter.particleLifeSpan.range.max, seed);
                 Output[index].particleLifeTime.time = 0;
 
-                Output[index].scaleRange.min.x = randomRange(meshEmitter.scale.range.start.min.x, meshEmitter.scale.range.start.max.x, seed);
-                Output[index].scaleRange.min.y = randomRange(meshEmitter.scale.range.start.min.y, meshEmitter.scale.range.start.max.y, seed);
-                Output[index].scaleRange.min.z = randomRange(meshEmitter.scale.range.start.min.z, meshEmitter.scale.range.start.max.z, seed);
+                if(!meshEmitter.scale.isSame){
+                    Output[index].scaleRange.min.x = randomRange(meshEmitter.scale.range.start.min.x, meshEmitter.scale.range.start.max.x,seed);
+                    Output[index].scaleRange.min.y = randomRange(meshEmitter.scale.range.start.min.y, meshEmitter.scale.range.start.max.y,seed);
+                    Output[index].scaleRange.min.z = randomRange(meshEmitter.scale.range.start.min.z, meshEmitter.scale.range.start.max.z,seed);
 
-                Output[index].scaleRange.max.x = randomRange(meshEmitter.scale.range.end.min.x, meshEmitter.scale.range.end.max.x, seed);
-                Output[index].scaleRange.max.y = randomRange(meshEmitter.scale.range.end.min.y, meshEmitter.scale.range.end.max.y, seed);
-                Output[index].scaleRange.max.z = randomRange(meshEmitter.scale.range.end.min.z, meshEmitter.scale.range.end.max.z, seed);
-
-                Output[index].scale = Output[index].scaleRange.min;
+                    Output[index].scaleRange.max.x = randomRange(meshEmitter.scale.range.end.min.x, meshEmitter.scale.range.end.max.x,seed);
+                    Output[index].scaleRange.max.y = randomRange(meshEmitter.scale.range.end.min.y, meshEmitter.scale.range.end.max.y,seed);
+                    Output[index].scaleRange.max.z = randomRange(meshEmitter.scale.range.end.min.z, meshEmitter.scale.range.end.max.z,seed);
+                }else{
+                    Output[index].scaleRange.min=randomRangeSame(meshEmitter.scale.range.start.min, meshEmitter.scale.range.start.max,seed);
+                    Output[index].scaleRange.max=randomRangeSame(meshEmitter.scale.range.end.min, meshEmitter.scale.range.end.max,seed);
+                }
+                Output[index].scale=Output[index].scaleRange.min;
 
                 Output[index].rotateVelocity =  randomRange(meshEmitter.rotateAnimation.rotateSpeed.min,meshEmitter.rotateAnimation.rotateSpeed.max,seed);
                 Output[index].rotate =  randomRange(meshEmitter.rotateAnimation.initializeAngle.min,meshEmitter.rotateAnimation.initializeAngle.max,seed);

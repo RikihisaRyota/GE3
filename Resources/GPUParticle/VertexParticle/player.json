@@ -38,9 +38,15 @@
         "Min": 1
     },
     "RotateAnimation": {
-        "initializeAngle": {},
+        "initializeAngle": {
+            "Max": 0.0,
+            "Min": 0.0
+        },
         "rotate": 0.0,
-        "rotateSpeed": {}
+        "rotateSpeed": {
+            "Max": 0.0,
+            "Min": 0.0
+        }
     },
     "ScaleAnimation": {
         "End": {
@@ -66,7 +72,8 @@
                 0.009999999776482582,
                 0.009999999776482582
             ]
-        }
+        },
+        "isSame": 0
     },
     "Velocity3D": {
         "Max": [

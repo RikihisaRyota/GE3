@@ -161,6 +161,7 @@ struct Particle
 	struct EmitterSphere {
 		float radius;
 		Vector3 position;
+		FloatMinMax distanceFactor;
 	};
 
 	struct EmitterSegment {
@@ -171,6 +172,7 @@ struct Particle
 	};
 	struct EmitterCapsule {
 		EmitterSegment segment;
+		FloatMinMax distanceFactor;
 		float radius;
 		Vector3 pad;
 	};
@@ -193,6 +195,8 @@ struct Particle
 	// パーティクルのスケール
 	struct ScaleAnimation {
 		Vector3StartEnd range;
+		uint32_t isSame;
+		Vector3 pad;
 	};
 
 	// パーティクルの回転	

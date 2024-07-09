@@ -68,8 +68,8 @@ void PlayerBullet::OnCollision(const ColliderDesc& desc) {
 		boss_->GetEmitters()[jointName].createParticleNum = uint32_t(boss_->GetInitializeParticleNum()[jointName] * ratio);
 		emitter_.sharp.emitterArea.sphere.position = MakeTranslateMatrix(worldTransform_.matWorld);
 		emitter_.crescent.emitterArea.sphere.position = MakeTranslateMatrix(worldTransform_.matWorld);
-		gpuParticleManager_->SetEmitter(emitter_.sharp);
 		gpuParticleManager_->SetEmitter(emitter_.crescent);
+		gpuParticleManager_->SetEmitter(emitter_.sharp);
 		isAlive_ = false;
 	}
 }

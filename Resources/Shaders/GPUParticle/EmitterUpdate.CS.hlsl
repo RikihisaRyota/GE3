@@ -1,7 +1,7 @@
 #include "GPUParticle.hlsli"
 
 RWStructuredBuffer<Emitter> inputEmitter : register(u0);
-AppendStructuredBuffer<CreateParticle> createParticle : register(u1);
+AppendStructuredBuffer<CreateParticleNum> createParticle : register(u1);
 RWStructuredBuffer<uint> createParticleCounter : register(u2);
 
 [numthreads(emitterSize, 1, 1)]
@@ -15,7 +15,7 @@ void main(uint3 DTid : SV_DispatchThreadID)
         if (inputEmitter[index].time.particleTime >= inputEmitter[index].frequency.interval)
         {
             // 生成
-            CreateParticle particle;
+            CreateParticleNum particle;
             particle.emitterNum = index;
             particle.createParticleNum = inputEmitter[index].createParticleNum;
             // Interlocked

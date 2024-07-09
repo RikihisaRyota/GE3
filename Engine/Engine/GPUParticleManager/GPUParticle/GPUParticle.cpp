@@ -41,6 +41,7 @@ void GPUParticle::CheckEmitter(CommandContext& commandContext) {
 	if (!emitterForGPUs_.empty()) {
 		size_t emitterCount = emitterForGPUs_.size();
 		size_t copySize = sizeof(GPUParticleShaderStructs::EmitterForGPU) * emitterCount;
+		emitterCopyUploadBuffer_.ResetBuffer();
 		emitterCopyUploadBuffer_.Copy(emitterForGPUs_.data(), copySize);
 		commandContext.CopyBuffer(emitterCopyDefaultBuffer_, emitterCopyUploadBuffer_);
 		addEmitterCountBuffer_.Copy(&emitterCount, sizeof(UINT));
@@ -388,7 +389,7 @@ void GPUParticle::Create(const GPUParticleShaderStructs::EmitterForCPU& emitterF
 	emitterForGPU.emitterArea = emitterForCPU.emitterArea;
 	emitterForGPU.scale = emitterForCPU.scale;
 	emitterForGPU.rotate.initializeAngle.min = DegToRad(emitterForCPU.rotate.initializeAngle.min);
-	emitterForGPU.rotate.initializeAngle.max= DegToRad(emitterForCPU.rotate.initializeAngle.max);
+	emitterForGPU.rotate.initializeAngle.max = DegToRad(emitterForCPU.rotate.initializeAngle.max);
 	emitterForGPU.rotate.rotateSpeed.min = DegToRad(emitterForCPU.rotate.rotateSpeed.min);
 	emitterForGPU.rotate.rotateSpeed.max = DegToRad(emitterForCPU.rotate.rotateSpeed.max);
 	emitterForGPU.velocity = emitterForCPU.velocity;

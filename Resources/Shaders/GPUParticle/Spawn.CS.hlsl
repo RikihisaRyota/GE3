@@ -14,7 +14,7 @@ ConstantBuffer<Random> gRandom : register(b0);
 
 ConsumeStructuredBuffer<uint> particleIndexCommands : register(u1);
 
-RWStructuredBuffer<CreateParticle> createParticle : register(u2);
+RWStructuredBuffer<CreateParticleNum> createParticle : register(u2);
 
 struct CounterParticle
 {
@@ -24,7 +24,7 @@ struct CounterParticle
 
 RWStructuredBuffer<CounterParticle> particleIndexCounter : register(u3);
 
-void LifeTime(uint index, uint32_t emitterIndex,inout uint32_t seed)
+/*void LifeTime(uint index, uint32_t emitterIndex,inout uint32_t seed)
 {
     
     Output[index].particleLifeTime.maxTime = randomRange(gEmitter[emitterIndex].particleLifeSpan.range.min, gEmitter[emitterIndex].particleLifeSpan.range.max, seed);
@@ -33,6 +33,8 @@ void LifeTime(uint index, uint32_t emitterIndex,inout uint32_t seed)
 
 void Scale(uint index,  uint32_t emitterIndex,inout uint32_t seed)
 {
+    if(!gEmitter[emitterIndex].scale.isSame){
+
     Output[index].scaleRange.min.x = randomRange(gEmitter[emitterIndex].scale.range.start.min.x, gEmitter[emitterIndex].scale.range.start.max.x,seed);
     Output[index].scaleRange.min.y = randomRange(gEmitter[emitterIndex].scale.range.start.min.y, gEmitter[emitterIndex].scale.range.start.max.y,seed);
     Output[index].scaleRange.min.z = randomRange(gEmitter[emitterIndex].scale.range.start.min.z, gEmitter[emitterIndex].scale.range.start.max.z,seed);
@@ -40,6 +42,10 @@ void Scale(uint index,  uint32_t emitterIndex,inout uint32_t seed)
     Output[index].scaleRange.max.x = randomRange(gEmitter[emitterIndex].scale.range.end.min.x, gEmitter[emitterIndex].scale.range.end.max.x,seed);
     Output[index].scaleRange.max.y = randomRange(gEmitter[emitterIndex].scale.range.end.min.y, gEmitter[emitterIndex].scale.range.end.max.y,seed);
     Output[index].scaleRange.max.z = randomRange(gEmitter[emitterIndex].scale.range.end.min.z, gEmitter[emitterIndex].scale.range.end.max.z,seed);
+    }else{
+        Output[index].scaleRange.min=randomRangeSame(gEmitter[emitterIndex].scale.range.start.min, gEmitter[emitterIndex].scale.range.start.max,seed);
+        Output[index].scaleRange.max=randomRangeSame(gEmitter[emitterIndex].scale.range.end.min, gEmitter[emitterIndex].scale.range.end.max,seed);
+    }
     
     Output[index].scale = Output[index].scaleRange.min;
 }
@@ -108,7 +114,7 @@ void Create(uint index,  uint32_t emitterIndex,uint32_t seed)
     
     Color(index, emitterIndex,seed);   
 }
-
+*/
 
 [numthreads(1, 1, 1)]
 void main(uint3 DTid : SV_DispatchThreadID, uint3 GTid : SV_GroupThreadID, uint3 GID : SV_GroupID)
@@ -129,7 +135,9 @@ void main(uint3 DTid : SV_DispatchThreadID, uint3 GTid : SV_GroupThreadID, uint3
                 int index = particleIndexCommands.Consume();
                 uint32_t seed = setSeed(index * gRandom.random);
                 uint32_t emitterIndex=createParticle[emitterNum].emitterNum;
-                Create(index, emitterIndex,seed);
+                Emitter emitter=gEmitter[emitterIndex];
+
+                CreateParticle(Output[index], emitter,seed);
             }
         }
     }

@@ -87,7 +87,7 @@
     },
     "RotateAnimation": {
         "initializeAngle": {
-            "Max": 180.0,
+            "Max": 360.0,
             "Min": 0.0
         },
         "rotateSpeed": {
@@ -110,16 +110,17 @@
         },
         "Start": {
             "Max": [
-                5.0,
-                5.0,
-                0.0
+                10.0,
+                10.0,
+                10.0
             ],
             "Min": [
-                2.0,
-                2.0,
-                0.0
+                1.0,
+                1.0,
+                1.0
             ]
-        }
+        },
+        "isSame": 1
     },
     "Velocity3D": {
         "Max": [
@@ -133,6 +134,6 @@
             0.0
         ]
     },
-    "createParticleNum": 5,
+    "createParticleNum": 10,
     "textureIndex": "Resources/Images/crescent.png"
 }

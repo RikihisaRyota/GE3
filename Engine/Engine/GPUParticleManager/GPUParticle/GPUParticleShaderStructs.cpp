@@ -201,6 +201,7 @@ void GPUParticleShaderStructs::EmitterEditor(const std::string name, std::tuple<
 			if (ImGui::TreeNode("Sphere")) {
 				ImGui::DragFloat("Radius", &emitter->emitterArea.sphere.radius, 0.1f);
 				ImGui::DragFloat3("Position", &emitter->emitterArea.sphere.position.x, 0.1f);
+				DrawMinMax(emitter->emitterArea.sphere.distanceFactor, 0.01f, 0.0f, 1.0f);
 				ImGui::TreePop();
 			}
 			break;
@@ -209,6 +210,7 @@ void GPUParticleShaderStructs::EmitterEditor(const std::string name, std::tuple<
 				ImGui::DragFloat3("Start", &emitter->emitterArea.capsule.segment.origin.x, 0.1f);
 				ImGui::DragFloat3("End", &emitter->emitterArea.capsule.segment.diff.x, 0.1f);
 				ImGui::DragFloat("Radius", &emitter->emitterArea.capsule.radius, 0.1f);
+				DrawMinMax(emitter->emitterArea.capsule.distanceFactor, 0.01f, 0.0f, 1.0f);
 				ImGui::TreePop();
 			}
 			break;
@@ -228,7 +230,27 @@ void GPUParticleShaderStructs::EmitterEditor(const std::string name, std::tuple<
 		ImGui::TreePop();
 	}
 	if (ImGui::TreeNode("Scale")) {
-		DrawStartEnd(emitter->scale.range, 0.01f, 0.0f);
+		if (!emitter->scale.isSame) {
+			DrawStartEnd(emitter->scale.range, 0.01f, 0.0f);
+		}
+		else {
+			if (ImGui::TreeNode("Start")) {
+				ImGui::DragFloat("Min", &emitter->scale.range.start.min.x, 0.01f, 0.0f);
+				ImGui::DragFloat("Max", &emitter->scale.range.start.max.x, 0.01f, 0.0f);
+				ImGui::TreePop();
+			}
+
+			if (ImGui::TreeNode("End")) {
+				ImGui::DragFloat("Min", &emitter->scale.range.end.min.x, 0.01f, 0.0f);
+				ImGui::DragFloat("Max", &emitter->scale.range.end.max.x, 0.01f, 0.0f);
+				ImGui::TreePop();
+			}
+			emitter->scale.range.start.min.y = emitter->scale.range.start.min.x;
+			emitter->scale.range.start.min.z = emitter->scale.range.start.min.x;
+			emitter->scale.range.start.max.y = emitter->scale.range.start.max.x;
+			emitter->scale.range.start.max.z = emitter->scale.range.start.max.x;
+		}
+		ImGui::Checkbox("IsSame", reinterpret_cast<bool*>(&emitter->scale.isSame));
 		ImGui::TreePop();
 	}
 	if (ImGui::TreeNode("Rotate")) {
@@ -327,7 +349,31 @@ void GPUParticleShaderStructs::EmitterEditor(const std::string name, std::tuple<
 		*std::get<0>(d) = false;
 	}
 	if (ImGui::TreeNode("Scale")) {
-		DrawStartEnd(desc->emitter.scale.range, 0.01f, 0.0f);
+		if (!desc->emitter.scale.isSame) {
+			DrawStartEnd(desc->emitter.scale.range, 0.01f, 0.0f);
+		}
+		else {
+			if (ImGui::TreeNode("Start")) {
+				ImGui::DragFloat("Min", &desc->emitter.scale.range.start.min.x, 0.01f, 0.0f);
+				ImGui::DragFloat("Max", &desc->emitter.scale.range.start.max.x, 0.01f, 0.0f);
+				ImGui::TreePop();
+			}
+
+			if (ImGui::TreeNode("End")) {
+				ImGui::DragFloat("Min", &desc->emitter.scale.range.end.min.x, 0.01f, 0.0f);
+				ImGui::DragFloat("Max", &desc->emitter.scale.range.end.max.x, 0.01f, 0.0f);
+				ImGui::TreePop();
+			}
+			desc->emitter.scale.range.start.min.y = desc->emitter.scale.range.start.min.x;
+			desc->emitter.scale.range.start.min.z = desc->emitter.scale.range.start.min.x;
+			desc->emitter.scale.range.start.max.y = desc->emitter.scale.range.start.max.x;
+			desc->emitter.scale.range.start.max.z = desc->emitter.scale.range.start.max.x;
+			desc->emitter.scale.range.end.min.y = desc->emitter.scale.range.end.min.x;
+			desc->emitter.scale.range.end.min.z = desc->emitter.scale.range.end.min.x;
+			desc->emitter.scale.range.end.max.y = desc->emitter.scale.range.end.max.x;
+			desc->emitter.scale.range.end.max.z = desc->emitter.scale.range.end.max.x;
+		}
+		ImGui::Checkbox("IsSame", reinterpret_cast<bool*>(&desc->emitter.scale.isSame));
 		ImGui::TreePop();
 	}
 	if (ImGui::TreeNode("Rotate")) {
@@ -400,6 +446,7 @@ void GPUParticleShaderStructs::EmitterEditor(const std::string name, std::tuple<
 
 			ImGui::TreePop();
 		}
+
 		ImGui::TreePop();
 	}
 
@@ -421,7 +468,32 @@ void GPUParticleShaderStructs::EmitterEditor(const std::string name, std::tuple<
 		*std::get<0>(d) = false;
 	}
 	if (ImGui::TreeNode("Scale")) {
-		DrawStartEnd(desc->emitter.scale.range, 0.01f, 0.0f);
+		if (!desc->emitter.scale.isSame) {
+			DrawStartEnd(desc->emitter.scale.range, 0.01f, 0.0f);
+		}
+		else {
+			if (ImGui::TreeNode("Start")) {
+				ImGui::DragFloat("Min", &desc->emitter.scale.range.start.min.x, 0.01f, 0.0f);
+				ImGui::DragFloat("Max", &desc->emitter.scale.range.start.max.x, 0.01f, 0.0f);
+				ImGui::TreePop();
+			}
+
+			if (ImGui::TreeNode("End")) {
+				ImGui::DragFloat("Min", &desc->emitter.scale.range.end.min.x, 0.01f, 0.0f);
+				ImGui::DragFloat("Max", &desc->emitter.scale.range.end.max.x, 0.01f, 0.0f);
+
+				ImGui::TreePop();
+			}
+			desc->emitter.scale.range.start.min.y = desc->emitter.scale.range.start.min.x;
+			desc->emitter.scale.range.start.min.z = desc->emitter.scale.range.start.min.x;
+			desc->emitter.scale.range.start.max.y = desc->emitter.scale.range.start.max.x;
+			desc->emitter.scale.range.start.max.z = desc->emitter.scale.range.start.max.x;
+			desc->emitter.scale.range.end.min.y = desc->emitter.scale.range.end.min.x;
+			desc->emitter.scale.range.end.min.z = desc->emitter.scale.range.end.min.x;
+			desc->emitter.scale.range.end.max.y = desc->emitter.scale.range.end.max.x;
+			desc->emitter.scale.range.end.max.z = desc->emitter.scale.range.end.max.x;
+		}
+		ImGui::Checkbox("IsSame", reinterpret_cast<bool*>(&desc->emitter.scale.isSame));
 		ImGui::TreePop();
 	}
 	if (ImGui::TreeNode("Rotate")) {
@@ -615,13 +687,18 @@ void GPUParticleShaderStructs::Load(const std::string name, GPUParticleShaderStr
 	JSON_OBJECT("EmitterSphere");
 	JSON_LOAD_BY_NAME("position", emitter.emitterArea.sphere.position);
 	JSON_LOAD_BY_NAME("radius", emitter.emitterArea.sphere.radius);
+	JSON_OBJECT("distanceFactor");
+	LoadMinMax(emitter.emitterArea.sphere.distanceFactor);
 	JSON_PARENT();
+
 	JSON_OBJECT("EmitterCapsule");
 	JSON_OBJECT("EmitterSegment");
 	JSON_LOAD_BY_NAME("start", emitter.emitterArea.capsule.segment.origin);
 	JSON_LOAD_BY_NAME("end", emitter.emitterArea.capsule.segment.diff);
 	JSON_PARENT();
 	JSON_LOAD_BY_NAME("radius", emitter.emitterArea.capsule.radius);
+	JSON_OBJECT("distanceFactor");
+	LoadMinMax(emitter.emitterArea.capsule.distanceFactor);
 	JSON_PARENT();
 	JSON_ROOT();
 
@@ -649,6 +726,7 @@ void GPUParticleShaderStructs::Load(const std::string name, GPUParticleShaderStr
 
 	JSON_OBJECT("ScaleAnimation");
 	LoadStartEnd(emitter.scale.range);
+	JSON_LOAD_BY_NAME("isSame", emitter.scale.isSame);
 	JSON_ROOT();
 
 	JSON_OBJECT("Velocity3D");
@@ -682,13 +760,18 @@ void GPUParticleShaderStructs::Save(const std::string name, GPUParticleShaderStr
 	JSON_OBJECT("EmitterSphere");
 	JSON_SAVE_BY_NAME("radius", emitter.emitterArea.sphere.radius);
 	JSON_SAVE_BY_NAME("position", emitter.emitterArea.sphere.position);
+	JSON_OBJECT("distanceFactor");
+	SaveMinMax(emitter.emitterArea.sphere.distanceFactor);
 	JSON_PARENT();
+
 	JSON_OBJECT("EmitterCapsule");
 	JSON_OBJECT("EmitterSegment");
 	JSON_SAVE_BY_NAME("start", emitter.emitterArea.capsule.segment.origin);
 	JSON_SAVE_BY_NAME("end", emitter.emitterArea.capsule.segment.diff);
 	JSON_PARENT();
 	JSON_SAVE_BY_NAME("radius", emitter.emitterArea.capsule.radius);
+	JSON_OBJECT("distanceFactor");
+	SaveMinMax(emitter.emitterArea.capsule.distanceFactor);
 	JSON_PARENT();
 	JSON_ROOT();
 
@@ -716,6 +799,7 @@ void GPUParticleShaderStructs::Save(const std::string name, GPUParticleShaderStr
 
 	JSON_OBJECT("ScaleAnimation");
 	SaveStartEnd(emitter.scale.range);
+	JSON_SAVE_BY_NAME("isSame", emitter.scale.isSame);
 	JSON_ROOT();
 
 	JSON_OBJECT("Velocity3D");
@@ -738,6 +822,7 @@ void GPUParticleShaderStructs::Load(const std::string name, GPUParticleShaderStr
 
 	JSON_OBJECT("ScaleAnimation");
 	LoadStartEnd(desc.emitter.scale.range);
+	JSON_LOAD_BY_NAME("isSame", desc.emitter.scale.isSame);
 	JSON_ROOT();
 
 	JSON_OBJECT("ParticleLifeTime");
@@ -782,6 +867,7 @@ void GPUParticleShaderStructs::Save(const std::string name, GPUParticleShaderStr
 
 	JSON_OBJECT("ScaleAnimation");
 	SaveStartEnd(desc.emitter.scale.range);
+	JSON_SAVE_BY_NAME("isSame", desc.emitter.scale.isSame);
 	JSON_ROOT();
 
 	JSON_OBJECT("ParticleLifeTime");
@@ -821,6 +907,7 @@ void GPUParticleShaderStructs::Load(const std::string name, GPUParticleShaderStr
 
 	JSON_OBJECT("ScaleAnimation");
 	LoadStartEnd(desc.emitter.scale.range);
+	JSON_LOAD_BY_NAME("isSame", desc.emitter.scale.isSame);
 	JSON_ROOT();
 
 	JSON_OBJECT("ParticleLifeTime");
@@ -862,6 +949,7 @@ void GPUParticleShaderStructs::Save(const std::string name, GPUParticleShaderStr
 
 	JSON_OBJECT("ScaleAnimation");
 	SaveStartEnd(desc.emitter.scale.range);
+	JSON_SAVE_BY_NAME("isSame", desc.emitter.scale.isSame);
 	JSON_ROOT();
 
 	JSON_OBJECT("ParticleLifeTime");

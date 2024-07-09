@@ -24,19 +24,31 @@
         "EmitterCapsule": {
             "EmitterSegment": {
                 "end": [
-                    0.24118664860725403,
-                    10.925228118896484,
-                    19.656776428222656
+                    0.10442213714122772,
+                    10.966514587402344,
+                    19.652265548706055
                 ],
                 "start": [
-                    -0.35049596428871155,
-                    15.987455368041992,
-                    19.594831466674805
+                    -0.3589073717594147,
+                    16.04235076904297,
+                    19.687618255615234
                 ]
+            },
+            "distanceFactor": {
+                "Max": 1.0,
+                "Min": 0.800000011920929
             },
             "radius": 10.0
         },
         "EmitterSphere": {
+            "EmitterCapsule": {
+                "EmitterSegment": {},
+                "distanceFactor": {}
+            },
+            "distanceFactor": {
+                "Max": 1.0,
+                "Min": 0.8999999761581421
+            },
             "position": [
                 -431602080.0,
                 -431602080.0,
@@ -91,9 +103,15 @@
         "Min": 10
     },
     "RotateAnimation": {
-        "initializeAngle": {},
+        "initializeAngle": {
+            "Max": 0.0,
+            "Min": 0.0
+        },
         "rotate": 0.0,
-        "rotateSpeed": {}
+        "rotateSpeed": {
+            "Max": 0.0,
+            "Min": 0.0
+        }
     },
     "ScaleAnimation": {
         "End": {
@@ -110,16 +128,17 @@
         },
         "Start": {
             "Max": [
-                1.0,
-                1.0,
-                1.0
+                0.5,
+                0.5,
+                0.5
             ],
             "Min": [
-                1.0,
-                1.0,
-                1.0
+                0.25,
+                0.25,
+                0.25
             ]
-        }
+        },
+        "isSame": 3452816641
     },
     "Velocity3D": {
         "Max": [
@@ -133,6 +152,6 @@
             0.0
         ]
     },
-    "createParticleNum": 5000,
+    "createParticleNum": 10000,
     "textureIndex": "Resources/Images/GPUParticle.png"
 }

@@ -706,3 +706,24 @@ void GPUParticle::InitializeBullets() {
 	bulletsBuffer_.Create(L"BulletsBuffer", sizeof(GPUParticleShaderStructs::BulletForGPU) * GPUParticleShaderStructs::MaxBulletNum, desc);
 	bulletCountBuffer_.Create(L"BulletCountBuffer", sizeof(UINT));
 }
+
+void GPUParticle::InitializeField() {
+	auto device = GraphicsCore::GetInstance()->GetDevice();
+	{
+		fieldOriginalBuffer_.Create(L"FieldOriginalBuffer", sizeof(GPUParticleShaderStructs::FieldForGPU) * GPUParticleShaderStructs::MaxFieldNum, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
+		D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = {};
+		uavDesc.Format = DXGI_FORMAT_UNKNOWN;
+		uavDesc.ViewDimension = D3D12_UAV_DIMENSION_BUFFER;
+		uavDesc.Buffer.FirstElement = 0;
+		uavDesc.Buffer.NumElements = GPUParticleShaderStructs::MaxFieldNum;
+		uavDesc.Buffer.StructureByteStride = sizeof(GPUParticleShaderStructs::FieldForGPU);
+		uavDesc.Buffer.Flags = D3D12_BUFFER_UAV_FLAG_NONE;
+		device->CreateUnorderedAccessView(
+			fieldOriginalBuffer_,
+			nullptr,
+			&uavDesc,
+			fieldOriginalHandle_);
+	}
+
+
+}

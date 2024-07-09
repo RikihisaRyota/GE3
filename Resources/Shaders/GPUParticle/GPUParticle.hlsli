@@ -5,6 +5,8 @@
 #define processNum 1
 #define maxParticleNum 2<<22
 
+#define PI 3.14159265359f
+
 // Utility
 struct UintMinMax
 {
@@ -116,8 +118,8 @@ struct EmitterSegment {
 		float32_t pad1;
 };
 struct EmitterCapsule {
-	FloatMinMax distanceFactor;
 	EmitterSegment segment;
+	FloatMinMax distanceFactor;
 	float32_t radius;
 	float32_t3 pad;
 };
@@ -229,6 +231,41 @@ struct EmitterCounterBuffer
     uint32_t3 pad;
 };
 
+struct Attraction {
+	float attraction;
+	float32_t3 pad;
+};
+
+
+struct ExternalForce {
+	float32_t3 externalForce;
+	float pad;
+};
+
+struct Field {
+	Attraction attraction;
+	ExternalForce externalForce;
+	uint32_t type;
+	float32_t3 pad;
+};
+
+
+struct FieldForGPU {
+
+	EmitterArea emitterArea;
+
+	EmitterFrequency frequency;
+
+	EmitterTime time;
+
+	ParticleAttributes collisionInfo;
+
+	uint32_t isAlive;
+
+	int32_t fieldCount;
+
+    float32_t2 pad;
+};
 
 
 float32_t sdSphere(float32_t3 p, float32_t s )
@@ -512,18 +549,19 @@ void ParticleTranslate(inout Particle particle,Emitter emitter ,inout uint32_t s
         normal.y = randomRange(-1.0f, 1.0f,seed);
         normal.z = randomRange(-1.0f, 1.0f,seed);
         direction=normalize(normal);
-        float distanceFactor = randomRange(0.0f, 1.0f, seed);
+        float distanceFactor = randomRange(emitter.area.sphere.distanceFactor.min, emitter.area.sphere.distanceFactor.max, seed);
         direction *= emitter.area.sphere.radius * distanceFactor;
         particle.translate += direction;
     } else if(emitter.area.type==2){
-            float32_t3 normal,direction,p;
-            p = randomRangeSame(emitter.area.capsule.segment.origin, emitter.area.capsule.segment.diff,seed);
-            normal.x = randomRange(-1.0f, 1.0f,seed);
-            normal.y = randomRange(-1.0f, 1.0f,seed);
-            normal.z = randomRange(-1.0f, 1.0f,seed);
-            direction=normalize(normal);
-            direction*= randomRange(0.0f, emitter.area.capsule.radius, seed);
-            particle.translate =  pointOnCapsule(p + direction, emitter.area.capsule.segment.origin ,emitter.area.capsule.segment.diff ,emitter.area.capsule.radius ,randomRange(0.5f,1.0f,seed));
+        float32_t3 normal,direction,p;
+        p = randomRangeSame(emitter.area.capsule.segment.origin, emitter.area.capsule.segment.diff,seed);
+        normal.x = randomRange(-1.0f, 1.0f,seed);
+        normal.y = randomRange(-1.0f, 1.0f,seed);
+        normal.z = randomRange(-1.0f, 1.0f,seed);
+        direction = normalize(normal);
+        float distanceFactor = randomRange(emitter.area.capsule.distanceFactor.min, emitter.area.capsule.distanceFactor.max, seed);
+        direction *=  emitter.area.capsule.radius * distanceFactor;
+        particle.translate =  pointOnCapsule(p + direction, emitter.area.capsule.segment.origin ,emitter.area.capsule.segment.diff ,emitter.area.capsule.radius ,randomRange(emitter.area.capsule.distanceFactor.min,emitter.area.capsule.distanceFactor.max,seed));
     }
 }
 

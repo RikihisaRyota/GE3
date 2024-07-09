@@ -24,19 +24,31 @@
         "EmitterCapsule": {
             "EmitterSegment": {
                 "end": [
-                    13.30620288848877,
-                    13.098443984985352,
-                    20.15595817565918
+                    13.336483001708984,
+                    13.256099700927734,
+                    18.92905616760254
                 ],
                 "start": [
-                    14.519922256469727,
-                    6.203073501586914,
-                    17.275609970092773
+                    14.785354614257813,
+                    6.129032135009766,
+                    16.826377868652344
                 ]
+            },
+            "distanceFactor": {
+                "Max": 1.0,
+                "Min": 0.800000011920929
             },
             "radius": 4.0
         },
         "EmitterSphere": {
+            "EmitterCapsule": {
+                "EmitterSegment": {},
+                "distanceFactor": {}
+            },
+            "distanceFactor": {
+                "Max": -431602080.0,
+                "Min": -431602080.0
+            },
             "position": [
                 -431602080.0,
                 -431602080.0,
@@ -91,9 +103,15 @@
         "Min": 10
     },
     "RotateAnimation": {
-        "initializeAngle": {},
+        "initializeAngle": {
+            "Max": 0.0,
+            "Min": 0.0
+        },
         "rotate": 0.0,
-        "rotateSpeed": {}
+        "rotateSpeed": {
+            "Max": 0.0,
+            "Min": 0.0
+        }
     },
     "ScaleAnimation": {
         "End": {
@@ -110,16 +128,17 @@
         },
         "Start": {
             "Max": [
-                1.0,
-                1.0,
-                1.0
+                0.5,
+                0.5,
+                0.5
             ],
             "Min": [
-                1.0,
-                1.0,
-                1.0
+                0.25,
+                0.25,
+                0.25
             ]
-        }
+        },
+        "isSame": 3452816845
     },
     "Velocity3D": {
         "Max": [
@@ -133,6 +152,6 @@
             0.0
         ]
     },
-    "createParticleNum": 1024,
+    "createParticleNum": 3000,
     "textureIndex": "Resources/Images/GPUParticle.png"
 }

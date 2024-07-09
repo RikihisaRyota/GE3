@@ -21,6 +21,7 @@ namespace GPUParticleShaderStructs {
 	static const UINT MaxParticleShouldBeSquare = 22;
 	static const UINT MaxParticleNum = 1 << MaxParticleShouldBeSquare;
 	static const UINT MaxEmitterNum = 1024;
+	static const UINT MaxFieldNum = 1024;
 	static const UINT MaxBulletNum = 10;
 	static const UINT MaxProcessNum = 1;
 
@@ -180,7 +181,7 @@ struct Particle
 		kAABB,
 		kSphere,
 		kCapsule,
-		kCount,
+		kFigureCount,
 	};
 	struct EmitterArea {
 		EmitterAABB aabb;
@@ -334,6 +335,75 @@ struct Particle
 		ParticleAttributes collisionInfo;
 	};
 
+	enum FieldType {
+		kAttraction,
+		kExternalForce,
+		kFieldCount,
+	};
+
+	struct Attraction {
+		float attraction;
+		Vector3 pad;
+	};
+
+
+	struct ExternalForce {
+		Vector3 externalForce;
+		float pad;
+	};
+
+	struct Field {
+		Attraction attraction;
+		ExternalForce externalForce;
+		uint32_t type;
+		Vector3 pad;
+	};
+
+	struct FieldForCPU {
+		FieldForCPU() {
+			if (staticFieldCount == (std::numeric_limits<int32_t>::max)()) {
+				staticFieldCount = 0;
+			}
+			fieldCount = staticFieldCount;
+			staticFieldCount++;
+		}
+
+		Field field;
+
+		EmitterArea emitterArea;
+
+		EmitterFrequency frequency;
+
+		EmitterTime time;
+
+		ParticleAttributes collisionInfo;
+
+		uint32_t isAlive = false;
+
+		int32_t fieldCount;
+
+		// クラス内でstatic宣言されたメンバ変数のサイズは0
+		static int32_t staticFieldCount;
+	};
+
+	struct FieldForGPU {
+
+		EmitterArea emitterArea;
+
+		EmitterFrequency frequency;
+
+		EmitterTime time;
+
+		ParticleAttributes collisionInfo;
+
+		uint32_t isAlive = false;
+
+		int32_t fieldCount = -1;
+
+		Vector2 pad;
+	};
+
+
 	struct CreateParticle {
 		uint32_t emitterIndex;
 		int32_t createParticleNum;
@@ -395,7 +465,7 @@ struct Particle
 	void DrawMinMax(GPUParticleShaderStructs::UintMinMax& startEnd, float v_speed = 1.0f, int v_min = 0, int v_max = 0);
 
 	void DrawMinMax(GPUParticleShaderStructs::FloatMinMax& startEnd, float v_speed = 1.0f, float v_min = 0.0f, float v_max = 0.0f);
-	
+
 	void DrawMinMax(GPUParticleShaderStructs::Vector3MinMax& startEnd, float v_speed = 1.0f, float v_min = 0.0f, float v_max = 0.0f);
 
 	void DrawMinMax(GPUParticleShaderStructs::Vector4MinMax& startEnd, float v_speed = 1.0f, float v_min = 0.0f, float v_max = 0.0f);

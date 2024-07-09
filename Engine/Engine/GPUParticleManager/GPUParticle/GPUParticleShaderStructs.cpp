@@ -12,6 +12,7 @@
 #include "Engine/Collision/CollisionAttribute.h"
 
 int32_t GPUParticleShaderStructs::EmitterForCPU::staticEmitterCount = 0;
+int32_t GPUParticleShaderStructs::FieldForCPU::staticFieldCount = 0;
 
 namespace GPUParticleShaderStructs {
 
@@ -214,7 +215,7 @@ void GPUParticleShaderStructs::EmitterEditor(const std::string name, std::tuple<
 				ImGui::TreePop();
 			}
 			break;
-		case GPUParticleShaderStructs::kCount:
+		case GPUParticleShaderStructs::kFigureCount:
 			break;
 		default:
 			break;
@@ -249,6 +250,10 @@ void GPUParticleShaderStructs::EmitterEditor(const std::string name, std::tuple<
 			emitter->scale.range.start.min.z = emitter->scale.range.start.min.x;
 			emitter->scale.range.start.max.y = emitter->scale.range.start.max.x;
 			emitter->scale.range.start.max.z = emitter->scale.range.start.max.x;
+			emitter->scale.range.end.min.y = emitter->scale.range.end.min.x;
+			emitter->scale.range.end.min.z = emitter->scale.range.end.min.x;
+			emitter->scale.range.end.max.y = emitter->scale.range.end.max.x;
+			emitter->scale.range.end.max.z = emitter->scale.range.end.max.x;
 		}
 		ImGui::Checkbox("IsSame", reinterpret_cast<bool*>(&emitter->scale.isSame));
 		ImGui::TreePop();
@@ -690,6 +695,7 @@ void GPUParticleShaderStructs::Load(const std::string name, GPUParticleShaderStr
 	JSON_OBJECT("distanceFactor");
 	LoadMinMax(emitter.emitterArea.sphere.distanceFactor);
 	JSON_PARENT();
+	JSON_PARENT();
 
 	JSON_OBJECT("EmitterCapsule");
 	JSON_OBJECT("EmitterSegment");
@@ -700,6 +706,8 @@ void GPUParticleShaderStructs::Load(const std::string name, GPUParticleShaderStr
 	JSON_OBJECT("distanceFactor");
 	LoadMinMax(emitter.emitterArea.capsule.distanceFactor);
 	JSON_PARENT();
+	JSON_PARENT();
+
 	JSON_ROOT();
 
 	JSON_OBJECT("EmitterColor");
@@ -763,6 +771,8 @@ void GPUParticleShaderStructs::Save(const std::string name, GPUParticleShaderStr
 	JSON_OBJECT("distanceFactor");
 	SaveMinMax(emitter.emitterArea.sphere.distanceFactor);
 	JSON_PARENT();
+	JSON_PARENT();
+
 
 	JSON_OBJECT("EmitterCapsule");
 	JSON_OBJECT("EmitterSegment");
@@ -773,6 +783,8 @@ void GPUParticleShaderStructs::Save(const std::string name, GPUParticleShaderStr
 	JSON_OBJECT("distanceFactor");
 	SaveMinMax(emitter.emitterArea.capsule.distanceFactor);
 	JSON_PARENT();
+	JSON_PARENT();
+
 	JSON_ROOT();
 
 	JSON_OBJECT("EmitterColor");

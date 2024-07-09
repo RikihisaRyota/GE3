@@ -65,6 +65,7 @@ private:
 	void InitializeEmitter();
 	void InitializeAddEmitter();
 	void InitializeBullets();
+	void InitializeField();
 
 	// コマンドシグネイチャ
 	CommandSignature* commandSignature_;
@@ -105,8 +106,13 @@ private:
 	StructuredBuffer bulletsBuffer_;
 	UploadBuffer bulletCountBuffer_;
 	std::vector<GPUParticleShaderStructs::BulletForGPU> bullets_;
-	// メッシュパーティクル
+	// フィールド
+	DefaultBuffer fieldOriginalBuffer_;
+	DescriptorHandle fieldOriginalHandle_;
+	UploadBuffer fieldCPUBuffer_;
+	DefaultBuffer fieldAddBuffer_;
 
+	// メッシュパーティクル
 	UINT particleIndexSize_;
 	UINT particleIndexCounterOffset_;
 

@@ -120,6 +120,8 @@ Boss::Boss() {
 	}
 	particleLifeSpan.range.min = 10;
 	particleLifeSpan.range.max = 30;
+	distanceFactor.min = 0.0f;
+	distanceFactor.min = 1.0f;
 	GPUParticleShaderStructs::Load("boss", meshEmitterDesc_);
 	GPUParticleShaderStructs::Load("boss", vertexEmitterDesc_);
 }
@@ -154,6 +156,10 @@ void Boss::DrawImGui() {
 	if (ImGui::BeginMenu("Boss")) {
 		GPUParticleShaderStructs::DrawStartEnd(scaleAnimation.range);
 		GPUParticleShaderStructs::DrawMinMax(particleLifeSpan.range);
+		if (ImGui::TreeNode("distanceFactor")) {
+			GPUParticleShaderStructs::DrawMinMax(distanceFactor);
+			ImGui::TreePop();
+		}
 		auto& color = ModelManager::GetInstance()->GetModel(bossModelHandle_).GetMaterialColor();
 		ImGui::DragFloat3("color", &color.x, 0.1f, 0.0f, 1.0f);
 		ModelManager::GetInstance()->GetModel(bossModelHandle_).SetMaterialColor(color);
@@ -395,14 +401,16 @@ void Boss::UpdateGPUParticle(CommandContext& commandContext) {
 			emitters_.at(jointName).emitterArea.capsule.segment.diff = parentPos;
 			emitters_.at(jointName).emitterArea.capsule.radius = colliderSize_[jointName];
 			emitters_.at(jointName).emitterArea.type = GPUParticleShaderStructs::Type::kCapsule;
-			emitters_.at(jointName).scale = scaleAnimation;
-			emitters_.at(jointName).particleLifeSpan = particleLifeSpan;
-			gpuParticleManager_->SetEmitter(emitters_.at(jointName));
+			//emitters_.at(jointName).scale = scaleAnimation;
+			//emitters_.at(jointName).emitterArea.sphere.distanceFactor = distanceFactor;
+			//emitters_.at(jointName).emitterArea.capsule.distanceFactor = distanceFactor;
+			//emitters_.at(jointName).particleLifeSpan = particleLifeSpan;
+			//gpuParticleManager_->SetEmitter(emitters_.at(jointName));
 		}
 	}
 	//gpuParticleManager_->CreateEdgeParticle(bossModelHandle_, animation_, worldTransform_, meshEmitterDesc_, commandContext);
 	//gpuParticleManager_->CreateMeshParticle(bossModelHandle_, animation_, worldTransform_, meshEmitterDesc_, commandContext);
-	//gpuParticleManager_->CreateVertexParticle(bossModelHandle_, animation_, worldTransform_, vertexEmitterDesc_, commandContext);
+	gpuParticleManager_->CreateVertexParticle(bossModelHandle_, animation_, worldTransform_, vertexEmitterDesc_, commandContext);
 
 }
 

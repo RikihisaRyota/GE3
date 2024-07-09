@@ -890,5 +890,14 @@
     <FxCompile Include="Resources\Shaders\GPUParticle\EdgeParticle.hlsl">
       <Filter>Shaders\GPUParticle</Filter>
     </FxCompile>
+    <FxCompile Include="Resources\Shaders\GPUParticle\UpdateField.hlsl">
+      <Filter>Shaders\GPUParticle</Filter>
+    </FxCompile>
+    <FxCompile Include="Resources\Shaders\GPUParticle\AddField.hlsl">
+      <Filter>Shaders\GPUParticle</Filter>
+    </FxCompile>
+    <FxCompile Include="Resources\Shaders\GPUParticle\CheckField.hlsl">
+      <Filter>Shaders\GPUParticle</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

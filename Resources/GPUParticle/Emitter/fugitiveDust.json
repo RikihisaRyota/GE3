@@ -34,9 +34,15 @@
                     0.0
                 ]
             },
+            "distanceFactor": {},
             "radius": 0.0
         },
         "EmitterSphere": {
+            "EmitterCapsule": {
+                "EmitterSegment": {},
+                "distanceFactor": {}
+            },
+            "distanceFactor": {},
             "position": [
                 -1.2718544006347656,
                 5.982889175415039,

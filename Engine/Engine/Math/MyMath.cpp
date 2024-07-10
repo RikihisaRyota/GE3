@@ -704,14 +704,14 @@ void DrawLine(const AABB& aabb, const Vector4& color) {
 
 	// AABBの頂点を計算
 	Vector3 vertices[8];
-	vertices[0] = { aabb.min_.x, aabb.min_.y, aabb.min_.z };
-	vertices[1] = { aabb.max_.x, aabb.min_.y, aabb.min_.z };
-	vertices[2] = { aabb.max_.x, aabb.max_.y, aabb.min_.z };
-	vertices[3] = { aabb.min_.x, aabb.max_.y, aabb.min_.z };
-	vertices[4] = { aabb.min_.x, aabb.min_.y, aabb.max_.z };
-	vertices[5] = { aabb.max_.x, aabb.min_.y, aabb.max_.z };
-	vertices[6] = { aabb.max_.x, aabb.max_.y, aabb.max_.z };
-	vertices[7] = { aabb.min_.x, aabb.max_.y, aabb.max_.z };
+	vertices[0] = { aabb.min_.x + aabb.center_.x, aabb.min_.y + aabb.center_.y, aabb.min_.z + aabb.center_.z };
+	vertices[1] = { aabb.max_.x + aabb.center_.x, aabb.min_.y + aabb.center_.y, aabb.min_.z + aabb.center_.z };
+	vertices[2] = { aabb.max_.x + aabb.center_.x, aabb.max_.y + aabb.center_.y, aabb.min_.z + aabb.center_.z };
+	vertices[3] = { aabb.min_.x + aabb.center_.x, aabb.max_.y + aabb.center_.y, aabb.min_.z + aabb.center_.z };
+	vertices[4] = { aabb.min_.x + aabb.center_.x, aabb.min_.y + aabb.center_.y, aabb.max_.z + aabb.center_.z };
+	vertices[5] = { aabb.max_.x + aabb.center_.x, aabb.min_.y + aabb.center_.y, aabb.max_.z + aabb.center_.z };
+	vertices[6] = { aabb.max_.x + aabb.center_.x, aabb.max_.y + aabb.center_.y, aabb.max_.z + aabb.center_.z };
+	vertices[7] = { aabb.min_.x + aabb.center_.x, aabb.max_.y + aabb.center_.y, aabb.max_.z + aabb.center_.z };
 
 	// AABBのエッジを描画
 	std::array<std::pair<int, int>, 12> edges = {

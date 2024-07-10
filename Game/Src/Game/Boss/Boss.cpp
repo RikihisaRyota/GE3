@@ -410,7 +410,7 @@ void Boss::UpdateGPUParticle(CommandContext& commandContext) {
 	}
 	//gpuParticleManager_->CreateEdgeParticle(bossModelHandle_, animation_, worldTransform_, meshEmitterDesc_, commandContext);
 	//gpuParticleManager_->CreateMeshParticle(bossModelHandle_, animation_, worldTransform_, meshEmitterDesc_, commandContext);
-	gpuParticleManager_->CreateVertexParticle(bossModelHandle_, animation_, worldTransform_, vertexEmitterDesc_, commandContext);
+	//gpuParticleManager_->CreateVertexParticle(bossModelHandle_, animation_, worldTransform_, vertexEmitterDesc_, commandContext);
 
 }
 

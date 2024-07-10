@@ -48,6 +48,6 @@ private:
 	//ModelHandle field_ ;
 	//WorldTransform fieldWorldTransform_;
 
-	GPUParticleShaderStructs::EmitterForCPU test_;
-
+	GPUParticleShaderStructs::EmitterForCPU testEmitter_;
+	GPUParticleShaderStructs::FieldForCPU testField_;
 };

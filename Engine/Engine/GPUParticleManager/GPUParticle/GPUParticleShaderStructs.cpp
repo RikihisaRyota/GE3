@@ -325,6 +325,7 @@ void GPUParticleShaderStructs::EmitterEditor(const std::string name, std::tuple<
 			ImGui::CheckboxFlags("Boss Body", &emitter->collisionInfo.attribute, CollisionAttribute::BossBody);
 			ImGui::CheckboxFlags("Boss Attack", &emitter->collisionInfo.attribute, CollisionAttribute::BossAttack);
 			ImGui::CheckboxFlags("GameObject", &emitter->collisionInfo.attribute, CollisionAttribute::GameObject);
+			ImGui::CheckboxFlags("ParticleField", &emitter->collisionInfo.attribute, CollisionAttribute::ParticleField);
 			ImGui::TreePop();
 		}
 		if (ImGui::TreeNode("Mask")) {
@@ -442,6 +443,7 @@ void GPUParticleShaderStructs::EmitterEditor(const std::string name, std::tuple<
 			ImGui::CheckboxFlags("Boss Body", &desc->emitter.collisionInfo.attribute, CollisionAttribute::BossBody);
 			ImGui::CheckboxFlags("Boss Attack", &desc->emitter.collisionInfo.attribute, CollisionAttribute::BossAttack);
 			ImGui::CheckboxFlags("GameObject", &desc->emitter.collisionInfo.attribute, CollisionAttribute::GameObject);
+			ImGui::CheckboxFlags("ParticleField", &desc->emitter.collisionInfo.attribute, CollisionAttribute::ParticleField);
 			ImGui::TreePop();
 		}
 		if (ImGui::TreeNode("Mask")) {
@@ -556,6 +558,7 @@ void GPUParticleShaderStructs::EmitterEditor(const std::string name, std::tuple<
 			ImGui::CheckboxFlags("Boss Body", &desc->emitter.collisionInfo.attribute, CollisionAttribute::BossBody);
 			ImGui::CheckboxFlags("Boss Attack", &desc->emitter.collisionInfo.attribute, CollisionAttribute::BossAttack);
 			ImGui::CheckboxFlags("GameObject", &desc->emitter.collisionInfo.attribute, CollisionAttribute::GameObject);
+			ImGui::CheckboxFlags("ParticleField", &desc->emitter.collisionInfo.attribute, CollisionAttribute::ParticleField);
 			ImGui::TreePop();
 		}
 		if (ImGui::TreeNode("Mask")) {
@@ -601,7 +604,6 @@ void GPUParticleShaderStructs::EmitterEditor(const std::string name, std::tuple<
 			if (ImGui::TreeNode("Sphere")) {
 				ImGui::DragFloat("Radius", &emitter->fieldArea.sphere.radius, 0.1f);
 				ImGui::DragFloat3("Position", &emitter->fieldArea.sphere.position.x, 0.1f);
-				DrawMinMax(emitter->fieldArea.sphere.distanceFactor, 0.01f, 0.0f, 1.0f);
 				ImGui::TreePop();
 			}
 			break;
@@ -610,7 +612,6 @@ void GPUParticleShaderStructs::EmitterEditor(const std::string name, std::tuple<
 				ImGui::DragFloat3("Start", &emitter->fieldArea.capsule.segment.origin.x, 0.1f);
 				ImGui::DragFloat3("End", &emitter->fieldArea.capsule.segment.diff.x, 0.1f);
 				ImGui::DragFloat("Radius", &emitter->fieldArea.capsule.radius, 0.1f);
-				DrawMinMax(emitter->fieldArea.capsule.distanceFactor, 0.01f, 0.0f, 1.0f);
 				ImGui::TreePop();
 			}
 			break;
@@ -631,26 +632,23 @@ void GPUParticleShaderStructs::EmitterEditor(const std::string name, std::tuple<
 	}
 
 	if (ImGui::TreeNode("FieldInfo")) {
-		if (ImGui::TreeNode("FieldType")) {
-			switch (emitter->field.type) {
-			case GPUParticleShaderStructs::kAttraction:
-				if (ImGui::TreeNode("Attraction")) {
-					ImGui::DragFloat("Attraction",&emitter->field.attraction.attraction,0.01f);
-					ImGui::TreePop();
-				}
-				break;
-			case GPUParticleShaderStructs::kExternalForce:
-				if (ImGui::TreeNode("ExternalForce")) {
-					ImGui::DragFloat3("ExternalForce", &emitter->field.externalForce.externalForce.x, 0.01f);
-					ImGui::TreePop();
-				}
-				break;
-			case GPUParticleShaderStructs::kFieldCount:
-				break;
-			default:
-				break;
+		switch (emitter->field.type) {
+		case GPUParticleShaderStructs::kAttraction:
+			if (ImGui::TreeNode("Attraction")) {
+				ImGui::DragFloat("Attraction", &emitter->field.attraction.attraction, 0.01f);
+				ImGui::TreePop();
 			}
-			ImGui::TreePop();
+			break;
+		case GPUParticleShaderStructs::kExternalForce:
+			if (ImGui::TreeNode("ExternalForce")) {
+				ImGui::DragFloat3("ExternalForce", &emitter->field.externalForce.externalForce.x, 0.01f);
+				ImGui::TreePop();
+			}
+			break;
+		case GPUParticleShaderStructs::kFieldCount:
+			break;
+		default:
+			break;
 		}
 		std::vector<const char*> typeCStr{ "Attraction","ExternalForce" };
 		int currentType = static_cast<int>(emitter->field.type);
@@ -666,29 +664,6 @@ void GPUParticleShaderStructs::EmitterEditor(const std::string name, std::tuple<
 		ImGui::Checkbox("IsLoop", reinterpret_cast<bool*>(&emitter->frequency.isLoop));
 		if (!emitter->frequency.isLoop) {
 			ImGui::DragInt("LifeCount", reinterpret_cast<int*>(&emitter->frequency.lifeCount), 1, 0);
-		}
-		ImGui::TreePop();
-	}
-
-	if (ImGui::TreeNode("CollisionInfo")) {
-		if (ImGui::TreeNode("Attribute")) {
-			ImGui::Text("Collision Attribute:");
-			ImGui::CheckboxFlags("Player", &emitter->collisionInfo.attribute, CollisionAttribute::Player);
-			ImGui::CheckboxFlags("Player Bullet", &emitter->collisionInfo.attribute, CollisionAttribute::PlayerBullet);
-			ImGui::CheckboxFlags("Boss Body", &emitter->collisionInfo.attribute, CollisionAttribute::BossBody);
-			ImGui::CheckboxFlags("Boss Attack", &emitter->collisionInfo.attribute, CollisionAttribute::BossAttack);
-			ImGui::CheckboxFlags("GameObject", &emitter->collisionInfo.attribute, CollisionAttribute::GameObject);
-			ImGui::TreePop();
-		}
-		if (ImGui::TreeNode("Mask")) {
-			ImGui::Text("Collision Mask:");
-			ImGui::CheckboxFlags("Player", &emitter->collisionInfo.mask, CollisionAttribute::Player);
-			ImGui::CheckboxFlags("Player Bullet", &emitter->collisionInfo.mask, CollisionAttribute::PlayerBullet);
-			ImGui::CheckboxFlags("Boss Body", &emitter->collisionInfo.mask, CollisionAttribute::BossBody);
-			ImGui::CheckboxFlags("Boss Attack", &emitter->collisionInfo.mask, CollisionAttribute::BossAttack);
-			ImGui::CheckboxFlags("GameObject", &emitter->collisionInfo.mask, CollisionAttribute::GameObject);
-
-			ImGui::TreePop();
 		}
 		ImGui::TreePop();
 	}
@@ -833,6 +808,17 @@ void GPUParticleShaderStructs::Update() {
 		}
 		ImGui::EndMenu();
 	}
+
+	if (ImGui::BeginMenu("Field")) {
+		for (auto& emitter : debugFields_) {
+			bool* debugFlag = std::get<0>(emitter.second);
+			if (ImGui::Button(emitter.first.c_str()) &&
+				!(*debugFlag)) {
+				*debugFlag = true;
+			}
+		}
+		ImGui::EndMenu();
+	}
 	ImGui::End();
 
 	for (auto it = debugEmitters_.begin(); it != debugEmitters_.end(); ) {
@@ -868,6 +854,20 @@ void GPUParticleShaderStructs::Update() {
 			EmitterEditor(it->first, it->second);
 			if (!*(std::get<0>(it->second))) {
 				it = debugVertexEmitterDesc_.erase(it);
+			}
+			else {
+				++it;
+			}
+		}
+		else {
+			++it;
+		}
+	}
+	for (auto it = debugFields_.begin(); it != debugFields_.end(); ) {
+		if (*(std::get<0>(it->second))) {
+			EmitterEditor(it->first, it->second);
+			if (!*(std::get<0>(it->second))) {
+				it = debugFields_.erase(it);
 			}
 			else {
 				++it;
@@ -1156,9 +1156,85 @@ void GPUParticleShaderStructs::Load(const std::string name, GPUParticleShaderStr
 	JSON_CLOSE();
 }
 
-void GPUParticleShaderStructs::Save(const std::string name, FieldForCPU& desc) {}
+void GPUParticleShaderStructs::Save(const std::string name, FieldForCPU& desc) {
+	JSON_OPEN("Resources/GPUParticle/Field/" + name + ".json");
 
-void GPUParticleShaderStructs::Load(const std::string name, FieldForCPU& desc) {}
+	JSON_OBJECT("Field");
+	JSON_OBJECT("Attraction");
+	JSON_SAVE_BY_NAME("attraction", desc.field.attraction.attraction);
+	JSON_PARENT();
+	JSON_OBJECT("ExternalForce");
+	JSON_SAVE_BY_NAME("externalForce", desc.field.externalForce.externalForce);
+	JSON_PARENT();
+	JSON_SAVE_BY_NAME("type", desc.field.type);
+	JSON_ROOT();
+
+	JSON_OBJECT("FieldArea");
+	JSON_OBJECT("FieldAABB");
+	SaveMinMax(desc.fieldArea.aabb.area);
+	JSON_SAVE_BY_NAME("position", desc.fieldArea.aabb.position);
+	JSON_PARENT();
+
+	JSON_OBJECT("FieldSphere");
+	JSON_SAVE_BY_NAME("position", desc.fieldArea.sphere.position);
+	JSON_SAVE_BY_NAME("radius", desc.fieldArea.sphere.radius);
+	JSON_PARENT();
+
+	JSON_OBJECT("FieldCapsule");
+	JSON_OBJECT("FieldSegment");
+	JSON_SAVE_BY_NAME("start", desc.fieldArea.capsule.segment.origin);
+	JSON_SAVE_BY_NAME("end", desc.fieldArea.capsule.segment.diff);
+	JSON_PARENT();
+	JSON_SAVE_BY_NAME("radius", desc.fieldArea.capsule.radius);
+	JSON_ROOT();
+
+	JSON_OBJECT("FieldFrequency");
+	JSON_SAVE_BY_NAME("isLoop", desc.frequency.isLoop);
+	JSON_SAVE_BY_NAME("lifeCount", desc.frequency.lifeCount);
+	JSON_ROOT();
+
+	JSON_CLOSE();
+}
+
+void GPUParticleShaderStructs::Load(const std::string name, FieldForCPU& desc) {
+	JSON_OPEN("Resources/GPUParticle/Field/" + name + ".json");
+
+	JSON_OBJECT("Field");
+	JSON_OBJECT("Attraction");
+	JSON_LOAD_BY_NAME("attraction", desc.field.attraction.attraction);
+	JSON_PARENT();
+	JSON_OBJECT("ExternalForce");
+	JSON_LOAD_BY_NAME("externalForce", desc.field.externalForce.externalForce);
+	JSON_PARENT();
+	JSON_LOAD_BY_NAME("type", desc.field.type);
+	JSON_ROOT();
+
+	JSON_OBJECT("FieldArea");
+	JSON_OBJECT("FieldAABB");
+	LoadMinMax(desc.fieldArea.aabb.area);
+	JSON_LOAD_BY_NAME("position", desc.fieldArea.aabb.position);
+	JSON_PARENT();
+
+	JSON_OBJECT("FieldSphere");
+	JSON_LOAD_BY_NAME("position", desc.fieldArea.sphere.position);
+	JSON_LOAD_BY_NAME("radius", desc.fieldArea.sphere.radius);
+	JSON_PARENT();
+
+	JSON_OBJECT("FieldCapsule");
+	JSON_OBJECT("FieldSegment");
+	JSON_LOAD_BY_NAME("start", desc.fieldArea.capsule.segment.origin);
+	JSON_LOAD_BY_NAME("end", desc.fieldArea.capsule.segment.diff);
+	JSON_PARENT();
+	JSON_LOAD_BY_NAME("radius", desc.fieldArea.capsule.radius);
+	JSON_ROOT();
+
+	JSON_OBJECT("FieldFrequency");
+	JSON_LOAD_BY_NAME("isLoop", desc.frequency.isLoop);
+	JSON_LOAD_BY_NAME("lifeCount", desc.frequency.lifeCount);
+	JSON_ROOT();
+
+	JSON_CLOSE();
+}
 
 void GPUParticleShaderStructs::Save(const std::string name, GPUParticleShaderStructs::VertexEmitterDesc& desc) {
 	JSON_OPEN("Resources/GPUParticle/VertexParticle/" + name + ".json");

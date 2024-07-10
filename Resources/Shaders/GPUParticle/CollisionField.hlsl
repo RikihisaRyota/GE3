@@ -1,7 +1,8 @@
 #include "GPUParticle.hlsli"
 
-RWStructuredBuffer<FieldForGPU> origalField : register(u0);
-RWStructuredBuffer<Particle> particle : register(u1);
+StructuredBuffer<FieldForGPU> origalField : register(t0);
+StructuredBuffer<uint> fieldIndexBuffer : register(t1);
+RWStructuredBuffer<Particle> particle : register(u0);
 
 void AttractionField(FieldForGPU field,inout Particle particle){
     float32_t3 direction;
@@ -32,7 +33,7 @@ void UpdateField(FieldForGPU field,inout Particle particle){
 void main( uint3 DTid : SV_DispatchThreadID , uint3 GTid : SV_GroupThreadID)
 {
     uint32_t particleIndex = DTid.x;
-    uint32_t fieldIndex = GTid.y;
+    uint32_t fieldIndex = fieldIndexBuffer[GTid.y];
     // 生きてるか
     if(origalField[fieldIndex].isAlive&&particle[particleIndex].isAlive){
         if((particle[particleIndex].collisionInfo.attribute & origalField[fieldIndex].collisionInfo.mask)!=0){

@@ -211,13 +211,14 @@ void Player::OnCollision(const ColliderDesc& desc) {
 	}
 }
 
+
 void Player::GPUParticleSpawn(CommandContext& commandContext) {
 	//gpuParticleManager_->CreateMeshParticle(playerModelHandle_, animation_, worldTransform_, meshEmitterDesc_, commandContext);
-	gpuParticleManager_->CreateEdgeParticle(playerModelHandle_, animation_, worldTransform_, meshEmitterDesc_, commandContext);
+	//gpuParticleManager_->CreateEdgeParticle(playerModelHandle_, animation_, worldTransform_, meshEmitterDesc_, commandContext);
 	//gpuParticleManager_->CreateVertexParticle(playerModelHandle_, animation_, worldTransform_, vertexEmitterDesc_, commandContext);
-	footEmitter_.fugitiveDust.emitterArea.aabb.position = MakeTranslateMatrix(worldTransform_.matWorld);
-	footEmitter_.fugitiveDust.emitterArea.sphere.position = MakeTranslateMatrix(worldTransform_.matWorld);
-	gpuParticleManager_->SetEmitter(footEmitter_.fugitiveDust);
+	//footEmitter_.fugitiveDust.emitterArea.aabb.position = MakeTranslateMatrix(worldTransform_.matWorld);
+	//footEmitter_.fugitiveDust.emitterArea.sphere.position = MakeTranslateMatrix(worldTransform_.matWorld);
+	//gpuParticleManager_->SetEmitter(footEmitter_.fugitiveDust);
 }
 
 void Player::UpdateTransform() {

@@ -1,6 +1,6 @@
 {
     "CollisionInfo": {
-        "attribute": 16,
+        "attribute": 48,
         "mask": 0
     },
     "EmitterArea": {
@@ -16,7 +16,7 @@
                 -20.0
             ],
             "position": [
-                -50.0,
+                -80.0,
                 0.0,
                 0.0
             ]
@@ -34,7 +34,10 @@
                     0.0
                 ]
             },
-            "distanceFactor": {},
+            "distanceFactor": {
+                "Max": 0.0,
+                "Min": 0.0
+            },
             "radius": 0.0
         },
         "EmitterSphere": {
@@ -42,7 +45,10 @@
                 "EmitterSegment": {},
                 "distanceFactor": {}
             },
-            "distanceFactor": {},
+            "distanceFactor": {
+                "Max": 0.0,
+                "Min": 0.0
+            },
             "position": [
                 0.0,
                 0.0,
@@ -131,20 +137,21 @@
                 0.10000000149011612,
                 0.10000000149011612
             ]
-        }
+        },
+        "isSame": 0
     },
     "Velocity3D": {
         "Max": [
             0.0,
-            0.20000000298023224,
-            0.5
+            0.0,
+            0.0
         ],
         "Min": [
             0.0,
-            -0.20000000298023224,
-            -0.5
+            0.0,
+            0.0
         ]
     },
-    "createParticleNum": 300,
+    "createParticleNum": 100,
     "textureIndex": "Resources/Images/GPUParticle.png"
 }

@@ -704,10 +704,14 @@ void GPUParticleManager::CreateField() {
 	{
 		addFieldRootSignature_ = std::make_unique<RootSignature>();
 
-		CD3DX12_ROOT_PARAMETER rootParameters[3]{};
+		CD3DX12_DESCRIPTOR_RANGE fieldIndexStockBuffer[1]{};
+		fieldIndexStockBuffer[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 2, 0);
+
+		CD3DX12_ROOT_PARAMETER rootParameters[4]{};
 		rootParameters[0].InitAsShaderResourceView(0);
 		rootParameters[1].InitAsUnorderedAccessView(0);
 		rootParameters[2].InitAsUnorderedAccessView(1);
+		rootParameters[3].InitAsDescriptorTable(_countof(fieldIndexStockBuffer), fieldIndexStockBuffer);
 
 		D3D12_ROOT_SIGNATURE_DESC desc{};
 		desc.pParameters = rootParameters;
@@ -727,8 +731,15 @@ void GPUParticleManager::CreateField() {
 	{
 		updateFieldRootSignature_ = std::make_unique<RootSignature>();
 
-		CD3DX12_ROOT_PARAMETER rootParameters[1]{};
+		CD3DX12_DESCRIPTOR_RANGE fieldIndexStockBuffer[1]{};
+		fieldIndexStockBuffer[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 1, 0);
+		CD3DX12_DESCRIPTOR_RANGE fieldIndexBuffer[1]{};
+		fieldIndexBuffer[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 2, 0);
+		
+		CD3DX12_ROOT_PARAMETER rootParameters[3]{};
 		rootParameters[0].InitAsUnorderedAccessView(0);
+		rootParameters[1].InitAsDescriptorTable(_countof(fieldIndexStockBuffer), fieldIndexStockBuffer);
+		rootParameters[2].InitAsDescriptorTable(_countof(fieldIndexBuffer), fieldIndexBuffer);
 
 		D3D12_ROOT_SIGNATURE_DESC desc{};
 		desc.pParameters = rootParameters;
@@ -748,9 +759,10 @@ void GPUParticleManager::CreateField() {
 	{
 		collisionFieldRootSignature_ = std::make_unique<RootSignature>();
 
-		CD3DX12_ROOT_PARAMETER rootParameters[2]{};
-		rootParameters[0].InitAsUnorderedAccessView(0);
-		rootParameters[1].InitAsUnorderedAccessView(1);
+		CD3DX12_ROOT_PARAMETER rootParameters[3]{};
+		rootParameters[0].InitAsShaderResourceView(0);
+		rootParameters[1].InitAsShaderResourceView(1);
+		rootParameters[2].InitAsUnorderedAccessView(0);
 
 		D3D12_ROOT_SIGNATURE_DESC desc{};
 		desc.pParameters = rootParameters;

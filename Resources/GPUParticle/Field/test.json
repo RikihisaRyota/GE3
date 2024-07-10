@@ -1,0 +1,61 @@
+{
+    "Field": {
+        "Attraction": {
+            "attraction": 1.1200000047683716
+        },
+        "ExternalForce": {
+            "externalForce": [
+                -2.4000000953674316,
+                0.0,
+                0.0
+            ]
+        },
+        "type": 1
+    },
+    "FieldArea": {
+        "FieldAABB": {
+            "Max": [
+                10.0,
+                10.0,
+                20.0
+            ],
+            "Min": [
+                -10.0,
+                -10.0,
+                -20.0
+            ],
+            "position": [
+                -80.0,
+                0.0,
+                0.0
+            ]
+        },
+        "FieldCapsule": {
+            "FieldSegment": {
+                "end": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "start": [
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            },
+            "radius": 0.0
+        },
+        "FieldSphere": {
+            "position": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "radius": 0.0
+        }
+    },
+    "FieldFrequency": {
+        "isLoop": 1,
+        "lifeCount": 0
+    }
+}

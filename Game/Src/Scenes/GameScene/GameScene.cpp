@@ -51,7 +51,8 @@ GameScene::GameScene() {
 	player_->SetGPUParticleManager(gpuParticleManager_.get());
 	boss_->SetGPUParticleManager(gpuParticleManager_.get());
 
-	GPUParticleShaderStructs::Load("test", test_);
+	GPUParticleShaderStructs::Load("test", testEmitter_);
+	GPUParticleShaderStructs::Load("test", testField_);
 
 	//fieldWorldTransform_.Initialize();
 	//field_ = ModelManager::GetInstance()->Load("Resources/Models/Ground/ground_1.gltf");
@@ -105,7 +106,8 @@ void GameScene::Update(CommandContext& commandContext) {
 	}
 
 
-	gpuParticleManager_->SetEmitter(test_);
+	gpuParticleManager_->SetEmitter(testEmitter_);
+	gpuParticleManager_->SetField(testField_);
 	gpuParticleManager_->Update(*viewProjection_, RenderManager::GetInstance()->GetCommandContext());
 	//gpuParticleEditor_->Update(RenderManager::GetInstance()->GetCommandContext());
 
@@ -122,7 +124,8 @@ void GameScene::Update(CommandContext& commandContext) {
 	for (auto& object : gameObject_) {
 		object->DrawImGui();
 	}
-	GPUParticleShaderStructs::Debug("test", test_);
+	GPUParticleShaderStructs::Debug("test", testEmitter_);
+	GPUParticleShaderStructs::Debug("test", testField_);
 	GPUParticleShaderStructs::Update();
 	if (Input::GetInstance()->PushKey(DIK_R)) {
 		skybox_->Initialize();
@@ -163,6 +166,8 @@ void GameScene::Draw(CommandContext& commandContext) {
 	for (auto& object : gameObject_) {
 		object->DrawDebug();
 	}
+	GPUParticleShaderStructs::DebugDraw(testEmitter_);
+	GPUParticleShaderStructs::DebugDraw(testField_);
 #endif // _DEBUG
 
 }

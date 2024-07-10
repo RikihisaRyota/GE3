@@ -7,4 +7,5 @@ namespace CollisionAttribute {
     const uint32_t BossBody =       0b100;
     const uint32_t BossAttack =     0b1000;
     const uint32_t GameObject =     0b10000;
+    const uint32_t ParticleField =  0b100000;
 }

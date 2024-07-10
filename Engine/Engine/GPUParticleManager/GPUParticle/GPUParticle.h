@@ -77,23 +77,20 @@ private:
 	DefaultBuffer particleBuffer_;
 	// パーティクルのIndexをAppend,Consumeするよう
 	DefaultBuffer originalCommandBuffer_;
-	DescriptorHandle originalCommandUAVHandle_;
 	// パーティクルが何体生きているかをCPU側に伝えるコピー用
 	//ReadBackBuffer originalCommandCounterBuffer_;
 	// 何番目のパーティクルが生きているか積み込みよう(ExecuteIndirect用)
 	DefaultBuffer drawIndexCommandBuffers_;
 	ReadBackBuffer drawIndexCountBuffer_;
-	DescriptorHandle drawIndexCommandUAVHandle_;
 	UploadBuffer resetAppendDrawIndexBufferCounterReset_;
 	// 描画引数用
 	DefaultBuffer drawArgumentBuffer_;
-	DescriptorHandle drawArgumentHandle_;
 	// パーティクルのエミッター
 	DefaultBuffer emitterForGPUBuffer_;
 	// エミッターのIndexと何個生成するか
 	DefaultBuffer createParticleBuffer_;
 	UploadBuffer resetCreateParticleBuffer_;
-	DescriptorHandle createParticleUAVHandle_;
+	//DescriptorHandle createParticleUAVHandle_;
 	DefaultBuffer spawnArgumentBuffer_;
 	DefaultBuffer originalCounterBuffer_;
 	CommandSignature* spawnCommandSignature_;
@@ -116,6 +113,8 @@ private:
 	UploadBuffer fieldCPUBuffer_;
 	DefaultBuffer fieldAddBuffer_;
 	UploadBuffer fieldCounterBuffer_;
+	DefaultBuffer fieldIndexStockBuffer_;
+	DefaultBuffer fieldIndexBuffer_;
 	DefaultBuffer createFieldNumBuffer_;
 	std::vector<GPUParticleShaderStructs::FieldForGPU> fields_;
 

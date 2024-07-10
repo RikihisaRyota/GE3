@@ -36,6 +36,69 @@ GPUParticle::~GPUParticle() {}
 
 void GPUParticle::Initialize() {}
 
+void GPUParticle::CheckField(CommandContext& commandContext) {
+	// エミッター追加
+	if (!fields_.empty()) {
+		size_t fieldCount = fields_.size();
+		size_t copySize = sizeof(GPUParticleShaderStructs::FieldForCPU) * fieldCount;
+		fieldCPUBuffer_.ResetBuffer();
+		fieldCPUBuffer_.Copy(fields_.data(), copySize);
+		commandContext.CopyBuffer(fieldAddBuffer_, fieldCPUBuffer_);
+		fieldCounterBuffer_.Copy(&fieldCount, sizeof(UINT));
+
+		commandContext.TransitionResource(fieldAddBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+		commandContext.TransitionResource(fieldOriginalBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+
+		commandContext.SetComputeUAV(0, fieldAddBuffer_->GetGPUVirtualAddress());
+		commandContext.SetComputeUAV(1, fieldOriginalBuffer_->GetGPUVirtualAddress());
+		commandContext.Dispatch(uint32_t(fieldCount), 1, 1);
+
+		commandContext.UAVBarrier(fieldOriginalBuffer_);
+	}
+}
+
+void GPUParticle::AddField(CommandContext& commandContext) {
+	// フィールド追加
+	if (!fields_.empty()) {
+		commandContext.CopyBufferRegion(createFieldNumBuffer_, 0, fieldCounterBuffer_, 0, sizeof(UINT));
+
+		commandContext.TransitionResource(fieldAddBuffer_, D3D12_RESOURCE_STATE_GENERIC_READ);
+		commandContext.TransitionResource(fieldOriginalBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+		commandContext.TransitionResource(createFieldNumBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+
+		commandContext.SetComputeShaderResource(0, fieldAddBuffer_->GetGPUVirtualAddress());
+		commandContext.SetComputeUAV(1, fieldOriginalBuffer_->GetGPUVirtualAddress());
+		commandContext.SetComputeUAV(2, createFieldNumBuffer_->GetGPUVirtualAddress());
+		commandContext.Dispatch(1, 1, 1);
+		commandContext.UAVBarrier(fieldOriginalBuffer_);
+	}
+}
+
+void GPUParticle::UpdateField(CommandContext& commandContext) {
+	
+	if (!fields_.empty()) {
+		commandContext.TransitionResource(fieldOriginalBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+
+		commandContext.SetComputeUAV(0, fieldOriginalBuffer_->GetGPUVirtualAddress());
+		commandContext.Dispatch(1, 1, 1);
+		commandContext.UAVBarrier(fieldOriginalBuffer_);
+	}
+}
+
+void GPUParticle::CollisionField(CommandContext& commandContext) {
+	if (!fields_.empty()) {
+
+		commandContext.TransitionResource(fieldOriginalBuffer_, D3D12_RESOURCE_STATE_GENERIC_READ);
+		commandContext.TransitionResource(particleBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+
+		commandContext.SetComputeUAV(0, fieldOriginalBuffer_->GetGPUVirtualAddress());
+		commandContext.SetComputeUAV(1, particleBuffer_->GetGPUVirtualAddress());
+		commandContext.Dispatch(static_cast<UINT>(ceil((GPUParticleShaderStructs::MaxParticleNum / GPUParticleShaderStructs::MaxProcessNum) / GPUParticleShaderStructs::ComputeThreadBlockSize)), uint32_t(fields_.size()), 1);
+		commandContext.UAVBarrier(particleBuffer_);
+		fields_.clear();
+	}
+}
+
 void GPUParticle::CheckEmitter(CommandContext& commandContext) {
 	// エミッター追加
 	if (!emitterForGPUs_.empty()) {
@@ -167,7 +230,7 @@ void GPUParticle::BulletUpdate(CommandContext& commandContext, const UploadBuffe
 		commandContext.SetComputeConstantBuffer(1, bulletCountBuffer_.GetGPUVirtualAddress());
 		commandContext.SetComputeUAV(2, particleBuffer_.GetGPUVirtualAddress());
 		commandContext.SetComputeConstantBuffer(3, random.GetGPUVirtualAddress());
-		commandContext.Dispatch(static_cast<UINT>(ceil(GPUParticleShaderStructs::MaxParticleNum / float(GPUParticleShaderStructs::ComputeThreadBlockSize))), 1, 1);
+		commandContext.Dispatch(static_cast<UINT>(ceil((GPUParticleShaderStructs::MaxParticleNum / GPUParticleShaderStructs::MaxProcessNum) / GPUParticleShaderStructs::ComputeThreadBlockSize)), 1, 1);
 		commandContext.UAVBarrier(particleBuffer_);
 
 		bullets_.clear();
@@ -384,26 +447,15 @@ void GPUParticle::CreateEdgeParticle(const ModelHandle& modelHandle, const World
 	}
 }
 
-void GPUParticle::Create(const GPUParticleShaderStructs::EmitterForCPU& emitterForCPU) {
-	GPUParticleShaderStructs::EmitterForGPU emitterForGPU{};
-	emitterForGPU.emitterArea = emitterForCPU.emitterArea;
-	emitterForGPU.scale = emitterForCPU.scale;
-	emitterForGPU.rotate.initializeAngle.min = DegToRad(emitterForCPU.rotate.initializeAngle.min);
-	emitterForGPU.rotate.initializeAngle.max = DegToRad(emitterForCPU.rotate.initializeAngle.max);
-	emitterForGPU.rotate.rotateSpeed.min = DegToRad(emitterForCPU.rotate.rotateSpeed.min);
-	emitterForGPU.rotate.rotateSpeed.max = DegToRad(emitterForCPU.rotate.rotateSpeed.max);
-	emitterForGPU.velocity = emitterForCPU.velocity;
-	emitterForGPU.color = emitterForCPU.color;
-	emitterForGPU.frequency = emitterForCPU.frequency;
-	emitterForGPU.time.particleTime = emitterForCPU.frequency.interval;
-	emitterForGPU.time.emitterTime = 0;
-	emitterForGPU.particleLifeSpan = emitterForCPU.particleLifeSpan;
-	emitterForGPU.textureIndex = emitterForCPU.textureIndex;
-	emitterForGPU.createParticleNum = emitterForCPU.createParticleNum;
-	emitterForGPU.isAlive = emitterForCPU.isAlive;
-	emitterForGPU.emitterCount = emitterForCPU.emitterCount;
-	emitterForGPU.collisionInfo = emitterForCPU.collisionInfo;
-	emitterForGPUs_.emplace_back(emitterForGPU);
+void GPUParticle::SetField(const GPUParticleShaderStructs::FieldForCPU& fieldForCPU) {
+	GPUParticleShaderStructs::FieldForGPU fieldForGPU{};
+	fieldForGPU.field = fieldForCPU.field;
+	fieldForGPU.fieldArea = fieldForCPU.fieldArea;
+	fieldForGPU.frequency = fieldForCPU.frequency;
+	fieldForGPU.collisionInfo= fieldForCPU.collisionInfo;
+	fieldForGPU.isAlive = fieldForCPU.isAlive;
+	fieldForGPU.fieldCount = fieldForCPU.fieldCount;
+	fields_.emplace_back(fieldForGPU);
 }
 
 void GPUParticle::SetEmitter(const GPUParticleShaderStructs::EmitterForCPU& emitterForCPU) {
@@ -711,19 +763,13 @@ void GPUParticle::InitializeField() {
 	auto device = GraphicsCore::GetInstance()->GetDevice();
 	{
 		fieldOriginalBuffer_.Create(L"FieldOriginalBuffer", sizeof(GPUParticleShaderStructs::FieldForGPU) * GPUParticleShaderStructs::MaxFieldNum, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
-		D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = {};
-		uavDesc.Format = DXGI_FORMAT_UNKNOWN;
-		uavDesc.ViewDimension = D3D12_UAV_DIMENSION_BUFFER;
-		uavDesc.Buffer.FirstElement = 0;
-		uavDesc.Buffer.NumElements = GPUParticleShaderStructs::MaxFieldNum;
-		uavDesc.Buffer.StructureByteStride = sizeof(GPUParticleShaderStructs::FieldForGPU);
-		uavDesc.Buffer.Flags = D3D12_BUFFER_UAV_FLAG_NONE;
-		device->CreateUnorderedAccessView(
-			fieldOriginalBuffer_,
-			nullptr,
-			&uavDesc,
-			fieldOriginalHandle_);
+		fieldCPUBuffer_.Create(L"FieldCPUBuffer", sizeof(GPUParticleShaderStructs::FieldForGPU) * GPUParticleShaderStructs::MaxFieldNum);
+		fieldCPUBuffer_.ResetBuffer();
+		fieldAddBuffer_.Create(L"FieldAddBuffer", sizeof(GPUParticleShaderStructs::FieldForGPU) * GPUParticleShaderStructs::MaxFieldNum, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
+		fieldCounterBuffer_.Create(L"FieldCounterBuffer", sizeof(UINT));
+		createFieldNumBuffer_.Create(L"CreateFieldNumBuffer", sizeof(UINT),D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
 	}
+	{
 
-
+	}
 }

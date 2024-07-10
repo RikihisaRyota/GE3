@@ -11,6 +11,8 @@
 #include "Vector4.h"
 #include "Vector2.h"
 #include "Quaternion.h"
+#include "Sphere.h"
+#include "Capsule.h"
 
 
 Quaternion IdentityQuaternion();
@@ -150,16 +152,13 @@ float DegToRad(float degree);
 /// /// <returns></returns>
 Matrix4x4 MakeMatWolrd(const WorldTransform& worldtransform);
 
-/// <summary>
-/// ヒットボックス表示
-/// </summary>
-/// <param name="worldtransform">worldtransform</param>
-/// <param name="viewProjection">viewProjection</param>
-/// <param name="color">color</param>
-//void ChackHitBox(
-//    const WorldTransform& worldtransform, const ViewProjection& viewProjection,
-//    const Vector4& color);
-
+std::vector<Vector3> GenerateCircleVertices(const Vector3& center, float radius, int segments, const Vector3& axis1, const Vector3& axis2);
+std::vector<Vector3> GenerateHalfSphereVertices(const Vector3& center, float radius, int segments, const Vector3& axis1, const Vector3& axis2);
+std::vector<Vector3> GetVertices(const OBB& obb);
+void DrawLine(const AABB& aabb, const Vector4& color);
+void DrawLine(const OBB& obb, const Vector4& color);
+void DrawLine(const Sphere& sphere, const Vector4& color);
+void DrawLine(const Capsule& sphere, const Vector4& color);
 /// <summary> 
 /// 最短角度補間
 /// </summary>

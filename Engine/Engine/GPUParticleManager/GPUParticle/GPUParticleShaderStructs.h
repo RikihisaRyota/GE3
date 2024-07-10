@@ -359,6 +359,12 @@ struct Particle
 		Vector3 pad;
 	};
 
+	struct FieldFrequency {
+		uint32_t isLoop;
+		uint32_t lifeCount;
+		Vector2 pad;
+	};
+
 	struct FieldForCPU {
 		FieldForCPU() {
 			if (staticFieldCount == (std::numeric_limits<int32_t>::max)()) {
@@ -370,15 +376,13 @@ struct Particle
 
 		Field field;
 
-		EmitterArea emitterArea;
+		EmitterArea fieldArea;
 
-		EmitterFrequency frequency;
-
-		EmitterTime time;
+		FieldFrequency frequency;
 
 		ParticleAttributes collisionInfo;
 
-		uint32_t isAlive = false;
+		uint32_t isAlive = true;
 
 		int32_t fieldCount;
 
@@ -388,11 +392,11 @@ struct Particle
 
 	struct FieldForGPU {
 
-		EmitterArea emitterArea;
+		Field field;
 
-		EmitterFrequency frequency;
+		EmitterArea fieldArea;
 
-		EmitterTime time;
+		FieldFrequency frequency;
 
 		ParticleAttributes collisionInfo;
 
@@ -435,10 +439,15 @@ struct Particle
 	void EmitterEditor(const std::string name, std::tuple<bool*, EmitterForCPU*> emitter);
 	void EmitterEditor(const std::string name, std::tuple<bool*, MeshEmitterDesc*> desc);
 	void EmitterEditor(const std::string name, std::tuple<bool*, VertexEmitterDesc*> desc);
+	void EmitterEditor(const std::string name, std::tuple<bool*, FieldForCPU*> desc);
 
 	void Debug(const std::string name, EmitterForCPU& emitter);
 	void Debug(const std::string name, MeshEmitterDesc& desc);
 	void Debug(const std::string name, VertexEmitterDesc& desc);
+	void Debug(const std::string name, FieldForCPU& desc);
+
+	void DebugDraw(const EmitterForCPU& emitter);
+	void DebugDraw(const FieldForCPU& emitter);
 
 	void Update();
 
@@ -448,6 +457,8 @@ struct Particle
 	void Load(const std::string name, MeshEmitterDesc& desc);
 	void Save(const std::string name, VertexEmitterDesc& desc);
 	void Load(const std::string name, VertexEmitterDesc& desc);
+	void Save(const std::string name, FieldForCPU& desc);
+	void Load(const std::string name, FieldForCPU& desc);
 
 
 	void SaveMinMax(GPUParticleShaderStructs::UintMinMax& startEnd);

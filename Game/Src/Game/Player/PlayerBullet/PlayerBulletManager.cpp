@@ -103,10 +103,10 @@ void PlayerBulletManager::Draw(const ViewProjection& viewProjection, CommandCont
 	}
 }
 
-void PlayerBulletManager::DrawDebug(const ViewProjection& viewProjection) {
+void PlayerBulletManager::DrawDebug() {
 	// 弾
 	for (auto& bullet : playerBullets_) {
-		bullet->DrawDebug(viewProjection);
+		bullet->DrawDebug();
 	}
 }
 

@@ -14,7 +14,6 @@ class Collider;
 class OBBCollider;
 class SphereCollider;
 class CapsuleCollider;
-struct ViewProjection;
 
 struct ColliderDesc {
 	Collider* collider;
@@ -33,7 +32,7 @@ public:
 	virtual bool IsCollision(OBBCollider* collider, ColliderDesc& desc) = 0;
 	virtual bool IsCollision(SphereCollider* collider, ColliderDesc& desc) = 0;
 	virtual bool IsCollision(CapsuleCollider* collider, ColliderDesc& desc) = 0;
-	virtual void DrawCollision(const ViewProjection& viewProjection, const Vector4& color) = 0;
+	virtual void DrawCollision(const Vector4& color) = 0;
 
 	void SetCallback(Callback callback) { callback_ = callback; }
 	void SetCollisionAttribute(uint32_t attribute) { collisionAttribute_ = attribute; }
@@ -65,7 +64,7 @@ public:
 	bool IsCollision(SphereCollider* collider, ColliderDesc& collisionInfo) override;
 	bool IsCollision(OBBCollider* collider, ColliderDesc& collisionInfo) override;
 	bool IsCollision(CapsuleCollider* other, ColliderDesc& desc) override;
-	void DrawCollision(const ViewProjection& viewProjection, const Vector4& color) override;
+	void DrawCollision(const Vector4& color) override;
 
 
 	void SetCenter(const Vector3& center) { sphere_.center = center; }
@@ -84,7 +83,7 @@ public:
 	bool IsCollision(SphereCollider* collider, ColliderDesc& collisionInfo) override;
 	bool IsCollision(OBBCollider* other, ColliderDesc& desc) override;
 	bool IsCollision(CapsuleCollider* other, ColliderDesc& desc) override;
-	void DrawCollision(const ViewProjection& viewProjection, const Vector4& color) override;
+	void DrawCollision(const Vector4& color) override;
 
 	void SetCenter(const Vector3& center) { obb_.center = center; }
 	void SetOrientation(const Quaternion& orientation) {
@@ -107,7 +106,7 @@ public:
 	bool IsCollision(SphereCollider* collider, ColliderDesc& collisionInfo) override;
 	bool IsCollision(OBBCollider* other, ColliderDesc& desc) override;
 	bool IsCollision(CapsuleCollider* other, ColliderDesc& desc) override;
-	void DrawCollision(const ViewProjection& viewProjection, const Vector4& color) override;
+	void DrawCollision(const Vector4& color) override;
 
 	void SetSegment(const Segment& segment) { capsule_.segment = segment; }
 	void SetRadius(float radius) { capsule_.radius = radius; }

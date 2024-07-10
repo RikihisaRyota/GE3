@@ -36,6 +36,10 @@ public:
 	GPUParticle();
 	~GPUParticle();
 	void Initialize();
+	void CheckField(CommandContext& commandContext);
+	void AddField(CommandContext& commandContext);
+	void UpdateField(CommandContext& commandContext);
+	void CollisionField(CommandContext& commandContext);
 	void Spawn(CommandContext& commandContext, const UploadBuffer& random);
 	void EmitterUpdate(CommandContext& commandContext);
 	void CheckEmitter(CommandContext& commandContext);
@@ -53,8 +57,8 @@ public:
 
 	void SetDrawCommandSignature(CommandSignature* commandSignature) { commandSignature_ = commandSignature; }
 	void SetSpawnCommandSignature(CommandSignature* commandSignature) { spawnCommandSignature_ = commandSignature; }
-	void Create(const GPUParticleShaderStructs::EmitterForCPU& emitterForGPU);
 
+	void SetField(const GPUParticleShaderStructs::FieldForCPU& fieldForCPU);
 	void SetEmitter(const GPUParticleShaderStructs::EmitterForCPU& emitterForGPU);
 	void SetBullet(const GPUParticleShaderStructs::BulletForGPU& bullet);
 private:
@@ -108,9 +112,12 @@ private:
 	std::vector<GPUParticleShaderStructs::BulletForGPU> bullets_;
 	// フィールド
 	DefaultBuffer fieldOriginalBuffer_;
-	DescriptorHandle fieldOriginalHandle_;
+	//DescriptorHandle fieldOriginalHandle_;
 	UploadBuffer fieldCPUBuffer_;
 	DefaultBuffer fieldAddBuffer_;
+	UploadBuffer fieldCounterBuffer_;
+	DefaultBuffer createFieldNumBuffer_;
+	std::vector<GPUParticleShaderStructs::FieldForGPU> fields_;
 
 	// メッシュパーティクル
 	UINT particleIndexSize_;

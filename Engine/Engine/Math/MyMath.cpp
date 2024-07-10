@@ -1,12 +1,14 @@
 #include "MyMath.h"
 
+#include <array>
 #include <cassert>
 #include <cmath>
 #include <numbers>
 #include <list>
 #include <vector>
 #include <stdexcept>
-//#include "PrimitiveDrawer.h"
+
+#include "Engine/DrawLine/DrawLine.h"
 
 #include "Vector3.h"
 
@@ -656,38 +658,157 @@ Matrix4x4 MakeMatWolrd(const WorldTransform& worldtransform) {
 	return result;
 }
 
-//void ChackHitBox(const WorldTransform& worldtransform, const ViewProjection& viewProjection,const Vector4& color) {
-//	WorldTransform tmpWorldTransform = worldtransform;
-//	Vector3 vertices[] = {
-//	    {-tmpWorldTransform.scale_},
-//	    {tmpWorldTransform.scale_.x, -tmpWorldTransform.scale_.y, -tmpWorldTransform.scale_.z},
-//	    {tmpWorldTransform.scale_.x, -tmpWorldTransform.scale_.y, tmpWorldTransform.scale_.z},
-//	    {-tmpWorldTransform.scale_.x, tmpWorldTransform.scale_.y, tmpWorldTransform.scale_.z},
-//	    {-tmpWorldTransform.scale_.x, tmpWorldTransform.scale_.y, -tmpWorldTransform.scale_.z},
-//	    {tmpWorldTransform.scale_.x, tmpWorldTransform.scale_.y, -tmpWorldTransform.scale_.z},
-//	    {tmpWorldTransform.scale_},
-//	    {-tmpWorldTransform.scale_.x, tmpWorldTransform.scale_.y, tmpWorldTransform.scale_.z},
-//	};
-//	PrimitiveDrawer* line = PrimitiveDrawer::GetInstance();
-//	line->SetViewProjection(&viewProjection);
-//	Matrix4x4 viewMatrix = MakeViewProjectMatrixMatrix(viewProjection);
-//	for (int i = 0; i < 4; i++) {
-//		int j = (i + 1) % 4;
-//		line->SetDraw(
-//		    Transform(vertices[i], viewMatrix), 
-//			Transform(vertices[j], viewMatrix), 
-//			color);
-//		line->SetDraw(
-//		    Transform(vertices[i], viewMatrix), 
-//			Transform(vertices[i + 4], viewMatrix), 
-//			color);
-//		line->SetDraw(
-//		    Transform(vertices[i + 4], viewMatrix),
-//			Transform(vertices[j + 4], viewMatrix), 
-//			color);
-//	}
-//
-//}
+std::vector<Vector3> GenerateCircleVertices(const Vector3& center, float radius, int segments, const Vector3& axis1, const Vector3& axis2) {
+	std::vector<Vector3> vertices;
+	vertices.resize(segments);
+	float angleStep = 2.0f * std::numbers::pi_v<float> / segments;
+	for (int i = 0; i < segments; ++i) {
+		float angle = i * angleStep;
+		Vector3 vertex = center + (axis1 * cos(angle) + axis2 * sin(angle)) * radius;
+		vertices[i] = vertex; // Assign the computed vertex directly
+	}
+	return vertices;
+}
+
+std::vector<Vector3> GenerateHalfSphereVertices(const Vector3& center, float radius, int segments, const Vector3& axis1, const Vector3& axis2) {
+	std::vector<Vector3> vertices;
+	vertices.reserve(segments + 1); // Reserve space for the vertices, including the center
+	float angleStep = std::numbers::pi_v<float> / segments;
+	for (int i = 0; i <= segments; ++i) {
+		float angle = i * angleStep;
+		Vector3 vertex = center + (axis1 * cos(angle) + axis2 * sin(angle)) * radius;
+		vertices.push_back(vertex);
+	}
+
+	return vertices;
+}
+
+std::vector<Vector3> GetVertices(const OBB& obb) {
+	Vector3 halfSize = obb.size * 0.5f;
+
+	std::vector<Vector3> vertices(8);
+	vertices[0] = obb.center + (obb.orientations[0] * -halfSize.x) + (obb.orientations[1] * -halfSize.y) + (obb.orientations[2] * -halfSize.z);
+	vertices[1] = obb.center + (obb.orientations[0] * -halfSize.x) + (obb.orientations[1] * halfSize.y) + (obb.orientations[2] * -halfSize.z);
+	vertices[2] = obb.center + (obb.orientations[0] * halfSize.x) + (obb.orientations[1] * halfSize.y) + (obb.orientations[2] * -halfSize.z);
+	vertices[3] = obb.center + (obb.orientations[0] * halfSize.x) + (obb.orientations[1] * -halfSize.y) + (obb.orientations[2] * -halfSize.z);
+	vertices[4] = obb.center + (obb.orientations[0] * -halfSize.x) + (obb.orientations[1] * -halfSize.y) + (obb.orientations[2] * halfSize.z);
+	vertices[5] = obb.center + (obb.orientations[0] * -halfSize.x) + (obb.orientations[1] * halfSize.y) + (obb.orientations[2] * halfSize.z);
+	vertices[6] = obb.center + (obb.orientations[0] * halfSize.x) + (obb.orientations[1] * halfSize.y) + (obb.orientations[2] * halfSize.z);
+	vertices[7] = obb.center + (obb.orientations[0] * halfSize.x) + (obb.orientations[1] * -halfSize.y) + (obb.orientations[2] * halfSize.z);
+
+	return vertices;
+}
+
+void DrawLine(const AABB& aabb, const Vector4& color) {
+	auto drawLine = DrawLine::GetInstance();
+
+	// AABBの頂点を計算
+	Vector3 vertices[8];
+	vertices[0] = { aabb.min_.x, aabb.min_.y, aabb.min_.z };
+	vertices[1] = { aabb.max_.x, aabb.min_.y, aabb.min_.z };
+	vertices[2] = { aabb.max_.x, aabb.max_.y, aabb.min_.z };
+	vertices[3] = { aabb.min_.x, aabb.max_.y, aabb.min_.z };
+	vertices[4] = { aabb.min_.x, aabb.min_.y, aabb.max_.z };
+	vertices[5] = { aabb.max_.x, aabb.min_.y, aabb.max_.z };
+	vertices[6] = { aabb.max_.x, aabb.max_.y, aabb.max_.z };
+	vertices[7] = { aabb.min_.x, aabb.max_.y, aabb.max_.z };
+
+	// AABBのエッジを描画
+	std::array<std::pair<int, int>, 12> edges = {
+		std::make_pair(0, 1), std::make_pair(1, 2), std::make_pair(2, 3), std::make_pair(3, 0), // 底面のエッジ
+		std::make_pair(4, 5), std::make_pair(5, 6), std::make_pair(6, 7), std::make_pair(7, 4), // 上面のエッジ
+		std::make_pair(0, 4), std::make_pair(1, 5), std::make_pair(2, 6), std::make_pair(3, 7)  // 垂直のエッジ
+	};
+
+	for (const auto& edge : edges) {
+		drawLine->SetLine(vertices[edge.first], vertices[edge.second], color);
+	}
+}
+
+void DrawLine(const OBB& obb, const Vector4& color) {
+	auto drawLine = DrawLine::GetInstance();
+	std::vector<Vector3> vertices = GetVertices(obb);
+	const std::vector<std::pair<int, int>> edges = {
+		{0, 1}, {1, 2}, {2, 3}, {3, 0}, // 前面の4つの辺
+		{4, 5}, {5, 6}, {6, 7}, {7, 4}, // 背面の4つの辺
+		{0, 4}, {1, 5}, {2, 6}, {3, 7}  // 前面と背面を結ぶ4つの辺
+	};
+
+	// Draw the edges
+	for (const auto& edge : edges) {
+		drawLine->SetLine(vertices[edge.first], vertices[edge.second], color);
+	}
+}
+
+void DrawLine(const Sphere& s, const Vector4& color) {
+	auto drawLine = DrawLine::GetInstance();
+	Sphere sphere = s;
+	const Vector3& center = s.center;
+	float radius = s.radius;
+	int segments = 24;
+
+	std::vector<Vector3> xyVertices = GenerateCircleVertices(center, radius, segments, { 1, 0, 0 }, { 0, 1, 0 });
+	std::vector<Vector3> xzVertices = GenerateCircleVertices(center, radius, segments, { 1, 0, 0 }, { 0, 0, 1 });
+	std::vector<Vector3> yzVertices = GenerateCircleVertices(center, radius, segments, { 0, 1, 0 }, { 0, 0, 1 });
+
+	for (int i = 0; i < segments; ++i) {
+		drawLine->SetLine(xyVertices[i], xyVertices[(i + 1) % segments], color);
+		drawLine->SetLine(xzVertices[i], xzVertices[(i + 1) % segments], color);
+		drawLine->SetLine(yzVertices[i], yzVertices[(i + 1) % segments], color);
+	}
+}
+
+void DrawLine(const Capsule& capsule, const Vector4& color) {
+	auto drawLine = DrawLine::GetInstance();
+	const Segment& segment = capsule.segment;
+	const Vector3& p1 = segment.start;
+	const Vector3& p2 = segment.end;
+	float radius = capsule.radius;
+	int segments = 24;
+
+	// Calculate the direction vector of the segment
+	Vector3 direction = p2 - p1;
+	direction.Normalize();
+
+	// Find two vectors that are perpendicular to the direction vector
+	Vector3 axis1, axis2;
+	if (fabs(direction.x) > fabs(direction.y)) {
+		axis1 = Vector3(direction.z, 0, -direction.x);
+	}
+	else {
+		axis1 = Vector3(0, -direction.z, direction.y);
+	}
+	axis1.Normalize();
+	axis2 = direction.Cross(axis1);
+	axis2.Normalize();
+
+	// Generate vertices for the cylindrical part (circles at both ends)
+	std::vector<Vector3> p1Vertices = GenerateCircleVertices(p1, radius, segments, axis1, axis2);
+	std::vector<Vector3> p2Vertices = GenerateCircleVertices(p2, radius, segments, axis1, axis2);
+
+	// Draw lines for the cylindrical part (circles and connecting lines)
+	for (int i = 0; i < segments; ++i) {
+		drawLine->SetLine(p1Vertices[i], p1Vertices[(i + 1) % segments], color);
+		drawLine->SetLine(p2Vertices[i], p2Vertices[(i + 1) % segments], color);
+		drawLine->SetLine(p1Vertices[i], p2Vertices[i], color);
+	}
+
+	// Generate vertices for the half-spheres at both ends in cross pattern
+	Vector3 axis3 = Cross(axis1, axis2).Normalized();
+
+	std::vector<Vector3> xyTopHalfSphereVertices = GenerateHalfSphereVertices(p1, radius, segments, axis1, -axis3);
+	std::vector<Vector3> zyTopHalfSphereVertices = GenerateHalfSphereVertices(p1, radius, segments, axis2, -axis3);
+	std::vector<Vector3> xyBottomHalfSphereVertices = GenerateHalfSphereVertices(p2, radius, segments, axis1, axis3);
+	std::vector<Vector3> xzBottomHalfSphereVertices = GenerateHalfSphereVertices(p2, radius, segments, axis2, axis3);
+
+	// Draw lines for the half-spheres in cross pattern
+	for (int i = 0; i < xyTopHalfSphereVertices.size(); i++) {
+		drawLine->SetLine(xyTopHalfSphereVertices[i], xyTopHalfSphereVertices[(i + 1) % xyTopHalfSphereVertices.size()], color);
+		drawLine->SetLine(zyTopHalfSphereVertices[i], zyTopHalfSphereVertices[(i + 1) % zyTopHalfSphereVertices.size()], color);
+		drawLine->SetLine(xyBottomHalfSphereVertices[i], xyBottomHalfSphereVertices[(i + 1) % xyBottomHalfSphereVertices.size()], color);
+		drawLine->SetLine(xzBottomHalfSphereVertices[i], xzBottomHalfSphereVertices[(i + 1) % xzBottomHalfSphereVertices.size()], color);
+	}
+}
 
 float LenpShortAngle(float a, float b, float t) {
 	// 角度差分を求める

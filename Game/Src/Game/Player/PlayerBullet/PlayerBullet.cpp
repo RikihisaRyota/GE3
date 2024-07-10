@@ -53,8 +53,8 @@ void PlayerBullet::Draw(const ViewProjection& viewProjection, CommandContext& co
 	ModelManager::GetInstance()->Draw(worldTransform_, viewProjection, modelHandle_, commandContext);
 }
 
-void PlayerBullet::DrawDebug(const ViewProjection& viewProjection) {
-	collider_->DrawCollision(viewProjection, Vector4(0.0f, 1.0f, 0.0f, 1.0f));
+void PlayerBullet::DrawDebug(){
+	collider_->DrawCollision({ 0.0f, 1.0f, 0.0f, 1.0f });
 }
 
 void PlayerBullet::OnCollision(const ColliderDesc& desc) {

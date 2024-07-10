@@ -41,6 +41,7 @@ public:
 
 
 	void SetEmitter(const GPUParticleShaderStructs::EmitterForCPU& emitterForCPU);
+	void SetField(const GPUParticleShaderStructs::FieldForCPU& fieldForCPU);
 	void SetBullet(const GPUParticleShaderStructs::BulletForGPU& bullets);
 
 private:
@@ -82,8 +83,10 @@ private:
 	std::unique_ptr<PipelineState> checkFieldPipelineState_;
 	std::unique_ptr<RootSignature> addFieldRootSignature_;
 	std::unique_ptr<PipelineState> addFieldPipelineState_;
-	std::unique_ptr<RootSignature> fieldUpdateRootSignature_;
-	std::unique_ptr<PipelineState> fieldUpdatePipelineState_;
+	std::unique_ptr<RootSignature> updateFieldRootSignature_;
+	std::unique_ptr<PipelineState> updateFieldPipelineState_;
+	std::unique_ptr<RootSignature> collisionFieldRootSignature_;
+	std::unique_ptr<PipelineState> collisionFieldPipelineState_;
 
 	UploadBuffer vertexBuffer_;
 	D3D12_VERTEX_BUFFER_VIEW vbView_{};

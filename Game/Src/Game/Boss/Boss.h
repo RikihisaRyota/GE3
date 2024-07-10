@@ -35,7 +35,7 @@ public:
 	Animation::Animation* GetAnimation() { return &animation_; }
 	const ModelHandle& GetModelHandle() { return bossModelHandle_; }
 	void DrawImGui();
-	void DrawDebug(const ViewProjection& viewProjection);
+	void DrawDebug();
 	std::unordered_map<std::string, std::unique_ptr<BossCollider>>& GetCollider() { return bossCollider_; }
 	std::unordered_map<std::string, GPUParticleShaderStructs::EmitterForCPU>& GetEmitters() { return emitters_; }
 	std::unordered_map<std::string, uint32_t>& GetInitializeParticleNum() { return initializeParticleNum_; }

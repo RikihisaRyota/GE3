@@ -25,7 +25,7 @@ public:
 	void Create(GPUParticleManager* GPUParticleManager, const Vector3& position, const Vector3& velocity, uint32_t time,const BulletEmitter& emitter);
 	void Update();
 	void Draw(const ViewProjection& viewProjection, CommandContext& commandContext);
-	void DrawDebug(const ViewProjection& viewProjection);
+	void DrawDebug();
 	bool GetIsAlive() { return isAlive_; }
 
 	const Vector3 GetPosition()const { return worldTransform_.translate; }

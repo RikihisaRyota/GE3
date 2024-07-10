@@ -899,5 +899,8 @@
     <FxCompile Include="Resources\Shaders\GPUParticle\CheckField.hlsl">
       <Filter>Shaders\GPUParticle</Filter>
     </FxCompile>
+    <FxCompile Include="Resources\Shaders\GPUParticle\CollisionField.hlsl">
+      <Filter>Shaders\GPUParticle</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

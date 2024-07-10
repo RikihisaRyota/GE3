@@ -100,6 +100,14 @@ void GPUParticleManager::Update(const ViewProjection& viewProjection, CommandCon
 	UINT seed = static_cast<UINT>(std::chrono::system_clock::now().time_since_epoch().count());
 	randomBuffer_.Copy(&seed, sizeof(UINT));
 
+	commandContext.SetComputeRootSignature(*checkFieldRootSignature_);
+	commandContext.SetPipelineState(*checkFieldPipelineState_);
+	gpuParticle_->CheckField(commandContext);
+
+	commandContext.SetComputeRootSignature(*addFieldRootSignature_);
+	commandContext.SetPipelineState(*addFieldPipelineState_);
+	gpuParticle_->AddField(commandContext);
+
 	commandContext.SetComputeRootSignature(*checkEmitterComputeRootSignature_);
 	commandContext.SetPipelineState(*checkEmitterComputePipelineState_);
 	gpuParticle_->CheckEmitter(commandContext);
@@ -123,6 +131,14 @@ void GPUParticleManager::Update(const ViewProjection& viewProjection, CommandCon
 	commandContext.SetComputeRootSignature(*bulletRootSignature_);
 	commandContext.SetPipelineState(*bulletPipelineState_);
 	gpuParticle_->BulletUpdate(commandContext, randomBuffer_);
+
+	commandContext.SetComputeRootSignature(*updateFieldRootSignature_);
+	commandContext.SetPipelineState(*updateFieldPipelineState_);
+	gpuParticle_->UpdateField(commandContext);
+
+	commandContext.SetComputeRootSignature(*collisionFieldRootSignature_);
+	commandContext.SetPipelineState(*collisionFieldPipelineState_);
+	gpuParticle_->CollisionField(commandContext);
 }
 
 void GPUParticleManager::Draw(const ViewProjection& viewProjection, CommandContext& commandContext) {
@@ -189,7 +205,11 @@ void GPUParticleManager::CreateEdgeParticle(const ModelHandle& modelHandle, cons
 }
 
 void GPUParticleManager::SetEmitter(const GPUParticleShaderStructs::EmitterForCPU& emitter) {
-	gpuParticle_->Create(emitter);
+	gpuParticle_->SetEmitter(emitter);
+}
+
+void GPUParticleManager::SetField(const GPUParticleShaderStructs::FieldForCPU& fieldForCPU) {
+	gpuParticle_->SetField(fieldForCPU);
 }
 
 void GPUParticleManager::SetBullet(const GPUParticleShaderStructs::BulletForGPU& bullets) {
@@ -705,7 +725,28 @@ void GPUParticleManager::CreateField() {
 		addFieldPipelineState_->Create(L"addFieldPipelineState", desc);
 	}
 	{
-		fieldUpdateRootSignature_ = std::make_unique<RootSignature>();
+		updateFieldRootSignature_ = std::make_unique<RootSignature>();
+
+		CD3DX12_ROOT_PARAMETER rootParameters[1]{};
+		rootParameters[0].InitAsUnorderedAccessView(0);
+
+		D3D12_ROOT_SIGNATURE_DESC desc{};
+		desc.pParameters = rootParameters;
+		desc.NumParameters = _countof(rootParameters);
+
+		updateFieldRootSignature_->Create(L"fieldUpdateRootSignature", desc);
+	}
+	// アップデートパイプライン
+	{
+		updateFieldPipelineState_ = std::make_unique<PipelineState>();
+		D3D12_COMPUTE_PIPELINE_STATE_DESC desc{};
+		desc.pRootSignature = *updateFieldRootSignature_;
+		auto cs = ShaderCompiler::Compile(L"Resources/Shaders/GPUParticle/UpdateField.hlsl", L"cs_6_0");
+		desc.CS = CD3DX12_SHADER_BYTECODE(cs->GetBufferPointer(), cs->GetBufferSize());
+		updateFieldPipelineState_->Create(L"addFieldPipelineState", desc);
+	}
+	{
+		collisionFieldRootSignature_ = std::make_unique<RootSignature>();
 
 		CD3DX12_ROOT_PARAMETER rootParameters[2]{};
 		rootParameters[0].InitAsUnorderedAccessView(0);
@@ -715,16 +756,16 @@ void GPUParticleManager::CreateField() {
 		desc.pParameters = rootParameters;
 		desc.NumParameters = _countof(rootParameters);
 
-		fieldUpdateRootSignature_->Create(L"fieldUpdateRootSignature", desc);
+		collisionFieldRootSignature_->Create(L"CollisionFieldRootSignature", desc);
 	}
 	// アップデートパイプライン
 	{
-		fieldUpdatePipelineState_ = std::make_unique<PipelineState>();
+		collisionFieldPipelineState_ = std::make_unique<PipelineState>();
 		D3D12_COMPUTE_PIPELINE_STATE_DESC desc{};
-		desc.pRootSignature = *fieldUpdateRootSignature_;
-		auto cs = ShaderCompiler::Compile(L"Resources/Shaders/GPUParticle/UpdateField.hlsl", L"cs_6_0");
+		desc.pRootSignature = *collisionFieldRootSignature_;
+		auto cs = ShaderCompiler::Compile(L"Resources/Shaders/GPUParticle/CollisionField.hlsl", L"cs_6_0");
 		desc.CS = CD3DX12_SHADER_BYTECODE(cs->GetBufferPointer(), cs->GetBufferSize());
-		fieldUpdatePipelineState_->Create(L"addFieldPipelineState", desc);
+		collisionFieldPipelineState_->Create(L"addFieldPipelineState", desc);
 	}
 
 }

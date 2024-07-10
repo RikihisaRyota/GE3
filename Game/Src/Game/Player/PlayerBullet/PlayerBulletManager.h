@@ -17,7 +17,7 @@ public:
 	void Update();
 	void DrawImGui();
 	void Draw(const ViewProjection& viewProjection, CommandContext& commandContext);
-	void DrawDebug(const ViewProjection& viewProjection);
+	void DrawDebug();
 	void Create(const WorldTransform& worldTransform);
 
 	void SetPlayerUI(PlayerUI* playerUI) { playerUI_ = playerUI; }

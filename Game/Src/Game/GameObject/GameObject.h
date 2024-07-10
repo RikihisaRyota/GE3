@@ -16,7 +16,7 @@ public:
 	void Update();
 
 	void Draw(const ViewProjection& viewProjection, CommandContext& commandContext);
-	void DrawDebug(const ViewProjection& viewProjection);
+	void DrawDebug();
 
 	void DrawImGui();
 

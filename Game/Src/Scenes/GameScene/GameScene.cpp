@@ -154,14 +154,14 @@ void GameScene::Draw(CommandContext& commandContext) {
 	static bool bossDebug = false;
 	ImGui::Checkbox("PlayerDebug", &playerDebug);
 	if (playerDebug) {
-		player_->DrawDebug(*viewProjection_);
+		player_->DrawDebug();
 	}
 	ImGui::Checkbox("BossDebug", &bossDebug);
 	if (bossDebug) {
-		boss_->DrawDebug(*viewProjection_);
+		boss_->DrawDebug();
 	}
 	for (auto& object : gameObject_) {
-		object->DrawDebug(*viewProjection_);
+		object->DrawDebug();
 	}
 #endif // _DEBUG
 

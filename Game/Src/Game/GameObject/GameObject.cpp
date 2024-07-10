@@ -48,9 +48,9 @@ void GameObject::Draw(const ViewProjection& viewProjection, CommandContext& comm
 	ModelManager::GetInstance()->Draw(worldTransform_, viewProjection, modelHandle_, commandContext);
 }
 
-void GameObject::DrawDebug(const ViewProjection& viewProjection) {
+void GameObject::DrawDebug() {
 	if (collider_) {
-		collider_->DrawCollision(viewProjection, colliderColor_);
+		collider_->DrawCollision(colliderColor_);
 	}
 }
 

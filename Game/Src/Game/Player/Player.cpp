@@ -155,10 +155,10 @@ void Player::DrawSprite(CommandContext& commandContext) {
 	playerUI_->Draw(commandContext);
 }
 
-void Player::DrawDebug(const ViewProjection& viewProjection) {
+void Player::DrawDebug() {
 	animation_.DrawLine(animationTransform_);
-	collider_->DrawCollision(viewProjection, colliderColor_);
-	playerBulletManager_->DrawDebug(viewProjection);
+	collider_->DrawCollision(colliderColor_);
+	playerBulletManager_->DrawDebug();
 }
 
 void Player::BulletUpdate() {

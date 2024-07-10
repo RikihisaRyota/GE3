@@ -2,6 +2,7 @@
 #define threadBlockSize 1024
 #define meshThreadBlockSize  1024
 #define emitterSize 1024
+#define fieldSize 1024
 #define processNum 1
 #define maxParticleNum 2<<22
 
@@ -249,14 +250,19 @@ struct Field {
 	float32_t3 pad;
 };
 
+struct FieldFrequency {
+	uint32_t isLoop;
+	uint32_t lifeTime;
+	float32_t2 pad;
+};
 
 struct FieldForGPU {
 
-	EmitterArea emitterArea;
+    Field field;
+	
+    EmitterArea fieldArea;
 
-	EmitterFrequency frequency;
-
-	EmitterTime time;
+	FieldFrequency frequency;
 
 	ParticleAttributes collisionInfo;
 
@@ -267,10 +273,22 @@ struct FieldForGPU {
     float32_t2 pad;
 };
 
-
-float32_t sdSphere(float32_t3 p, float32_t s )
+float32_t sdAABB(float32_t3 p, float32_t3 a, float32_t3 b) 
 {
-  return length(p)-s;
+    float32_t3 q = max(a - p, p - b);
+    return length(max(q, 0.0f));
+}
+
+float32_t sdAABB(float32_t3 p, float32_t3 c, float32_t3 a, float32_t3 b) 
+{
+    float32_t3 q = max(max(a - p, 0.0f), p - b);
+    return length(q);
+}
+
+
+float32_t sdSphere(float32_t3 p, float32_t3 c, float32_t s) 
+{
+    return length(p - c) - s;
 }
 
 float32_t sdCapsule(float32_t3 p, float32_t3 a, float32_t3 b, float32_t r)

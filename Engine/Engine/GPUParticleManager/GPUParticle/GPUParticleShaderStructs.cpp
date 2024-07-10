@@ -10,6 +10,8 @@
 #include "Engine/Texture/TextureManager.h"
 #include "Engine/ImGui/ImGuiManager.h"
 #include "Engine/Collision/CollisionAttribute.h"
+#include "Engine/DrawLine/DrawLine.h"
+#include "Engine/Math/MyMath.h"
 
 int32_t GPUParticleShaderStructs::EmitterForCPU::staticEmitterCount = 0;
 int32_t GPUParticleShaderStructs::FieldForCPU::staticFieldCount = 0;
@@ -178,6 +180,7 @@ namespace GPUParticleShaderStructs {
 	std::unordered_map<std::string, std::tuple<bool*, EmitterForCPU*>>debugEmitters_;
 	std::unordered_map<std::string, std::tuple<bool*, MeshEmitterDesc*>>debugMeshEmitterDesc_;
 	std::unordered_map<std::string, std::tuple<bool*, VertexEmitterDesc*>>debugVertexEmitterDesc_;
+	std::unordered_map<std::string, std::tuple<bool*, FieldForCPU*>>debugFields_;
 }
 
 void GPUParticleShaderStructs::EmitterEditor(const std::string name, std::tuple<bool*, GPUParticleShaderStructs::EmitterForCPU*>e) {
@@ -577,6 +580,127 @@ void GPUParticleShaderStructs::EmitterEditor(const std::string name, std::tuple<
 #endif // _DEBUG
 }
 
+void GPUParticleShaderStructs::EmitterEditor(const std::string name, std::tuple<bool*, GPUParticleShaderStructs::FieldForCPU*> d) {
+#ifdef _DEBUG
+	ImGui::Begin(("Field:" + name).c_str());
+	ImGui::PushID(name.c_str());
+	auto emitter = std::get<1>(d);
+	if (ImGui::Button("Delete")) {
+		*std::get<0>(d) = false;
+	}
+	if (ImGui::TreeNode("Area")) {
+		switch (emitter->fieldArea.type) {
+		case GPUParticleShaderStructs::kAABB:
+			if (ImGui::TreeNode("AABB")) {
+				DrawMinMax(emitter->fieldArea.aabb.area);
+				ImGui::DragFloat3("Position", &emitter->fieldArea.aabb.position.x, 0.1f);
+				ImGui::TreePop();
+			}
+			break;
+		case GPUParticleShaderStructs::kSphere:
+			if (ImGui::TreeNode("Sphere")) {
+				ImGui::DragFloat("Radius", &emitter->fieldArea.sphere.radius, 0.1f);
+				ImGui::DragFloat3("Position", &emitter->fieldArea.sphere.position.x, 0.1f);
+				DrawMinMax(emitter->fieldArea.sphere.distanceFactor, 0.01f, 0.0f, 1.0f);
+				ImGui::TreePop();
+			}
+			break;
+		case GPUParticleShaderStructs::kCapsule:
+			if (ImGui::TreeNode("Capsule")) {
+				ImGui::DragFloat3("Start", &emitter->fieldArea.capsule.segment.origin.x, 0.1f);
+				ImGui::DragFloat3("End", &emitter->fieldArea.capsule.segment.diff.x, 0.1f);
+				ImGui::DragFloat("Radius", &emitter->fieldArea.capsule.radius, 0.1f);
+				DrawMinMax(emitter->fieldArea.capsule.distanceFactor, 0.01f, 0.0f, 1.0f);
+				ImGui::TreePop();
+			}
+			break;
+		case GPUParticleShaderStructs::kFigureCount:
+			break;
+		default:
+			break;
+		}
+
+		std::vector<const char*> stateNamesCStr{ "AABB","Sphere","Capsule" };
+		int currentState = static_cast<int>(emitter->fieldArea.type);
+
+		// ステートを変更するImGui::Comboの作成
+		if (ImGui::Combo("Type", &currentState, stateNamesCStr.data(), int(stateNamesCStr.size()))) {
+			emitter->fieldArea.type = static_cast<Type>(currentState);
+		}
+		ImGui::TreePop();
+	}
+
+	if (ImGui::TreeNode("FieldInfo")) {
+		if (ImGui::TreeNode("FieldType")) {
+			switch (emitter->field.type) {
+			case GPUParticleShaderStructs::kAttraction:
+				if (ImGui::TreeNode("Attraction")) {
+					ImGui::DragFloat("Attraction",&emitter->field.attraction.attraction,0.01f);
+					ImGui::TreePop();
+				}
+				break;
+			case GPUParticleShaderStructs::kExternalForce:
+				if (ImGui::TreeNode("ExternalForce")) {
+					ImGui::DragFloat3("ExternalForce", &emitter->field.externalForce.externalForce.x, 0.01f);
+					ImGui::TreePop();
+				}
+				break;
+			case GPUParticleShaderStructs::kFieldCount:
+				break;
+			default:
+				break;
+			}
+			ImGui::TreePop();
+		}
+		std::vector<const char*> typeCStr{ "Attraction","ExternalForce" };
+		int currentType = static_cast<int>(emitter->field.type);
+
+		// ステートを変更するImGui::Comboの作成
+		if (ImGui::Combo("Type", &currentType, typeCStr.data(), int(typeCStr.size()))) {
+			emitter->field.type = static_cast<Type>(currentType);
+		}
+		ImGui::TreePop();
+	}
+
+	if (ImGui::TreeNode("Frequency")) {
+		ImGui::Checkbox("IsLoop", reinterpret_cast<bool*>(&emitter->frequency.isLoop));
+		if (!emitter->frequency.isLoop) {
+			ImGui::DragInt("LifeCount", reinterpret_cast<int*>(&emitter->frequency.lifeCount), 1, 0);
+		}
+		ImGui::TreePop();
+	}
+
+	if (ImGui::TreeNode("CollisionInfo")) {
+		if (ImGui::TreeNode("Attribute")) {
+			ImGui::Text("Collision Attribute:");
+			ImGui::CheckboxFlags("Player", &emitter->collisionInfo.attribute, CollisionAttribute::Player);
+			ImGui::CheckboxFlags("Player Bullet", &emitter->collisionInfo.attribute, CollisionAttribute::PlayerBullet);
+			ImGui::CheckboxFlags("Boss Body", &emitter->collisionInfo.attribute, CollisionAttribute::BossBody);
+			ImGui::CheckboxFlags("Boss Attack", &emitter->collisionInfo.attribute, CollisionAttribute::BossAttack);
+			ImGui::CheckboxFlags("GameObject", &emitter->collisionInfo.attribute, CollisionAttribute::GameObject);
+			ImGui::TreePop();
+		}
+		if (ImGui::TreeNode("Mask")) {
+			ImGui::Text("Collision Mask:");
+			ImGui::CheckboxFlags("Player", &emitter->collisionInfo.mask, CollisionAttribute::Player);
+			ImGui::CheckboxFlags("Player Bullet", &emitter->collisionInfo.mask, CollisionAttribute::PlayerBullet);
+			ImGui::CheckboxFlags("Boss Body", &emitter->collisionInfo.mask, CollisionAttribute::BossBody);
+			ImGui::CheckboxFlags("Boss Attack", &emitter->collisionInfo.mask, CollisionAttribute::BossAttack);
+			ImGui::CheckboxFlags("GameObject", &emitter->collisionInfo.mask, CollisionAttribute::GameObject);
+
+			ImGui::TreePop();
+		}
+		ImGui::TreePop();
+	}
+
+	if (ImGui::Button("Save")) {
+		GPUParticleShaderStructs::Save(name, *emitter);
+	}
+	ImGui::PopID();
+	ImGui::End();
+#endif // _DEBUG
+}
+
 void GPUParticleShaderStructs::Debug(const std::string name, GPUParticleShaderStructs::EmitterForCPU& emitter) {
 	if (debugEmitters_.find(name) == debugEmitters_.end()) {
 		bool* falseFlag = new bool(false);
@@ -599,6 +723,82 @@ void GPUParticleShaderStructs::Debug(const std::string name, GPUParticleShaderSt
 	}
 }
 
+void GPUParticleShaderStructs::Debug(const std::string name, FieldForCPU& desc) {
+	if (debugFields_.find(name) == debugFields_.end()) {
+		bool* falseFlag = new bool(false);
+		debugFields_[name] = std::make_tuple(falseFlag, &desc);
+	}
+}
+
+
+void GPUParticleShaderStructs::DebugDraw(const EmitterForCPU& emitter) {
+	static const  Vector4 emitterColor = { 0.5f,0.5f,1.0f,1.0f };
+	switch (emitter.emitterArea.type) {
+	case GPUParticleShaderStructs::Type::kAABB:
+	{
+		AABB aabb{};
+		aabb.min_ = emitter.emitterArea.aabb.area.min;
+		aabb.max_ = emitter.emitterArea.aabb.area.max;
+		aabb.center_ = emitter.emitterArea.aabb.position;
+		DrawLine(aabb, emitterColor);
+	}
+	break;
+	case GPUParticleShaderStructs::Type::kSphere:
+	{
+		Sphere sphere{};
+		sphere.center = emitter.emitterArea.sphere.position;
+		sphere.radius = emitter.emitterArea.sphere.radius;
+		DrawLine(sphere, emitterColor);
+	}
+	break;
+	case GPUParticleShaderStructs::Type::kCapsule:
+	{
+		Capsule capsule{};
+		capsule.segment.start = emitter.emitterArea.capsule.segment.origin;
+		capsule.segment.end = emitter.emitterArea.capsule.segment.diff;
+		capsule.radius = emitter.emitterArea.capsule.radius;
+		DrawLine(capsule, emitterColor);
+	}
+	break;
+	default:
+		break;
+	}
+}
+
+void GPUParticleShaderStructs::DebugDraw(const FieldForCPU& emitter) {
+	static const  Vector4 emitterColor = { 1.0f,0.5f,0.5f,1.0f };
+	switch (emitter.fieldArea.type) {
+	case GPUParticleShaderStructs::Type::kAABB:
+	{
+		AABB aabb{};
+		aabb.min_ = emitter.fieldArea.aabb.area.min;
+		aabb.max_ = emitter.fieldArea.aabb.area.max;
+		aabb.center_ = emitter.fieldArea.aabb.position;
+		DrawLine(aabb, emitterColor);
+	}
+	break;
+	case GPUParticleShaderStructs::Type::kSphere:
+	{
+		Sphere sphere{};
+		sphere.center = emitter.fieldArea.sphere.position;
+		sphere.radius = emitter.fieldArea.sphere.radius;
+		DrawLine(sphere, emitterColor);
+	}
+	break;
+	case GPUParticleShaderStructs::Type::kCapsule:
+	{
+		Capsule capsule{};
+		capsule.segment.start = emitter.fieldArea.capsule.segment.origin;
+		capsule.segment.end = emitter.fieldArea.capsule.segment.diff;
+		capsule.radius = emitter.fieldArea.capsule.radius;
+		DrawLine(capsule, emitterColor);
+	}
+	break;
+	default:
+		break;
+	}
+
+}
 
 void GPUParticleShaderStructs::Update() {
 #ifdef _DEBUG
@@ -955,6 +1155,10 @@ void GPUParticleShaderStructs::Load(const std::string name, GPUParticleShaderStr
 
 	JSON_CLOSE();
 }
+
+void GPUParticleShaderStructs::Save(const std::string name, FieldForCPU& desc) {}
+
+void GPUParticleShaderStructs::Load(const std::string name, FieldForCPU& desc) {}
 
 void GPUParticleShaderStructs::Save(const std::string name, GPUParticleShaderStructs::VertexEmitterDesc& desc) {
 	JSON_OPEN("Resources/GPUParticle/VertexParticle/" + name + ".json");

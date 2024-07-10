@@ -345,14 +345,14 @@ void Boss::DrawImGui() {
 #endif // _DEBUG
 }
 
-void Boss::DrawDebug(const ViewProjection& viewProjection) {
+void Boss::DrawDebug() {
 
 	for (auto& collider : bossCollider_) {
 		if (collider.second->body->GetIsActive()) {
-			collider.second->body->DrawCollision(viewProjection, collider.second->color);
+			collider.second->body->DrawCollision(collider.second->color);
 		}
 		if (collider.second->attack->GetIsActive()) {
-			collider.second->attack->DrawCollision(viewProjection, collider.second->color);
+			collider.second->attack->DrawCollision(collider.second->color);
 		}
 	}
 	animation_.DrawLine(animationTransform_);

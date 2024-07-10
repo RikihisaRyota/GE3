@@ -8,22 +8,6 @@
 #include "CollisionManager.h"
 
 namespace {
-	std::vector<Vector3> GetVertices(const OBB& obb) {
-		Vector3 halfSize = obb.size * 0.5f;
-
-		std::vector<Vector3> vertices(8);
-		vertices[0] = obb.center + (obb.orientations[0] * -halfSize.x) + (obb.orientations[1] * -halfSize.y) + (obb.orientations[2] * -halfSize.z);
-		vertices[1] = obb.center + (obb.orientations[0] * -halfSize.x) + (obb.orientations[1] * halfSize.y) + (obb.orientations[2] * -halfSize.z);
-		vertices[2] = obb.center + (obb.orientations[0] * halfSize.x) + (obb.orientations[1] * halfSize.y) + (obb.orientations[2] * -halfSize.z);
-		vertices[3] = obb.center + (obb.orientations[0] * halfSize.x) + (obb.orientations[1] * -halfSize.y) + (obb.orientations[2] * -halfSize.z);
-		vertices[4] = obb.center + (obb.orientations[0] * -halfSize.x) + (obb.orientations[1] * -halfSize.y) + (obb.orientations[2] * halfSize.z);
-		vertices[5] = obb.center + (obb.orientations[0] * -halfSize.x) + (obb.orientations[1] * halfSize.y) + (obb.orientations[2] * halfSize.z);
-		vertices[6] = obb.center + (obb.orientations[0] * halfSize.x) + (obb.orientations[1] * halfSize.y) + (obb.orientations[2] * halfSize.z);
-		vertices[7] = obb.center + (obb.orientations[0] * halfSize.x) + (obb.orientations[1] * -halfSize.y) + (obb.orientations[2] * halfSize.z);
-
-		return vertices;
-	}
-
 	Vector2 Projection(const std::vector<Vector3>& vertices, const Vector3& axis) {
 		float min = Dot(axis, vertices[0]);
 		float max = min;
@@ -37,18 +21,6 @@ namespace {
 
 	float GetOverlap(const Vector2& minmax1, const Vector2& minmax2) {
 		return (std::min)(minmax1.y, minmax2.y) - (std::max)(minmax1.x, minmax2.x);
-	}
-
-	std::vector<Vector3> GenerateCircleVertices(const Vector3& center, float radius, int segments, const Vector3& axis1, const Vector3& axis2) {
-		std::vector<Vector3> vertices;
-		vertices.resize(segments);
-		float angleStep = 2.0f * std::numbers::pi_v<float> / segments;
-		for (int i = 0; i < segments; ++i) {
-			float angle = i * angleStep;
-			Vector3 vertex = center + (axis1 * cos(angle) + axis2 * sin(angle)) * radius;
-			vertices[i] = vertex; // Assign the computed vertex directly
-		}
-		return vertices;
 	}
 
 	Vector3 ClosestPointOnSegment(const Segment& segment, const Vector3& point) {
@@ -145,20 +117,6 @@ namespace {
 
 		return closestPoint;
 	}
-
-	std::vector<Vector3> GenerateHalfSphereVertices(const Vector3& center, float radius, int segments, const Vector3& axis1, const Vector3& axis2) {
-		std::vector<Vector3> vertices;
-		vertices.reserve(segments + 1); // Reserve space for the vertices, including the center
-		float angleStep = std::numbers::pi_v<float> / segments;
-		for (int i = 0; i <= segments; ++i) {
-			float angle = i * angleStep;
-			Vector3 vertex = center + (axis1 * cos(angle) + axis2 * sin(angle)) * radius;
-			vertices.push_back(vertex);
-		}
-
-		return vertices;
-	}
-
 
 	std::vector<Vector3> GenerateHalfSphereVertices(const Vector3& center, float radius, int rings, int sectors, const Vector3& axis1, const Vector3& axis2) {
 		std::vector<Vector3> vertices;
@@ -353,7 +311,7 @@ bool OBBCollider::IsCollision(CapsuleCollider* other, ColliderDesc& desc) {
 }
 
 
-void OBBCollider::DrawCollision(const ViewProjection& viewProjection, const Vector4& color) {
+void OBBCollider::DrawCollision(const Vector4& color) {
 	auto drawLine = DrawLine::GetInstance();
 	std::vector<Vector3> vertices = GetVertices(obb_);
 	const std::vector<std::pair<int, int>> edges = {
@@ -491,7 +449,7 @@ bool CapsuleCollider::IsCollision(OBBCollider* other, ColliderDesc& desc) {
 }
 
 
-void SphereCollider::DrawCollision(const ViewProjection& viewProjection, const Vector4& color) {
+void SphereCollider::DrawCollision(const Vector4& color) {
 	auto drawLine = DrawLine::GetInstance();
 	Sphere sphere = sphere_;
 	const Vector3& center = sphere.center;
@@ -559,7 +517,7 @@ bool CapsuleCollider::IsCollision(CapsuleCollider* other, ColliderDesc& desc) {
 	return true;
 }
 
-void CapsuleCollider::DrawCollision(const ViewProjection& viewProjection, const Vector4& color) {
+void CapsuleCollider::DrawCollision(const Vector4& color) {
 	auto drawLine = DrawLine::GetInstance();
 	const Segment& segment = capsule_.segment;
 	const Vector3& p1 = segment.start;

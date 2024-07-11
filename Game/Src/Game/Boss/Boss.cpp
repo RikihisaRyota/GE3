@@ -111,15 +111,32 @@ Boss::Boss() {
 	JSON_LOAD(animationWorldTransformOffset_);
 	JSON_ROOT();
 	JSON_CLOSE();
-	for (auto& colliderName : colliderSize_) {
-		GPUParticleShaderStructs::Load(colliderName.first, emitters_[colliderName.first]);
-		emitters_[colliderName.first].color = defaultColor_;
-		scaleAnimation = emitters_[colliderName.first].scale;
-		particleLifeSpan = emitters_[colliderName.first].particleLifeSpan;
-		initializeParticleNum_[colliderName.first] = emitters_[colliderName.first].createParticleNum;
+	for (auto& colliderSize : colliderSize_) {
+		std::string decorationEmitterName = "decoration" + colliderSize.first;
+		GPUParticleShaderStructs::Load(colliderSize.first, bodyEmitters_[colliderSize.first]);
+
+
+		bodyEmitters_[colliderSize.first].color = defaultColor_;
+		bodyEmitters_[decorationEmitterName].velocity.range.min = { -0.1f,-0.1f ,-0.1f };
+		bodyEmitters_[decorationEmitterName].velocity.range.max = { 0.1f,0.1f ,0.1f };
+		/*decorationEmitters_[decorationEmitterName] = bodyEmitters_[colliderSize.first];
+		decorationEmitters_[decorationEmitterName].createParticleNum = uint32_t(bodyEmitters_[colliderSize.first].createParticleNum * 0.1f);
+		decorationEmitters_[decorationEmitterName].particleLifeSpan.range.min = 30;
+		decorationEmitters_[decorationEmitterName].particleLifeSpan.range.min = 60;
+		decorationEmitters_[decorationEmitterName].collisionInfo.attribute = CollisionAttribute::ParticleField;
+		decorationEmitters_[decorationEmitterName].velocity.range.min = { -0.1f,-0.1f ,-0.1f };
+		decorationEmitters_[decorationEmitterName].velocity.range.max = { 0.1f,0.1f ,0.1f };*/
+		/*if (colliderSize.second != 0.0f) {
+			GPUParticleShaderStructs::Load(colliderSize.first, fields_[colliderSize.first]);
+			fields_[colliderSize.first].field.type = GPUParticleShaderStructs::FieldType::kAttraction;
+			fields_[colliderSize.first].field.attraction.attraction = 0.01f;
+		}*/
+		scaleAnimation = bodyEmitters_[colliderSize.first].scale;
+		particleLifeSpan = bodyEmitters_[colliderSize.first].particleLifeSpan;
+		initializeParticleNum_[colliderSize.first] = bodyEmitters_[colliderSize.first].createParticleNum;
 	}
-	particleLifeSpan.range.min = 10;
-	particleLifeSpan.range.max = 30;
+	particleLifeSpan.range.min = 5;
+	particleLifeSpan.range.max = 10;
 	distanceFactor.min = 0.0f;
 	distanceFactor.min = 1.0f;
 	GPUParticleShaderStructs::Load("boss", meshEmitterDesc_);
@@ -337,7 +354,10 @@ void Boss::DrawImGui() {
 	bossHP_->DrawImGui();
 	for (auto& colliderSizeName : colliderSize_) {
 		if (colliderSizeName.second != 0.0f) {
-			GPUParticleShaderStructs::Debug(colliderSizeName.first, emitters_[colliderSizeName.first]);
+			std::string decorationEmitterName = "decoration" + colliderSizeName.first;
+			GPUParticleShaderStructs::Debug(colliderSizeName.first, bodyEmitters_[colliderSizeName.first]);
+			//GPUParticleShaderStructs::Debug(decorationEmitterName, decorationEmitters_[decorationEmitterName]);
+			//GPUParticleShaderStructs::Debug(colliderSizeName.first, fields_[colliderSizeName.first]);
 		}
 	}
 	GPUParticleShaderStructs::Debug("boss", meshEmitterDesc_);
@@ -397,15 +417,30 @@ void Boss::UpdateGPUParticle(CommandContext& commandContext) {
 		Vector3 born = (worldPos - parentPos);
 		// 0
 		{
-			emitters_.at(jointName).emitterArea.capsule.segment.origin = worldPos;
-			emitters_.at(jointName).emitterArea.capsule.segment.diff = parentPos;
-			emitters_.at(jointName).emitterArea.capsule.radius = colliderSize_[jointName];
-			emitters_.at(jointName).emitterArea.type = GPUParticleShaderStructs::Type::kCapsule;
-			//emitters_.at(jointName).scale = scaleAnimation;
-			//emitters_.at(jointName).emitterArea.sphere.distanceFactor = distanceFactor;
-			//emitters_.at(jointName).emitterArea.capsule.distanceFactor = distanceFactor;
-			//emitters_.at(jointName).particleLifeSpan = particleLifeSpan;
-			//gpuParticleManager_->SetEmitter(emitters_.at(jointName));
+			std::string decorationJointName = "decoration" + jointName;
+			bodyEmitters_.at(jointName).emitterArea.capsule.segment.origin = worldPos;
+			bodyEmitters_.at(jointName).emitterArea.capsule.segment.diff = parentPos;
+			bodyEmitters_.at(jointName).emitterArea.capsule.radius = colliderSize_[jointName];
+			bodyEmitters_.at(jointName).emitterArea.type = GPUParticleShaderStructs::Type::kCapsule;
+
+			/*decorationEmitters_.at(decorationJointName).emitterArea.capsule.segment.origin = worldPos;
+			decorationEmitters_.at(decorationJointName).emitterArea.capsule.segment.diff = parentPos;
+			decorationEmitters_.at(decorationJointName).emitterArea.capsule.radius = colliderSize_[jointName] * 1.2f;
+			decorationEmitters_.at(decorationJointName).emitterArea.capsule.distanceFactor.min = 0.9f;
+			decorationEmitters_.at(decorationJointName).emitterArea.capsule.distanceFactor.min = 1.0f;
+			decorationEmitters_.at(decorationJointName).emitterArea.type = GPUParticleShaderStructs::Type::kCapsule;*/
+
+			/*fields_.at(jointName).fieldArea.capsule.segment.origin = worldPos;
+			fields_.at(jointName).fieldArea.capsule.segment.diff = parentPos;
+			fields_.at(jointName).fieldArea.capsule.radius = colliderSize_[jointName] * 1.2f;
+			fields_.at(jointName).fieldArea.type = GPUParticleShaderStructs::Type::kCapsule;*/
+			/*bodyEmitters_.at(jointName).scale = scaleAnimation;
+			bodyEmitters_.at(jointName).emitterArea.sphere.distanceFactor = distanceFactor;
+			bodyEmitters_.at(jointName).emitterArea.capsule.distanceFactor = distanceFactor;
+			bodyEmitters_.at(jointName).particleLifeSpan = particleLifeSpan;*/
+			gpuParticleManager_->SetEmitter(bodyEmitters_.at(jointName));
+			//gpuParticleManager_->SetEmitter(decorationEmitters_.at(decorationJointName));
+			//gpuParticleManager_->SetField(fields_.at(jointName));
 		}
 	}
 	//gpuParticleManager_->CreateEdgeParticle(bossModelHandle_, animation_, worldTransform_, meshEmitterDesc_, commandContext);

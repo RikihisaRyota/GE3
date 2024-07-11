@@ -37,7 +37,7 @@ public:
 	void DrawImGui();
 	void DrawDebug();
 	std::unordered_map<std::string, std::unique_ptr<BossCollider>>& GetCollider() { return bossCollider_; }
-	std::unordered_map<std::string, GPUParticleShaderStructs::EmitterForCPU>& GetEmitters() { return emitters_; }
+	std::unordered_map<std::string, GPUParticleShaderStructs::EmitterForCPU>& GetBodyEmitters() { return bodyEmitters_; }
 	std::unordered_map<std::string, uint32_t>& GetInitializeParticleNum() { return initializeParticleNum_; }
 	const std::vector<std::string>& GetColliderType(const std::string& name) { return colliderType_[name]; }
 
@@ -74,7 +74,9 @@ private:
 	std::unique_ptr<BossHP> bossHP_;
 #pragma region Collision
 	std::unordered_map<std::string, float> colliderSize_;
-	std::unordered_map<std::string, GPUParticleShaderStructs::EmitterForCPU> emitters_;
+	std::unordered_map<std::string, GPUParticleShaderStructs::EmitterForCPU> bodyEmitters_;
+	//std::unordered_map<std::string, GPUParticleShaderStructs::EmitterForCPU> decorationEmitters_;
+	//std::unordered_map<std::string, GPUParticleShaderStructs::FieldForCPU> fields_;
 	std::unordered_map<std::string, uint32_t> initializeParticleNum_;
 	GPUParticleShaderStructs::EmitterColor attackColor_;
 	GPUParticleShaderStructs::EmitterColor defaultColor_;

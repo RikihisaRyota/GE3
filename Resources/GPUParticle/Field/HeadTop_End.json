@@ -1,0 +1,14 @@
+{
+    "Field": {
+        "Attraction": {},
+        "ExternalForce": {}
+    },
+    "FieldArea": {
+        "FieldAABB": {},
+        "FieldCapsule": {
+            "FieldSegment": {}
+        },
+        "FieldSphere": {}
+    },
+    "FieldFrequency": {}
+}

@@ -279,11 +279,15 @@ float32_t sdAABB(float32_t3 p, float32_t3 a, float32_t3 b)
     return length(max(q, 0.0f));
 }
 
-float32_t sdAABB(float32_t3 p, float32_t3 c, float32_t3 a, float32_t3 b) 
+float sdAABB(float3 p, float3 c, float3 a, float3 b)
 {
-    float32_t3 q = max(max(a - p, 0.0f), p - b);
+    float3 halfExtents = (b - a) * 0.5f;
+    float3 minBound = c - halfExtents;
+    float3 maxBound = c + halfExtents;
+    float3 q = max(max(minBound - p, 0.0f), p - maxBound);
     return length(q);
 }
+
 
 
 float32_t sdSphere(float32_t3 p, float32_t3 c, float32_t s) 

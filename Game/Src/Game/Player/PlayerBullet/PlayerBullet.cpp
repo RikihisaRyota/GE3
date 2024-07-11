@@ -63,9 +63,9 @@ void PlayerBullet::OnCollision(const ColliderDesc& desc) {
 	}
 	if (desc.collider->GetName().find("Boss") != std::string::npos) {
 		std::string jointName = EraseName(desc.collider->GetName(), "Boss_");
-		float ratio = float(boss_->GetEmitters()[jointName].createParticleNum) / float(boss_->GetInitializeParticleNum()[jointName]);
+		float ratio = float(boss_->GetBodyEmitters()[jointName].createParticleNum) / float(boss_->GetInitializeParticleNum()[jointName]);
 		ratio -= 0.05f;
-		boss_->GetEmitters()[jointName].createParticleNum = uint32_t(boss_->GetInitializeParticleNum()[jointName] * ratio);
+		boss_->GetBodyEmitters()[jointName].createParticleNum = uint32_t(boss_->GetInitializeParticleNum()[jointName] * ratio);
 		emitter_.sharp.emitterArea.sphere.position = MakeTranslateMatrix(worldTransform_.matWorld);
 		emitter_.crescent.emitterArea.sphere.position = MakeTranslateMatrix(worldTransform_.matWorld);
 		gpuParticleManager_->SetEmitter(emitter_.crescent);

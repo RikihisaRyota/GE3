@@ -1,6 +1,6 @@
 #include "GPUParticleShaderStructs.h"
 
-#include <unordered_map>
+#include <map>
 
 #include <optional>
 #include <fstream>
@@ -177,10 +177,10 @@ namespace GPUParticleShaderStructs {
 #endif // _DEBUG
 	}
 
-	std::unordered_map<std::string, std::tuple<bool*, EmitterForCPU*>>debugEmitters_;
-	std::unordered_map<std::string, std::tuple<bool*, MeshEmitterDesc*>>debugMeshEmitterDesc_;
-	std::unordered_map<std::string, std::tuple<bool*, VertexEmitterDesc*>>debugVertexEmitterDesc_;
-	std::unordered_map<std::string, std::tuple<bool*, FieldForCPU*>>debugFields_;
+	std::map<std::string, std::tuple<bool*, EmitterForCPU*>>debugEmitters_;
+	std::map<std::string, std::tuple<bool*, MeshEmitterDesc*>>debugMeshEmitterDesc_;
+	std::map<std::string, std::tuple<bool*, VertexEmitterDesc*>>debugVertexEmitterDesc_;
+	std::map<std::string, std::tuple<bool*, FieldForCPU*>>debugFields_;
 }
 
 void GPUParticleShaderStructs::EmitterEditor(const std::string name, std::tuple<bool*, GPUParticleShaderStructs::EmitterForCPU*>e) {

@@ -420,7 +420,7 @@ void BossStateManager::SetBodyColliderActive(const BossStateManager::State& stat
 }
 
 void BossStateManager::SetColliderColor(const BossStateManager::State& state, const GPUParticleShaderStructs::EmitterColor& color) {
-	auto& emitters = boss_->GetEmitters();
+	auto& emitters = boss_->GetBodyEmitters();
 	auto& colliderTypes = boss_->GetColliderType(stateNames_.at(state));
 	for (auto& emitter : emitters) {
 		for (auto& typeName : colliderTypes) {

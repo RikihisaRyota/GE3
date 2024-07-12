@@ -113,9 +113,21 @@ void GameScene::Update(CommandContext& commandContext) {
 
 	CollisionManager::GetInstance()->Collision();
 #ifdef _DEBUG
-	//ImGui::DragFloat3("FieldScale", &fieldWorldTransform_.scale.x, 0.1f);
-	//ImGui::DragFloat3("FieldTranslate", &fieldWorldTransform_.translate.x, 0.1f);
-	//fieldWorldTransform_.UpdateMatrix();
+	if (ImGui::Button("GameObjectLoad")) {
+		LevelDataLoader::Load("Resources/object.json");
+		for (auto& object : gameObject_) {
+			CollisionManager::GetInstance()->DeleteCollider(object->GetCollider());
+		}
+		gameObject_.clear();
+		for (auto& object : LevelDataLoader::objectData_.gameObject) {
+			if (object.transform.parent == -1) {
+				gameObject_.emplace_back(std::make_unique<GameObject>(object));
+			}
+			else {
+				gameObject_.emplace_back(std::make_unique<GameObject>(object, &gameObject_.at(object.transform.parent)->GetWorldTransform()));
+			}
+		}
+	}
 	gpuParticleManager_->DrawImGui();
 	skybox_->DrawImGui();
 	followCamera_->DrawImGui();

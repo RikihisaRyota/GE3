@@ -21,7 +21,7 @@ public:
 	void DrawImGui();
 
 	const WorldTransform& GetWorldTransform() const { return worldTransform_; }
-
+	OBBCollider* GetCollider() { return collider_; }
 private:
 	void UpdateTransform();
 	void OnCollision(const ColliderDesc& collisionInfo);

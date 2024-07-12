@@ -56,12 +56,14 @@ void GameObject::DrawDebug() {
 
 void GameObject::DrawImGui() {
 #ifdef _DEBUG
+	ImGui::Begin("InGame");
 	ImGui::PushID(this);
 	if (ImGui::TreeNode(("GameObject"))) {
 		ImGui::DragFloat3("Translate", &worldTransform_.translate.x);
 		ImGui::TreePop();
 	}
 	ImGui::PopID();
+	ImGui::End();
 #endif // _DEBUG
 }
 

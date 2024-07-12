@@ -9,6 +9,7 @@ namespace LevelDataLoader {
 	ObjectData objectData_;
 	int32_t Transform::index = -1;
 	void Load(const std::filesystem::path& path) {
+		objectData_.gameObject.clear();
 		std::ifstream file;
 
 		file.open(path);

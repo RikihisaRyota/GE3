@@ -579,11 +579,13 @@ void GPUParticle::InitializeBuffer() {
 
 		kCount,
 	};
-	RootSignature initializeBufferRootSignature{};
-	PipelineState initializeBufferPipelineState{};
-	auto& commandContext = RenderManager::GetInstance()->GetCommandContext();
+	CommandContext commandContext;
+	commandContext.Create();
+	commandContext.Close();
+	commandContext.Start(D3D12_COMMAND_LIST_TYPE_DIRECT);
 	// スポーンシグネイチャー
 	{
+		initializeBufferRootSignature_ = std::make_unique<RootSignature>();
 		//	createParticle用
 		CD3DX12_DESCRIPTOR_RANGE particleIndexBuffer[1]{};
 		particleIndexBuffer[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 0, 0);
@@ -596,18 +598,19 @@ void GPUParticle::InitializeBuffer() {
 		desc.pParameters = rootParameters;
 		desc.NumParameters = _countof(rootParameters);
 
-		initializeBufferRootSignature.Create(L"InitializeBufferRootSignature", desc);
+		initializeBufferRootSignature_->Create(L"InitializeBufferRootSignature", desc);
 	}
 	// スポーンパイプライン
 	{
+		initializeBufferPipelineState_ = std::make_unique<PipelineState>();
 		D3D12_COMPUTE_PIPELINE_STATE_DESC desc{};
-		desc.pRootSignature = initializeBufferRootSignature;
+		desc.pRootSignature = *initializeBufferRootSignature_;
 		auto cs = ShaderCompiler::Compile(L"Resources/Shaders/GPUParticle/InitializeGPUParticle.hlsl", L"cs_6_0");
 		desc.CS = CD3DX12_SHADER_BYTECODE(cs->GetBufferPointer(), cs->GetBufferSize());
-		initializeBufferPipelineState.Create(L"InitializeBufferCPSO", desc);
+		initializeBufferPipelineState_->Create(L"InitializeBufferCPSO", desc);
 	}
-	commandContext.SetComputeRootSignature(initializeBufferRootSignature);
-	commandContext.SetPipelineState(initializeBufferPipelineState);
+	commandContext.SetComputeRootSignature(*initializeBufferRootSignature_);
+	commandContext.SetPipelineState(*initializeBufferPipelineState_);
 
 	commandContext.TransitionResource(originalCommandBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 
@@ -659,13 +662,9 @@ void GPUParticle::InitializeBuffer() {
 		spawnCopyBuffer.Copy(&tmp, sizeof(D3D12_DISPATCH_ARGUMENTS));
 		commandContext.CopyBuffer(spawnArgumentBuffer_, spawnCopyBuffer);
 	}
-	// コピー
 	commandContext.Close();
-	CommandQueue& commandQueue = GraphicsCore::GetInstance()->GetCommandQueue();
-	commandQueue.Execute(commandContext);
-	commandQueue.Signal();
-	commandQueue.WaitForGPU();
-	commandContext.Reset();
+	commandContext.Flush();
+	commandContext.End();
 }
 
 void GPUParticle::InitializeEmitter() {

@@ -71,6 +71,9 @@ private:
 	void InitializeBullets();
 	void InitializeField();
 
+	std::unique_ptr<RootSignature> initializeBufferRootSignature_;
+	std::unique_ptr<PipelineState> initializeBufferPipelineState_;
+
 	// コマンドシグネイチャ
 	CommandSignature* commandSignature_;
 	// パーティクルの情報

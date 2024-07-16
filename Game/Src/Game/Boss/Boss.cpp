@@ -438,14 +438,14 @@ void Boss::UpdateGPUParticle(CommandContext& commandContext) {
 			bodyEmitters_.at(jointName).emitterArea.sphere.distanceFactor = distanceFactor;
 			bodyEmitters_.at(jointName).emitterArea.capsule.distanceFactor = distanceFactor;
 			bodyEmitters_.at(jointName).particleLifeSpan = particleLifeSpan;*/
-			gpuParticleManager_->SetEmitter(bodyEmitters_.at(jointName));
+			//gpuParticleManager_->SetEmitter(bodyEmitters_.at(jointName));
 			//gpuParticleManager_->SetEmitter(decorationEmitters_.at(decorationJointName));
 			//gpuParticleManager_->SetField(fields_.at(jointName));
 		}
 	}
-	//gpuParticleManager_->CreateEdgeParticle(bossModelHandle_, animation_, worldTransform_, meshEmitterDesc_, commandContext);
+	gpuParticleManager_->CreateEdgeParticle(bossModelHandle_, animation_, worldTransform_, meshEmitterDesc_, commandContext);
 	//gpuParticleManager_->CreateMeshParticle(bossModelHandle_, animation_, worldTransform_, meshEmitterDesc_, commandContext);
-	//gpuParticleManager_->CreateVertexParticle(bossModelHandle_, animation_, worldTransform_, vertexEmitterDesc_, commandContext);
+	gpuParticleManager_->CreateVertexParticle(bossModelHandle_, animation_, worldTransform_, vertexEmitterDesc_, commandContext);
 
 }
 

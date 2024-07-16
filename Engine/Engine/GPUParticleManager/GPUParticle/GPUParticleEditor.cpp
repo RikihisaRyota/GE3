@@ -457,64 +457,64 @@ void GPUParticleEditor::CreateUpdateParticle() {
 }
 
 void GPUParticleEditor::CreateBuffer() {
-	enum {
-		kOriginalBuffer,
-		kCount,
-	};
-	RootSignature initializeBufferRootSignature{};
-	PipelineState initializeBufferPipelineState{};
-	auto& commandContext = RenderManager::GetInstance()->GetCommandContext();
-	// スポーンシグネイチャー
-	{
-		CD3DX12_ROOT_PARAMETER rootParameters[kCount]{};
-		rootParameters[kOriginalBuffer].InitAsUnorderedAccessView(0);
-		D3D12_ROOT_SIGNATURE_DESC desc{};
-		desc.pParameters = rootParameters;
-		desc.NumParameters = _countof(rootParameters);
+	//enum {
+	//	kOriginalBuffer,
+	//	kCount,
+	//};
+	//RootSignature initializeBufferRootSignature{};
+	//PipelineState initializeBufferPipelineState{};
+	//auto& commandContext = RenderManager::GetInstance()->GetCommandContext();
+	//// スポーンシグネイチャー
+	//{
+	//	CD3DX12_ROOT_PARAMETER rootParameters[kCount]{};
+	//	rootParameters[kOriginalBuffer].InitAsUnorderedAccessView(0);
+	//	D3D12_ROOT_SIGNATURE_DESC desc{};
+	//	desc.pParameters = rootParameters;
+	//	desc.NumParameters = _countof(rootParameters);
 
-		initializeBufferRootSignature.Create(L"EditorInitializeBufferRootSignature", desc);
-	}
-	// スポーンパイプライン
-	{
-		D3D12_COMPUTE_PIPELINE_STATE_DESC desc{};
-		desc.pRootSignature = initializeBufferRootSignature;
-		auto cs = ShaderCompiler::Compile(L"Resources/Shaders/GPUParticle/InitializeGPUParticle.hlsl", L"cs_6_0");
-		desc.CS = CD3DX12_SHADER_BYTECODE(cs->GetBufferPointer(), cs->GetBufferSize());
-		initializeBufferPipelineState.Create(L"EditorInitializeBufferCPSO", desc);
-	}
-	commandContext.SetComputeRootSignature(initializeBufferRootSignature);
-	commandContext.SetPipelineState(initializeBufferPipelineState);
+	//	initializeBufferRootSignature.Create(L"EditorInitializeBufferRootSignature", desc);
+	//}
+	//// スポーンパイプライン
+	//{
+	//	D3D12_COMPUTE_PIPELINE_STATE_DESC desc{};
+	//	desc.pRootSignature = initializeBufferRootSignature;
+	//	auto cs = ShaderCompiler::Compile(L"Resources/Shaders/GPUParticle/InitializeGPUParticle.hlsl", L"cs_6_0");
+	//	desc.CS = CD3DX12_SHADER_BYTECODE(cs->GetBufferPointer(), cs->GetBufferSize());
+	//	initializeBufferPipelineState.Create(L"EditorInitializeBufferCPSO", desc);
+	//}
+	//commandContext.SetComputeRootSignature(initializeBufferRootSignature);
+	//commandContext.SetPipelineState(initializeBufferPipelineState);
 
-	commandContext.TransitionResource(originalCommandBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+	//commandContext.TransitionResource(originalCommandBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 
-	commandContext.SetComputeUAV(kOriginalBuffer, originalCommandBuffer_->GetGPUVirtualAddress());
-	commandContext.Dispatch(static_cast<UINT>(ceil(GPUParticleShaderStructs::MaxParticleNum / float(GPUParticleShaderStructs::ComputeThreadBlockSize))), 1, 1);
+	//commandContext.SetComputeUAV(kOriginalBuffer, originalCommandBuffer_->GetGPUVirtualAddress());
+	//commandContext.Dispatch(static_cast<UINT>(ceil(GPUParticleShaderStructs::MaxParticleNum / float(GPUParticleShaderStructs::ComputeThreadBlockSize))), 1, 1);
 
-	// カウンターを初期化
-	UploadBuffer copyDrawIndexCounterBuffer{};
-	UINT counterNum = GPUParticleShaderStructs::MaxParticleNum;
-	copyDrawIndexCounterBuffer.Create(L"EditorcopyDrawIndexCounterBuffer", sizeof(counterNum));
-	copyDrawIndexCounterBuffer.Copy(counterNum);
+	//// カウンターを初期化
+	//UploadBuffer copyDrawIndexCounterBuffer{};
+	//UINT counterNum = GPUParticleShaderStructs::MaxParticleNum;
+	//copyDrawIndexCounterBuffer.Create(L"EditorcopyDrawIndexCounterBuffer", sizeof(counterNum));
+	//copyDrawIndexCounterBuffer.Copy(counterNum);
 
-	commandContext.CopyBufferRegion(originalCommandBuffer_, particleIndexCounterOffset_, copyDrawIndexCounterBuffer, 0, sizeof(UINT));
+	//commandContext.CopyBufferRegion(originalCommandBuffer_, particleIndexCounterOffset_, copyDrawIndexCounterBuffer, 0, sizeof(UINT));
 
-	UploadBuffer drawCopyBuffer{};
-	drawCopyBuffer.Create(L"EditorCopy", sizeof(GPUParticleShaderStructs::IndirectCommand));
-	GPUParticleShaderStructs::IndirectCommand tmp{};
-	tmp.srv.particleSRV = particleBuffer_->GetGPUVirtualAddress();
-	tmp.srv.drawIndexSRV = drawIndexCommandBuffers_->GetGPUVirtualAddress();
-	tmp.drawIndex.IndexCountPerInstance = UINT(6);
-	tmp.drawIndex.InstanceCount = 1;
-	tmp.drawIndex.BaseVertexLocation = 0;
-	tmp.drawIndex.StartIndexLocation = 0;
-	tmp.drawIndex.StartInstanceLocation = 0;
-	drawCopyBuffer.Copy(&tmp, sizeof(GPUParticleShaderStructs::IndirectCommand));
-	commandContext.CopyBuffer(drawArgumentBuffer_, drawCopyBuffer);
-	// コピー
-	commandContext.Close();
-	CommandQueue& commandQueue = GraphicsCore::GetInstance()->GetCommandQueue();
-	commandQueue.Execute(commandContext);
-	commandQueue.Signal();
-	commandQueue.WaitForGPU();
-	commandContext.Reset();
+	//UploadBuffer drawCopyBuffer{};
+	//drawCopyBuffer.Create(L"EditorCopy", sizeof(GPUParticleShaderStructs::IndirectCommand));
+	//GPUParticleShaderStructs::IndirectCommand tmp{};
+	//tmp.srv.particleSRV = particleBuffer_->GetGPUVirtualAddress();
+	//tmp.srv.drawIndexSRV = drawIndexCommandBuffers_->GetGPUVirtualAddress();
+	//tmp.drawIndex.IndexCountPerInstance = UINT(6);
+	//tmp.drawIndex.InstanceCount = 1;
+	//tmp.drawIndex.BaseVertexLocation = 0;
+	//tmp.drawIndex.StartIndexLocation = 0;
+	//tmp.drawIndex.StartInstanceLocation = 0;
+	//drawCopyBuffer.Copy(&tmp, sizeof(GPUParticleShaderStructs::IndirectCommand));
+	//commandContext.CopyBuffer(drawArgumentBuffer_, drawCopyBuffer);
+	//// コピー
+	//commandContext.Close();
+	//CommandQueue& commandQueue = GraphicsCore::GetInstance()->GetCommandQueue();
+	//commandQueue.Execute(commandContext);
+	//commandQueue.Signal();
+	//commandQueue.WaitForGPU();
+	//commandContext.Reset();
 }

@@ -6,7 +6,8 @@
 #include <cstdint>
 
 #include "DescriptorHeap.h"
-#include "CommandQueue.h"
+#include "CommandListManager.h"
+#include "LinerAllocator.h"
 
 class GraphicsCore {
 public: 
@@ -22,9 +23,10 @@ public:
 
 	DescriptorHandle AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE type);
 
-	CommandQueue& GetCommandQueue() {return commandQueue_;}
+	CommandQueue& GetCommandQueue(D3D12_COMMAND_LIST_TYPE type);
 	ID3D12Device* GetDevice() const { return device_.Get(); }
-	DescriptorHeap& GetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE type) {return descriptorHeaps_[type];}
+	DescriptorHeap& GetDescriptorHeap(const D3D12_DESCRIPTOR_HEAP_TYPE& type) {return descriptorHeaps_[type];}
+	LinearAllocatorPagePool& GetLinearAllocatorPagePool(const LinearAllocatorType& type) { return linearAllocatorPagePools_[type.type]; }
 private:
 
 	GraphicsCore() = default;
@@ -34,7 +36,10 @@ private:
 	void CreateDevice();
 
 	Microsoft::WRL::ComPtr<ID3D12Device> device_;
-	CommandQueue commandQueue_;
+	D3D12_COMMAND_LIST_TYPE type_;
+	CommandListManager commandListManager_;
 	DescriptorHeap descriptorHeaps_[D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES];
+
+	LinearAllocatorPagePool linearAllocatorPagePools_[LinearAllocatorType::kNumAllocatorTypes];
 };
 

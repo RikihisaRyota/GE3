@@ -72,6 +72,8 @@ namespace GameCore {
 		if (winApp->ProcessMessage()) {
 			return false;
 		}
+		renderManager->BeginRender();
+
 		input->Update();
 
 		audio->Update();
@@ -84,8 +86,6 @@ namespace GameCore {
 
 		viewProjection->UpdateMatrix();
 
-		renderManager->BeginRender();
-
 		sceneManager->Draw(renderManager->GetCommandContext());
 
 		particleManager->Draw(renderManager->GetCommandContext(),*viewProjection);
@@ -94,7 +94,7 @@ namespace GameCore {
 		
 		renderManager->EndRender(*viewProjection);
 
-		renderManager->Reset();
+		//renderManager->Reset();
 
 		return true;
 	}

@@ -29,7 +29,7 @@ public:
 	RadialBlur& GetRadialBlur() { return radialBlur_; }
 	Dissolve& GetDissolve() { return dissolve_; }
 
-	CommandContext& GetCommandContext() { return commandContexts_[swapChain_.GetBufferIndex()]; }
+	CommandContext& GetCommandContext() { return commandContext_; }
 
 	ColorBuffer& GetMainColorBuffer() { return mainColorBuffer_; }
 	DepthBuffer& GetMainDepthBuffer() { return mainDepthBuffer_; }
@@ -46,7 +46,7 @@ private:
 	RenderManager& operator=(const RenderManager&) = delete;
 
 	GraphicsCore* graphicsCore_ = nullptr;
-	CommandContext commandContexts_[SwapChain::kNumBuffers];
+	CommandContext commandContext_;
 	SwapChain swapChain_;
 
 	ColorBuffer mainColorBuffer_;

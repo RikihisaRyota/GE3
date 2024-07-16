@@ -213,7 +213,7 @@
     <ClCompile Include="Engine\Engine\Math\WorldTransform.cpp">
       <Filter>Engine\Math</Filter>
     </ClCompile>
-    <ClCompile Include="Engine\Engine\Graphics\CommandQueue.cpp">
+    <ClCompile Include="Engine\Engine\Graphics\CommandListManager.cpp">
       <Filter>Engine\Graphics</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Engine\Graphics\GraphicsCore.cpp">
@@ -438,6 +438,8 @@
     <ClCompile Include="Engine\Engine\GPUParticleManager\GPUParticle\GPUParticleShaderStructs.cpp">
       <Filter>Engine\GPUParticleManager\GPUParticle</Filter>
     </ClCompile>
+    <ClCompile Include="Engine\Engine\Graphics\GpuResource.cpp" />
+    <ClCompile Include="Engine\Engine\Graphics\CommandAllocatorPool.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\Engine\WinApp\WinApp.h">
@@ -479,7 +481,7 @@
     <ClInclude Include="Engine\Engine\Math\WorldTransform.h">
       <Filter>Engine\Math</Filter>
     </ClInclude>
-    <ClInclude Include="Engine\Engine\Graphics\CommandQueue.h">
+    <ClInclude Include="Engine\Engine\Graphics\CommandListManager.h">
       <Filter>Engine\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Engine\Graphics\GraphicsCore.h">
@@ -745,6 +747,9 @@
     </ClInclude>
     <ClInclude Include="Engine\Engine\Math\Segment.h">
       <Filter>Engine\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Engine\Graphics\CommandAllocatorPool.h">
+      <Filter>Engine\Graphics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

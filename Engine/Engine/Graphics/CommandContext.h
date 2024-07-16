@@ -10,6 +10,7 @@
 #include "PipelineState.h"
 #include "RootSignature.h"
 #include "CommandSignature.h"
+#include "LinerAllocator.h"
 
 class ColorBuffer;
 class DepthBuffer;
@@ -21,8 +22,10 @@ class CommandContext {
 public:
 	void Create();
 
+	void Start(D3D12_COMMAND_LIST_TYPE type);
+	void End();
 	void Close();
-	void Reset();
+	void Flush();
 
 	void TransitionResource(GpuResource& resource, D3D12_RESOURCE_STATES newState);
 	void UAVBarrier(GpuResource& resource);
@@ -48,6 +51,12 @@ public:
 
 	void SetPrimitiveTopology(D3D12_PRIMITIVE_TOPOLOGY topology);
 
+	void SetGraphicsDynamicConstantBufferView(UINT rootIndex, size_t bufferSize, const void* bufferData);
+	void SetComputeDynamicConstantBufferView(UINT rootIndex, size_t bufferSize, const void* bufferData);
+	void SetGraphicsDynamicShaderResource(UINT rootIndex, size_t bufferSize, const void* bufferData);
+	void SetComputeDynamicShaderResource(UINT rootIndex, size_t bufferSize, const void* bufferData);
+	void SetDynamicVertexBuffer(UINT slot, size_t numVertices, size_t vertexStride, const void* vertexData);
+	void SetDynamicIndexBuffer(size_t numIndices, DXGI_FORMAT indexFormat, const void* indexData);
 	void SetGraphicsConstantBuffer(UINT rootIndex,D3D12_GPU_VIRTUAL_ADDRESS address);
 	void SetComputeConstantBuffer(UINT rootIndex,D3D12_GPU_VIRTUAL_ADDRESS address);
 	void SetGraphicsShaderResource(UINT rootIndex, D3D12_GPU_VIRTUAL_ADDRESS address);
@@ -90,4 +99,6 @@ private:
 	uint32_t numResourceBarriers_;
 
 	D3D12_RESOURCE_BARRIER resourceBarriers_[kMaxNumResourceBarriers_];
+	LinearAllocator dynamicBuffers_[LinearAllocatorType::kNumAllocatorTypes];
+	D3D12_COMMAND_LIST_TYPE type_;
 };

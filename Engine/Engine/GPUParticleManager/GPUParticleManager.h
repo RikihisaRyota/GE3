@@ -56,6 +56,7 @@ private:
 	void CreateMeshParticle();
 	void CreateField();
 
+
 	std::unique_ptr<PipelineState> graphicsPipelineState_;
 	std::unique_ptr<RootSignature> graphicsRootSignature_;
 	std::unique_ptr<RootSignature> spawnComputeRootSignature_;
@@ -90,7 +91,7 @@ private:
 
 	UploadBuffer vertexBuffer_;
 	D3D12_VERTEX_BUFFER_VIEW vbView_{};
-
+	
 	UploadBuffer indexBuffer_;
 	D3D12_INDEX_BUFFER_VIEW ibView_{};
 

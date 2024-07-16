@@ -11,6 +11,7 @@
 #include "Engine/Graphics/RenderManager.h"
 
 void Texture::CreateFromWICFile(const std::filesystem::path& path) {
+
 	// TextureデータをCPUにロード
 	name_ = path;
 	DirectX::ScratchImage mipImage = LoadTexture(path);
@@ -79,9 +80,9 @@ void Texture::CreateResource(const DirectX::TexMetadata& metadata, const std::fi
 void Texture::UploadTextureData(const DirectX::ScratchImage& mipImages) {
 	auto device = GraphicsCore::GetInstance()->GetDevice();
 	auto graphicsCore = GraphicsCore::GetInstance();
-	auto& commandQueue = graphicsCore->GetCommandQueue();
 	CommandContext commandContext;
 	commandContext.Create();
+
 	std::vector<D3D12_SUBRESOURCE_DATA> subResources{};
 	DirectX::PrepareUpload(device, mipImages.GetImages(), mipImages.GetImageCount(), mipImages.GetMetadata(), subResources);
 	uint64_t intermediateSize = GetRequiredIntermediateSize(resource_.Get(), 0, UINT(subResources.size()));
@@ -105,10 +106,8 @@ void Texture::UploadTextureData(const DirectX::ScratchImage& mipImages) {
 
 	commandContext.TransitionResource(*this, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 	commandContext.Close();
-	commandQueue.Execute(commandContext);
-	commandQueue.Signal();
-	commandQueue.WaitForGPU();
-
+	commandContext.Flush();
+	commandContext.End();
 }
 
 void Texture::CreateView(const DirectX::TexMetadata& metadata) {

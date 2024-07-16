@@ -23,14 +23,14 @@ void RenderManager::Initialize() {
 	swapChain_.Create(window->GetHwnd());
 
 	// コマンドリストの初期化
-	for (auto& commandContext : commandContexts_) {
-		commandContext.Create();
-		commandContext.Close();
-	}
+	commandContext_.Create();
+	commandContext_.Close();
+
 	// メインとなるバッファを初期化
+	uint32_t targetSwapChainBufferIndex = (swapChain_.GetBackBufferIndex() + 1) % SwapChain::kNumBuffers;
 	mainColorBufferFormat_ = DXGI_FORMAT_R8G8B8A8_UNORM;
 	mainDepthBufferFormat_ = DXGI_FORMAT_D32_FLOAT;
-	auto& swapChainBuffer = swapChain_.GetColorBuffer();
+	auto& swapChainBuffer = swapChain_.GetColorBuffer(targetSwapChainBufferIndex);
 	Color clearColor = { 0.2f,0.2f,0.2f,1.0f };
 	for (uint32_t i = 0; i < SwapChain::kNumBuffers; i++) {
 		swapChain_.GetColorBuffer(i).SetClearColor(clearColor);
@@ -107,29 +107,34 @@ void RenderManager::Initialize() {
 
 	dissolve_.Initialize(mainColorBuffer_);
 	// ImGUi初期化
-	ImGuiManager::GetInstance()->Initialize(window->GetHwnd(), swapChain_.GetColorBuffer().GetFormat());
+
+	ImGuiManager::GetInstance()->Initialize(window->GetHwnd(), swapChain_.GetColorBuffer(targetSwapChainBufferIndex).GetFormat());
 }
 
 void RenderManager::Reset() {
 	auto imguiManager = ImGuiManager::GetInstance();
 	imguiManager->NewFrame();
 
-	auto& commandContext = commandContexts_[swapChain_.GetBufferIndex()];
-	commandContext.Reset();
+	auto& commandContext = commandContext_;
+	//commandContext.Reset();
 }
 
 void RenderManager::BeginRender() {
-	auto& commandContext = commandContexts_[swapChain_.GetBufferIndex()];
+	auto& commandContext = commandContext_;
+
+	commandContext.Start(D3D12_COMMAND_LIST_TYPE_DIRECT);
 
 	SetRenderTarget(mainColorBuffer_, mainDepthBuffer_);
 	commandContext.ClearColor(mainColorBuffer_);
 	commandContext.ClearDepth(mainDepthBuffer_);
 	commandContext.SetViewportAndScissorRect(0, 0, mainColorBuffer_.GetWidth(), mainColorBuffer_.GetHeight());
+
 }
 
 void RenderManager::EndRender(const ViewProjection& viewProjection) {
-	auto& commandContext = commandContexts_[swapChain_.GetBufferIndex()];
-	auto& swapChainColorBuffer = swapChain_.GetColorBuffer();
+	auto& commandContext = commandContext_;
+	uint32_t targetSwapChainBufferIndex = (swapChain_.GetBackBufferIndex() + 1) % SwapChain::kNumBuffers;
+	auto& swapChainColorBuffer = swapChain_.GetColorBuffer(targetSwapChainBufferIndex);
 
 	//outLine_.Render(commandContext, mainColorBuffer_, mainDepthBuffer_, viewProjection);
 	//postEffect_.Render(commandContext,mainColorBuffer_ );
@@ -155,13 +160,16 @@ void RenderManager::EndRender(const ViewProjection& viewProjection) {
 
 	commandContext.TransitionResource(swapChainColorBuffer, D3D12_RESOURCE_STATE_PRESENT);
 	commandContext.Close();
-	CommandQueue& commandQueue = graphicsCore_->GetCommandQueue();
 
-	commandQueue.Execute(commandContext);
 	swapChain_.Present();
-	commandQueue.Signal();
-	commandQueue.UpdateFixFPS();
-	commandQueue.WaitForGPU();
+
+	auto& commandQueue = GraphicsCore::GetInstance()->GetCommandQueue(D3D12_COMMAND_LIST_TYPE_DIRECT);
+	commandQueue.WaitForIdle();
+
+	commandContext.End();
+
+	
+	imguiManager->NewFrame();
 }
 
 void RenderManager::Shutdown() {
@@ -170,7 +178,7 @@ void RenderManager::Shutdown() {
 }
 
 void RenderManager::SetRenderTarget(ColorBuffer& target) {
-	auto& commandContext = commandContexts_[swapChain_.GetBufferIndex()];
+	auto& commandContext = commandContext_;
 
 	commandContext.TransitionResource(target, D3D12_RESOURCE_STATE_RENDER_TARGET);
 	commandContext.SetRenderTarget(target.GetRTV());
@@ -178,7 +186,7 @@ void RenderManager::SetRenderTarget(ColorBuffer& target) {
 }
 
 void RenderManager::SetRenderTarget(ColorBuffer& target, DepthBuffer& depth) {
-	auto& commandContext = commandContexts_[swapChain_.GetBufferIndex()];
+	auto& commandContext = commandContext_;
 
 	commandContext.TransitionResource(target, D3D12_RESOURCE_STATE_RENDER_TARGET);
 	commandContext.TransitionResource(depth, D3D12_RESOURCE_STATE_DEPTH_WRITE);

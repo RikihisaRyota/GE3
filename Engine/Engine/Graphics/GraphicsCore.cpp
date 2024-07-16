@@ -17,13 +17,13 @@ using namespace Microsoft::WRL;
 
 GraphicsCore* GraphicsCore::GetInstance() {
 	static GraphicsCore instance;
-    return &instance;
+	return &instance;
 }
 
 void GraphicsCore::Initialize() {
 	CreateDevice();
 
-	commandQueue_.Create();
+	//commandQueue_.Create();
 
 	int32_t numDescriptorsTable[D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES];
 	numDescriptorsTable[D3D12_DESCRIPTOR_HEAP_TYPE_RTV] = kNumRTVs;
@@ -35,16 +35,35 @@ void GraphicsCore::Initialize() {
 		descriptorHeaps_[i].Create(D3D12_DESCRIPTOR_HEAP_TYPE(i), numDescriptorsTable[i]);
 	}
 
+	commandListManager_.Create();
+	for (int i = 0; i < LinearAllocatorType::Type::kNumAllocatorTypes; ++i) {
+		linearAllocatorPagePools_[i].Initialize((LinearAllocatorType(static_cast<LinearAllocatorType::Type>(i))));
+	}
+
 	SamplerManager::Initialize();
 }
 
 void GraphicsCore::Shutdown() {
-	commandQueue_.Signal();
-	commandQueue_.WaitForGPU();
+	commandListManager_.GetGraphicsQueue().WaitForIdle();
+	commandListManager_.GetComputeQueue().WaitForIdle();
+	commandListManager_.GetCopyQueue().WaitForIdle();
+	for (int i = 0; i < LinearAllocatorType::Type::kNumAllocatorTypes; ++i) {
+		linearAllocatorPagePools_[i].Finalize();
+	}
 }
 
 DescriptorHandle GraphicsCore::AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE type) {
 	return descriptorHeaps_[type].Allocate();
+}
+
+CommandQueue& GraphicsCore::GetCommandQueue(D3D12_COMMAND_LIST_TYPE type) {
+	switch (type) {
+	case D3D12_COMMAND_LIST_TYPE_COMPUTE:
+		return commandListManager_.GetComputeQueue();
+	case D3D12_COMMAND_LIST_TYPE_COPY:
+		return commandListManager_.GetCopyQueue();
+	}
+	return commandListManager_.GetGraphicsQueue();
 }
 
 void GraphicsCore::CreateDevice() {

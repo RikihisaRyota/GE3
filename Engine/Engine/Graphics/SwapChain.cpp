@@ -36,7 +36,7 @@ void SwapChain::Create(HWND hWnd) {
 
 	//コマンドキュー、ウィンドウハンドル、設定を渡して生成する
 	hr = factory->CreateSwapChainForHwnd(
-		GraphicsCore::GetInstance()->GetCommandQueue(),
+		GraphicsCore::GetInstance()->GetCommandQueue(D3D12_COMMAND_LIST_TYPE_DIRECT),
 		hWnd,
 		&swapChainDesc,
 		nullptr,
@@ -55,5 +55,4 @@ void SwapChain::Create(HWND hWnd) {
 void SwapChain::Present() {
 	static constexpr int32_t kThreasholdRefreshRate = 58;
 	swapChain_->Present(refreshRate_ < kThreasholdRefreshRate ? 0 : 1, 0);
-	currentBufferIndex_ = (currentBufferIndex_ + 1) % kNumBuffers;
 }

@@ -7,35 +7,22 @@
 #include "Engine/Model/ModelManager.h"
 
 void WorldTransform::Initialize() {
-	CreateConstBuffer();
-	Map();
 	Reset();
 	UpdateMatrix();
 }
 
-void WorldTransform::CreateConstBuffer() {
-	constBuff = std::make_unique<UploadBuffer>();
-	constBuff->Create(L"WorldTransform", sizeof(ConstBufferDataWorldTransform));
-	constMap = new ConstBufferDataWorldTransform();
-}
-
-void WorldTransform::Map() {
-	// 定数バッファとのデータリンク
-	constBuff->Copy(constMap, sizeof(ConstBufferDataWorldTransform));
-}
-
-void WorldTransform::TransferMatrix(const ModelHandle& modelHandle, uint32_t children) {
-	// 定数バッファに書き込み
-	if (modelHandle != ModelHandle::kMaxModeHandle) {
-		// マルチメッシュに対応してない
-		constMap->matWorld = ModelManager::GetInstance()->GetModel(modelHandle).GetMeshData().at(children)->rootNode.localMatrix * matWorld;
-	}
-	else {
-		constMap->matWorld = matWorld;
-	}
-	constMap->inverseMatWorld = Transpose(Inverse(matWorld));
-	Map();
-}
+//void WorldTransform::TransferMatrix(const ModelHandle& modelHandle, uint32_t children) {
+//	// 定数バッファに書き込み
+//	if (modelHandle != ModelHandle::kMaxModeHandle) {
+//		// マルチメッシュに対応してない
+//		constMap->matWorld = ModelManager::GetInstance()->GetModel(modelHandle).GetMeshData().at(children)->rootNode.localMatrix * matWorld;
+//	}
+//	else {
+//		constMap->matWorld = matWorld;
+//	}
+//	constMap->inverseMatWorld = Transpose(Inverse(matWorld));
+//	Map();
+//}
 
 
 void WorldTransform::UpdateMatrix(const ModelHandle& modelHandle, uint32_t children) {
@@ -57,10 +44,6 @@ void WorldTransform::UpdateMatrix(const ModelHandle& modelHandle, uint32_t child
 	// もし親があれば
 	if (parent_) {
 		matWorld = Mul(matWorld, parent_->matWorld);
-	}
-	if (constBuff) {
-		// 定数バッファに転送する
-		TransferMatrix(modelHandle, children);
 	}
 }
 

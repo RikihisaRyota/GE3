@@ -10,6 +10,7 @@
 #include "Engine/Math/ViewProjection.h"
 #include "Engine/Texture/TextureManager.h"
 #include "Engine/ImGui/ImGuiManager.h"
+#include "Engine/Math/MyMath.h"
 
 namespace {
 		enum Param {
@@ -158,8 +159,11 @@ void Skybox::Draw(CommandContext& commandContext, const ViewProjection& viewProj
 	commandContext.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	commandContext.SetVertexBuffer(0, vbView_);
+	ConstBufferDataWorldTransform constBufferDataWorldTransform{};
+	constBufferDataWorldTransform.matWorld = worldTransform_.matWorld;
+	constBufferDataWorldTransform.inverseMatWorld = Transpose(Inverse(worldTransform_.matWorld));
 
-	commandContext.SetGraphicsConstantBuffer(Param::kWorldTransform, worldTransform_.constBuff->GetGPUVirtualAddress());
+	commandContext.SetGraphicsDynamicConstantBufferView(Param::kWorldTransform, sizeof(ConstBufferDataWorldTransform), &constBufferDataWorldTransform);
 	commandContext.SetGraphicsConstantBuffer(Param::kViewProjection, viewProjection.constBuff_.GetGPUVirtualAddress());
 	commandContext.SetGraphicsDescriptorTable(Param::kTexture, TextureManager::GetInstance()->GetTexture(textureHandle_).GetSRV());
 

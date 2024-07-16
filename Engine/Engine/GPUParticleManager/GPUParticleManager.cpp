@@ -177,42 +177,42 @@ void GPUParticleManager::DrawImGui() {
 	gpuParticle_->DrawImGui();
 }
 
-void GPUParticleManager::CreateMeshParticle(const ModelHandle& modelHandle, Animation::Animation& animation, const WorldTransform& worldTransform, const GPUParticleShaderStructs::MeshEmitterDesc& mesh, CommandContext& commandContext) {
+void GPUParticleManager::CreateMeshParticle(const ModelHandle& modelHandle, Animation::Animation& animation, const Matrix4x4& worldTransform, const GPUParticleShaderStructs::MeshEmitterDesc& mesh, CommandContext& commandContext) {
 	commandContext.SetComputeRootSignature(*meshParticleRootSignature_);
 	commandContext.SetPipelineState(*meshParticlePipelineState_);
 
 	gpuParticle_->CreateMeshParticle(modelHandle, animation, worldTransform, mesh, randomBuffer_, commandContext);
 }
 
-void GPUParticleManager::CreateMeshParticle(const ModelHandle& modelHandle, const WorldTransform& worldTransform, const GPUParticleShaderStructs::MeshEmitterDesc& mesh, CommandContext& commandContext) {
+void GPUParticleManager::CreateMeshParticle(const ModelHandle& modelHandle, const Matrix4x4& worldTransform, const GPUParticleShaderStructs::MeshEmitterDesc& mesh, CommandContext& commandContext) {
 	commandContext.SetComputeRootSignature(*meshParticleRootSignature_);
 	commandContext.SetPipelineState(*meshParticlePipelineState_);
 
 	gpuParticle_->CreateMeshParticle(modelHandle, worldTransform, mesh, randomBuffer_, commandContext);
 }
 
-void GPUParticleManager::CreateVertexParticle(const ModelHandle& modelHandle, Animation::Animation& animation, const WorldTransform& worldTransform, const GPUParticleShaderStructs::VertexEmitterDesc& mesh, CommandContext& commandContext) {
+void GPUParticleManager::CreateVertexParticle(const ModelHandle& modelHandle, Animation::Animation& animation, const Matrix4x4& worldTransform, const GPUParticleShaderStructs::VertexEmitterDesc& mesh, CommandContext& commandContext) {
 	commandContext.SetComputeRootSignature(*vertexParticleRootSignature_);
 	commandContext.SetPipelineState(*vertexParticlePipelineState_);
 
 	gpuParticle_->CreateVertexParticle(modelHandle, animation, worldTransform, mesh, randomBuffer_, commandContext);
 }
 
-void GPUParticleManager::CreateVertexParticle(const ModelHandle& modelHandle, const WorldTransform& worldTransform, const GPUParticleShaderStructs::VertexEmitterDesc& mesh, CommandContext& commandContext) {
+void GPUParticleManager::CreateVertexParticle(const ModelHandle& modelHandle, const Matrix4x4& worldTransform, const GPUParticleShaderStructs::VertexEmitterDesc& mesh, CommandContext& commandContext) {
 	commandContext.SetComputeRootSignature(*edgeParticleRootSignature_);
 	commandContext.SetPipelineState(*edgeParticlePipelineState_);
 
 	gpuParticle_->CreateVertexParticle(modelHandle, worldTransform, mesh, randomBuffer_, commandContext);
 }
 
-void GPUParticleManager::CreateEdgeParticle(const ModelHandle& modelHandle, Animation::Animation& animation, const WorldTransform& worldTransform, const GPUParticleShaderStructs::MeshEmitterDesc& mesh, CommandContext& commandContext) {
+void GPUParticleManager::CreateEdgeParticle(const ModelHandle& modelHandle, Animation::Animation& animation, const Matrix4x4& worldTransform, const GPUParticleShaderStructs::MeshEmitterDesc& mesh, CommandContext& commandContext) {
 	commandContext.SetComputeRootSignature(*edgeParticleRootSignature_);
 	commandContext.SetPipelineState(*edgeParticlePipelineState_);
 
 	gpuParticle_->CreateEdgeParticle(modelHandle, animation, worldTransform, mesh, randomBuffer_, commandContext);
 }
 
-void GPUParticleManager::CreateEdgeParticle(const ModelHandle& modelHandle, const WorldTransform& worldTransform, const GPUParticleShaderStructs::MeshEmitterDesc& mesh, CommandContext& commandContext) {
+void GPUParticleManager::CreateEdgeParticle(const ModelHandle& modelHandle, const Matrix4x4& worldTransform, const GPUParticleShaderStructs::MeshEmitterDesc& mesh, CommandContext& commandContext) {
 	commandContext.SetComputeRootSignature(*edgeParticleRootSignature_);
 	commandContext.SetPipelineState(*edgeParticlePipelineState_);
 

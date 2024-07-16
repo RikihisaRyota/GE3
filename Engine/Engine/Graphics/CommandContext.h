@@ -99,6 +99,7 @@ private:
 	uint32_t numResourceBarriers_;
 
 	D3D12_RESOURCE_BARRIER resourceBarriers_[kMaxNumResourceBarriers_];
-	LinearAllocator dynamicBuffers_[LinearAllocatorType::kNumAllocatorTypes];
+	LinearAllocator currentDynamicBuffers_[LinearAllocatorType::kNumAllocatorTypes];
+	LinearAllocator previousDynamicBuffers_[LinearAllocatorType::kNumAllocatorTypes];
 	D3D12_COMMAND_LIST_TYPE type_;
 };

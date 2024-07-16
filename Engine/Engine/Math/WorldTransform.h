@@ -15,10 +15,8 @@ struct ConstBufferDataWorldTransform {
 };
 
 struct WorldTransform {
-	// 定数バッファ
-	std::unique_ptr<UploadBuffer> constBuff;
 	// マッピング済みアドレス
-	ConstBufferDataWorldTransform* constMap = nullptr;
+	//ConstBufferDataWorldTransform* constMap = nullptr;
 	// scale
 	Vector3 scale = { 1.0f,1.0f,1.0f };
 	// rotation
@@ -33,18 +31,7 @@ struct WorldTransform {
 	/// 初期化
 	/// </summary>
 	void Initialize();
-	/// <summary>
-	/// 定数バッファ生成
-	/// </summary>
-	void CreateConstBuffer();
-	/// <summary>
-	/// マッピングする
-	/// </summary>
-	void Map();
-	/// <summary>
-	/// 行列を転送する
-	/// </summary>
-	void TransferMatrix(const ModelHandle& modelHandle = ModelHandle::kMaxModeHandle, uint32_t children = 0);
+	
 	/// <summary>
 	/// 行列を更新する
 	/// </summary>

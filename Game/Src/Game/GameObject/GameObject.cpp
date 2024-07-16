@@ -45,7 +45,7 @@ void GameObject::Update() {
 }
 
 void GameObject::Draw(const ViewProjection& viewProjection, CommandContext& commandContext) {
-	ModelManager::GetInstance()->Draw(worldTransform_, viewProjection, modelHandle_, commandContext);
+	ModelManager::GetInstance()->Draw(worldTransform_.matWorld, viewProjection, modelHandle_, commandContext);
 }
 
 void GameObject::DrawDebug() {

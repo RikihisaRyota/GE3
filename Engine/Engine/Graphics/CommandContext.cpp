@@ -44,11 +44,10 @@ void CommandContext::Start(D3D12_COMMAND_LIST_TYPE type) {
 	commandAllocator_ = queue.allocatorPool_.Allocate(queue.GetLastCompletedFenceValue());
 	commandList_->Reset(commandAllocator_.Get(), nullptr);
 
-	// 各ダイナミックバッファを作成
+	// 現在のダイナミックバッファを作成
 	for (uint32_t i = 0; i < LinearAllocatorType::kNumAllocatorTypes; ++i) {
-		dynamicBuffers_[i].Create(LinearAllocatorType(static_cast<LinearAllocatorType::Type>(i)));
+		currentDynamicBuffers_[i].Create(LinearAllocatorType(static_cast<LinearAllocatorType::Type>(i)));
 	}
-
 	// ディスクリプタヒープを設定
 	ID3D12DescriptorHeap* ppHeaps[] = {
 		static_cast<ID3D12DescriptorHeap*>(graphics->GetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV)),
@@ -73,10 +72,12 @@ void CommandContext::End() {
 	// フレームの終わりにリソースをディスカードする
 	queue.allocatorPool_.Discard(preFenceValue, commandAllocator_);
 
-	for (uint32_t i = 0; i < LinearAllocatorType::Type::kNumAllocatorTypes; ++i) {
-		dynamicBuffers_[i].Reset(type_, preFenceValue);
+	// 前回のフレームのリソースをリセット
+	for (uint32_t i = 0; i < LinearAllocatorType::kNumAllocatorTypes; ++i) {
+		previousDynamicBuffers_[i].Reset(type_, preFenceValue);
 	}
-
+	// 現在のバッファと前回のバッファを入れ替える
+	std::swap(currentDynamicBuffers_, previousDynamicBuffers_);
 }
 
 void CommandContext::Close() {
@@ -202,7 +203,7 @@ void CommandContext::SetPrimitiveTopology(D3D12_PRIMITIVE_TOPOLOGY topology) {
 void CommandContext::SetGraphicsDynamicConstantBufferView(UINT rootIndex, size_t bufferSize, const void* bufferData) {
 	assert(bufferData);
 
-	auto allocation = dynamicBuffers_[LinearAllocatorType::kUpload].Allocate(bufferSize, 256);
+	auto allocation = currentDynamicBuffers_[LinearAllocatorType::kUpload].Allocate(bufferSize, 256);
 	memcpy(allocation.cpuAddress, bufferData, bufferSize);
 	commandList_->SetGraphicsRootConstantBufferView(rootIndex, allocation.gpuAddress);
 }
@@ -210,7 +211,7 @@ void CommandContext::SetGraphicsDynamicConstantBufferView(UINT rootIndex, size_t
 void CommandContext::SetComputeDynamicConstantBufferView(UINT rootIndex, size_t bufferSize, const void* bufferData) {
 	assert(bufferData);
 
-	auto allocation = dynamicBuffers_[LinearAllocatorType::kUpload].Allocate(bufferSize, 256);
+	auto allocation = currentDynamicBuffers_[LinearAllocatorType::kUpload].Allocate(bufferSize, 256);
 	memcpy(allocation.cpuAddress, bufferData, bufferSize);
 	commandList_->SetComputeRootConstantBufferView(rootIndex, allocation.gpuAddress);
 }
@@ -218,7 +219,7 @@ void CommandContext::SetComputeDynamicConstantBufferView(UINT rootIndex, size_t 
 void CommandContext::SetGraphicsDynamicShaderResource(UINT rootIndex, size_t bufferSize, const void* bufferData) {
 	assert(bufferData);
 
-	auto allocation = dynamicBuffers_[LinearAllocatorType::kUpload].Allocate(bufferSize, 256);
+	auto allocation = currentDynamicBuffers_[LinearAllocatorType::kUpload].Allocate(bufferSize, 256);
 	memcpy(allocation.cpuAddress, bufferData, bufferSize);
 	commandList_->SetGraphicsRootShaderResourceView(rootIndex, allocation.gpuAddress);
 }
@@ -226,7 +227,7 @@ void CommandContext::SetGraphicsDynamicShaderResource(UINT rootIndex, size_t buf
 void CommandContext::SetComputeDynamicShaderResource(UINT rootIndex, size_t bufferSize, const void* bufferData) {
 	assert(bufferData);
 
-	auto allocation = dynamicBuffers_[LinearAllocatorType::kUpload].Allocate(bufferSize, 256);
+	auto allocation = currentDynamicBuffers_[LinearAllocatorType::kUpload].Allocate(bufferSize, 256);
 	memcpy(allocation.cpuAddress, bufferData, bufferSize);
 	commandList_->SetComputeRootShaderResourceView(rootIndex, allocation.gpuAddress);
 }
@@ -235,7 +236,7 @@ void CommandContext::SetDynamicVertexBuffer(UINT slot, size_t numVertices, size_
 	assert(vertexData);
 
 	size_t bufferSize = LinearAllocator().AlignUp(numVertices * vertexStride, 16);
-	auto allocation = dynamicBuffers_[LinearAllocatorType::kUpload].Allocate(bufferSize);
+	auto allocation = currentDynamicBuffers_[LinearAllocatorType::kUpload].Allocate(bufferSize);
 	memcpy(allocation.cpuAddress, vertexData, bufferSize);
 	D3D12_VERTEX_BUFFER_VIEW vbv{
 		.BufferLocation = allocation.gpuAddress,
@@ -251,7 +252,7 @@ void CommandContext::SetDynamicIndexBuffer(size_t numIndices, DXGI_FORMAT indexF
 
 	size_t stride = (indexFormat == DXGI_FORMAT_R16_UINT) ? sizeof(uint16_t) : sizeof(uint32_t);
 	size_t bufferSize = LinearAllocator().AlignUp(numIndices * stride, 16);
-	auto allocation = dynamicBuffers_[LinearAllocatorType::kUpload].Allocate(bufferSize);
+	auto allocation = currentDynamicBuffers_[LinearAllocatorType::kUpload].Allocate(bufferSize);
 	memcpy(allocation.cpuAddress, indexData, bufferSize);
 	D3D12_INDEX_BUFFER_VIEW ibv{
 		.BufferLocation = allocation.gpuAddress,

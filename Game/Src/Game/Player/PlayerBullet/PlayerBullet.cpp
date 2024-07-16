@@ -50,7 +50,7 @@ void PlayerBullet::Update() {
 }
 
 void PlayerBullet::Draw(const ViewProjection& viewProjection, CommandContext& commandContext) {
-	ModelManager::GetInstance()->Draw(worldTransform_, viewProjection, modelHandle_, commandContext);
+	ModelManager::GetInstance()->Draw(worldTransform_.matWorld, viewProjection, modelHandle_, commandContext);
 }
 
 void PlayerBullet::DrawDebug(){

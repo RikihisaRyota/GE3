@@ -10,6 +10,7 @@
 #include "Engine/Math/WorldTransform.h"
 #include "Engine/Texture/TextureManager.h"
 #include "Engine/Lighting/Lighting.h"
+#include "Engine/Math/MyMath.h"
 
 std::unique_ptr<RootSignature> ModelManager::rootSignature_;
 std::unique_ptr<PipelineState> ModelManager::pipelineState_;
@@ -196,14 +197,23 @@ ModelHandle ModelManager::Load(const std::filesystem::path path) {
 	return handle;
 }
 
-void ModelManager::Draw(const WorldTransform& worldTransform, const ViewProjection& viewProjection, const ModelHandle& modelHandle, CommandContext& commandContext) {
+void ModelManager::Draw(const Matrix4x4& worldMatrix, const ViewProjection& viewProjection, const ModelHandle& modelHandle, CommandContext& commandContext) {
+	struct ConstBufferDataWorldTransform {
+		Matrix4x4 matWorld; // ローカル → ワールド変換行列
+		Matrix4x4 inverseMatWorld;
+	};
+
 	commandContext.SetGraphicsRootSignature(*rootSignature_);
 	commandContext.SetPipelineState(*pipelineState_);
 	commandContext.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	for (auto& modelData : models_.at(modelHandle)->GetMeshData()) {
 		commandContext.SetVertexBuffer(0, modelData->vbView);
 		commandContext.SetIndexBuffer(modelData->ibView);
-		commandContext.SetGraphicsConstantBuffer(Parameter::RootParameter::WorldTransform, worldTransform.constBuff.get()->GetGPUVirtualAddress());
+
+		ConstBufferDataWorldTransform constBufferDataWorldTransform{};
+		constBufferDataWorldTransform.matWorld = worldMatrix;
+		constBufferDataWorldTransform.inverseMatWorld = Transpose(Inverse(worldMatrix));
+		commandContext.SetGraphicsDynamicConstantBufferView(Parameter::RootParameter::WorldTransform,sizeof(ConstBufferDataWorldTransform), &constBufferDataWorldTransform);
 		commandContext.SetGraphicsConstantBuffer(Parameter::RootParameter::ViewProjection, viewProjection.constBuff_.GetGPUVirtualAddress());
 		commandContext.SetGraphicsConstantBuffer(Parameter::RootParameter::DirectionLight, Lighting::GetInstance()->GetDirectionLightBuffer().GetGPUVirtualAddress());
 		commandContext.SetGraphicsConstantBuffer(Parameter::RootParameter::PointLight, Lighting::GetInstance()->GetPointLightBuffer().GetGPUVirtualAddress());
@@ -216,17 +226,23 @@ void ModelManager::Draw(const WorldTransform& worldTransform, const ViewProjecti
 	}
 }
 
-void ModelManager::Draw(const WorldTransform& worldTransform, Animation::Animation& skinning, const ViewProjection& viewProjection, const ModelHandle& modelHandle, CommandContext& commandContext) {
+void ModelManager::Draw(const Matrix4x4& worldMatrix, Animation::Animation& skinning, const ViewProjection& viewProjection, const ModelHandle& modelHandle, CommandContext& commandContext) {
+	//struct ConstBufferDataWorldTransform {
+	//	Matrix4x4 matWorld; // ローカル → ワールド変換行列
+	//	Matrix4x4 inverseMatWorld;
+	//};
 
 	commandContext.SetGraphicsRootSignature(*rootSignature_);
 	commandContext.SetPipelineState(*pipelineState_);
 	commandContext.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
 	for (auto& modelData : models_.at(modelHandle)->GetMeshData()) {
 		commandContext.TransitionResource(skinning.skinCluster.vertexBuffer, D3D12_RESOURCE_STATE_GENERIC_READ);
 		commandContext.SetVertexBuffer(0, skinning.skinCluster.vertexBufferView);
 		commandContext.SetIndexBuffer(modelData->ibView);
-		commandContext.SetGraphicsConstantBuffer(Parameter::RootParameter::WorldTransform, worldTransform.constBuff.get()->GetGPUVirtualAddress());
+		ConstBufferDataWorldTransform constBufferDataWorldTransform{};
+		constBufferDataWorldTransform.matWorld = worldMatrix;
+		constBufferDataWorldTransform.inverseMatWorld = Transpose(Inverse(worldMatrix));
+		commandContext.SetGraphicsDynamicConstantBufferView(Parameter::RootParameter::WorldTransform, sizeof(ConstBufferDataWorldTransform), &constBufferDataWorldTransform);
 		commandContext.SetGraphicsConstantBuffer(Parameter::RootParameter::ViewProjection, viewProjection.constBuff_.GetGPUVirtualAddress());
 		commandContext.SetGraphicsConstantBuffer(Parameter::RootParameter::DirectionLight, Lighting::GetInstance()->GetDirectionLightBuffer().GetGPUVirtualAddress());
 		commandContext.SetGraphicsConstantBuffer(Parameter::RootParameter::PointLight, Lighting::GetInstance()->GetPointLightBuffer().GetGPUVirtualAddress());

@@ -200,8 +200,8 @@ void GPUParticleManager::CreateVertexParticle(const ModelHandle& modelHandle, An
 }
 
 void GPUParticleManager::CreateVertexParticle(const ModelHandle& modelHandle, const Matrix4x4& worldTransform, const GPUParticleShaderStructs::VertexEmitterDesc& mesh, CommandContext& commandContext) {
-	commandContext.SetComputeRootSignature(*edgeParticleRootSignature_);
-	commandContext.SetPipelineState(*edgeParticlePipelineState_);
+	commandContext.SetComputeRootSignature(*vertexParticleRootSignature_);
+	commandContext.SetPipelineState(*vertexParticlePipelineState_);
 
 	gpuParticle_->CreateVertexParticle(modelHandle, worldTransform, mesh, randomBuffer_, commandContext);
 }
@@ -224,14 +224,28 @@ void GPUParticleManager::CreateTransformModelParticle(const ModelHandle& startMo
 	commandContext.SetComputeRootSignature(*translateModelParticleRootSignature_);
 	commandContext.SetPipelineState(*translateModelParticlePipelineState_);
 
-	gpuParticle_->CreateTransformModelParticle(startModelHandle, startWorldTransform,endModelHandle,endWorldTransform, t, vertexEmitter,randomBuffer_, commandContext);
+	gpuParticle_->CreateTransformModelParticle(startModelHandle, startWorldTransform, endModelHandle, endWorldTransform, t, vertexEmitter, randomBuffer_, commandContext);
 }
 
-void GPUParticleManager::CreateTransformModelParticle(const ModelHandle& startModelHandle, Animation::Animation& startAnimation, const Matrix4x4& startWorldTransform, const ModelHandle& endModelHandle, Animation::Animation& endAnimation, const Matrix4x4& endWorldTransform, float t, const GPUParticleShaderStructs::VertexEmitterDesc& vertexEmitter,  CommandContext& commandContext) {
+void GPUParticleManager::CreateTransformModelParticle(const ModelHandle& startModelHandle, Animation::Animation& startAnimation, const Matrix4x4& startWorldTransform, const ModelHandle& endModelHandle, Animation::Animation& endAnimation, const Matrix4x4& endWorldTransform, float t, const GPUParticleShaderStructs::VertexEmitterDesc& vertexEmitter, CommandContext& commandContext) {
 	commandContext.SetComputeRootSignature(*translateModelParticleRootSignature_);
 	commandContext.SetPipelineState(*translateModelParticlePipelineState_);
 
 	gpuParticle_->CreateTransformModelParticle(startModelHandle, startAnimation, startWorldTransform, endModelHandle, endAnimation, endWorldTransform, t, vertexEmitter, randomBuffer_, commandContext);
+}
+
+void GPUParticleManager::CreateTransformModelParticle(const ModelHandle& startModelHandle, Animation::Animation& startAnimation, const Matrix4x4& startWorldTransform, const ModelHandle& endModelHandle, const Matrix4x4& endWorldTransform, float t, const GPUParticleShaderStructs::VertexEmitterDesc& vertexEmitter, CommandContext& commandContext) {
+	commandContext.SetComputeRootSignature(*translateModelParticleRootSignature_);
+	commandContext.SetPipelineState(*translateModelParticlePipelineState_);
+
+	gpuParticle_->CreateTransformModelParticle(startModelHandle, startAnimation, startWorldTransform, endModelHandle, endWorldTransform, t, vertexEmitter, randomBuffer_, commandContext);
+}
+
+void GPUParticleManager::CreateTransformModelParticle(const ModelHandle& startModelHandle, const Matrix4x4& startWorldTransform, const ModelHandle& endModelHandle, Animation::Animation& endAnimation, const Matrix4x4& endWorldTransform, float t, const GPUParticleShaderStructs::VertexEmitterDesc& vertexEmitter, CommandContext& commandContext) {
+	commandContext.SetComputeRootSignature(*translateModelParticleRootSignature_);
+	commandContext.SetPipelineState(*translateModelParticlePipelineState_);
+
+	gpuParticle_->CreateTransformModelParticle(startModelHandle, startWorldTransform, endModelHandle, endAnimation, endWorldTransform, t, vertexEmitter, randomBuffer_, commandContext);
 }
 
 void GPUParticleManager::SetEmitter(const GPUParticleShaderStructs::EmitterForCPU& emitter) {
@@ -765,7 +779,7 @@ void GPUParticleManager::CreateField() {
 		fieldIndexStockBuffer[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 1, 0);
 		CD3DX12_DESCRIPTOR_RANGE fieldIndexBuffer[1]{};
 		fieldIndexBuffer[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 2, 0);
-		
+
 		CD3DX12_ROOT_PARAMETER rootParameters[3]{};
 		rootParameters[0].InitAsUnorderedAccessView(0);
 		rootParameters[1].InitAsDescriptorTable(_countof(fieldIndexStockBuffer), fieldIndexStockBuffer);

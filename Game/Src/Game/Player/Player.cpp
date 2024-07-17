@@ -59,7 +59,7 @@ Player::Player() {
 	collider_->SetRadius(colliderRadius_);
 	collider_->SetCallback([this](const ColliderDesc& collisionInfo) { OnCollision(collisionInfo); });
 	collider_->SetCollisionAttribute(CollisionAttribute::Player);
-	collider_->SetCollisionMask(CollisionAttribute::BossBody | CollisionAttribute::BossAttack | CollisionAttribute::GameObject);
+	collider_->SetCollisionMask(CollisionAttribute::Boss  | CollisionAttribute::GameObject);
 	collider_->SetIsActive(true);
 #pragma endregion
 }

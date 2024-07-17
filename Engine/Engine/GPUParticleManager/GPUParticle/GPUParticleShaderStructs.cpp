@@ -322,8 +322,7 @@ void GPUParticleShaderStructs::EmitterEditor(const std::string name, std::tuple<
 			ImGui::Text("Collision Attribute:");
 			ImGui::CheckboxFlags("Player", &emitter->collisionInfo.attribute, CollisionAttribute::Player);
 			ImGui::CheckboxFlags("Player Bullet", &emitter->collisionInfo.attribute, CollisionAttribute::PlayerBullet);
-			ImGui::CheckboxFlags("Boss Body", &emitter->collisionInfo.attribute, CollisionAttribute::BossBody);
-			ImGui::CheckboxFlags("Boss Attack", &emitter->collisionInfo.attribute, CollisionAttribute::BossAttack);
+			ImGui::CheckboxFlags("Boss", &emitter->collisionInfo.attribute, CollisionAttribute::Boss);
 			ImGui::CheckboxFlags("GameObject", &emitter->collisionInfo.attribute, CollisionAttribute::GameObject);
 			ImGui::CheckboxFlags("ParticleField", &emitter->collisionInfo.attribute, CollisionAttribute::ParticleField);
 			ImGui::TreePop();
@@ -332,8 +331,7 @@ void GPUParticleShaderStructs::EmitterEditor(const std::string name, std::tuple<
 			ImGui::Text("Collision Mask:");
 			ImGui::CheckboxFlags("Player", &emitter->collisionInfo.mask, CollisionAttribute::Player);
 			ImGui::CheckboxFlags("Player Bullet", &emitter->collisionInfo.mask, CollisionAttribute::PlayerBullet);
-			ImGui::CheckboxFlags("Boss Body", &emitter->collisionInfo.mask, CollisionAttribute::BossBody);
-			ImGui::CheckboxFlags("Boss Attack", &emitter->collisionInfo.mask, CollisionAttribute::BossAttack);
+			ImGui::CheckboxFlags("Boss", &emitter->collisionInfo.mask, CollisionAttribute::Boss);
 			ImGui::CheckboxFlags("GameObject", &emitter->collisionInfo.mask, CollisionAttribute::GameObject);
 
 			ImGui::TreePop();
@@ -440,8 +438,7 @@ void GPUParticleShaderStructs::EmitterEditor(const std::string name, std::tuple<
 			ImGui::Text("Collision Attribute:");
 			ImGui::CheckboxFlags("Player", &desc->emitter.collisionInfo.attribute, CollisionAttribute::Player);
 			ImGui::CheckboxFlags("Player Bullet", &desc->emitter.collisionInfo.attribute, CollisionAttribute::PlayerBullet);
-			ImGui::CheckboxFlags("Boss Body", &desc->emitter.collisionInfo.attribute, CollisionAttribute::BossBody);
-			ImGui::CheckboxFlags("Boss Attack", &desc->emitter.collisionInfo.attribute, CollisionAttribute::BossAttack);
+			ImGui::CheckboxFlags("Boss", &desc->emitter.collisionInfo.attribute, CollisionAttribute::Boss);
 			ImGui::CheckboxFlags("GameObject", &desc->emitter.collisionInfo.attribute, CollisionAttribute::GameObject);
 			ImGui::CheckboxFlags("ParticleField", &desc->emitter.collisionInfo.attribute, CollisionAttribute::ParticleField);
 			ImGui::TreePop();
@@ -450,8 +447,7 @@ void GPUParticleShaderStructs::EmitterEditor(const std::string name, std::tuple<
 			ImGui::Text("Collision Mask:");
 			ImGui::CheckboxFlags("Player", &desc->emitter.collisionInfo.mask, CollisionAttribute::Player);
 			ImGui::CheckboxFlags("Player Bullet", &desc->emitter.collisionInfo.mask, CollisionAttribute::PlayerBullet);
-			ImGui::CheckboxFlags("Boss Body", &desc->emitter.collisionInfo.mask, CollisionAttribute::BossBody);
-			ImGui::CheckboxFlags("Boss Attack", &desc->emitter.collisionInfo.mask, CollisionAttribute::BossAttack);
+			ImGui::CheckboxFlags("Boss", &desc->emitter.collisionInfo.mask, CollisionAttribute::Boss);
 			ImGui::CheckboxFlags("GameObject", &desc->emitter.collisionInfo.mask, CollisionAttribute::GameObject);
 
 			ImGui::TreePop();
@@ -555,8 +551,7 @@ void GPUParticleShaderStructs::EmitterEditor(const std::string name, std::tuple<
 			ImGui::Text("Collision Attribute:");
 			ImGui::CheckboxFlags("Player", &desc->emitter.collisionInfo.attribute, CollisionAttribute::Player);
 			ImGui::CheckboxFlags("Player Bullet", &desc->emitter.collisionInfo.attribute, CollisionAttribute::PlayerBullet);
-			ImGui::CheckboxFlags("Boss Body", &desc->emitter.collisionInfo.attribute, CollisionAttribute::BossBody);
-			ImGui::CheckboxFlags("Boss Attack", &desc->emitter.collisionInfo.attribute, CollisionAttribute::BossAttack);
+			ImGui::CheckboxFlags("Boss", &desc->emitter.collisionInfo.attribute, CollisionAttribute::Boss);
 			ImGui::CheckboxFlags("GameObject", &desc->emitter.collisionInfo.attribute, CollisionAttribute::GameObject);
 			ImGui::CheckboxFlags("ParticleField", &desc->emitter.collisionInfo.attribute, CollisionAttribute::ParticleField);
 			ImGui::TreePop();
@@ -565,8 +560,7 @@ void GPUParticleShaderStructs::EmitterEditor(const std::string name, std::tuple<
 			ImGui::Text("Collision Mask:");
 			ImGui::CheckboxFlags("Player", &desc->emitter.collisionInfo.mask, CollisionAttribute::Player);
 			ImGui::CheckboxFlags("Player Bullet", &desc->emitter.collisionInfo.mask, CollisionAttribute::PlayerBullet);
-			ImGui::CheckboxFlags("Boss Body", &desc->emitter.collisionInfo.mask, CollisionAttribute::BossBody);
-			ImGui::CheckboxFlags("Boss Attack", &desc->emitter.collisionInfo.mask, CollisionAttribute::BossAttack);
+			ImGui::CheckboxFlags("Boss Body", &desc->emitter.collisionInfo.mask, CollisionAttribute::Boss);
 			ImGui::CheckboxFlags("GameObject", &desc->emitter.collisionInfo.mask, CollisionAttribute::GameObject);
 
 			ImGui::TreePop();

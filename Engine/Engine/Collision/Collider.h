@@ -69,7 +69,11 @@ public:
 
 	void SetCenter(const Vector3& center) { sphere_.center = center; }
 	void SetRadius(float radius) { sphere_.radius = radius; }
+	void SetSphere(const Sphere& sphere) { sphere_ = sphere; }
 
+	Vector3& GetCenter() { return sphere_.center; }
+	float& GetRadius() { return sphere_.radius; }
+	Sphere& GetSphere() { return  sphere_; }
 private:
 	Sphere sphere_;
 };
@@ -110,6 +114,7 @@ public:
 
 	void SetSegment(const Segment& segment) { capsule_.segment = segment; }
 	void SetRadius(float radius) { capsule_.radius = radius; }
+	void SetCapsule(const Capsule& capsule) { capsule_ = capsule; }
 private:
 	Capsule capsule_;
 };

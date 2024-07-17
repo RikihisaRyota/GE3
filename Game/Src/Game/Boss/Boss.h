@@ -18,31 +18,26 @@
 class GPUParticleManager;
 class CommandContext;
 class Boss {
-private:
-	struct BossCollider {
-		std::unique_ptr<CapsuleCollider> body;
-		std::unique_ptr<CapsuleCollider> attack;
-		Vector4 color;
-	};
 public:
 	Boss();
 	void Initialize();
 	void Update(CommandContext& commandContext);
 	void Draw(const ViewProjection& viewProjection, CommandContext& commandContext);
 
-	void SetGPUParticleManager(GPUParticleManager* GPUParticleManager) { gpuParticleManager_ = GPUParticleManager; }
+	void SetGPUParticleManager(GPUParticleManager* GPUParticleManager) { 
+		gpuParticleManager_ = GPUParticleManager;
+		bossStateManager_->SetGPUParticleManager(gpuParticleManager_);
+	}
 
 	Animation::Animation* GetAnimation() { return &animation_; }
 	const ModelHandle& GetModelHandle() { return bossModelHandle_; }
 	void DrawImGui();
 	void DrawDebug();
-	std::unordered_map<std::string, std::unique_ptr<BossCollider>>& GetCollider() { return bossCollider_; }
-	std::unordered_map<std::string, GPUParticleShaderStructs::EmitterForCPU>& GetBodyEmitters() { return bodyEmitters_; }
-	std::unordered_map<std::string, uint32_t>& GetInitializeParticleNum() { return initializeParticleNum_; }
-	const std::vector<std::string>& GetColliderType(const std::string& name) { return colliderType_[name]; }
+	std::unique_ptr<SphereCollider>& GetCollider() { return collider_; }
 
-	const GPUParticleShaderStructs::EmitterColor& GetAttackColor() { return attackColor_; }
-	const GPUParticleShaderStructs::EmitterColor& GetDefaultColor() { return defaultColor_; }
+	Vector3 GetWorldTranslate();
+	const Matrix4x4& GetWorldMatrix()const { return worldTransform_.matWorld; }
+	const GPUParticleShaderStructs::VertexEmitterDesc& GetVertexEmitter()const { return vertexEmitterDesc_; }
 private:
 	void UpdateCollider();
 	void UpdateGPUParticle(CommandContext& commandContext);
@@ -72,23 +67,10 @@ private:
 
 	WorldTransform worldTransform_;
 
-	std::unordered_map<std::string, std::unique_ptr<BossCollider>> bossCollider_;
-
 	std::unique_ptr<BossStateManager> bossStateManager_;
 	std::unique_ptr<BossHP> bossHP_;
-#pragma region Collision
-	std::unordered_map<std::string, float> colliderSize_;
-	std::unordered_map<std::string, GPUParticleShaderStructs::EmitterForCPU> bodyEmitters_;
-	//std::unordered_map<std::string, GPUParticleShaderStructs::EmitterForCPU> decorationEmitters_;
-	//std::unordered_map<std::string, GPUParticleShaderStructs::FieldForCPU> fields_;
-	std::unordered_map<std::string, uint32_t> initializeParticleNum_;
-	GPUParticleShaderStructs::EmitterColor attackColor_;
-	GPUParticleShaderStructs::EmitterColor defaultColor_;
 
-	std::unordered_map<std::string, std::vector<std::string>> colliderType_;
-	std::unordered_map<std::string, int> selectedNodeNameIndices_;
-	std::unordered_map<std::string, int> selectedEntryNodeNameIndices_;
-#pragma endregion
+	std::unique_ptr<SphereCollider> collider_;
 
 #pragma region Properties
 	Vector3 offset_;

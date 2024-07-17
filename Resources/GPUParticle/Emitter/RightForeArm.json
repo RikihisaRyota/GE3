@@ -1,157 +1,28 @@
 {
-    "CollisionInfo": {
-        "attribute": 4,
-        "mask": 2
-    },
+    "CollisionInfo": {},
     "EmitterArea": {
-        "EmitterAABB": {
-            "Max": [
-                0.0,
-                0.0,
-                0.0
-            ],
-            "Min": [
-                0.0,
-                0.0,
-                0.0
-            ],
-            "position": [
-                -431602080.0,
-                -431602080.0,
-                -431602080.0
-            ]
-        },
+        "EmitterAABB": {},
         "EmitterCapsule": {
-            "EmitterSegment": {
-                "end": [
-                    -13.643514633178711,
-                    19.528076171875,
-                    21.284868240356445
-                ],
-                "start": [
-                    -14.89559555053711,
-                    6.635097503662109,
-                    22.776308059692383
-                ]
-            },
-            "distanceFactor": {
-                "Max": 1.0,
-                "Min": 0.800000011920929
-            },
-            "radius": 4.0
+            "EmitterSegment": {},
+            "distanceFactor": {}
         },
         "EmitterSphere": {
-            "EmitterCapsule": {
-                "EmitterSegment": {},
-                "distanceFactor": {}
-            },
-            "distanceFactor": {
-                "Max": -431602080.0,
-                "Min": -431602080.0
-            },
-            "position": [
-                -431602080.0,
-                -431602080.0,
-                -431602080.0
-            ],
-            "radius": 0.0
-        },
-        "position": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "type": 2
+            "distanceFactor": {}
+        }
     },
     "EmitterColor": {
-        "End": {
-            "Max": [
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
-            "Min": [
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ]
-        },
-        "Start": {
-            "Max": [
-                0.12922367453575134,
-                0.36298930644989014,
-                0.05167108029127121,
-                1.0
-            ],
-            "Min": [
-                0.1580878496170044,
-                0.6939501762390137,
-                0.06914805620908737,
-                1.0
-            ]
-        }
+        "End": {},
+        "Start": {}
     },
-    "EmitterFrequency": {
-        "emitterLife": 1,
-        "interval": 1,
-        "isLoop": 1
-    },
-    "ParticleLifeSpan": {
-        "Max": 30,
-        "Min": 10
-    },
+    "EmitterFrequency": {},
+    "ParticleLifeSpan": {},
     "RotateAnimation": {
-        "initializeAngle": {
-            "Max": 0.0,
-            "Min": 0.0
-        },
-        "rotate": 0.0,
-        "rotateSpeed": {
-            "Max": 0.0,
-            "Min": 0.0
-        }
+        "initializeAngle": {},
+        "rotateSpeed": {}
     },
     "ScaleAnimation": {
-        "End": {
-            "Max": [
-                0.0,
-                0.0,
-                0.0
-            ],
-            "Min": [
-                0.0,
-                0.0,
-                0.0
-            ]
-        },
-        "Start": {
-            "Max": [
-                0.5,
-                0.5,
-                0.5
-            ],
-            "Min": [
-                0.25,
-                0.25,
-                0.25
-            ]
-        },
-        "isSame": 3452816845
+        "End": {},
+        "Start": {}
     },
-    "Velocity3D": {
-        "Max": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "Min": [
-            0.0,
-            0.0,
-            0.0
-        ]
-    },
-    "createParticleNum": 3000,
-    "textureIndex": "Resources/Images/GPUParticle.png"
+    "Velocity3D": {}
 }

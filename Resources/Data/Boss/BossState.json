@@ -1,22 +1,33 @@
 {
-    "StateRightHandHook": {
-        "jsonData_.rightHandHook.allFrame": 360.0,
-        "jsonData_.rightHandHook.transitionFrame": 15.0
+    "CarAttack": {
+        "Animation": {
+            "allFrame": 360.0,
+            "transitionFrame": 120.0
+        },
+        "Collider": {
+            "size": [
+                0.0,
+                0.0,
+                0.0
+            ]
+        },
+        "Properties": {
+            "end": [
+                -40.0,
+                10.0,
+                0.0
+            ],
+            "start": [
+                40.0,
+                10.0,
+                0.0
+            ]
+        }
     },
-    "StateRightKick": {
-        "jsonData_.rightKick.allFrame": 360.0,
-        "jsonData_.rightKick.transitionFrame": 15.0
-    },
-    "StateRoot": {
-        "jsonData_.root.allFrame": 180.0,
-        "jsonData_.root.transitionFrame": 15.0
-    },
-    "StateTwoHandAttack": {
-        "jsonData_.twoHand.allFrame": 420.0,
-        "jsonData_.twoHand.transitionFrame": 15.0
-    },
-    "StateUpperAttack": {
-        "jsonData_.upper.allFrame": 420.0,
-        "jsonData_.upper.transitionFrame": 15.0
+    "Root": {
+        "Animation": {
+            "allFrame": 0.0,
+            "transitionFrame": 0.0
+        }
     }
 }

@@ -35,7 +35,7 @@ void PlayerBullet::Create(GPUParticleManager* GPUParticleManager, const Vector3&
 	collider_->SetRadius(radius_);
 	collider_->SetCallback([this](const ColliderDesc& collisionInfo) { OnCollision(collisionInfo); });
 	collider_->SetCollisionAttribute(CollisionAttribute::PlayerBullet);
-	collider_->SetCollisionMask(CollisionAttribute::GameObject | CollisionAttribute::BossBody);
+	collider_->SetCollisionMask(CollisionAttribute::GameObject | CollisionAttribute::Boss);
 	collider_->SetIsActive(true);
 #pragma endregion
 }
@@ -62,10 +62,6 @@ void PlayerBullet::OnCollision(const ColliderDesc& desc) {
 		isAlive_ = false;
 	}
 	if (desc.collider->GetName().find("Boss") != std::string::npos) {
-		std::string jointName = EraseName(desc.collider->GetName(), "Boss_");
-		float ratio = float(boss_->GetBodyEmitters()[jointName].createParticleNum) / float(boss_->GetInitializeParticleNum()[jointName]);
-		ratio -= 0.05f;
-		boss_->GetBodyEmitters()[jointName].createParticleNum = uint32_t(boss_->GetInitializeParticleNum()[jointName] * ratio);
 		emitter_.sharp.emitterArea.sphere.position = MakeTranslateMatrix(worldTransform_.matWorld);
 		emitter_.crescent.emitterArea.sphere.position = MakeTranslateMatrix(worldTransform_.matWorld);
 		gpuParticleManager_->SetEmitter(emitter_.crescent);

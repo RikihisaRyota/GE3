@@ -1,168 +1,23 @@
 {
-    "attackColor_.range.end.max": [
-        0.6690391302108765,
-        0.36955133080482483,
-        0.05476120486855507,
-        0.0
-    ],
-    "attackColor_.range.end.min": [
-        0.5,
-        0.36298930644989014,
-        0.0,
-        0.0
-    ],
-    "attackColor_.range.start.max": [
-        0.2241992950439453,
-        0.044680286198854446,
-        0.044680286198854446,
-        1.0
-    ],
-    "attackColor_.range.start.min": [
-        0.145907461643219,
-        0.029077641665935516,
-        0.029077641665935516,
-        1.0
-    ],
-    "bossCollider": {
-        "Head": 8.0,
-        "HeadTop_End": 8.0,
-        "Hips": 0.0,
-        "LeftArm": 4.0,
-        "LeftFoot": 4.0,
-        "LeftForeArm": 4.0,
-        "LeftHand": 4.0,
-        "LeftHandIndex1": 0.0,
-        "LeftHandIndex2": 0.0,
-        "LeftHandIndex3": 0.0,
-        "LeftHandIndex4": 5.0,
-        "LeftLeg": 4.0,
-        "LeftShoulder": 0.0,
-        "LeftToeBase": 4.0,
-        "LeftToe_End": 5.0,
-        "LeftUpLeg": 0.0,
-        "Neck": 0.0,
-        "RightArm": 4.0,
-        "RightFoot": 4.0,
-        "RightForeArm": 4.0,
-        "RightHand": 4.0,
-        "RightHandIndex1": 0.0,
-        "RightHandIndex2": 0.0,
-        "RightHandIndex3": 0.0,
-        "RightHandIndex4": 5.0,
-        "RightLeg": 4.0,
-        "RightShoulder": 0.0,
-        "RightToeBase": 4.0,
-        "RightToe_End": 5.0,
-        "RightUpLeg": 0.0,
-        "Sphere.001": 0.0,
-        "Spine": 0.0,
-        "Spine1": 0.0,
-        "Spine2": 10.0
-    },
+    "bossCollider": {},
     "colliderTypes": {
         "None": {
             "colliderNames": {}
         },
         "RightHandHook": {
-            "colliderNames": {
-                "RightArm": "RightArm",
-                "RightForeArm": "RightForeArm",
-                "RightHand": "RightHand",
-                "RightHandIndex4": "RightHandIndex4"
-            }
+            "colliderNames": {}
         },
         "RightKick": {
-            "colliderNames": {
-                "RightFoot": "RightFoot",
-                "RightLeg": "RightLeg",
-                "RightToeBase": "RightToeBase",
-                "RightToe_End": "RightToe_End"
-            }
+            "colliderNames": {}
         },
         "Root": {
-            "colliderNames": {
-                "Head": "Head",
-                "HeadTop_End": "HeadTop_End",
-                "LeftArm": "LeftArm",
-                "LeftFoot": "LeftFoot",
-                "LeftForeArm": "LeftForeArm",
-                "LeftHand": "LeftHand",
-                "LeftHandIndex4": "LeftHandIndex4",
-                "LeftLeg": "LeftLeg",
-                "LeftToeBase": "LeftToeBase",
-                "LeftToe_End": "LeftToe_End",
-                "RightArm": "RightArm",
-                "RightFoot": "RightFoot",
-                "RightForeArm": "RightForeArm",
-                "RightHand": "RightHand",
-                "RightHandIndex4": "RightHandIndex4",
-                "RightLeg": "RightLeg",
-                "RightToeBase": "RightToeBase",
-                "RightToe_End": "RightToe_End",
-                "Spine2": "Spine2"
-            }
+            "colliderNames": {}
         },
         "TwoHandAttack": {
-            "colliderNames": {
-                "Head": "Head",
-                "HeadTop_End": "HeadTop_End",
-                "LeftArm": "LeftArm",
-                "LeftForeArm": "LeftForeArm",
-                "LeftHand": "LeftHand",
-                "LeftHandIndex1": "LeftHandIndex1",
-                "LeftHandIndex2": "LeftHandIndex2",
-                "LeftHandIndex4": "LeftHandIndex4",
-                "LeftShoulder": "LeftShoulder",
-                "Neck": "Neck",
-                "RightArm": "RightArm",
-                "RightForeArm": "RightForeArm",
-                "RightHand": "RightHand",
-                "RightHandIndex1": "RightHandIndex1",
-                "RightHandIndex2": "RightHandIndex2",
-                "RightHandIndex3": "RightHandIndex3",
-                "RightHandIndex4": "RightHandIndex4",
-                "RightShoulder": "RightShoulder",
-                "Spine": "Spine",
-                "Spine1": "Spine1",
-                "Spine2": "Spine2"
-            }
+            "colliderNames": {}
         },
         "UpperAttack": {
-            "colliderNames": {
-                "LeftToe_End": "LeftToe_End",
-                "RightArm": "RightArm",
-                "RightForeArm": "RightForeArm",
-                "RightHand": "RightHand",
-                "RightHandIndex1": "RightHandIndex1",
-                "RightHandIndex2": "RightHandIndex2",
-                "RightHandIndex4": "RightHandIndex4",
-                "RightShoulder": "RightShoulder",
-                "RightUpLeg": "RightUpLeg"
-            }
+            "colliderNames": {}
         }
-    },
-    "defaultColor_.range.end.max": [
-        0.0,
-        0.0,
-        0.0,
-        0.0
-    ],
-    "defaultColor_.range.end.min": [
-        0.0,
-        0.0,
-        0.0,
-        0.0
-    ],
-    "defaultColor_.range.start.max": [
-        0.12922367453575134,
-        0.36298930644989014,
-        0.05167108029127121,
-        1.0
-    ],
-    "defaultColor_.range.start.min": [
-        0.1580878496170044,
-        0.6939501762390137,
-        0.06914805620908737,
-        1.0
-    ]
+    }
 }

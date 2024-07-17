@@ -49,7 +49,7 @@ void PlayerBulletManager::Update() {
 		}
 		else {
 			bullet.collisionInfo.attribute = CollisionAttribute::PlayerBullet;
-			bullet.collisionInfo.mask = CollisionAttribute::BossBody;
+			bullet.collisionInfo.mask = CollisionAttribute::Boss;
 			bullet.bullet.position = (*iter)->GetPosition();
 			bullet.bullet.radius = (*iter)->GetRadius() * 5.0f;
 			bullet.bullet.speed = bulletSpeed_ * 0.1f;

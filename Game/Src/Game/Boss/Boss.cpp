@@ -23,126 +23,30 @@ Boss::Boss() {
 
 	bossHP_ = std::make_unique<BossHP>();
 
+	collider_ = std::make_unique<SphereCollider>();
+
 	// test
 	t_ = 0.0f;
 	testModelHandle_ = ModelManager::GetInstance()->Load("Resources/Models/Player/player.gltf");
 
-
-	JSON_OPEN("Resources/Data/Boss/bossCollision.json");
-#pragma region コライダー
-	for (auto& joint : animation_.skeleton.joints) {
-		if (!joint.parent) {
-			continue;
-		}
-		std::string jointName = EraseName(joint.name, "mixamorig:");
-
-		JSON_OBJECT("bossCollider");
-		JSON_LOAD_BY_NAME(jointName, colliderSize_[jointName]);
-		JSON_ROOT();
-		bossCollider_[jointName] = std::make_unique<BossCollider>();
-		bossCollider_[jointName]->body = std::make_unique<CapsuleCollider>();
-		bossCollider_[jointName]->attack = std::make_unique<CapsuleCollider>();
-		bossCollider_[jointName]->body->SetName("Boss_" + jointName);
-		bossCollider_[jointName]->attack->SetName("BossAttack");
-		Matrix4x4 worldMatrix = joint.skeletonSpaceMatrix * animationTransform_.matWorld;
-		Matrix4x4 parentMatrix = animation_.skeleton.joints.at(*joint.parent).skeletonSpaceMatrix * animationTransform_.matWorld;
-
-		Vector3 pos = MakeTranslateMatrix(worldMatrix);
-		Vector3 parentPos = MakeTranslateMatrix(parentMatrix);
-		//Vector3 born = (MakeTranslateMatrix(worldMatrix) - MakeTranslateMatrix(parentMatrix));
-		//Vector3 center = MakeTranslateMatrix(parentMatrix) + born * 0.5f;
-		//Quaternion orientation = MakeLookRotation(born.Normalized());
-		//Vector3 size = { born.Length() * colliderSize_[joint.name], born.Length() * colliderSize_[joint.name],born.Length() };
-
-		bossCollider_[jointName]->body->SetSegment(Segment(pos, parentPos));
-		bossCollider_[jointName]->attack->SetSegment(Segment(pos, parentPos));
-		bossCollider_[jointName]->body->SetRadius(colliderSize_[jointName]);
-		bossCollider_[jointName]->attack->SetRadius(colliderSize_[jointName]);
-		bossCollider_[jointName]->body->SetCallback([this](const ColliderDesc& collisionInfo) { OnCollisionBody(collisionInfo); });
-		bossCollider_[jointName]->attack->SetCallback([this](const ColliderDesc& collisionInfo) { OnCollisionAttack(collisionInfo); });
-		bossCollider_[jointName]->body->SetCollisionAttribute(CollisionAttribute::BossBody);
-		bossCollider_[jointName]->attack->SetCollisionAttribute(CollisionAttribute::BossAttack);
-		bossCollider_[jointName]->body->SetCollisionMask(CollisionAttribute::Player | CollisionAttribute::PlayerBullet);
-		bossCollider_[jointName]->attack->SetCollisionMask(CollisionAttribute::Player);
-		bossCollider_[jointName]->color = { 0.0f,1.0f,0.0f,1.0f };
-		if (colliderSize_[jointName] != 0.0f) {
-			bossCollider_[jointName]->body->SetIsActive(true);
-			bossCollider_[jointName]->attack->SetIsActive(false);
-		}
-		else {
-			bossCollider_[jointName]->body->SetIsActive(false);
-			bossCollider_[jointName]->attack->SetIsActive(false);
-		}
-	}
-#pragma endregion
-	JSON_ROOT();
-	// コライダータイプの初期化
-	for (auto& stateName : bossStateManager_->stateNames_) {
-		colliderType_[stateName];
-		selectedNodeNameIndices_[stateName] = -1;
-		selectedEntryNodeNameIndices_[stateName] = -1;
-	}
-	std::vector<std::string> colliderNames{};
-	for (auto& type : colliderType_) {
-		JSON_OBJECT("colliderTypes");
-		JSON_OBJECT(type.first);
-		JSON_OBJECT("colliderNames");
-		for (auto& name : bossCollider_) {
-			std::string nodeName = name.first;
-			if (JSON_LOAD_BY_NAME(nodeName, nodeName)) {
-				colliderNames.emplace_back(nodeName);
-			}
-		}
-		type.second = colliderNames;
-		colliderNames.clear();
-		JSON_ROOT();
-	}
-	JSON_LOAD(attackColor_.range.start.min);
-	JSON_LOAD(attackColor_.range.start.max);
-	JSON_LOAD(attackColor_.range.end.min);
-	JSON_LOAD(attackColor_.range.end.max);
-	JSON_LOAD(defaultColor_.range.start.min);
-	JSON_LOAD(defaultColor_.range.start.max);
-	JSON_LOAD(defaultColor_.range.end.min);
-	JSON_LOAD(defaultColor_.range.end.max);
-
-	JSON_ROOT();
-
+	float radius = 0.0f;
+	JSON_OPEN("Resources/Data/Boss/bossCollider.json");
+	JSON_OBJECT("Collider");
+	JSON_LOAD_BY_NAME("radius", radius);
 	JSON_CLOSE();
+	collider_->SetRadius(radius);
+	//collider_->SetCallback([this](const ColliderDesc& collisionInfo) { OnCollision(collisionInfo); });
+	collider_->SetCollisionAttribute(CollisionAttribute::Boss);
+	collider_->SetCollisionMask(CollisionAttribute::Player | CollisionAttribute::PlayerBullet);
+	collider_->SetIsActive(true);
+
 	JSON_OPEN("Resources/Data/Boss/boss.json");
 	JSON_OBJECT("bossProperties");
 	JSON_LOAD(offset_);
 	JSON_LOAD(animationWorldTransformOffset_);
 	JSON_ROOT();
 	JSON_CLOSE();
-	for (auto& colliderSize : colliderSize_) {
-		std::string decorationEmitterName = "decoration" + colliderSize.first;
-		GPUParticleShaderStructs::Load(colliderSize.first, bodyEmitters_[colliderSize.first]);
 
-
-		bodyEmitters_[colliderSize.first].color = defaultColor_;
-		bodyEmitters_[decorationEmitterName].velocity.range.min = { -0.1f,-0.1f ,-0.1f };
-		bodyEmitters_[decorationEmitterName].velocity.range.max = { 0.1f,0.1f ,0.1f };
-		/*decorationEmitters_[decorationEmitterName] = bodyEmitters_[colliderSize.first];
-		decorationEmitters_[decorationEmitterName].createParticleNum = uint32_t(bodyEmitters_[colliderSize.first].createParticleNum * 0.1f);
-		decorationEmitters_[decorationEmitterName].particleLifeSpan.range.min = 30;
-		decorationEmitters_[decorationEmitterName].particleLifeSpan.range.min = 60;
-		decorationEmitters_[decorationEmitterName].collisionInfo.attribute = CollisionAttribute::ParticleField;
-		decorationEmitters_[decorationEmitterName].velocity.range.min = { -0.1f,-0.1f ,-0.1f };
-		decorationEmitters_[decorationEmitterName].velocity.range.max = { 0.1f,0.1f ,0.1f };*/
-		/*if (colliderSize.second != 0.0f) {
-			GPUParticleShaderStructs::Load(colliderSize.first, fields_[colliderSize.first]);
-			fields_[colliderSize.first].field.type = GPUParticleShaderStructs::FieldType::kAttraction;
-			fields_[colliderSize.first].field.attraction.attraction = 0.01f;
-		}*/
-		scaleAnimation = bodyEmitters_[colliderSize.first].scale;
-		particleLifeSpan = bodyEmitters_[colliderSize.first].particleLifeSpan;
-		initializeParticleNum_[colliderSize.first] = bodyEmitters_[colliderSize.first].createParticleNum;
-	}
-	particleLifeSpan.range.min = 5;
-	particleLifeSpan.range.max = 10;
-	distanceFactor.min = 0.0f;
-	distanceFactor.min = 1.0f;
 	GPUParticleShaderStructs::Load("boss", meshEmitterDesc_);
 	GPUParticleShaderStructs::Load("boss", vertexEmitterDesc_);
 }
@@ -204,257 +108,45 @@ void Boss::DrawImGui() {
 		}
 
 		if (ImGui::TreeNode("Collision")) {
-			if (ImGui::TreeNode("Color")) {
-
-				if (ImGui::TreeNode("AttackColor")) {
-
-					if (ImGui::TreeNode("Start")) {
-						ImGui::ColorEdit4("Min", &attackColor_.range.start.min.x);
-						ImGui::ColorEdit4("Max", &attackColor_.range.start.max.x);
-						ImGui::TreePop();
-					}
-					if (ImGui::TreeNode("End")) {
-						ImGui::ColorEdit4("Min", &attackColor_.range.end.min.x);
-						ImGui::ColorEdit4("Max", &attackColor_.range.end.max.x);
-						ImGui::TreePop();
-					}
-
-					ImGui::TreePop();
-				}
-				if (ImGui::TreeNode("DefaultColor")) {
-					if (ImGui::TreeNode("Start")) {
-						ImGui::ColorEdit4("Min", &defaultColor_.range.start.min.x);
-						ImGui::ColorEdit4("Max", &defaultColor_.range.start.max.x);
-						ImGui::TreePop();
-					}
-					if (ImGui::TreeNode("End")) {
-						ImGui::ColorEdit4("Min", &defaultColor_.range.end.min.x);
-						ImGui::ColorEdit4("Max", &defaultColor_.range.end.max.x);
-						ImGui::TreePop();
-					}
-
-					ImGui::TreePop();
-				}
-				if (ImGui::Button("Save")) {
-					JSON_OPEN("Resources/Data/Boss/bossCollision.json");
-					JSON_SAVE(attackColor_.range.start.min);
-					JSON_SAVE(attackColor_.range.start.max);
-					JSON_SAVE(attackColor_.range.end.min);
-					JSON_SAVE(attackColor_.range.end.max);
-					JSON_SAVE(defaultColor_.range.start.min);
-					JSON_SAVE(defaultColor_.range.start.max);
-					JSON_SAVE(defaultColor_.range.end.min);
-					JSON_SAVE(defaultColor_.range.end.max);
-					JSON_CLOSE();
-
-				}
-				ImGui::TreePop();
+			auto& collider = collider_->GetSphere();
+			ImGui::DragFloat("Radius", &collider.radius, 0.1f, 0.0f);
+			if (ImGui::Button("Save")) {
+				JSON_OPEN("Resources/Data/Boss/bossCollider.json");
+				JSON_OBJECT("Collider");
+				JSON_SAVE_BY_NAME("radius", collider.radius);
+				JSON_CLOSE();
 			}
-			if (ImGui::TreeNode("Size")) {
-				for (auto& size : colliderSize_) {
-					ImGui::DragFloat(size.first.c_str(), &size.second, 0.1f, 0.0f);
-				}
-				if (ImGui::Button("Save")) {
-					JSON_OPEN("Resources/Data/Boss/bossCollision.json");
-					JSON_OBJECT("bossCollider");
-					for (auto& size : colliderSize_) {
-						JSON_SAVE_BY_NAME(size.first, size.second);
-					}
-					JSON_ROOT();
-					JSON_CLOSE();
-				}
-				ImGui::TreePop();
-			}
-
-
-			if (ImGui::TreeNode("ColliderType")) {
-				if (ImGui::TreeNode("NodeName")) {
-					// bossCollider_ のキーからノード名を取得してリストボックスに表示
-					std::vector<const char*> colliderNodeNames;
-					for (const auto& colliderNode : bossCollider_) {
-						colliderNodeNames.push_back(colliderNode.first.c_str());
-					}
-					// 各タイプについてループ
-					for (auto& type : colliderType_) {
-						if (ImGui::TreeNode(type.first.c_str())) {
-							// 現在登録してあるノード名を表示するリストボックス
-							std::vector<const char*> nodeNames;
-							for (const auto& nodeName : type.second) {
-								if (colliderSize_[nodeName] != 0.0f) {
-									bossCollider_[nodeName]->color = { 1.0f,1.0f,0.0f,1.0f };
-									nodeNames.push_back(nodeName.c_str());
-								}
-							}
-
-							int& selectedEntryNodeNameIndex = selectedEntryNodeNameIndices_[type.first];
-
-							ImGui::Combo("Entry Node Names", &selectedEntryNodeNameIndex, nodeNames.data(), int(nodeNames.size()));
-
-							// 選択されたノード名を削除するボタン
-							if (selectedEntryNodeNameIndex >= 0 && selectedEntryNodeNameIndex < nodeNames.size()) {
-								bossCollider_[colliderNodeNames[selectedEntryNodeNameIndex]]->color = { 0.0f,0.0f,1.0f,1.0f };
-								if (ImGui::Button("Remove Selected NodeName")) {
-									type.second.erase(type.second.begin() + selectedEntryNodeNameIndex);
-									//selectedEntryNodeNameIndex = -1;  // 削除後、選択状態をクリア
-								}
-							}
-
-							// ノード名を追加
-							if (ImGui::TreeNode("Add NodeName")) {
-
-
-								int& selectedNodeNameIndex = selectedNodeNameIndices_[type.first];
-
-								// ノード表示
-								ImGui::Combo("Node Names", &selectedNodeNameIndex, colliderNodeNames.data(), int(colliderNodeNames.size()));
-								// 選択されたノード名を追加するボタン
-								if (selectedNodeNameIndex >= 0 && selectedNodeNameIndex < colliderNodeNames.size()) {
-									bossCollider_[colliderNodeNames[selectedNodeNameIndex]]->color = { 0.0f,0.0f,1.0f,1.0f };
-									if (ImGui::Button("Add")) {
-										std::string newName(colliderNodeNames[selectedNodeNameIndex]);
-										if (!newName.empty()) {
-											type.second.emplace_back(newName);
-											//selectedNodeNameIndex = -1;
-										}
-									}
-								}
-								ImGui::TreePop();
-							}
-							ImGui::TreePop();
-						}
-					}
-					ImGui::TreePop();
-				}
-
-				if (ImGui::Button("Save")) {
-					JSON_OPEN("Resources/Data/Boss/bossCollision.json");
-					for (auto& type : colliderType_) {
-						JSON_OBJECT("colliderTypes");
-						JSON_OBJECT(type.first);
-						JSON_OBJECT("colliderNames");
-						for (auto& name : type.second) {
-							JSON_SAVE_BY_NAME(name, name);
-						}
-						JSON_ROOT();
-					}
-					JSON_ROOT();
-					JSON_LOAD(attackColor_.range.start.min);
-					JSON_LOAD(attackColor_.range.start.max);
-					JSON_LOAD(attackColor_.range.end.min);
-					JSON_LOAD(attackColor_.range.end.max);
-					JSON_LOAD(defaultColor_.range.start.min);
-					JSON_LOAD(defaultColor_.range.start.max);
-					JSON_LOAD(defaultColor_.range.end.min);
-					JSON_LOAD(defaultColor_.range.end.max);
-					JSON_CLOSE();
-
-				}
-				ImGui::TreePop();
-			}
-
-			ImGui::TreePop();
 		}
 		ImGui::EndMenu();
 	}
 	ImGui::End();
 	bossStateManager_->DrawImGui();
 	bossHP_->DrawImGui();
-	for (auto& colliderSizeName : colliderSize_) {
-		if (colliderSizeName.second != 0.0f) {
-			std::string decorationEmitterName = "decoration" + colliderSizeName.first;
-			GPUParticleShaderStructs::Debug(colliderSizeName.first, bodyEmitters_[colliderSizeName.first]);
-			//GPUParticleShaderStructs::Debug(decorationEmitterName, decorationEmitters_[decorationEmitterName]);
-			//GPUParticleShaderStructs::Debug(colliderSizeName.first, fields_[colliderSizeName.first]);
-		}
-	}
 	GPUParticleShaderStructs::Debug("boss", meshEmitterDesc_);
 	GPUParticleShaderStructs::Debug("boss", vertexEmitterDesc_);
 #endif // _DEBUG
 }
 
 void Boss::DrawDebug() {
-
-	for (auto& collider : bossCollider_) {
-		if (collider.second->body->GetIsActive()) {
-			collider.second->body->DrawCollision(collider.second->color);
-		}
-		if (collider.second->attack->GetIsActive()) {
-			collider.second->attack->DrawCollision(collider.second->color);
-		}
-	}
+	collider_->DrawCollision({ 0.0f,1.0f,0.0f,1.0f });
 	animation_.DrawLine(animationTransform_);
 }
 
+Vector3 Boss::GetWorldTranslate() {
+	return MakeTranslateMatrix(worldTransform_.matWorld);
+}
+
 void Boss::UpdateCollider() {
-
-	for (auto& joint : animation_.skeleton.joints) {
-		if (!joint.parent) {
-			continue;
-		}
-		std::string jointName = EraseName(joint.name, "mixamorig:");
-		Matrix4x4 worldMatrix = joint.skeletonSpaceMatrix * animationTransform_.matWorld;
-		Matrix4x4 parentMatrix = animation_.skeleton.joints.at(*joint.parent).skeletonSpaceMatrix * animationTransform_.matWorld;
-
-		Vector3 pos = MakeTranslateMatrix(worldMatrix);
-		Vector3 parentPos = MakeTranslateMatrix(parentMatrix);
-
-		//Vector3 born = (MakeTranslateMatrix(worldMatrix) - MakeTranslateMatrix(parentMatrix));
-		//Vector3 center = MakeTranslateMatrix(parentMatrix) + born * 0.5f;
-		//Quaternion orientation = MakeLookRotation(born.Normalized());
-		//Vector3 size = { born.Length() * colliderSize_[joint.name], born.Length() * colliderSize_[joint.name],born.Length() };
-		bossCollider_[jointName]->body->SetSegment(Segment(pos, parentPos));
-		bossCollider_[jointName]->attack->SetSegment(Segment(pos, parentPos));
-		bossCollider_[jointName]->body->SetRadius(colliderSize_[jointName]);
-		bossCollider_[jointName]->attack->SetRadius(colliderSize_[jointName]);
-		bossCollider_[jointName]->color = { 0.0f,1.0f,0.0f,1.0f };
-	}
+	collider_->SetCenter(MakeTranslateMatrix(worldTransform_.matWorld));
 }
 
 void Boss::UpdateGPUParticle(CommandContext& commandContext) {
-	for (auto& joint : animation_.skeleton.joints) {
-		std::string jointName = EraseName(joint.name, "mixamorig:");
-		if (!joint.parent.has_value() || colliderSize_[jointName] == 0.0f) {
-			continue;
-		}
-		Matrix4x4 worldMatrix = joint.skeletonSpaceMatrix * worldTransform_.matWorld;
-		Matrix4x4 parentMatrix = animation_.skeleton.joints.at(*joint.parent).skeletonSpaceMatrix * worldTransform_.matWorld;
-
-		Vector3 worldPos = MakeTranslateMatrix(worldMatrix);
-		Vector3 parentPos = MakeTranslateMatrix(parentMatrix);
-		Vector3 born = (worldPos - parentPos);
-		// 0
-		{
-			std::string decorationJointName = "decoration" + jointName;
-			bodyEmitters_.at(jointName).emitterArea.capsule.segment.origin = worldPos;
-			bodyEmitters_.at(jointName).emitterArea.capsule.segment.diff = parentPos;
-			bodyEmitters_.at(jointName).emitterArea.capsule.radius = colliderSize_[jointName];
-			bodyEmitters_.at(jointName).emitterArea.type = GPUParticleShaderStructs::Type::kCapsule;
-
-			/*decorationEmitters_.at(decorationJointName).emitterArea.capsule.segment.origin = worldPos;
-			decorationEmitters_.at(decorationJointName).emitterArea.capsule.segment.diff = parentPos;
-			decorationEmitters_.at(decorationJointName).emitterArea.capsule.radius = colliderSize_[jointName] * 1.2f;
-			decorationEmitters_.at(decorationJointName).emitterArea.capsule.distanceFactor.min = 0.9f;
-			decorationEmitters_.at(decorationJointName).emitterArea.capsule.distanceFactor.min = 1.0f;
-			decorationEmitters_.at(decorationJointName).emitterArea.type = GPUParticleShaderStructs::Type::kCapsule;*/
-
-			/*fields_.at(jointName).fieldArea.capsule.segment.origin = worldPos;
-			fields_.at(jointName).fieldArea.capsule.segment.diff = parentPos;
-			fields_.at(jointName).fieldArea.capsule.radius = colliderSize_[jointName] * 1.2f;
-			fields_.at(jointName).fieldArea.type = GPUParticleShaderStructs::Type::kCapsule;*/
-			/*bodyEmitters_.at(jointName).scale = scaleAnimation;
-			bodyEmitters_.at(jointName).emitterArea.sphere.distanceFactor = distanceFactor;
-			bodyEmitters_.at(jointName).emitterArea.capsule.distanceFactor = distanceFactor;
-			bodyEmitters_.at(jointName).particleLifeSpan = particleLifeSpan;*/
-			//gpuParticleManager_->SetEmitter(bodyEmitters_.at(jointName));
-			//gpuParticleManager_->SetEmitter(decorationEmitters_.at(decorationJointName));
-			//gpuParticleManager_->SetField(fields_.at(jointName));
-		}
-	}
 	//gpuParticleManager_->CreateEdgeParticle(bossModelHandle_, animation_, worldTransform_.matWorld, meshEmitterDesc_, commandContext);
 	//gpuParticleManager_->CreateMeshParticle(bossModelHandle_, animation_, worldTransform_.matWorld, meshEmitterDesc_, commandContext);
-	//gpuParticleManager_->CreateVertexParticle(bossModelHandle_, animation_, worldTransform_.matWorld, vertexEmitterDesc_, commandContext);
-	Matrix4x4 tmp = MakeScaleMatrix({ 10.0f,10.0f,10.0f }) * MakeTranslateMatrix(Vector3({ 10.0f, 10.0f, 10.0f }));
-	gpuParticleManager_->CreateTransformModelParticle(bossModelHandle_, worldTransform_.matWorld, testModelHandle_, tmp, t_, vertexEmitterDesc_, commandContext);
+	if (bossStateManager_->GetCurrentState() == BossStateManager::State::kRoot) {
+		gpuParticleManager_->CreateVertexParticle(bossModelHandle_, animation_, worldTransform_.matWorld, vertexEmitterDesc_, commandContext);
+	}
+	//gpuParticleManager_->CreateTransformModelParticle(bossModelHandle_, worldTransform_.matWorld, testModelHandle_, tmp, t_, vertexEmitterDesc_, commandContext);
 
 }
 

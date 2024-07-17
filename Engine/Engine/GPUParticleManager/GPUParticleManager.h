@@ -40,6 +40,8 @@ public:
 	void CreateEdgeParticle(const ModelHandle& modelHandle, const Matrix4x4& worldTransform, const GPUParticleShaderStructs::MeshEmitterDesc& mesh, CommandContext& commandContext);
 	void CreateTransformModelParticle(const ModelHandle& startModelHandle, const Matrix4x4& startWorldTransform, const ModelHandle& endModelHandle, const Matrix4x4& endWorldTransform, float t, const GPUParticleShaderStructs::VertexEmitterDesc& vertexEmitter, CommandContext& commandContext);
 	void CreateTransformModelParticle(const ModelHandle& startModelHandle, Animation::Animation& startAnimation, const Matrix4x4& startWorldTransform, const ModelHandle& endModelHandle, Animation::Animation& endAnimation, const Matrix4x4& endWorldTransform, float t, const GPUParticleShaderStructs::VertexEmitterDesc& vertexEmitter, CommandContext& commandContext);
+	void CreateTransformModelParticle(const ModelHandle& startModelHandle, Animation::Animation& startAnimation, const Matrix4x4& startWorldTransform, const ModelHandle& endModelHandle, const Matrix4x4& endWorldTransform, float t, const GPUParticleShaderStructs::VertexEmitterDesc& vertexEmitter, CommandContext& commandContext);
+	void CreateTransformModelParticle(const ModelHandle& startModelHandle, const Matrix4x4& startWorldTransform, const ModelHandle& endModelHandle, Animation::Animation& endAnimation, const Matrix4x4& endWorldTransform, float t, const GPUParticleShaderStructs::VertexEmitterDesc& vertexEmitter, CommandContext& commandContext);
 
 
 

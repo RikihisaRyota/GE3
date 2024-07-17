@@ -91,6 +91,7 @@ void GPUParticleManager::Initialize() {
 	CreateBullet();
 	CreateMeshParticle();
 	CreateField();
+	CreateTranslateModelParticle();
 	randomBuffer_.Create(L"rondomBuffer", sizeof(UINT));
 	gpuParticle_->SetDrawCommandSignature(commandSignature_.get());
 	gpuParticle_->SetSpawnCommandSignature(spawnCommandSignature_.get());
@@ -217,6 +218,20 @@ void GPUParticleManager::CreateEdgeParticle(const ModelHandle& modelHandle, cons
 	commandContext.SetPipelineState(*edgeParticlePipelineState_);
 
 	gpuParticle_->CreateEdgeParticle(modelHandle, worldTransform, mesh, randomBuffer_, commandContext);
+}
+
+void GPUParticleManager::CreateTransformModelParticle(const ModelHandle& startModelHandle, const Matrix4x4& startWorldTransform, const ModelHandle& endModelHandle, const Matrix4x4& endWorldTransform, float t, const GPUParticleShaderStructs::VertexEmitterDesc& vertexEmitter, CommandContext& commandContext) {
+	commandContext.SetComputeRootSignature(*translateModelParticleRootSignature_);
+	commandContext.SetPipelineState(*translateModelParticlePipelineState_);
+
+	gpuParticle_->CreateTransformModelParticle(startModelHandle, startWorldTransform,endModelHandle,endWorldTransform, t, vertexEmitter,randomBuffer_, commandContext);
+}
+
+void GPUParticleManager::CreateTransformModelParticle(const ModelHandle& startModelHandle, Animation::Animation& startAnimation, const Matrix4x4& startWorldTransform, const ModelHandle& endModelHandle, Animation::Animation& endAnimation, const Matrix4x4& endWorldTransform, float t, const GPUParticleShaderStructs::VertexEmitterDesc& vertexEmitter,  CommandContext& commandContext) {
+	commandContext.SetComputeRootSignature(*translateModelParticleRootSignature_);
+	commandContext.SetPipelineState(*translateModelParticlePipelineState_);
+
+	gpuParticle_->CreateTransformModelParticle(startModelHandle, startAnimation, startWorldTransform, endModelHandle, endAnimation, endWorldTransform, t, vertexEmitter, randomBuffer_, commandContext);
 }
 
 void GPUParticleManager::SetEmitter(const GPUParticleShaderStructs::EmitterForCPU& emitter) {
@@ -760,7 +775,7 @@ void GPUParticleManager::CreateField() {
 		desc.pParameters = rootParameters;
 		desc.NumParameters = _countof(rootParameters);
 
-		updateFieldRootSignature_->Create(L"fieldUpdateRootSignature", desc);
+		updateFieldRootSignature_->Create(L"UpdateFieldRootSignature", desc);
 	}
 	// アップデートパイプライン
 	{
@@ -769,7 +784,7 @@ void GPUParticleManager::CreateField() {
 		desc.pRootSignature = *updateFieldRootSignature_;
 		auto cs = ShaderCompiler::Compile(L"Resources/Shaders/GPUParticle/UpdateField.hlsl", L"cs_6_0");
 		desc.CS = CD3DX12_SHADER_BYTECODE(cs->GetBufferPointer(), cs->GetBufferSize());
-		updateFieldPipelineState_->Create(L"addFieldPipelineState", desc);
+		updateFieldPipelineState_->Create(L"UpdateFieldPipelineState", desc);
 	}
 	{
 		collisionFieldRootSignature_ = std::make_unique<RootSignature>();
@@ -792,7 +807,60 @@ void GPUParticleManager::CreateField() {
 		desc.pRootSignature = *collisionFieldRootSignature_;
 		auto cs = ShaderCompiler::Compile(L"Resources/Shaders/GPUParticle/CollisionField.hlsl", L"cs_6_0");
 		desc.CS = CD3DX12_SHADER_BYTECODE(cs->GetBufferPointer(), cs->GetBufferSize());
-		collisionFieldPipelineState_->Create(L"addFieldPipelineState", desc);
+		collisionFieldPipelineState_->Create(L"CollisionFieldPipelineState", desc);
 	}
 
+}
+
+void GPUParticleManager::CreateTranslateModelParticle() {
+	{
+		enum {
+			kParticle,
+			kParticleConsumeBuffer,
+			kParticleCounter,
+			kStartVertices,
+			kEndVertices,
+			kStartVerticesSize,
+			kEndVerticesSize,
+			kStartWorldTransform,
+			kEndWorldTransform,
+			kEasingTime,
+			kEmitter,
+			kRandom,
+			kCount,
+		};
+		translateModelParticleRootSignature_ = std::make_unique<RootSignature>();
+
+		CD3DX12_DESCRIPTOR_RANGE particleConsumeBuffer[1]{};
+		particleConsumeBuffer[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 1, 0);
+
+		CD3DX12_ROOT_PARAMETER rootParameters[kCount]{};
+		rootParameters[kParticle].InitAsUnorderedAccessView(0);
+		rootParameters[kParticleConsumeBuffer].InitAsDescriptorTable(_countof(particleConsumeBuffer), particleConsumeBuffer);
+		rootParameters[kParticleCounter].InitAsUnorderedAccessView(2);
+		rootParameters[kStartVertices].InitAsShaderResourceView(0);
+		rootParameters[kEndVertices].InitAsShaderResourceView(1);
+		rootParameters[kStartVerticesSize].InitAsConstantBufferView(0);
+		rootParameters[kEndVerticesSize].InitAsConstantBufferView(1);
+		rootParameters[kStartWorldTransform].InitAsConstantBufferView(2);
+		rootParameters[kEndWorldTransform].InitAsConstantBufferView(3);
+		rootParameters[kEasingTime].InitAsConstantBufferView(4);
+		rootParameters[kEmitter].InitAsConstantBufferView(5);
+		rootParameters[kRandom].InitAsConstantBufferView(6);
+
+		D3D12_ROOT_SIGNATURE_DESC desc{};
+		desc.pParameters = rootParameters;
+		desc.NumParameters = _countof(rootParameters);
+
+		translateModelParticleRootSignature_->Create(L"TranslateModelParticleRootSignature", desc);
+	}
+	// アップデートパイプライン
+	{
+		translateModelParticlePipelineState_ = std::make_unique<PipelineState>();
+		D3D12_COMPUTE_PIPELINE_STATE_DESC desc{};
+		desc.pRootSignature = *translateModelParticleRootSignature_;
+		auto cs = ShaderCompiler::Compile(L"Resources/Shaders/GPUParticle/TransformModelParticle.hlsl", L"cs_6_0");
+		desc.CS = CD3DX12_SHADER_BYTECODE(cs->GetBufferPointer(), cs->GetBufferSize());
+		translateModelParticlePipelineState_->Create(L"TranslateModelParticlePipelineState", desc);
+	}
 }

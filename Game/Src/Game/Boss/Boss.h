@@ -62,6 +62,10 @@ private:
 	GPUParticleShaderStructs::ParticleLifeSpan particleLifeSpan;
 	GPUParticleShaderStructs::ScaleAnimation scaleAnimation;
 	GPUParticleShaderStructs::FloatMinMax distanceFactor;
+
+	float t_;
+	ModelHandle testModelHandle_;
+
 	/// </summary>
 	GPUParticleShaderStructs::MeshEmitterDesc meshEmitterDesc_;
 	GPUParticleShaderStructs::VertexEmitterDesc vertexEmitterDesc_;

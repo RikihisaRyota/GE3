@@ -424,7 +424,8 @@ void GPUParticle::CreateEdgeParticle(const ModelHandle& modelHandle, Animation::
 		commandContext.SetComputeUAV(2, originalCounterBuffer_.GetGPUVirtualAddress());
 		commandContext.SetComputeShaderResource(3, animation.skinCluster.vertexBuffer.GetGPUVirtualAddress());
 		commandContext.SetComputeShaderResource(4, ModelManager::GetInstance()->GetModel(modelHandle).GetMeshData().at(0)->indexBuffer.GetGPUVirtualAddress());
-		commandContext.SetComputeConstantBuffer(5, random.GetGPUVirtualAddress());		ConstBufferDataWorldTransform constBufferDataWorldTransform{};
+		commandContext.SetComputeConstantBuffer(5, random.GetGPUVirtualAddress());	
+		ConstBufferDataWorldTransform constBufferDataWorldTransform{};
 		constBufferDataWorldTransform.matWorld = worldTransform;
 		constBufferDataWorldTransform.inverseMatWorld = Transpose(Inverse(worldTransform));
 		commandContext.SetComputeDynamicConstantBufferView(6, sizeof(ConstBufferDataWorldTransform), &constBufferDataWorldTransform);
@@ -473,6 +474,98 @@ void GPUParticle::CreateEdgeParticle(const ModelHandle& modelHandle, const Matri
 		commandContext.Dispatch(UINT(numThreadGroups), 1, 1);
 		commandContext.UAVBarrier(originalCommandBuffer_);
 	}
+}
+
+void GPUParticle::CreateTransformModelParticle(const ModelHandle& startModelHandle, const Matrix4x4& startWorldTransform, const ModelHandle& endModelHandle, const Matrix4x4& endWorldTransform, float t, const GPUParticleShaderStructs::VertexEmitterDesc& vertexEmitter, const UploadBuffer& random, CommandContext& commandContext) {
+	auto modelManager = ModelManager::GetInstance();
+	auto& startModel = modelManager->GetModel(startModelHandle);
+	auto& endModel = modelManager->GetModel(endModelHandle);
+
+	commandContext.CopyBufferRegion(originalCounterBuffer_, 0, originalCommandBuffer_, particleIndexCounterOffset_, sizeof(UINT));
+
+	commandContext.TransitionResource(particleBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+	commandContext.TransitionResource(originalCommandBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+	commandContext.TransitionResource(originalCounterBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+	commandContext.TransitionResource(startModel.GetMeshData().at(0)->vertexBuffer, D3D12_RESOURCE_STATE_GENERIC_READ);
+	//commandContext.TransitionResource(startModel.GetMeshData().at(0)->indexBuffer, D3D12_RESOURCE_STATE_GENERIC_READ);
+	commandContext.TransitionResource(endModel.GetMeshData().at(0)->vertexBuffer, D3D12_RESOURCE_STATE_GENERIC_READ);
+	//commandContext.TransitionResource(endModel.GetMeshData().at(0)->indexBuffer, D3D12_RESOURCE_STATE_GENERIC_READ);
+
+
+	commandContext.SetComputeUAV(0, particleBuffer_.GetGPUVirtualAddress());
+	commandContext.SetComputeDescriptorTable(1, originalCommandBuffer_.GetUAVHandle());
+	commandContext.SetComputeUAV(2, originalCounterBuffer_.GetGPUVirtualAddress());
+	commandContext.SetComputeShaderResource(3, startModel.GetMeshData().at(0)->vertexBuffer.GetGPUVirtualAddress());
+	//commandContext.SetComputeShaderResource(4, startModel.GetMeshData().at(0)->indexBuffer.GetGPUVirtualAddress());
+	commandContext.SetComputeShaderResource(4, endModel.GetMeshData().at(0)->vertexBuffer.GetGPUVirtualAddress());
+	//commandContext.SetComputeShaderResource(6, endModel.GetMeshData().at(0)->indexBuffer.GetGPUVirtualAddress());
+	auto startVerticesSize = startModel.GetMeshData().at(0)->vertices.size();
+	commandContext.SetComputeDynamicConstantBufferView(5, sizeof(startVerticesSize), &startVerticesSize);
+	auto endVerticesSize = endModel.GetMeshData().at(0)->vertices.size();
+	commandContext.SetComputeDynamicConstantBufferView(6, sizeof(endVerticesSize), &endVerticesSize);
+	ConstBufferDataWorldTransform startConstBufferDataWorldTransform{};
+	startConstBufferDataWorldTransform.matWorld = startWorldTransform;
+	startConstBufferDataWorldTransform.inverseMatWorld = Transpose(Inverse(startWorldTransform));
+	commandContext.SetComputeDynamicConstantBufferView(7, sizeof(ConstBufferDataWorldTransform), &startConstBufferDataWorldTransform);
+	ConstBufferDataWorldTransform endConstBufferDataWorldTransform{};
+	endConstBufferDataWorldTransform.matWorld = endWorldTransform;
+	endConstBufferDataWorldTransform.inverseMatWorld = Transpose(Inverse(endWorldTransform));
+	commandContext.SetComputeDynamicConstantBufferView(8, sizeof(ConstBufferDataWorldTransform), &endConstBufferDataWorldTransform);
+	
+	commandContext.SetComputeDynamicConstantBufferView(9, sizeof(t), &t);
+
+	commandContext.SetComputeDynamicConstantBufferView(10, sizeof(vertexEmitter.emitter), &vertexEmitter.emitter);
+
+	commandContext.SetComputeConstantBuffer(11, random.GetGPUVirtualAddress());
+
+	commandContext.Dispatch(static_cast<UINT>(ceil((GPUParticleShaderStructs::MaxParticleNum / GPUParticleShaderStructs::MaxProcessNum) / GPUParticleShaderStructs::ComputeThreadBlockSize)), 1, 1);
+	commandContext.UAVBarrier(originalCommandBuffer_);
+}
+
+void GPUParticle::CreateTransformModelParticle(const ModelHandle& startModelHandle, Animation::Animation& startAnimation, const Matrix4x4& startWorldTransform, const ModelHandle& endModelHandle, Animation::Animation& endAnimation, const Matrix4x4& endWorldTransform, float t, const GPUParticleShaderStructs::VertexEmitterDesc& vertexEmitter, const UploadBuffer& random, CommandContext& commandContext) {
+	auto modelManager = ModelManager::GetInstance();
+	auto& startModel = modelManager->GetModel(startModelHandle);
+	auto& endModel = modelManager->GetModel(endModelHandle);
+
+	commandContext.CopyBufferRegion(originalCounterBuffer_, 0, originalCommandBuffer_, particleIndexCounterOffset_, sizeof(UINT));
+
+	commandContext.TransitionResource(particleBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+	commandContext.TransitionResource(originalCommandBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+	commandContext.TransitionResource(originalCounterBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+	commandContext.TransitionResource(startAnimation.skinCluster.vertexBuffer, D3D12_RESOURCE_STATE_GENERIC_READ);
+	//commandContext.TransitionResource(startModel.GetMeshData().at(0)->indexBuffer, D3D12_RESOURCE_STATE_GENERIC_READ);
+	commandContext.TransitionResource(endAnimation.skinCluster.vertexBuffer, D3D12_RESOURCE_STATE_GENERIC_READ);
+	//commandContext.TransitionResource(endModel.GetMeshData().at(0)->indexBuffer, D3D12_RESOURCE_STATE_GENERIC_READ);
+
+
+	commandContext.SetComputeUAV(0, particleBuffer_.GetGPUVirtualAddress());
+	commandContext.SetComputeDescriptorTable(1, originalCommandBuffer_.GetUAVHandle());
+	commandContext.SetComputeUAV(2, originalCounterBuffer_.GetGPUVirtualAddress());
+	commandContext.SetComputeShaderResource(3, startAnimation.skinCluster.vertexBuffer.GetGPUVirtualAddress());
+	//commandContext.SetComputeShaderResource(4, startModel.GetMeshData().at(0)->indexBuffer.GetGPUVirtualAddress());
+	commandContext.SetComputeShaderResource(4, endAnimation.skinCluster.vertexBuffer.GetGPUVirtualAddress());
+	//commandContext.SetComputeShaderResource(6, endModel.GetMeshData().at(0)->indexBuffer.GetGPUVirtualAddress());
+	auto startVerticesSize = startModel.GetMeshData().at(0)->vertices.size();
+	commandContext.SetComputeDynamicConstantBufferView(5, sizeof(startVerticesSize), &startVerticesSize);
+	auto endVerticesSize = endModel.GetMeshData().at(0)->vertices.size();
+	commandContext.SetComputeDynamicConstantBufferView(6, sizeof(endVerticesSize), &endVerticesSize);
+	ConstBufferDataWorldTransform startConstBufferDataWorldTransform{};
+	startConstBufferDataWorldTransform.matWorld = startWorldTransform;
+	startConstBufferDataWorldTransform.inverseMatWorld = Transpose(Inverse(startWorldTransform));
+	commandContext.SetComputeDynamicConstantBufferView(7, sizeof(ConstBufferDataWorldTransform), &startConstBufferDataWorldTransform);
+	ConstBufferDataWorldTransform endConstBufferDataWorldTransform{};
+	endConstBufferDataWorldTransform.matWorld = endWorldTransform;
+	endConstBufferDataWorldTransform.inverseMatWorld = Transpose(Inverse(endWorldTransform));
+	commandContext.SetComputeDynamicConstantBufferView(8, sizeof(ConstBufferDataWorldTransform), &endConstBufferDataWorldTransform);
+
+	commandContext.SetComputeDynamicConstantBufferView(9, sizeof(t), &t);
+
+	commandContext.SetComputeDynamicConstantBufferView(10, sizeof(vertexEmitter.emitter), &vertexEmitter.emitter);
+
+	commandContext.SetComputeConstantBuffer(11, random.GetGPUVirtualAddress());
+
+	commandContext.Dispatch(static_cast<UINT>(ceil((GPUParticleShaderStructs::MaxParticleNum / GPUParticleShaderStructs::MaxProcessNum) / GPUParticleShaderStructs::ComputeThreadBlockSize)), 1, 1);
+	commandContext.UAVBarrier(originalCommandBuffer_);
 }
 
 void GPUParticle::SetField(const GPUParticleShaderStructs::FieldForCPU& fieldForCPU) {

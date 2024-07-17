@@ -38,6 +38,9 @@ public:
 	void CreateVertexParticle(const ModelHandle& modelHandle, const Matrix4x4& worldTransform, const GPUParticleShaderStructs::VertexEmitterDesc& mesh, CommandContext& commandContext);
 	void CreateEdgeParticle(const ModelHandle& modelHandle, Animation::Animation& animation, const Matrix4x4& worldTransform, const GPUParticleShaderStructs::MeshEmitterDesc& mesh, CommandContext& commandContext);
 	void CreateEdgeParticle(const ModelHandle& modelHandle, const Matrix4x4& worldTransform, const GPUParticleShaderStructs::MeshEmitterDesc& mesh, CommandContext& commandContext);
+	void CreateTransformModelParticle(const ModelHandle& startModelHandle, const Matrix4x4& startWorldTransform, const ModelHandle& endModelHandle, const Matrix4x4& endWorldTransform, float t, const GPUParticleShaderStructs::VertexEmitterDesc& vertexEmitter, CommandContext& commandContext);
+	void CreateTransformModelParticle(const ModelHandle& startModelHandle, Animation::Animation& startAnimation, const Matrix4x4& startWorldTransform, const ModelHandle& endModelHandle, Animation::Animation& endAnimation, const Matrix4x4& endWorldTransform, float t, const GPUParticleShaderStructs::VertexEmitterDesc& vertexEmitter, CommandContext& commandContext);
+
 
 
 	void SetEmitter(const GPUParticleShaderStructs::EmitterForCPU& emitterForCPU);
@@ -55,6 +58,7 @@ private:
 	void CreateBullet();
 	void CreateMeshParticle();
 	void CreateField();
+	void CreateTranslateModelParticle();
 
 
 	std::unique_ptr<PipelineState> graphicsPipelineState_;
@@ -88,6 +92,9 @@ private:
 	std::unique_ptr<PipelineState> updateFieldPipelineState_;
 	std::unique_ptr<RootSignature> collisionFieldRootSignature_;
 	std::unique_ptr<PipelineState> collisionFieldPipelineState_;
+
+	std::unique_ptr<RootSignature> translateModelParticleRootSignature_;
+	std::unique_ptr<PipelineState> translateModelParticlePipelineState_;
 
 	UploadBuffer vertexBuffer_;
 	D3D12_VERTEX_BUFFER_VIEW vbView_{};

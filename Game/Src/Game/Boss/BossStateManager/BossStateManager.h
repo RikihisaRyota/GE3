@@ -27,6 +27,7 @@ public:
 	const float GetAnimationTime() const { return time_; }
 	const WorldTransform& GetWorldTransform()const { return worldTransform_; }
 	BossStateManager& GetManager() { return manager_; }
+	bool GetInTransition() { return inTransition_; }
 protected:
 	BossStateManager& manager_;
 	Random::RandomNumberGenerator rnd_;
@@ -165,6 +166,12 @@ public:
 	void DrawImGui();
 	const State& GetPreState() { return preStateEnum_; }
 	const State& GetCurrentState() { return activeStateEnum_; }
+	bool GetInTransition() {
+		if (activeState_) {
+			return activeState_->GetInTransition();
+		}
+		return false;
+	}
 private:
 	template<class T>
 	State GetStateEnum();

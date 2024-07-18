@@ -28,13 +28,29 @@ void Model::SetMaterialColor(const Vector4& color) {
 	materialBuffer_.Copy(material_, sizeof(Material));
 }
 
+const uint32_t Model::GetAllVertexCount() const {
+	uint32_t sum = 0;
+	for (auto& mesh : meshData_) {
+		sum += mesh->meshes->vertexCount;
+	}
+	return sum;
+}
+
+const uint32_t Model::GetAllIndexCount() const {
+	uint32_t sum = 0;
+	for (auto& mesh : meshData_) {
+		sum += mesh->meshes->indexCount;
+	}
+	return sum;
+}
+
 void Model::LoadFile(const std::filesystem::path& modelPath) {
 	auto device = GraphicsCore::GetInstance()->GetDevice();
 
 	path_ = modelPath;
 	name_ = modelPath.stem();
 
-	std::vector<Vertex> vertexPos{}; 
+	std::vector<Vertex> vertexPos{};
 	vertexPos.clear();
 	std::vector<uint32_t> indices{};
 	indices.clear();
@@ -62,10 +78,12 @@ void Model::LoadFile(const std::filesystem::path& modelPath) {
 
 		assert(mesh->HasNormals()); // 法線がないMeshは今回は未対応
 		assert(mesh->HasTextureCoords(0)); // TexcoordがないMeshは今回は未対応
-		
+
 		currentModelData->meshes = new Mesh();
 		currentModelData->meshes->vertexCount = uint32_t(mesh->mNumVertices);
 		currentModelData->meshes->vertexOffset = uint32_t(vertexPos.size());
+
+		std::vector<Vertex> meshVertex{};
 		// 頂点データを解析
 		for (uint32_t vertexIndex = 0; vertexIndex < mesh->mNumVertices; ++vertexIndex) {
 			aiVector3D& position = mesh->mVertices[vertexIndex];
@@ -84,6 +102,7 @@ void Model::LoadFile(const std::filesystem::path& modelPath) {
 			maxIndex.y = (std::max)(maxIndex.y, position.y);
 			maxIndex.z = (std::max)(maxIndex.z, position.z);
 			vertexPos.emplace_back(vertex);
+			meshVertex.emplace_back(vertex);
 		}
 		// インデックスデータを解析
 		currentModelData->meshes->indexCount = uint32_t(mesh->mNumFaces * 3);
@@ -120,6 +139,8 @@ void Model::LoadFile(const std::filesystem::path& modelPath) {
 
 		currentModelData->meshes->min = minIndex;
 		currentModelData->meshes->max = maxIndex;
+
+		currentModelData->vertices = meshVertex;
 	}
 
 	// View
@@ -137,6 +158,7 @@ void Model::LoadFile(const std::filesystem::path& modelPath) {
 	vbView.BufferLocation = vertexBuffer.GetGPUVirtualAddress();
 	vbView.SizeInBytes = UINT(vertexBufferSize);
 	vbView.StrideInBytes = sizeof(vertexPos[0]);
+
 
 	srView = GraphicsCore::GetInstance()->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 

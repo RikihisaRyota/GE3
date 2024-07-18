@@ -2,8 +2,6 @@
 
 RWStructuredBuffer<Particle> Output : register(u0);
 
-
-
 ConsumeStructuredBuffer<uint> particleIndexCommands : register(u1);
 
 struct Count

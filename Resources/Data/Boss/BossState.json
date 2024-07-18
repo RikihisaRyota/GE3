@@ -1,8 +1,8 @@
 {
     "CarAttack": {
         "Animation": {
-            "allFrame": 360.0,
-            "transitionFrame": 120.0
+            "allFrame": 300.0,
+            "transitionFrame": 60.0
         },
         "Collider": {
             "size": [
@@ -13,12 +13,12 @@
         },
         "Properties": {
             "end": [
-                -40.0,
+                40.0,
                 10.0,
                 0.0
             ],
             "start": [
-                40.0,
+                -40.0,
                 10.0,
                 0.0
             ]
@@ -26,8 +26,8 @@
     },
     "Root": {
         "Animation": {
-            "allFrame": 0.0,
-            "transitionFrame": 0.0
+            "allFrame": 360.0,
+            "transitionFrame": 60.0
         }
     }
 }

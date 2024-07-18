@@ -13,7 +13,9 @@
 #include "Engine/Json/JsonUtils.h"
 
 Boss::Boss() {
-	bossModelHandle_ = ModelManager::GetInstance()->Load("Resources/Models/Boss/truck.gltf");
+	ModelManager::GetInstance()->Load("Resources/Models/Boss/baggy.gltf");
+	//ModelManager::GetInstance()->Load("Resources/Models/Boss/train.gltf");
+	bossModelHandle_ = ModelManager::GetInstance()->Load("Resources/Models/Boss/boss_ts.gltf");
 	animation_.Initialize("Resources/Animation/Boss/animation.gltf", bossModelHandle_);
 	gpuTexture_ = TextureManager::GetInstance()->Load("Resources/Images/GPUParticle.png");
 	bossStateManager_ = std::make_unique<BossStateManager>();
@@ -72,7 +74,7 @@ void Boss::Update(CommandContext& commandContext) {
 }
 
 void Boss::Draw(const ViewProjection& viewProjection, CommandContext& commandContext) {
-	ModelManager::GetInstance()->Draw(animationTransform_.matWorld, viewProjection, bossModelHandle_, commandContext);
+	//ModelManager::GetInstance()->Draw(animationTransform_.matWorld, viewProjection, bossModelHandle_, commandContext);
 }
 
 void Boss::DrawImGui() {
@@ -143,7 +145,8 @@ void Boss::UpdateCollider() {
 void Boss::UpdateGPUParticle(CommandContext& commandContext) {
 	//gpuParticleManager_->CreateEdgeParticle(bossModelHandle_, animation_, worldTransform_.matWorld, meshEmitterDesc_, commandContext);
 	//gpuParticleManager_->CreateMeshParticle(bossModelHandle_, animation_, worldTransform_.matWorld, meshEmitterDesc_, commandContext);
-	if (bossStateManager_->GetCurrentState() == BossStateManager::State::kRoot) {
+	if (bossStateManager_->GetCurrentState() == BossStateManager::State::kRoot&&
+		!bossStateManager_->GetInTransition()) {
 		gpuParticleManager_->CreateVertexParticle(bossModelHandle_, animation_, worldTransform_.matWorld, vertexEmitterDesc_, commandContext);
 	}
 	//gpuParticleManager_->CreateTransformModelParticle(bossModelHandle_, worldTransform_.matWorld, testModelHandle_, tmp, t_, vertexEmitterDesc_, commandContext);

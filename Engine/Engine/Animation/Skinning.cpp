@@ -82,7 +82,7 @@ namespace Animation {
 
 		device->CreateShaderResourceView(paletteResource, &paletteSrvDesc, paletteHandle);
 
-		auto verticesSize = model.GetMeshData().at(0)->meshes->vertexCount;
+		auto verticesSize = UINT(model.GetAllVertexCount());
 		influenceResource.Create(L"skinClusterInfluenceResource", sizeof(VertexInfluence) * verticesSize);
 
 		VertexInfluence* mappedInfluence = new VertexInfluence[verticesSize];
@@ -97,7 +97,7 @@ namespace Animation {
 		influenceSrvDesc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
 		influenceSrvDesc.Buffer.FirstElement = 0;
 		influenceSrvDesc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
-		influenceSrvDesc.Buffer.NumElements = UINT(verticesSize);
+		influenceSrvDesc.Buffer.NumElements = verticesSize;
 		influenceSrvDesc.Buffer.StructureByteStride = sizeof(VertexInfluence);
 		device->CreateShaderResourceView(influenceResource, &influenceSrvDesc, influenceHandle);
 
@@ -118,7 +118,7 @@ namespace Animation {
 		vertexUAVDesc.Format = DXGI_FORMAT_UNKNOWN;
 		vertexUAVDesc.ViewDimension = D3D12_UAV_DIMENSION_BUFFER;
 		vertexUAVDesc.Buffer.FirstElement = 0;
-		vertexUAVDesc.Buffer.NumElements = UINT(model.GetMeshData().at(0)->meshes->vertexCount);
+		vertexUAVDesc.Buffer.NumElements = verticesSize;
 		vertexUAVDesc.Buffer.StructureByteStride = sizeof(Model::Vertex);
 		vertexUAVDesc.Buffer.Flags = D3D12_BUFFER_UAV_FLAG_NONE;
 		device->CreateUnorderedAccessView(
@@ -127,19 +127,21 @@ namespace Animation {
 			&vertexUAVDesc,
 			outputVertexBufferView);
 
-		for (const auto& jointWeight : model.GetMeshData().at(0)->skinClusterData) {
-			auto it = skeleton.jointMap.find(jointWeight.first);
-			if (it == skeleton.jointMap.end()) {
-				continue;
-			}
-			inverseBindPoseMatrices.at((*it).second) = jointWeight.second.inverseBindPoseMatrix;
-			for (const auto& vertexWeight : jointWeight.second.vertexWeights) {
-				auto& currentInfluence = this->mappedInfluence[vertexWeight.vertexIndex];
-				for (uint32_t index = 0; index < kNumMaxInfluence; ++index) {
-					if (currentInfluence.weights.at(index) == 0.0f) {
-						currentInfluence.weights.at(index) = vertexWeight.weight;
-						currentInfluence.jointIndices.at(index) = (*it).second;
-						break;
+		for (auto& mesh : model.GetMeshData()) {
+			for (const auto& jointWeight : mesh->skinClusterData) {
+				auto it = skeleton.jointMap.find(jointWeight.first);
+				if (it == skeleton.jointMap.end()) {
+					continue;
+				}
+				inverseBindPoseMatrices.at((*it).second) = jointWeight.second.inverseBindPoseMatrix;
+				for (const auto& vertexWeight : jointWeight.second.vertexWeights) {
+					auto& currentInfluence = this->mappedInfluence[vertexWeight.vertexIndex];
+					for (uint32_t index = 0; index < kNumMaxInfluence; ++index) {
+						if (currentInfluence.weights.at(index) == 0.0f) {
+							currentInfluence.weights.at(index) = vertexWeight.weight;
+							currentInfluence.jointIndices.at(index) = (*it).second;
+							break;
+						}
 					}
 				}
 			}
@@ -147,8 +149,7 @@ namespace Animation {
 		influenceResource.Copy(this->mappedInfluence.data(), sizeof(VertexInfluence) * verticesSize);
 
 		skinningInfomation.Create(L"SkinningInfomation", sizeof(UINT));
-		size_t size = (model.GetMeshData().at(0)->meshes->vertexCount);
-		skinningInfomation.Copy(&size, sizeof(UINT));
+		skinningInfomation.Copy(&verticesSize, sizeof(UINT));
 	}
 
 	void SkinCluster::Update(const Skeleton& skeleton, CommandContext& commandContext, const ModelHandle& modelHandle) {
@@ -177,7 +178,7 @@ namespace Animation {
 		commandContext.SetComputeShaderResource(kInfluence, influenceResource.GetGPUVirtualAddress());
 		commandContext.SetComputeUAV(kOutputVertex, vertexBuffer.GetGPUVirtualAddress());
 		commandContext.SetComputeConstantBuffer(kSkinningInfomation, skinningInfomation.GetGPUVirtualAddress());
-		commandContext.Dispatch(UINT(ModelManager::GetInstance()->GetModel(modelHandle).GetMeshData().at(0)->meshes->vertexCount + 1023) / 1024, 1, 1);
+		commandContext.Dispatch(UINT(model.GetAllVertexCount() + 1023) / 1024, 1, 1);
 	}
 
 }

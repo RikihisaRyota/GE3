@@ -96,7 +96,8 @@ public:
 	const D3D12_VERTEX_BUFFER_VIEW& GetVertexView() const { return vbView; }
 	UploadBuffer& GetIndexBuffer() { return indexBuffer; }
 	UploadBuffer& GetVertexBuffer() { return vertexBuffer; }
-	
+	const uint32_t GetAllVertexCount()const;
+	const uint32_t GetAllIndexCount()const;
 private:
 	void LoadFile(const std::filesystem::path& modelPath);
 	Node ReadNode(aiNode* node);

@@ -29,17 +29,14 @@ void BossStateRoot::Update(CommandContext& commandContext) {
 	}
 	else {
 		time_ += 1.0f / data_.allFrame;
-		/*if (time_ >= 1.0f) {
-			BossStateManager::State tmp = static_cast<BossStateManager::State>((rnd_.NextUIntLimit() % 2)+ int(BossStateManager::State::kTwoHandAttack));
+		if (time_ >= 1.0f) {
+			BossStateManager::State tmp = static_cast<BossStateManager::State>((rnd_.NextUIntLimit() % 1) + int(BossStateManager::State::kCarAttack));
 			switch (tmp) {
-			case BossStateManager::State::kTwoHandAttack:
-				manager_.ChangeState<BossStateTwoHandAttack>();
-				break;
-			case BossStateManager::State::kUpperAttack:
-				manager_.ChangeState<BossStateUpperAttack>();
+			case BossStateManager::State::kCarAttack:
+				manager_.ChangeState<BossStateCarAttack>();
 				break;
 			}
-		}*/
+		}
 		time_ = std::fmod(time_, 1.0f);
 	}
 
@@ -102,7 +99,7 @@ void BossStateRoot::Update(CommandContext& commandContext) {
 void BossStateCarAttack::Initialize() {
 	SetDesc();
 	//animationHandle_ = manager_.boss_->GetAnimation()->GetAnimationHandle("twoHandAttack");
-	modelHandle_ = ModelManager::GetInstance()->Load("Resources/Models/Boss/truck.gltf");
+	modelHandle_ = ModelManager::GetInstance()->Load("Resources/Models/Boss/baggy.gltf");
 	worldTransform_.Initialize();
 	worldTransform_.translate = data_.start;
 	worldTransform_.UpdateMatrix();
@@ -136,16 +133,33 @@ void BossStateCarAttack::Update(CommandContext& commandContext) {
 	time_ = std::clamp(time_, 0.0f, 1.0f);
 
 	if (inTransition_) {
-		if (manager_.GetPreState() == BossStateManager::State::kRoot) {
-			manager_.gpuParticleManager_->CreateTransformModelParticle(boss->GetModelHandle(), *boss->GetAnimation(), boss->GetWorldMatrix(), modelHandle_, worldTransform_.matWorld, time_, data_.vertexEmitter, commandContext);
+		float t = 0.0f;
+		if (time_ < 0.5f) {
+			t = 16.0f * time_ * time_ * time_ * time_ * time_;
 		}
 		else {
-			manager_.gpuParticleManager_->CreateTransformModelParticle(manager_.GetModelHandle(), boss->GetWorldMatrix(), modelHandle_, worldTransform_.matWorld, time_, data_.vertexEmitter, commandContext);
+			t = 1.0f - std::pow(-2.0f * time_ + 2.0f, 5.0f) / 2.0f;
+		}
+		if (manager_.GetPreState() == BossStateManager::State::kRoot) {
+			manager_.gpuParticleManager_->CreateTransformModelParticle(boss->GetModelHandle(), *boss->GetAnimation(), boss->GetWorldMatrix(), modelHandle_, worldTransform_.matWorld, t, data_.vertexEmitter, commandContext);
+		}
+		else {
+			manager_.gpuParticleManager_->CreateTransformModelParticle(manager_.GetModelHandle(), boss->GetWorldMatrix(), modelHandle_, worldTransform_.matWorld, t, data_.vertexEmitter, commandContext);
 		}
 	}
 	else {
-		worldTransform_.translate = Lerp(data_.start, data_.end, time_);
+		float t = 0.0f;
+		if (time_ < 0.5f) {
+			t = 8.0f * time_ * time_ * time_ * time_;
+		}
+		else {
+			t = 1.0f - std::pow(-2.0f * time_ + 2.0f, 4.0f) / 2.0f;
+		}
+		worldTransform_.translate = Lerp(data_.start, data_.end, t);
 		UpdateTransform();
+		GPUParticleShaderStructs::MeshEmitterDesc emitter{};
+		emitter.emitter = data_.vertexEmitter.emitter;
+		emitter.numCreate = 10;
 		manager_.gpuParticleManager_->CreateVertexParticle(modelHandle_, worldTransform_.matWorld, data_.vertexEmitter, commandContext);
 	}
 

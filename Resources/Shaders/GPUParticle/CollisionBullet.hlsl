@@ -59,17 +59,18 @@ void main( uint3 DTid : SV_DispatchThreadID )
     if(particle[index].isAlive&&!particle[index].isHit){
         uint32_t seed = setSeed(index * gRandom.random);
         Circle a,b;
-        a.position=particle[index].translate;
+        a.position=particle[index].translate.translate;
         a.radius=particle[index].scale.x;
         for(uint32_t i=0;i<bulletCount.count;++i){
             if((particle[index].collisionInfo.mask & bullets[i].collisionInfo.attribute)!=0){
                 b.position=bullets[i].bullet.position;
                 b.radius=bullets[i].bullet.radius;
                 if(Collision(a,b)){
-                    float32_t3 v =particle[index].translate- bullets[i].bullet.position;
+                    float32_t3 v =particle[index].translate.translate- bullets[i].bullet.position;
                     particle[index].velocity = normalize(v)* bullets[i].bullet.speed;
                     particle[index].particleLifeTime.time=0;
                     particle[index].particleLifeTime.maxTime= randomRange(bullets[i].emitter.particleLifeSpan.range.min, bullets[i].emitter.particleLifeSpan.range.max, seed);
+                    particle[index].translate.isEasing=false;
                     particle[index].isHit=true;
                 }
             }

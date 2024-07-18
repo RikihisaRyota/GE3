@@ -31,11 +31,16 @@
                 0.18039216101169586,
                 1.0
             ]
-        }
+        },
+        "isStaticColor": 0
+    },
+    "ParticleLifeSpan": {
+        "Max": 2,
+        "Min": 1
     },
     "ParticleLifeTime": {
-        "Max": 1,
-        "Min": 1
+        "Max": 60,
+        "Min": 30
     },
     "RotateAnimation": {
         "initializeAngle": {
@@ -50,14 +55,14 @@
     "ScaleAnimation": {
         "End": {
             "Max": [
-                0.0,
-                0.0,
-                0.0
+                0.10000000149011612,
+                0.10000000149011612,
+                0.10000000149011612
             ],
             "Min": [
-                0.0,
-                0.0,
-                0.0
+                0.10000000149011612,
+                0.10000000149011612,
+                0.10000000149011612
             ]
         },
         "Start": {
@@ -72,7 +77,9 @@
                 0.10000000149011612
             ]
         },
-        "isSame": 1
+        "isSame": 1,
+        "isStaticSize": 1,
+        "isUniformScale": 1
     },
     "Velocity3D": {
         "Max": [

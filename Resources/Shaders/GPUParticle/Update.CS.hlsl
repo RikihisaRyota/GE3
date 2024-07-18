@@ -31,9 +31,13 @@ void main(uint3 DTid : SV_DispatchThreadID)
         // 移動
         //float gravity=0.01f;
         //input[index].velocity.y-=gravity;
-        input[index].translate += input[index].velocity;
+        if(!input[index].translate.isEasing){
+            input[index].translate.translate += input[index].velocity;
+        }else{
+            input[index].translate.translate = lerp(input[index].translate.easing.min,input[index].translate.easing.max,t);
+        }
 
-        float32_t4x4 translateMatrix=MakeTranslationMatrix(input[index].translate);
+        float32_t4x4 translateMatrix=MakeTranslationMatrix(input[index].translate.translate);
 
         // スケール
         input[index].scale = lerp(input[index].scaleRange.min, input[index].scaleRange.max, t);
@@ -43,7 +47,7 @@ void main(uint3 DTid : SV_DispatchThreadID)
         // 回転
         // カメラの位置と向きを取得する
         float32_t3 cameraPos = gViewProjection.cameraPos;
-        float32_t3 cameraDir = normalize(input[index].translate-cameraPos);
+        float32_t3 cameraDir = normalize(input[index].translate.translate-cameraPos);
 
         // カメラの方向を基にビルボードの回転行列を計算する
         float32_t3 upVector = float32_t3(0.0f, 1.0f, 0.0f);

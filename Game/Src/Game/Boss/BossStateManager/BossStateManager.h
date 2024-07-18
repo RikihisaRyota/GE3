@@ -18,7 +18,7 @@ class BossState {
 public:
 	BossState(BossStateManager& manager, bool inTransition) : manager_(manager), inTransition_(inTransition) {}
 	virtual ~BossState() {}
-	virtual void Initialize() = 0;
+	virtual void Initialize(CommandContext& commandContext) = 0;
 	virtual	void SetDesc() = 0;
 	virtual void Update(CommandContext& commandContext) = 0;
 	//virtual void OnCollision(const ColliderDesc& colliderDesc) = 0;
@@ -43,11 +43,12 @@ class BossStateRoot :
 	public BossState {
 public:
 	struct JsonData {
+		GPUParticleShaderStructs::VertexEmitterDesc transformEmitter;
 		float allFrame;
 		float transitionFrame;
 	};
 	using BossState::BossState;
-	void Initialize() override;
+	void Initialize(CommandContext& commandContext) override;
 	void SetDesc() override;
 	void Update(CommandContext& commandContext) override;
 private:
@@ -74,6 +75,7 @@ class BossStateCarAttack :
 public:
 	struct JsonData {
 		GPUParticleShaderStructs::VertexEmitterDesc vertexEmitter;
+		GPUParticleShaderStructs::VertexEmitterDesc transformEmitter;
 		OBB collider;
 		Vector3 start;
 		Vector3 end;
@@ -81,7 +83,7 @@ public:
 		float transitionFrame;
 	};
 	using BossState::BossState;
-	void Initialize() override;
+	void Initialize(CommandContext& commandContext) override;
 	void SetDesc() override;
 	void Update(CommandContext& commandContext) override;
 private:

@@ -33,6 +33,7 @@
             ]
         }
     },
+    "ParticleLifeSpan": {},
     "ParticleLifeTime": {
         "Max": 2,
         "Min": 1

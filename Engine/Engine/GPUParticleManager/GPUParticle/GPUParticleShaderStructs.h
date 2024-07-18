@@ -123,7 +123,11 @@ struct Particle
 		uint32_t attribute;
 		Vector2 pad;
 	};
-
+	struct Translate {
+		Vector3MinMax easing;
+		Vector3 translate;
+		uint32_t isEasing;
+	};
 	struct Particle {
 		Vector3MinMax scaleRange;
 		ParticleLifeTime particleLifeTime;
@@ -139,8 +143,7 @@ struct Particle
 		uint32_t isAlive;
 		uint32_t isHit;
 
-		Vector3 translate;
-		uint32_t pad2;
+		Translate translate;
 
 		Vector3 velocity;
 		uint32_t pad3;
@@ -196,8 +199,11 @@ struct Particle
 	// パーティクルのスケール
 	struct ScaleAnimation {
 		Vector3StartEnd range;
-		uint32_t isSame;
-		Vector3 pad;
+		// x,y,z同じサイズ
+		uint32_t isUniformScale;
+		// イージングしてもサイズ変更無し
+		uint32_t isStaticSize;
+		Vector2 pad;
 	};
 
 	// パーティクルの回転	
@@ -214,6 +220,8 @@ struct Particle
 	// パーティクルの色
 	struct EmitterColor {
 		Vector4StartEnd range;
+		uint32_t isStaticColor;
+		Vector3 pad;
 	};
 
 	// エミッターの生成間隔
@@ -236,6 +244,8 @@ struct Particle
 	};
 
 	struct MeshEmitter {
+		Translate translate;
+
 		ScaleAnimation scale;
 
 		RotateAnimation rotate;
@@ -458,38 +468,65 @@ struct Particle
 
 
 	void SaveMinMax(GPUParticleShaderStructs::UintMinMax& startEnd);
-
 	void LoadMinMax(GPUParticleShaderStructs::UintMinMax& startEnd);
-
 	void SaveMinMax(GPUParticleShaderStructs::Vector3MinMax& startEnd);
-
 	void LoadMinMax(GPUParticleShaderStructs::Vector3MinMax& startEnd);
-
 	void SaveMinMax(GPUParticleShaderStructs::Vector4MinMax& startEnd);
-
 	void LoadMinMax(GPUParticleShaderStructs::Vector4MinMax& startEnd);
 
+	void LoadStartEnd(GPUParticleShaderStructs::Vector3StartEnd& startEnd);
+	void SaveStartEnd(GPUParticleShaderStructs::Vector3StartEnd& startEnd);
+	void LoadStartEnd(GPUParticleShaderStructs::Vector4StartEnd& startEnd);
+	void SaveStartEnd(GPUParticleShaderStructs::Vector4StartEnd& startEnd);
+
 	void DrawMinMax(GPUParticleShaderStructs::UintMinMax& startEnd, float v_speed = 1.0f, int v_min = 0, int v_max = 0);
-
 	void DrawMinMax(GPUParticleShaderStructs::FloatMinMax& startEnd, float v_speed = 1.0f, float v_min = 0.0f, float v_max = 0.0f);
-
 	void DrawMinMax(GPUParticleShaderStructs::Vector3MinMax& startEnd, float v_speed = 1.0f, float v_min = 0.0f, float v_max = 0.0f);
-
 	void DrawMinMax(GPUParticleShaderStructs::Vector4MinMax& startEnd, float v_speed = 1.0f, float v_min = 0.0f, float v_max = 0.0f);
+
+	void DrawStartEnd(GPUParticleShaderStructs::Vector3StartEnd& startEnd, float v_speed = 1.0f, float v_min = 0.0f, float v_max = 0.0f);
+	void DrawStartEnd(GPUParticleShaderStructs::Vector4StartEnd& startEnd, float v_speed = 1.0f, float v_min = 0.0f, float v_max = 0.0f);
 
 	void DrawColorMinMax(GPUParticleShaderStructs::Vector4MinMax& startEnd);
 
-	void LoadStartEnd(GPUParticleShaderStructs::Vector3StartEnd& startEnd);
-
-	void SaveStartEnd(GPUParticleShaderStructs::Vector3StartEnd& startEnd);
-
-	void LoadStartEnd(GPUParticleShaderStructs::Vector4StartEnd& startEnd);
-
-	void SaveStartEnd(GPUParticleShaderStructs::Vector4StartEnd& startEnd);
-
-	void DrawStartEnd(GPUParticleShaderStructs::Vector3StartEnd& startEnd, float v_speed = 1.0f, float v_min = 0.0f, float v_max = 0.0f);
-
-	void DrawStartEnd(GPUParticleShaderStructs::Vector4StartEnd& startEnd, float v_speed = 1.0f, float v_min = 0.0f, float v_max = 0.0f);
-
 	void DrawColor(GPUParticleShaderStructs::Vector4StartEnd& startEnd);
+	void DrawArea(GPUParticleShaderStructs::EmitterArea& area);
+	void DrawScale(GPUParticleShaderStructs::ScaleAnimation& scale);
+	void DrawRotate(GPUParticleShaderStructs::RotateAnimation& rotate);
+	void DrawVelocity(GPUParticleShaderStructs::Velocity3D& velocity);
+	void DrawColor(GPUParticleShaderStructs::EmitterColor& color);
+	void DrawFrequency(GPUParticleShaderStructs::EmitterFrequency& frequency);
+	void DrawParticleLife(GPUParticleShaderStructs::ParticleLifeSpan& particleLifeSpan);
+	void DrawTextureHandle(uint32_t& texture);
+	void DrawCreateParticleNum(uint32_t& createParticleNum);
+	void DrawCollisionInfo(GPUParticleShaderStructs::ParticleAttributes& particleAttributes);
+	void DrawField(GPUParticleShaderStructs::Field& fierd);
+	void DrawFieldFrequency(GPUParticleShaderStructs::FieldFrequency& fieldFrequency);
+
+	void LoadArea(GPUParticleShaderStructs::EmitterArea& area);
+	void LoadScale(GPUParticleShaderStructs::ScaleAnimation& scale);
+	void LoadRotate(GPUParticleShaderStructs::RotateAnimation& rotate);
+	void LoadVelocity(GPUParticleShaderStructs::Velocity3D& velocity);
+	void LoadColor(GPUParticleShaderStructs::EmitterColor& color);
+	void LoadFrequency(GPUParticleShaderStructs::EmitterFrequency& frequency);
+	void LoadParticleLife(GPUParticleShaderStructs::ParticleLifeSpan& particleLifeSpan);
+	void LoadTextureHandle(uint32_t& texture);
+	void LoadCreateParticleNum(uint32_t& createParticleNum);
+	void LoadCollisionInfo(GPUParticleShaderStructs::ParticleAttributes& particleAttributes);
+	void LoadField(GPUParticleShaderStructs::Field& fierd);
+	void LoadFieldArea(GPUParticleShaderStructs::EmitterArea& area);
+	void LoadFieldFrequency(GPUParticleShaderStructs::FieldFrequency& fieldFrequency);
+	void SaveArea(GPUParticleShaderStructs::EmitterArea& area);
+	void SaveScale(GPUParticleShaderStructs::ScaleAnimation& scale);
+	void SaveRotate(GPUParticleShaderStructs::RotateAnimation& rotate);
+	void SaveVelocity(GPUParticleShaderStructs::Velocity3D& velocity);
+	void SaveColor(GPUParticleShaderStructs::EmitterColor& color);
+	void SaveFrequency(GPUParticleShaderStructs::EmitterFrequency& frequency);
+	void SaveParticleLife(GPUParticleShaderStructs::ParticleLifeSpan& particleLifeSpan);
+	void SaveTextureHandle(uint32_t& texture);
+	void SaveCreateParticleNum(uint32_t& createParticleNum);
+	void SaveCollisionInfo(GPUParticleShaderStructs::ParticleAttributes& particleAttributes);
+	void SaveField(GPUParticleShaderStructs::Field& fierd);
+	void SaveFieldArea(GPUParticleShaderStructs::EmitterArea& area);
+	void SaveFieldFrequency(GPUParticleShaderStructs::FieldFrequency& fieldFrequency);
 }

@@ -220,32 +220,32 @@ void GPUParticleManager::CreateEdgeParticle(const ModelHandle& modelHandle, cons
 	gpuParticle_->CreateEdgeParticle(modelHandle, worldTransform, mesh, randomBuffer_, commandContext);
 }
 
-void GPUParticleManager::CreateTransformModelParticle(const ModelHandle& startModelHandle, const Matrix4x4& startWorldTransform, const ModelHandle& endModelHandle, const Matrix4x4& endWorldTransform, float t, const GPUParticleShaderStructs::VertexEmitterDesc& vertexEmitter, CommandContext& commandContext) {
+void GPUParticleManager::CreateTransformModelParticle(const ModelHandle& startModelHandle, const Matrix4x4& startWorldTransform, const ModelHandle& endModelHandle, const Matrix4x4& endWorldTransform,const GPUParticleShaderStructs::VertexEmitterDesc& vertexEmitter, CommandContext& commandContext) {
 	commandContext.SetComputeRootSignature(*translateModelParticleRootSignature_);
 	commandContext.SetPipelineState(*translateModelParticlePipelineState_);
 
-	gpuParticle_->CreateTransformModelParticle(startModelHandle, startWorldTransform, endModelHandle, endWorldTransform, t, vertexEmitter, randomBuffer_, commandContext);
+	gpuParticle_->CreateTransformModelParticle(startModelHandle, startWorldTransform, endModelHandle, endWorldTransform, vertexEmitter, randomBuffer_, commandContext);
 }
 
-void GPUParticleManager::CreateTransformModelParticle(const ModelHandle& startModelHandle, Animation::Animation& startAnimation, const Matrix4x4& startWorldTransform, const ModelHandle& endModelHandle, Animation::Animation& endAnimation, const Matrix4x4& endWorldTransform, float t, const GPUParticleShaderStructs::VertexEmitterDesc& vertexEmitter, CommandContext& commandContext) {
+void GPUParticleManager::CreateTransformModelParticle(const ModelHandle& startModelHandle, Animation::Animation& startAnimation, const Matrix4x4& startWorldTransform, const ModelHandle& endModelHandle, Animation::Animation& endAnimation, const Matrix4x4& endWorldTransform, const GPUParticleShaderStructs::VertexEmitterDesc& vertexEmitter, CommandContext& commandContext) {
 	commandContext.SetComputeRootSignature(*translateModelParticleRootSignature_);
 	commandContext.SetPipelineState(*translateModelParticlePipelineState_);
 
-	gpuParticle_->CreateTransformModelParticle(startModelHandle, startAnimation, startWorldTransform, endModelHandle, endAnimation, endWorldTransform, t, vertexEmitter, randomBuffer_, commandContext);
+	gpuParticle_->CreateTransformModelParticle(startModelHandle, startAnimation, startWorldTransform, endModelHandle, endAnimation, endWorldTransform, vertexEmitter, randomBuffer_, commandContext);
 }
 
-void GPUParticleManager::CreateTransformModelParticle(const ModelHandle& startModelHandle, Animation::Animation& startAnimation, const Matrix4x4& startWorldTransform, const ModelHandle& endModelHandle, const Matrix4x4& endWorldTransform, float t, const GPUParticleShaderStructs::VertexEmitterDesc& vertexEmitter, CommandContext& commandContext) {
+void GPUParticleManager::CreateTransformModelParticle(const ModelHandle& startModelHandle, Animation::Animation& startAnimation, const Matrix4x4& startWorldTransform, const ModelHandle& endModelHandle, const Matrix4x4& endWorldTransform, const GPUParticleShaderStructs::VertexEmitterDesc& vertexEmitter, CommandContext& commandContext) {
 	commandContext.SetComputeRootSignature(*translateModelParticleRootSignature_);
 	commandContext.SetPipelineState(*translateModelParticlePipelineState_);
 
-	gpuParticle_->CreateTransformModelParticle(startModelHandle, startAnimation, startWorldTransform, endModelHandle, endWorldTransform, t, vertexEmitter, randomBuffer_, commandContext);
+	gpuParticle_->CreateTransformModelParticle(startModelHandle, startAnimation, startWorldTransform, endModelHandle, endWorldTransform, vertexEmitter, randomBuffer_, commandContext);
 }
 
-void GPUParticleManager::CreateTransformModelParticle(const ModelHandle& startModelHandle, const Matrix4x4& startWorldTransform, const ModelHandle& endModelHandle, Animation::Animation& endAnimation, const Matrix4x4& endWorldTransform, float t, const GPUParticleShaderStructs::VertexEmitterDesc& vertexEmitter, CommandContext& commandContext) {
+void GPUParticleManager::CreateTransformModelParticle(const ModelHandle& startModelHandle, const Matrix4x4& startWorldTransform, const ModelHandle& endModelHandle, Animation::Animation& endAnimation, const Matrix4x4& endWorldTransform, const GPUParticleShaderStructs::VertexEmitterDesc& vertexEmitter, CommandContext& commandContext) {
 	commandContext.SetComputeRootSignature(*translateModelParticleRootSignature_);
 	commandContext.SetPipelineState(*translateModelParticlePipelineState_);
 
-	gpuParticle_->CreateTransformModelParticle(startModelHandle, startWorldTransform, endModelHandle, endAnimation, endWorldTransform, t, vertexEmitter, randomBuffer_, commandContext);
+	gpuParticle_->CreateTransformModelParticle(startModelHandle, startWorldTransform, endModelHandle, endAnimation, endWorldTransform, vertexEmitter, randomBuffer_, commandContext);
 }
 
 void GPUParticleManager::SetEmitter(const GPUParticleShaderStructs::EmitterForCPU& emitter) {
@@ -838,7 +838,6 @@ void GPUParticleManager::CreateTranslateModelParticle() {
 			kEndVerticesSize,
 			kStartWorldTransform,
 			kEndWorldTransform,
-			kEasingTime,
 			kEmitter,
 			kRandom,
 			kCount,
@@ -858,9 +857,8 @@ void GPUParticleManager::CreateTranslateModelParticle() {
 		rootParameters[kEndVerticesSize].InitAsConstantBufferView(1);
 		rootParameters[kStartWorldTransform].InitAsConstantBufferView(2);
 		rootParameters[kEndWorldTransform].InitAsConstantBufferView(3);
-		rootParameters[kEasingTime].InitAsConstantBufferView(4);
-		rootParameters[kEmitter].InitAsConstantBufferView(5);
-		rootParameters[kRandom].InitAsConstantBufferView(6);
+		rootParameters[kEmitter].InitAsConstantBufferView(4);
+		rootParameters[kRandom].InitAsConstantBufferView(5);
 
 		D3D12_ROOT_SIGNATURE_DESC desc{};
 		desc.pParameters = rootParameters;

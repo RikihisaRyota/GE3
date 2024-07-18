@@ -1,7 +1,7 @@
 {
     "CollisionInfo": {
         "attribute": 1,
-        "mask": 8
+        "mask": 12
     },
     "EmitterColor": {
         "End": {
@@ -31,17 +31,28 @@
                 0.1957295536994934,
                 1.0
             ]
-        }
+        },
+        "isStaticColor": 0
     },
     "NumCreate": 3,
+    "ParticleLifeSpan": {
+        "Max": 1,
+        "Min": 1
+    },
     "ParticleLifeTime": {
         "Max": 10,
         "Min": 1
     },
     "RotateAnimation": {
-        "initializeAngle": {},
+        "initializeAngle": {
+            "Max": 0.0,
+            "Min": 0.0
+        },
         "rotate": 0.0,
-        "rotateSpeed": {}
+        "rotateSpeed": {
+            "Max": 0.0,
+            "Min": 0.0
+        }
     },
     "ScaleAnimation": {
         "End": {
@@ -67,7 +78,9 @@
                 0.009999999776482582,
                 0.009999999776482582
             ]
-        }
+        },
+        "isStaticSize": 0,
+        "isUniformScale": 0
     },
     "Velocity3D": {
         "Max": [
@@ -81,5 +94,6 @@
             0.0
         ]
     },
+    "createParticleNum": 1,
     "textureIndex": "Resources/Images/GPUParticle.png"
 }

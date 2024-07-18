@@ -35,16 +35,14 @@ struct Time{
     float32_t time;
 };
 
-ConstantBuffer<Time> easingTime : register(b4);
+ConstantBuffer<MeshEmitter> meshEmitter : register(b4);
 
-ConstantBuffer<MeshEmitter> meshEmitter : register(b5);
-
-ConstantBuffer<Index> gRandom : register(b6);
+ConstantBuffer<Index> gRandom : register(b5);
 [numthreads(meshThreadBlockSize, 1, 1)]
 void main( uint3 DTid : SV_DispatchThreadID )
 {
     uint32_t index = DTid.x;
-    uint32_t sumCreateParticle=lerp(startVerticeSize.index,endVerticeSize.index,easingTime.time);
+    uint32_t sumCreateParticle = max(startVerticeSize.index,endVerticeSize.index);
     if(index >= sumCreateParticle){
         return;
     }
@@ -55,7 +53,10 @@ void main( uint3 DTid : SV_DispatchThreadID )
         int32_t particleIndex = particleIndexCommands.Consume();
         uint32_t startModelIndex=index % startVerticeSize.index;
         uint32_t endModelIndex=index % endVerticeSize.index;
-        float32_t3 translate =  lerp((mul(startVertices[startModelIndex].position, startWorldTransform.world).xyz), (mul(endVertices[endModelIndex].position,endWorldTransform.world).xyz),easingTime.time);
-        CreateParticle(Output[particleIndex], meshEmitter,translate,seed);
+        MeshEmitter emitter=meshEmitter;
+        emitter.translate.isEasing=true;
+        emitter.translate.easing.min = mul(startVertices[startModelIndex].position, startWorldTransform.world).xyz;
+        emitter.translate.easing.max = mul(endVertices[endModelIndex].position,endWorldTransform.world).xyz;
+        CreateParticle(Output[particleIndex], emitter,seed);
     }
 }

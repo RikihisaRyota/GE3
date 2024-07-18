@@ -8,10 +8,14 @@
 #include "Engine/Math/OBB.h"
 #include "Engine/Collision/CollisionAttribute.h"
 
-void BossStateRoot::Initialize() {
+void BossStateRoot::Initialize(CommandContext& commandContext) {
+	auto boss = manager_.boss_;
 	SetDesc();
 	animationHandle_ = manager_.boss_->GetAnimation()->GetAnimationHandle("idle");
 	time_ = 0.0f;
+	if (manager_.GetPreState() != BossStateManager::State::kRoot) {
+		manager_.gpuParticleManager_->CreateTransformModelParticle(manager_.GetModelHandle(), manager_.GetWorldTransform().matWorld, boss->GetModelHandle(), *boss->GetAnimation(), boss->GetWorldMatrix(), data_.transformEmitter, commandContext);
+	}
 }
 
 void BossStateRoot::SetDesc() {
@@ -43,7 +47,7 @@ void BossStateRoot::Update(CommandContext& commandContext) {
 	auto boss = manager_.boss_;
 	auto animation = manager_.boss_->GetAnimation();
 	if (inTransition_) {
-		manager_.gpuParticleManager_->CreateTransformModelParticle(manager_.GetModelHandle(), manager_.GetWorldTransform().matWorld, boss->GetModelHandle(), *boss->GetAnimation(), boss->GetWorldMatrix(), time_, boss->GetVertexEmitter(), commandContext);
+		
 	}
 	else {
 		animation->Update(animationHandle_, time_, commandContext, boss->GetModelHandle());
@@ -96,9 +100,8 @@ void BossStateRoot::Update(CommandContext& commandContext) {
 //	}
 //}
 
-void BossStateCarAttack::Initialize() {
+void BossStateCarAttack::Initialize(CommandContext& commandContext) {
 	SetDesc();
-	//animationHandle_ = manager_.boss_->GetAnimation()->GetAnimationHandle("twoHandAttack");
 	modelHandle_ = ModelManager::GetInstance()->Load("Resources/Models/Boss/baggy.gltf");
 	worldTransform_.Initialize();
 	worldTransform_.translate = data_.start;
@@ -109,6 +112,13 @@ void BossStateCarAttack::Initialize() {
 	collider_->SetCollisionMask(CollisionAttribute::Player | CollisionAttribute::PlayerBullet);
 	collider_->SetIsActive(true);
 	time_ = 0.0f;
+	auto boss = manager_.boss_;
+	if (manager_.GetPreState() == BossStateManager::State::kRoot) {
+		manager_.gpuParticleManager_->CreateTransformModelParticle(boss->GetModelHandle(), *boss->GetAnimation(), boss->GetWorldMatrix(), modelHandle_, worldTransform_.matWorld, data_.transformEmitter, commandContext);
+	}
+	else {
+		manager_.gpuParticleManager_->CreateTransformModelParticle(manager_.GetModelHandle(), boss->GetWorldMatrix(), modelHandle_, worldTransform_.matWorld, data_.transformEmitter, commandContext);
+	}
 }
 
 void BossStateCarAttack::SetDesc() {
@@ -133,19 +143,7 @@ void BossStateCarAttack::Update(CommandContext& commandContext) {
 	time_ = std::clamp(time_, 0.0f, 1.0f);
 
 	if (inTransition_) {
-		float t = 0.0f;
-		if (time_ < 0.5f) {
-			t = 16.0f * time_ * time_ * time_ * time_ * time_;
-		}
-		else {
-			t = 1.0f - std::pow(-2.0f * time_ + 2.0f, 5.0f) / 2.0f;
-		}
-		if (manager_.GetPreState() == BossStateManager::State::kRoot) {
-			manager_.gpuParticleManager_->CreateTransformModelParticle(boss->GetModelHandle(), *boss->GetAnimation(), boss->GetWorldMatrix(), modelHandle_, worldTransform_.matWorld, t, data_.vertexEmitter, commandContext);
-		}
-		else {
-			manager_.gpuParticleManager_->CreateTransformModelParticle(manager_.GetModelHandle(), boss->GetWorldMatrix(), modelHandle_, worldTransform_.matWorld, t, data_.vertexEmitter, commandContext);
-		}
+	
 	}
 	else {
 		float t = 0.0f;
@@ -157,9 +155,6 @@ void BossStateCarAttack::Update(CommandContext& commandContext) {
 		}
 		worldTransform_.translate = Lerp(data_.start, data_.end, t);
 		UpdateTransform();
-		GPUParticleShaderStructs::MeshEmitterDesc emitter{};
-		emitter.emitter = data_.vertexEmitter.emitter;
-		emitter.numCreate = 10;
 		manager_.gpuParticleManager_->CreateVertexParticle(modelHandle_, worldTransform_.matWorld, data_.vertexEmitter, commandContext);
 	}
 
@@ -202,8 +197,11 @@ void BossStateManager::Initialize() {
 	JSON_LOAD_BY_NAME("end", jsonData_.carAttack.end);
 	JSON_PARENT();
 	JSON_ROOT();
+
 	JSON_CLOSE();
+	GPUParticleShaderStructs::Load("root_transformEmitter", jsonData_.root.transformEmitter);
 	GPUParticleShaderStructs::Load("carAttack", jsonData_.carAttack.vertexEmitter);
+	GPUParticleShaderStructs::Load("carAttack_transformEmitter", jsonData_.carAttack.transformEmitter);
 
 	activeStateEnum_ = kRoot;
 	standbyStateEnum_ = kRoot;
@@ -212,11 +210,11 @@ void BossStateManager::Initialize() {
 
 void BossStateManager::Update(CommandContext& commandContext) {
 	if (standbyState_) {
-		activeState_ = std::move(standbyState_);
-		activeState_->Initialize();
 		preStateEnum_ = activeStateEnum_;
 		activeStateEnum_ = standbyStateEnum_;
 		standbyStateEnum_ = kNone;
+		activeState_ = std::move(standbyState_);
+		activeState_->Initialize(commandContext);
 	}
 
 	if (activeState_) {
@@ -283,6 +281,7 @@ void BossStateManager::DrawImGui() {
 				JSON_SAVE_BY_NAME("allFrame", jsonData_.root.allFrame);
 				JSON_SAVE_BY_NAME("transitionFrame", jsonData_.root.transitionFrame);
 				JSON_ROOT();
+				GPUParticleShaderStructs::Save("root_transformEmitter", jsonData_.root.transformEmitter);
 
 				JSON_OBJECT("CarAttack");
 				JSON_OBJECT("Animation");
@@ -298,14 +297,17 @@ void BossStateManager::DrawImGui() {
 				JSON_PARENT();
 				JSON_ROOT();
 				JSON_CLOSE();
-				GPUParticleShaderStructs::Load("carAttack", jsonData_.carAttack.vertexEmitter);
+				GPUParticleShaderStructs::Save("carAttack", jsonData_.carAttack.vertexEmitter);
+				GPUParticleShaderStructs::Save("carAttack_transformEmitter", jsonData_.carAttack.transformEmitter);
 			}
 			ImGui::TreePop();
 		}
 		ImGui::EndMenu();
 	}
 	ImGui::End();
+	GPUParticleShaderStructs::Debug("root_transformEmitter", jsonData_.root.transformEmitter);
 	GPUParticleShaderStructs::Debug("carAttack", jsonData_.carAttack.vertexEmitter);
+	GPUParticleShaderStructs::Debug("carAttack_transformEmitter", jsonData_.carAttack.transformEmitter);
 #endif // _DEBUG
 }
 // 特定の型に対する GetStateEnum の特殊化

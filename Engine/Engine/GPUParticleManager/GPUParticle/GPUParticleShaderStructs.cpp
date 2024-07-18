@@ -177,6 +177,534 @@ namespace GPUParticleShaderStructs {
 #endif // _DEBUG
 	}
 
+	void DrawArea(GPUParticleShaderStructs::EmitterArea& area) {
+#ifdef _DEBUG
+		if (ImGui::TreeNode("Area")) {
+			switch (area.type) {
+			case GPUParticleShaderStructs::kAABB:
+				if (ImGui::TreeNode("AABB")) {
+					DrawMinMax(area.aabb.area);
+					ImGui::DragFloat3("Position", &area.aabb.position.x, 0.1f);
+					ImGui::TreePop();
+				}
+				break;
+			case GPUParticleShaderStructs::kSphere:
+				if (ImGui::TreeNode("Sphere")) {
+					ImGui::DragFloat("Radius", &area.sphere.radius, 0.1f);
+					ImGui::DragFloat3("Position", &area.sphere.position.x, 0.1f);
+					DrawMinMax(area.sphere.distanceFactor, 0.01f, 0.0f, 1.0f);
+					ImGui::TreePop();
+				}
+				break;
+			case GPUParticleShaderStructs::kCapsule:
+				if (ImGui::TreeNode("Capsule")) {
+					ImGui::DragFloat3("Start", &area.capsule.segment.origin.x, 0.1f);
+					ImGui::DragFloat3("End", &area.capsule.segment.diff.x, 0.1f);
+					ImGui::DragFloat("Radius", &area.capsule.radius, 0.1f);
+					DrawMinMax(area.capsule.distanceFactor, 0.01f, 0.0f, 1.0f);
+					ImGui::TreePop();
+				}
+				break;
+			case GPUParticleShaderStructs::kFigureCount:
+				break;
+			default:
+				break;
+			}
+
+			std::vector<const char*> stateNamesCStr{ "AABB","Sphere","Capsule" };
+			int currentState = static_cast<int>(area.type);
+
+			// ステートを変更するImGui::Comboの作成
+			if (ImGui::Combo("Type", &currentState, stateNamesCStr.data(), int(stateNamesCStr.size()))) {
+				area.type = static_cast<Type>(currentState);
+			}
+			ImGui::TreePop();
+		}
+#endif // _DEBUG
+	}
+
+	void DrawScale(GPUParticleShaderStructs::ScaleAnimation& scale) {
+#ifdef _DEBUG
+		if (ImGui::TreeNode("Scale")) {
+			if (!scale.isStaticSize && !scale.isUniformScale) {
+				DrawStartEnd(scale.range);
+			}
+			else if (!scale.isStaticSize && scale.isUniformScale) {
+				if (ImGui::TreeNode("Start")) {
+					ImGui::DragFloat("Min", &scale.range.start.min.x, 0.01f, 0.0f);
+					ImGui::DragFloat("Max", &scale.range.start.max.x, 0.01f, 0.0f);
+					ImGui::TreePop();
+				}
+
+				if (ImGui::TreeNode("End")) {
+					ImGui::DragFloat("Min", &scale.range.end.min.x, 0.01f, 0.0f);
+					ImGui::DragFloat("Max", &scale.range.end.max.x, 0.01f, 0.0f);
+					ImGui::TreePop();
+				}
+				scale.range.start.min.y = scale.range.start.min.x;
+				scale.range.start.min.z = scale.range.start.min.x;
+				scale.range.start.max.y = scale.range.start.max.x;
+				scale.range.start.max.z = scale.range.start.max.x;
+				scale.range.end.min.y = scale.range.end.min.x;
+				scale.range.end.min.z = scale.range.end.min.x;
+				scale.range.end.max.y = scale.range.end.max.x;
+				scale.range.end.max.z = scale.range.end.max.x;
+			}
+			else if (scale.isStaticSize && !scale.isUniformScale) {
+				ImGui::DragFloat3("Min", &scale.range.start.min.x, 0.01f, 0.0f);
+				ImGui::DragFloat3("Max", &scale.range.start.max.x, 0.01f, 0.0f);
+				scale.range.end = scale.range.start;
+			}
+			else {
+				ImGui::DragFloat("Min", &scale.range.start.min.x, 0.01f, 0.0f);
+				ImGui::DragFloat("Max", &scale.range.start.max.x, 0.01f, 0.0f);
+				scale.range.start.min.y = scale.range.start.min.x;
+				scale.range.start.min.z = scale.range.start.min.x;
+				scale.range.start.max.y = scale.range.start.max.x;
+				scale.range.start.max.z = scale.range.start.max.x;
+				scale.range.end = scale.range.start;
+			}
+			ImGui::Checkbox("IsUniformScale", reinterpret_cast<bool*>(&scale.isUniformScale));
+			ImGui::Checkbox("IsStaticSize", reinterpret_cast<bool*>(&scale.isStaticSize));
+			ImGui::TreePop();
+		}
+#endif // _DEBUG
+	}
+
+	void DrawRotate(GPUParticleShaderStructs::RotateAnimation& rotate) {
+#ifdef _DEBUG
+		if (ImGui::TreeNode("Rotate")) {
+			if (ImGui::TreeNode("InitializeAngle")) {
+				DrawMinMax(rotate.initializeAngle);
+				ImGui::TreePop();
+			}
+			if (ImGui::TreeNode("RotateSpeed")) {
+				DrawMinMax(rotate.rotateSpeed);
+				ImGui::TreePop();
+			}
+			ImGui::TreePop();
+		}
+#endif // _DEBUG
+	}
+
+	void DrawVelocity(GPUParticleShaderStructs::Velocity3D& velocity) {
+#ifdef _DEBUG
+		if (ImGui::TreeNode("Velocity3D")) {
+			DrawMinMax(velocity.range, 0.1f);
+			ImGui::TreePop();
+		}
+#endif // _DEBUG
+	}
+
+	void DrawColor(GPUParticleShaderStructs::EmitterColor& color) {
+#ifdef _DEBUG
+		if (ImGui::TreeNode("Color")) {
+			if (color.isStaticColor) {
+				DrawColorMinMax(color.range.start);
+				color.range.end = color.range.start;
+			}
+			else {
+				DrawColor(color.range);
+			}
+			ImGui::Checkbox("IsStaticColor", reinterpret_cast<bool*>(&color.isStaticColor));
+			ImGui::TreePop();
+		}
+#endif // _DEBUG
+	}
+
+	void DrawFrequency(GPUParticleShaderStructs::EmitterFrequency& frequency) {
+#ifdef _DEBUG
+		if (ImGui::TreeNode("Frequency")) {
+			ImGui::DragInt("Interval", reinterpret_cast<int*>(&frequency.interval), 1, 0);
+			if (!frequency.isLoop) {
+				ImGui::DragInt("EmitterLifeTime", reinterpret_cast<int*>(&frequency.emitterLife), 1, 0);
+			}
+			ImGui::Checkbox("IsLoop", reinterpret_cast<bool*>(&frequency.isLoop));
+			ImGui::TreePop();
+		}
+#endif // _DEBUG
+	}
+
+	void DrawParticleLife(GPUParticleShaderStructs::ParticleLifeSpan& particleLifeSpan) {
+#ifdef _DEBUG
+		if (ImGui::TreeNode("ParticleLife")) {
+			DrawMinMax(particleLifeSpan.range);
+			ImGui::TreePop();
+		}
+#endif // _DEBUG
+	}
+
+	void DrawTextureHandle(uint32_t& texture) {
+#ifdef _DEBUG
+		if (ImGui::TreeNode("TextureHandle")) {
+			std::list<std::string> stageList;
+			for (int i = 0; i < TextureManager::GetInstance()->GetTextureSize(); i++) {
+				stageList.emplace_back(TextureManager::GetInstance()->GetTexture(i).GetName().string());
+
+			}
+			// std::vector に変換する
+			std::vector<const char*> stageArray;
+			for (const auto& stage : stageList) {
+				stageArray.push_back(stage.c_str());
+			}
+
+			int currentTexture = TextureManager::GetInstance()->GetTextureLocation(texture);
+			// Combo を使用する
+			if (ImGui::Combo("Texture", &currentTexture, stageArray.data(), static_cast<int>(stageArray.size()))) {
+				texture = TextureManager::GetInstance()->GetTexture(currentTexture).GetDescriptorIndex();
+			}
+
+			ImGui::TreePop();
+		}
+#endif // _DEBUG
+	}
+
+	void DrawCreateParticleNum(uint32_t& createParticleNum) {
+#ifdef _DEBUG
+		if (ImGui::TreeNode("CreateParticle")) {
+			ImGui::DragInt("Num", reinterpret_cast<int*>(&createParticleNum));
+			ImGui::TreePop();
+		}
+#endif // _DEBUG
+	}
+
+	void DrawCollisionInfo(GPUParticleShaderStructs::ParticleAttributes& particleAttributes) {
+#ifdef _DEBUG
+		if (ImGui::TreeNode("CollisionInfo")) {
+			if (ImGui::TreeNode("Attribute")) {
+				ImGui::Text("Collision Attribute:");
+				ImGui::CheckboxFlags("Player", &particleAttributes.attribute, CollisionAttribute::Player);
+				ImGui::CheckboxFlags("Player Bullet", &particleAttributes.attribute, CollisionAttribute::PlayerBullet);
+				ImGui::CheckboxFlags("Boss", &particleAttributes.attribute, CollisionAttribute::Boss);
+				ImGui::CheckboxFlags("GameObject", &particleAttributes.attribute, CollisionAttribute::GameObject);
+				ImGui::CheckboxFlags("ParticleField", &particleAttributes.attribute, CollisionAttribute::ParticleField);
+				ImGui::TreePop();
+			}
+			if (ImGui::TreeNode("Mask")) {
+				ImGui::Text("Collision Mask:");
+				ImGui::CheckboxFlags("Player", &particleAttributes.mask, CollisionAttribute::Player);
+				ImGui::CheckboxFlags("Player Bullet", &particleAttributes.mask, CollisionAttribute::PlayerBullet);
+				ImGui::CheckboxFlags("Boss", &particleAttributes.mask, CollisionAttribute::Boss);
+				ImGui::CheckboxFlags("GameObject", &particleAttributes.mask, CollisionAttribute::GameObject);
+
+				ImGui::TreePop();
+			}
+			ImGui::TreePop();
+		}
+#endif // _DEBUG
+	}
+
+	void DrawField(GPUParticleShaderStructs::Field& field) {
+#ifdef _DEBUG
+		if (ImGui::TreeNode("FieldInfo")) {
+			switch (field.type) {
+			case GPUParticleShaderStructs::kAttraction:
+				if (ImGui::TreeNode("Attraction")) {
+					ImGui::DragFloat("Attraction", &field.attraction.attraction, 0.01f);
+					ImGui::TreePop();
+				}
+				break;
+			case GPUParticleShaderStructs::kExternalForce:
+				if (ImGui::TreeNode("ExternalForce")) {
+					ImGui::DragFloat3("ExternalForce", &field.externalForce.externalForce.x, 0.01f);
+					ImGui::TreePop();
+				}
+				break;
+			case GPUParticleShaderStructs::kFieldCount:
+				break;
+			default:
+				break;
+			}
+			std::vector<const char*> typeCStr{ "Attraction","ExternalForce" };
+			int currentType = static_cast<int>(field.type);
+
+			// ステートを変更するImGui::Comboの作成
+			if (ImGui::Combo("Type", &currentType, typeCStr.data(), int(typeCStr.size()))) {
+				field.type = static_cast<Type>(currentType);
+			}
+			ImGui::TreePop();
+		}
+#endif // _DEBUG
+	}
+
+	void DrawFieldFrequency(GPUParticleShaderStructs::FieldFrequency& fieldFrequency) {
+#ifdef _DEBUG
+		if (ImGui::TreeNode("Frequency")) {
+			ImGui::Checkbox("IsLoop", reinterpret_cast<bool*>(&fieldFrequency.isLoop));
+			if (!fieldFrequency.isLoop) {
+				ImGui::DragInt("LifeCount", reinterpret_cast<int*>(&fieldFrequency.lifeCount), 1, 0);
+			}
+			ImGui::TreePop();
+		}
+#endif // _DEBUG
+	}
+
+	void LoadArea(GPUParticleShaderStructs::EmitterArea& area) {
+		JSON_OBJECT("EmitterArea");
+		JSON_LOAD_BY_NAME("type", area.type);
+		JSON_OBJECT("EmitterAABB");
+		LoadMinMax(area.aabb.area);
+		JSON_LOAD_BY_NAME("position", area.aabb.position);
+		JSON_PARENT();
+		JSON_OBJECT("EmitterSphere");
+		JSON_LOAD_BY_NAME("position", area.sphere.position);
+		JSON_LOAD_BY_NAME("radius", area.sphere.radius);
+		JSON_OBJECT("distanceFactor");
+		LoadMinMax(area.sphere.distanceFactor);
+		JSON_PARENT();
+		JSON_PARENT();
+
+		JSON_OBJECT("EmitterCapsule");
+		JSON_OBJECT("EmitterSegment");
+		JSON_LOAD_BY_NAME("start", area.capsule.segment.origin);
+		JSON_LOAD_BY_NAME("end", area.capsule.segment.diff);
+		JSON_PARENT();
+		JSON_LOAD_BY_NAME("radius", area.capsule.radius);
+		JSON_OBJECT("distanceFactor");
+		LoadMinMax(area.capsule.distanceFactor);
+		JSON_PARENT();
+		JSON_PARENT();
+
+		JSON_ROOT();
+	}
+
+	void LoadScale(GPUParticleShaderStructs::ScaleAnimation& scale) {
+		JSON_OBJECT("ScaleAnimation");
+		LoadStartEnd(scale.range);
+		JSON_LOAD_BY_NAME("isStaticSize", scale.isStaticSize);
+		JSON_LOAD_BY_NAME("isUniformScale", scale.isUniformScale);
+		JSON_ROOT();
+	}
+
+	void LoadRotate(GPUParticleShaderStructs::RotateAnimation& rotate) {
+		JSON_OBJECT("RotateAnimation");
+		JSON_OBJECT("rotateSpeed");
+		LoadMinMax(rotate.rotateSpeed);
+		JSON_PARENT();
+		JSON_OBJECT("initializeAngle");
+		LoadMinMax(rotate.initializeAngle);
+		JSON_ROOT();
+	}
+
+	void LoadVelocity(GPUParticleShaderStructs::Velocity3D& velocity) {
+		JSON_OBJECT("Velocity3D");
+		LoadMinMax(velocity.range);
+		JSON_ROOT();
+
+	}
+
+	void LoadColor(GPUParticleShaderStructs::EmitterColor& color) {
+		JSON_OBJECT("EmitterColor");
+		LoadStartEnd(color.range);
+		JSON_LOAD_BY_NAME("isStaticColor", color.isStaticColor);
+		JSON_ROOT();
+	}
+
+	void LoadFrequency(GPUParticleShaderStructs::EmitterFrequency& frequency) {
+		JSON_OBJECT("EmitterFrequency");
+		JSON_LOAD_BY_NAME("emitterLife", frequency.emitterLife);
+		JSON_LOAD_BY_NAME("interval", frequency.interval);
+		JSON_LOAD_BY_NAME("isLoop", frequency.isLoop);
+		JSON_ROOT();
+	}
+
+	void LoadParticleLife(GPUParticleShaderStructs::ParticleLifeSpan& particleLifeSpan) {
+		JSON_OBJECT("ParticleLifeSpan");
+		LoadMinMax(particleLifeSpan.range);
+		JSON_ROOT();
+	}
+
+	void LoadTextureHandle(uint32_t& texture) {
+		std::string path{};
+		JSON_LOAD_BY_NAME("textureIndex", path);
+		if (!path.empty()) {
+			texture = TextureManager::GetInstance()->GetTexture(TextureManager::GetInstance()->Load(path)).GetDescriptorIndex();
+		}
+	}
+
+	void LoadCreateParticleNum(uint32_t& createParticleNum) {
+		JSON_LOAD_BY_NAME("createParticleNum", createParticleNum);
+	}
+
+	void LoadCollisionInfo(GPUParticleShaderStructs::ParticleAttributes& particleAttributes) {
+		JSON_OBJECT("CollisionInfo");
+		JSON_LOAD_BY_NAME("mask", particleAttributes.mask);
+		JSON_LOAD_BY_NAME("attribute", particleAttributes.attribute);
+		JSON_ROOT();
+	}
+
+	void LoadField(GPUParticleShaderStructs::Field& field) {
+		JSON_OBJECT("Field");
+		JSON_OBJECT("Attraction");
+		JSON_LOAD_BY_NAME("attraction", field.attraction.attraction);
+		JSON_PARENT();
+		JSON_OBJECT("ExternalForce");
+		JSON_LOAD_BY_NAME("externalForce", field.externalForce.externalForce);
+		JSON_PARENT();
+		JSON_LOAD_BY_NAME("type", field.type);
+		JSON_ROOT();
+	}
+
+	void LoadFieldArea(GPUParticleShaderStructs::EmitterArea& area) {
+		JSON_OBJECT("FieldArea");
+		JSON_OBJECT("FieldAABB");
+		LoadMinMax(area.aabb.area);
+		JSON_LOAD_BY_NAME("position", area.aabb.position);
+		JSON_PARENT();
+
+		JSON_OBJECT("FieldSphere");
+		JSON_LOAD_BY_NAME("position", area.sphere.position);
+		JSON_LOAD_BY_NAME("radius", area.sphere.radius);
+		JSON_PARENT();
+
+		JSON_OBJECT("FieldCapsule");
+		JSON_OBJECT("FieldSegment");
+		JSON_LOAD_BY_NAME("start", area.capsule.segment.origin);
+		JSON_LOAD_BY_NAME("end", area.capsule.segment.diff);
+		JSON_PARENT();
+		JSON_LOAD_BY_NAME("radius", area.capsule.radius);
+		JSON_ROOT();
+	}
+
+	void LoadFieldFrequency(GPUParticleShaderStructs::FieldFrequency& fieldFrequency) {
+		JSON_OBJECT("FieldFrequency");
+		JSON_LOAD_BY_NAME("isLoop", fieldFrequency.isLoop);
+		JSON_LOAD_BY_NAME("lifeCount", fieldFrequency.lifeCount);
+		JSON_ROOT();
+	}
+
+	void SaveArea(GPUParticleShaderStructs::EmitterArea& area) {
+		JSON_OBJECT("EmitterArea");
+		JSON_SAVE_BY_NAME("type", area.type);
+		JSON_OBJECT("EmitterAABB");
+		SaveMinMax(area.aabb.area);
+		JSON_SAVE_BY_NAME("position", area.aabb.position);
+		JSON_PARENT();
+		JSON_OBJECT("EmitterSphere");
+		JSON_SAVE_BY_NAME("radius", area.sphere.radius);
+		JSON_SAVE_BY_NAME("position", area.sphere.position);
+		JSON_OBJECT("distanceFactor");
+		SaveMinMax(area.sphere.distanceFactor);
+		JSON_PARENT();
+		JSON_PARENT();
+
+
+		JSON_OBJECT("EmitterCapsule");
+		JSON_OBJECT("EmitterSegment");
+		JSON_SAVE_BY_NAME("start", area.capsule.segment.origin);
+		JSON_SAVE_BY_NAME("end", area.capsule.segment.diff);
+		JSON_PARENT();
+		JSON_SAVE_BY_NAME("radius", area.capsule.radius);
+		JSON_OBJECT("distanceFactor");
+		SaveMinMax(area.capsule.distanceFactor);
+		JSON_PARENT();
+		JSON_PARENT();
+
+		JSON_ROOT();
+	}
+
+	void SaveScale(GPUParticleShaderStructs::ScaleAnimation& scale) {
+		JSON_OBJECT("ScaleAnimation");
+		SaveStartEnd(scale.range);
+		JSON_SAVE_BY_NAME("isStaticSize", scale.isStaticSize);
+		JSON_SAVE_BY_NAME("isUniformScale", scale.isUniformScale);
+		JSON_ROOT();
+	}
+
+	void SaveRotate(GPUParticleShaderStructs::RotateAnimation& rotate) {
+		JSON_OBJECT("RotateAnimation");
+		JSON_OBJECT("rotateSpeed");
+		SaveMinMax(rotate.rotateSpeed);
+		JSON_PARENT();
+		JSON_OBJECT("initializeAngle");
+		SaveMinMax(rotate.initializeAngle);
+		JSON_ROOT();
+	}
+
+	void SaveVelocity(GPUParticleShaderStructs::Velocity3D& velocity) {
+		JSON_OBJECT("Velocity3D");
+		SaveMinMax(velocity.range);
+		JSON_ROOT();
+
+	}
+
+	void SaveColor(GPUParticleShaderStructs::EmitterColor& color) {
+		JSON_OBJECT("EmitterColor");
+		SaveStartEnd(color.range);
+		JSON_SAVE_BY_NAME("isStaticColor", color.isStaticColor);
+		JSON_ROOT();
+	}
+
+	void SaveFrequency(GPUParticleShaderStructs::EmitterFrequency& frequency) {
+		JSON_OBJECT("EmitterFrequency");
+		JSON_SAVE_BY_NAME("emitterLife", frequency.emitterLife);
+		JSON_SAVE_BY_NAME("interval", frequency.interval);
+		JSON_SAVE_BY_NAME("isLoop", frequency.isLoop);
+		JSON_ROOT();
+	}
+
+	void SaveParticleLife(GPUParticleShaderStructs::ParticleLifeSpan& particleLifeSpan) {
+		JSON_OBJECT("ParticleLifeSpan");
+		SaveMinMax(particleLifeSpan.range);
+		JSON_ROOT();
+	}
+
+	void SaveTextureHandle(uint32_t& texture) {
+		JSON_SAVE_BY_NAME("textureIndex", TextureManager::GetInstance()->GetTexture(TextureManager::GetInstance()->GetTextureLocation(texture)).GetPath().string());
+
+	}
+
+	void SaveCreateParticleNum(uint32_t& createParticleNum) {
+		JSON_SAVE_BY_NAME("createParticleNum", createParticleNum);
+
+	}
+
+	void SaveCollisionInfo(GPUParticleShaderStructs::ParticleAttributes& particleAttributes) {
+		JSON_OBJECT("CollisionInfo");
+		JSON_SAVE_BY_NAME("mask", particleAttributes.mask);
+		JSON_SAVE_BY_NAME("attribute", particleAttributes.attribute);
+		JSON_ROOT();
+	}
+
+	void SaveField(GPUParticleShaderStructs::Field& field) {
+		JSON_OBJECT("Field");
+		JSON_OBJECT("Attraction");
+		JSON_SAVE_BY_NAME("attraction", field.attraction.attraction);
+		JSON_PARENT();
+		JSON_OBJECT("ExternalForce");
+		JSON_SAVE_BY_NAME("externalForce", field.externalForce.externalForce);
+		JSON_PARENT();
+		JSON_SAVE_BY_NAME("type", field.type);
+		JSON_ROOT();
+	}
+
+	void SaveFieldArea(GPUParticleShaderStructs::EmitterArea& area) {
+		JSON_OBJECT("FieldArea");
+		JSON_OBJECT("FieldAABB");
+		LoadMinMax(area.aabb.area);
+		JSON_SAVE_BY_NAME("position", area.aabb.position);
+		JSON_PARENT();
+
+		JSON_OBJECT("FieldSphere");
+		JSON_SAVE_BY_NAME("position", area.sphere.position);
+		JSON_SAVE_BY_NAME("radius", area.sphere.radius);
+		JSON_PARENT();
+
+		JSON_OBJECT("FieldCapsule");
+		JSON_OBJECT("FieldSegment");
+		JSON_SAVE_BY_NAME("start", area.capsule.segment.origin);
+		JSON_SAVE_BY_NAME("end", area.capsule.segment.diff);
+		JSON_PARENT();
+		JSON_SAVE_BY_NAME("radius", area.capsule.radius);
+		JSON_ROOT();
+	}
+
+	void SaveFieldFrequency(GPUParticleShaderStructs::FieldFrequency& fieldFrequency) {
+		JSON_OBJECT("FieldFrequency");
+		JSON_SAVE_BY_NAME("isLoop", fieldFrequency.isLoop);
+		JSON_SAVE_BY_NAME("lifeCount", fieldFrequency.lifeCount);
+		JSON_ROOT();
+	}
 	std::map<std::string, std::tuple<bool*, EmitterForCPU*>>debugEmitters_;
 	std::map<std::string, std::tuple<bool*, MeshEmitterDesc*>>debugMeshEmitterDesc_;
 	std::map<std::string, std::tuple<bool*, VertexEmitterDesc*>>debugVertexEmitterDesc_;
@@ -192,152 +720,26 @@ void GPUParticleShaderStructs::EmitterEditor(const std::string name, std::tuple<
 		*std::get<0>(e) = false;
 	}
 	ImGui::Text("EmitterCount : %d", emitter->emitterCount);
-	if (ImGui::TreeNode("Area")) {
-		switch (emitter->emitterArea.type) {
-		case GPUParticleShaderStructs::kAABB:
-			if (ImGui::TreeNode("AABB")) {
-				DrawMinMax(emitter->emitterArea.aabb.area);
-				ImGui::DragFloat3("Position", &emitter->emitterArea.aabb.position.x, 0.1f);
-				ImGui::TreePop();
-			}
-			break;
-		case GPUParticleShaderStructs::kSphere:
-			if (ImGui::TreeNode("Sphere")) {
-				ImGui::DragFloat("Radius", &emitter->emitterArea.sphere.radius, 0.1f);
-				ImGui::DragFloat3("Position", &emitter->emitterArea.sphere.position.x, 0.1f);
-				DrawMinMax(emitter->emitterArea.sphere.distanceFactor, 0.01f, 0.0f, 1.0f);
-				ImGui::TreePop();
-			}
-			break;
-		case GPUParticleShaderStructs::kCapsule:
-			if (ImGui::TreeNode("Capsule")) {
-				ImGui::DragFloat3("Start", &emitter->emitterArea.capsule.segment.origin.x, 0.1f);
-				ImGui::DragFloat3("End", &emitter->emitterArea.capsule.segment.diff.x, 0.1f);
-				ImGui::DragFloat("Radius", &emitter->emitterArea.capsule.radius, 0.1f);
-				DrawMinMax(emitter->emitterArea.capsule.distanceFactor, 0.01f, 0.0f, 1.0f);
-				ImGui::TreePop();
-			}
-			break;
-		case GPUParticleShaderStructs::kFigureCount:
-			break;
-		default:
-			break;
-		}
 
-		std::vector<const char*> stateNamesCStr{ "AABB","Sphere","Capsule" };
-		int currentState = static_cast<int>(emitter->emitterArea.type);
+	DrawArea(emitter->emitterArea);
 
-		// ステートを変更するImGui::Comboの作成
-		if (ImGui::Combo("Type", &currentState, stateNamesCStr.data(), int(stateNamesCStr.size()))) {
-			emitter->emitterArea.type = static_cast<Type>(currentState);
-		}
-		ImGui::TreePop();
-	}
-	if (ImGui::TreeNode("Scale")) {
-		if (!emitter->scale.isSame) {
-			DrawStartEnd(emitter->scale.range, 0.01f, 0.0f);
-		}
-		else {
-			if (ImGui::TreeNode("Start")) {
-				ImGui::DragFloat("Min", &emitter->scale.range.start.min.x, 0.01f, 0.0f);
-				ImGui::DragFloat("Max", &emitter->scale.range.start.max.x, 0.01f, 0.0f);
-				ImGui::TreePop();
-			}
+	DrawScale(emitter->scale);
 
-			if (ImGui::TreeNode("End")) {
-				ImGui::DragFloat("Min", &emitter->scale.range.end.min.x, 0.01f, 0.0f);
-				ImGui::DragFloat("Max", &emitter->scale.range.end.max.x, 0.01f, 0.0f);
-				ImGui::TreePop();
-			}
-			emitter->scale.range.start.min.y = emitter->scale.range.start.min.x;
-			emitter->scale.range.start.min.z = emitter->scale.range.start.min.x;
-			emitter->scale.range.start.max.y = emitter->scale.range.start.max.x;
-			emitter->scale.range.start.max.z = emitter->scale.range.start.max.x;
-			emitter->scale.range.end.min.y = emitter->scale.range.end.min.x;
-			emitter->scale.range.end.min.z = emitter->scale.range.end.min.x;
-			emitter->scale.range.end.max.y = emitter->scale.range.end.max.x;
-			emitter->scale.range.end.max.z = emitter->scale.range.end.max.x;
-		}
-		ImGui::Checkbox("IsSame", reinterpret_cast<bool*>(&emitter->scale.isSame));
-		ImGui::TreePop();
-	}
-	if (ImGui::TreeNode("Rotate")) {
-		if (ImGui::TreeNode("InitializeAngle")) {
-			DrawMinMax(emitter->rotate.initializeAngle);
-			ImGui::TreePop();
-		}
-		if (ImGui::TreeNode("RotateSpeed")) {
-			DrawMinMax(emitter->rotate.rotateSpeed);
-			ImGui::TreePop();
-		}
-		ImGui::TreePop();
-	}
-	if (ImGui::TreeNode("Velocity3D")) {
-		DrawMinMax(emitter->velocity.range, 0.1f);
-		ImGui::TreePop();
-	}
-	if (ImGui::TreeNode("Color")) {
-		DrawColor(emitter->color.range);
-		ImGui::TreePop();
-	}
-	if (ImGui::TreeNode("Frequency")) {
-		ImGui::DragInt("Interval", reinterpret_cast<int*>(&emitter->frequency.interval), 1, 0);
-		if (!emitter->frequency.isLoop) {
-			ImGui::DragInt("EmitterLifeTime", reinterpret_cast<int*>(&emitter->frequency.emitterLife), 1, 0);
-		}
-		ImGui::Checkbox("IsLoop", reinterpret_cast<bool*>(&emitter->frequency.isLoop));
-		ImGui::TreePop();
-	}
-	if (ImGui::TreeNode("ParticleLife")) {
-		DrawMinMax(emitter->particleLifeSpan.range);
-		ImGui::TreePop();
-	}
-	if (ImGui::TreeNode("TextureHandle")) {
-		std::list<std::string> stageList;
-		for (int i = 0; i < TextureManager::GetInstance()->GetTextureSize(); i++) {
-			stageList.emplace_back(TextureManager::GetInstance()->GetTexture(i).GetName().string());
+	DrawRotate(emitter->rotate);
 
-		}
-		// std::vector に変換する
-		std::vector<const char*> stageArray;
-		for (const auto& stage : stageList) {
-			stageArray.push_back(stage.c_str());
-		}
+	DrawVelocity(emitter->velocity);
 
-		int currentTexture = TextureManager::GetInstance()->GetTextureLocation(emitter->textureIndex);
-		// Combo を使用する
-		if (ImGui::Combo("Texture", &currentTexture, stageArray.data(), static_cast<int>(stageArray.size()))) {
-			emitter->textureIndex = TextureManager::GetInstance()->GetTexture(currentTexture).GetDescriptorIndex();
-		}
+	DrawColor(emitter->color);
 
-		ImGui::TreePop();
-	}
-	if (ImGui::TreeNode("CreateParticle")) {
-		ImGui::DragInt("Num", reinterpret_cast<int*>(&emitter->createParticleNum));
-		ImGui::TreePop();
-	}
+	DrawFrequency(emitter->frequency);
 
-	if (ImGui::TreeNode("CollisionInfo")) {
-		if (ImGui::TreeNode("Attribute")) {
-			ImGui::Text("Collision Attribute:");
-			ImGui::CheckboxFlags("Player", &emitter->collisionInfo.attribute, CollisionAttribute::Player);
-			ImGui::CheckboxFlags("Player Bullet", &emitter->collisionInfo.attribute, CollisionAttribute::PlayerBullet);
-			ImGui::CheckboxFlags("Boss", &emitter->collisionInfo.attribute, CollisionAttribute::Boss);
-			ImGui::CheckboxFlags("GameObject", &emitter->collisionInfo.attribute, CollisionAttribute::GameObject);
-			ImGui::CheckboxFlags("ParticleField", &emitter->collisionInfo.attribute, CollisionAttribute::ParticleField);
-			ImGui::TreePop();
-		}
-		if (ImGui::TreeNode("Mask")) {
-			ImGui::Text("Collision Mask:");
-			ImGui::CheckboxFlags("Player", &emitter->collisionInfo.mask, CollisionAttribute::Player);
-			ImGui::CheckboxFlags("Player Bullet", &emitter->collisionInfo.mask, CollisionAttribute::PlayerBullet);
-			ImGui::CheckboxFlags("Boss", &emitter->collisionInfo.mask, CollisionAttribute::Boss);
-			ImGui::CheckboxFlags("GameObject", &emitter->collisionInfo.mask, CollisionAttribute::GameObject);
+	DrawParticleLife(emitter->particleLifeSpan);
 
-			ImGui::TreePop();
-		}
-		ImGui::TreePop();
-	}
+	DrawTextureHandle(emitter->textureIndex);
+
+	DrawCreateParticleNum(emitter->createParticleNum);
+
+	DrawCollisionInfo(emitter->collisionInfo);
 
 	if (ImGui::Button("Save")) {
 		GPUParticleShaderStructs::Save(name, *emitter);
@@ -355,106 +757,23 @@ void GPUParticleShaderStructs::EmitterEditor(const std::string name, std::tuple<
 	if (ImGui::Button("Delete")) {
 		*std::get<0>(d) = false;
 	}
-	if (ImGui::TreeNode("Scale")) {
-		if (!desc->emitter.scale.isSame) {
-			DrawStartEnd(desc->emitter.scale.range, 0.01f, 0.0f);
-		}
-		else {
-			if (ImGui::TreeNode("Start")) {
-				ImGui::DragFloat("Min", &desc->emitter.scale.range.start.min.x, 0.01f, 0.0f);
-				ImGui::DragFloat("Max", &desc->emitter.scale.range.start.max.x, 0.01f, 0.0f);
-				ImGui::TreePop();
-			}
 
-			if (ImGui::TreeNode("End")) {
-				ImGui::DragFloat("Min", &desc->emitter.scale.range.end.min.x, 0.01f, 0.0f);
-				ImGui::DragFloat("Max", &desc->emitter.scale.range.end.max.x, 0.01f, 0.0f);
-				ImGui::TreePop();
-			}
-			desc->emitter.scale.range.start.min.y = desc->emitter.scale.range.start.min.x;
-			desc->emitter.scale.range.start.min.z = desc->emitter.scale.range.start.min.x;
-			desc->emitter.scale.range.start.max.y = desc->emitter.scale.range.start.max.x;
-			desc->emitter.scale.range.start.max.z = desc->emitter.scale.range.start.max.x;
-			desc->emitter.scale.range.end.min.y = desc->emitter.scale.range.end.min.x;
-			desc->emitter.scale.range.end.min.z = desc->emitter.scale.range.end.min.x;
-			desc->emitter.scale.range.end.max.y = desc->emitter.scale.range.end.max.x;
-			desc->emitter.scale.range.end.max.z = desc->emitter.scale.range.end.max.x;
-		}
-		ImGui::Checkbox("IsSame", reinterpret_cast<bool*>(&desc->emitter.scale.isSame));
-		ImGui::TreePop();
-	}
-	if (ImGui::TreeNode("Rotate")) {
-		if (ImGui::TreeNode("InitializeAngle")) {
-			DrawMinMax(desc->emitter.rotate.initializeAngle);
-			ImGui::TreePop();
-		}
-		if (ImGui::TreeNode("RotateSpeed")) {
-			DrawMinMax(desc->emitter.rotate.rotateSpeed);
-			ImGui::TreePop();
-		}
-		ImGui::TreePop();
-	}
-	if (ImGui::TreeNode("Velocity3D")) {
-		DrawMinMax(desc->emitter.velocity.range, 0.1f);
-		ImGui::TreePop();
-	}
-	if (ImGui::TreeNode("Color")) {
-		DrawColor(desc->emitter.color.range);
-		ImGui::TreePop();
-	}
-	if (ImGui::TreeNode("ParticleLife")) {
-		DrawMinMax(desc->emitter.particleLifeSpan.range, 1.0f, 0);
-		ImGui::TreePop();
-	}
-	if (ImGui::TreeNode("TextureHandle")) {
-		std::list<std::string> stageList;
-		for (int i = 0; i < TextureManager::GetInstance()->GetTextureSize(); i++) {
-			stageList.emplace_back(TextureManager::GetInstance()->GetTexture(i).GetName().string());
+	DrawScale(desc->emitter.scale);
 
-		}
-		// std::vector に変換する
-		std::vector<const char*> stageArray;
-		for (const auto& stage : stageList) {
-			stageArray.push_back(stage.c_str());
-		}
+	DrawRotate(desc->emitter.rotate);
 
-		int currentTexture = TextureManager::GetInstance()->GetTextureLocation(desc->emitter.textureIndex);
-		// Combo を使用する
-		if (ImGui::Combo("Texture", &currentTexture, stageArray.data(), static_cast<int>(stageArray.size()))) {
-			desc->emitter.textureIndex = TextureManager::GetInstance()->GetTexture(currentTexture).GetDescriptorIndex();
-		}
+	DrawVelocity(desc->emitter.velocity);
 
-		ImGui::TreePop();
-	}
-	if (ImGui::TreeNode("NumCreate")) {
-		int num = desc->numCreate;
-		ImGui::DragInt("num", &num, 1.0f, 0, 50);
-		desc->numCreate = num;
-		ImGui::TreePop();
-	}
+	DrawColor(desc->emitter.color);
 
-	if (ImGui::TreeNode("CollisionInfo")) {
-		if (ImGui::TreeNode("Attribute")) {
-			ImGui::Text("Collision Attribute:");
-			ImGui::CheckboxFlags("Player", &desc->emitter.collisionInfo.attribute, CollisionAttribute::Player);
-			ImGui::CheckboxFlags("Player Bullet", &desc->emitter.collisionInfo.attribute, CollisionAttribute::PlayerBullet);
-			ImGui::CheckboxFlags("Boss", &desc->emitter.collisionInfo.attribute, CollisionAttribute::Boss);
-			ImGui::CheckboxFlags("GameObject", &desc->emitter.collisionInfo.attribute, CollisionAttribute::GameObject);
-			ImGui::CheckboxFlags("ParticleField", &desc->emitter.collisionInfo.attribute, CollisionAttribute::ParticleField);
-			ImGui::TreePop();
-		}
-		if (ImGui::TreeNode("Mask")) {
-			ImGui::Text("Collision Mask:");
-			ImGui::CheckboxFlags("Player", &desc->emitter.collisionInfo.mask, CollisionAttribute::Player);
-			ImGui::CheckboxFlags("Player Bullet", &desc->emitter.collisionInfo.mask, CollisionAttribute::PlayerBullet);
-			ImGui::CheckboxFlags("Boss", &desc->emitter.collisionInfo.mask, CollisionAttribute::Boss);
-			ImGui::CheckboxFlags("GameObject", &desc->emitter.collisionInfo.mask, CollisionAttribute::GameObject);
+	DrawParticleLife(desc->emitter.particleLifeSpan);
 
-			ImGui::TreePop();
-		}
+	DrawTextureHandle(desc->emitter.textureIndex);
 
-		ImGui::TreePop();
-	}
+	DrawCreateParticleNum(desc->numCreate);
+
+	DrawCollisionInfo(desc->emitter.collisionInfo);
+
 
 	if (ImGui::Button("Save")) {
 		GPUParticleShaderStructs::Save(name, *desc);
@@ -473,100 +792,19 @@ void GPUParticleShaderStructs::EmitterEditor(const std::string name, std::tuple<
 	if (ImGui::Button("Delete")) {
 		*std::get<0>(d) = false;
 	}
-	if (ImGui::TreeNode("Scale")) {
-		if (!desc->emitter.scale.isSame) {
-			DrawStartEnd(desc->emitter.scale.range, 0.01f, 0.0f);
-		}
-		else {
-			if (ImGui::TreeNode("Start")) {
-				ImGui::DragFloat("Min", &desc->emitter.scale.range.start.min.x, 0.01f, 0.0f);
-				ImGui::DragFloat("Max", &desc->emitter.scale.range.start.max.x, 0.01f, 0.0f);
-				ImGui::TreePop();
-			}
+	DrawScale(desc->emitter.scale);
 
-			if (ImGui::TreeNode("End")) {
-				ImGui::DragFloat("Min", &desc->emitter.scale.range.end.min.x, 0.01f, 0.0f);
-				ImGui::DragFloat("Max", &desc->emitter.scale.range.end.max.x, 0.01f, 0.0f);
+	DrawRotate(desc->emitter.rotate);
 
-				ImGui::TreePop();
-			}
-			desc->emitter.scale.range.start.min.y = desc->emitter.scale.range.start.min.x;
-			desc->emitter.scale.range.start.min.z = desc->emitter.scale.range.start.min.x;
-			desc->emitter.scale.range.start.max.y = desc->emitter.scale.range.start.max.x;
-			desc->emitter.scale.range.start.max.z = desc->emitter.scale.range.start.max.x;
-			desc->emitter.scale.range.end.min.y = desc->emitter.scale.range.end.min.x;
-			desc->emitter.scale.range.end.min.z = desc->emitter.scale.range.end.min.x;
-			desc->emitter.scale.range.end.max.y = desc->emitter.scale.range.end.max.x;
-			desc->emitter.scale.range.end.max.z = desc->emitter.scale.range.end.max.x;
-		}
-		ImGui::Checkbox("IsSame", reinterpret_cast<bool*>(&desc->emitter.scale.isSame));
-		ImGui::TreePop();
-	}
-	if (ImGui::TreeNode("Rotate")) {
-		if (ImGui::TreeNode("InitializeAngle")) {
-			DrawMinMax(desc->emitter.rotate.initializeAngle);
-			ImGui::TreePop();
-		}
-		if (ImGui::TreeNode("RotateSpeed")) {
-			DrawMinMax(desc->emitter.rotate.rotateSpeed);
-			ImGui::TreePop();
-		}
-		ImGui::TreePop();
-	}
-	if (ImGui::TreeNode("Velocity3D")) {
-		DrawMinMax(desc->emitter.velocity.range, 0.1f);
-		ImGui::TreePop();
-	}
-	if (ImGui::TreeNode("Color")) {
-		DrawColor(desc->emitter.color.range);
-		ImGui::TreePop();
-	}
-	if (ImGui::TreeNode("ParticleLife")) {
-		DrawMinMax(desc->emitter.particleLifeSpan.range, 1.0f, 0);
-		ImGui::TreePop();
-	}
-	if (ImGui::TreeNode("TextureHandle")) {
-		std::list<std::string> stageList;
-		for (int i = 0; i < TextureManager::GetInstance()->GetTextureSize(); i++) {
-			stageList.emplace_back(TextureManager::GetInstance()->GetTexture(i).GetName().string());
+	DrawVelocity(desc->emitter.velocity);
 
-		}
-		// std::vector に変換する
-		std::vector<const char*> stageArray;
-		for (const auto& stage : stageList) {
-			stageArray.push_back(stage.c_str());
-		}
+	DrawColor(desc->emitter.color);
 
-		int currentTexture = TextureManager::GetInstance()->GetTextureLocation(desc->emitter.textureIndex);
-		// Combo を使用する
-		if (ImGui::Combo("Texture", &currentTexture, stageArray.data(), static_cast<int>(stageArray.size()))) {
-			desc->emitter.textureIndex = TextureManager::GetInstance()->GetTexture(currentTexture).GetDescriptorIndex();
-		}
+	DrawParticleLife(desc->emitter.particleLifeSpan);
 
-		ImGui::TreePop();
-	}
+	DrawTextureHandle(desc->emitter.textureIndex);
 
-	if (ImGui::TreeNode("CollisionInfo")) {
-		if (ImGui::TreeNode("Attribute")) {
-			ImGui::Text("Collision Attribute:");
-			ImGui::CheckboxFlags("Player", &desc->emitter.collisionInfo.attribute, CollisionAttribute::Player);
-			ImGui::CheckboxFlags("Player Bullet", &desc->emitter.collisionInfo.attribute, CollisionAttribute::PlayerBullet);
-			ImGui::CheckboxFlags("Boss", &desc->emitter.collisionInfo.attribute, CollisionAttribute::Boss);
-			ImGui::CheckboxFlags("GameObject", &desc->emitter.collisionInfo.attribute, CollisionAttribute::GameObject);
-			ImGui::CheckboxFlags("ParticleField", &desc->emitter.collisionInfo.attribute, CollisionAttribute::ParticleField);
-			ImGui::TreePop();
-		}
-		if (ImGui::TreeNode("Mask")) {
-			ImGui::Text("Collision Mask:");
-			ImGui::CheckboxFlags("Player", &desc->emitter.collisionInfo.mask, CollisionAttribute::Player);
-			ImGui::CheckboxFlags("Player Bullet", &desc->emitter.collisionInfo.mask, CollisionAttribute::PlayerBullet);
-			ImGui::CheckboxFlags("Boss Body", &desc->emitter.collisionInfo.mask, CollisionAttribute::Boss);
-			ImGui::CheckboxFlags("GameObject", &desc->emitter.collisionInfo.mask, CollisionAttribute::GameObject);
-
-			ImGui::TreePop();
-		}
-		ImGui::TreePop();
-	}
+	DrawCollisionInfo(desc->emitter.collisionInfo);
 
 	if (ImGui::Button("Save")) {
 		GPUParticleShaderStructs::Save(name, *desc);
@@ -585,82 +823,12 @@ void GPUParticleShaderStructs::EmitterEditor(const std::string name, std::tuple<
 	if (ImGui::Button("Delete")) {
 		*std::get<0>(d) = false;
 	}
-	if (ImGui::TreeNode("Area")) {
-		switch (emitter->fieldArea.type) {
-		case GPUParticleShaderStructs::kAABB:
-			if (ImGui::TreeNode("AABB")) {
-				DrawMinMax(emitter->fieldArea.aabb.area);
-				ImGui::DragFloat3("Position", &emitter->fieldArea.aabb.position.x, 0.1f);
-				ImGui::TreePop();
-			}
-			break;
-		case GPUParticleShaderStructs::kSphere:
-			if (ImGui::TreeNode("Sphere")) {
-				ImGui::DragFloat("Radius", &emitter->fieldArea.sphere.radius, 0.1f);
-				ImGui::DragFloat3("Position", &emitter->fieldArea.sphere.position.x, 0.1f);
-				ImGui::TreePop();
-			}
-			break;
-		case GPUParticleShaderStructs::kCapsule:
-			if (ImGui::TreeNode("Capsule")) {
-				ImGui::DragFloat3("Start", &emitter->fieldArea.capsule.segment.origin.x, 0.1f);
-				ImGui::DragFloat3("End", &emitter->fieldArea.capsule.segment.diff.x, 0.1f);
-				ImGui::DragFloat("Radius", &emitter->fieldArea.capsule.radius, 0.1f);
-				ImGui::TreePop();
-			}
-			break;
-		case GPUParticleShaderStructs::kFigureCount:
-			break;
-		default:
-			break;
-		}
 
-		std::vector<const char*> stateNamesCStr{ "AABB","Sphere","Capsule" };
-		int currentState = static_cast<int>(emitter->fieldArea.type);
+	DrawArea(emitter->fieldArea);
 
-		// ステートを変更するImGui::Comboの作成
-		if (ImGui::Combo("Type", &currentState, stateNamesCStr.data(), int(stateNamesCStr.size()))) {
-			emitter->fieldArea.type = static_cast<Type>(currentState);
-		}
-		ImGui::TreePop();
-	}
+	DrawField(emitter->field);
 
-	if (ImGui::TreeNode("FieldInfo")) {
-		switch (emitter->field.type) {
-		case GPUParticleShaderStructs::kAttraction:
-			if (ImGui::TreeNode("Attraction")) {
-				ImGui::DragFloat("Attraction", &emitter->field.attraction.attraction, 0.01f);
-				ImGui::TreePop();
-			}
-			break;
-		case GPUParticleShaderStructs::kExternalForce:
-			if (ImGui::TreeNode("ExternalForce")) {
-				ImGui::DragFloat3("ExternalForce", &emitter->field.externalForce.externalForce.x, 0.01f);
-				ImGui::TreePop();
-			}
-			break;
-		case GPUParticleShaderStructs::kFieldCount:
-			break;
-		default:
-			break;
-		}
-		std::vector<const char*> typeCStr{ "Attraction","ExternalForce" };
-		int currentType = static_cast<int>(emitter->field.type);
-
-		// ステートを変更するImGui::Comboの作成
-		if (ImGui::Combo("Type", &currentType, typeCStr.data(), int(typeCStr.size()))) {
-			emitter->field.type = static_cast<Type>(currentType);
-		}
-		ImGui::TreePop();
-	}
-
-	if (ImGui::TreeNode("Frequency")) {
-		ImGui::Checkbox("IsLoop", reinterpret_cast<bool*>(&emitter->frequency.isLoop));
-		if (!emitter->frequency.isLoop) {
-			ImGui::DragInt("LifeCount", reinterpret_cast<int*>(&emitter->frequency.lifeCount), 1, 0);
-		}
-		ImGui::TreePop();
-	}
+	DrawFieldFrequency(emitter->frequency);
 
 	if (ImGui::Button("Save")) {
 		GPUParticleShaderStructs::Save(name, *emitter);
@@ -876,193 +1044,44 @@ void GPUParticleShaderStructs::Update() {
 
 void GPUParticleShaderStructs::Load(const std::string name, GPUParticleShaderStructs::EmitterForCPU& emitter) {
 	JSON_OPEN("Resources/GPUParticle/Emitter/" + name + ".json");
-
-	JSON_OBJECT("EmitterArea");
-	JSON_LOAD_BY_NAME("type", emitter.emitterArea.type);
-	JSON_OBJECT("EmitterAABB");
-	LoadMinMax(emitter.emitterArea.aabb.area);
-	JSON_LOAD_BY_NAME("position", emitter.emitterArea.aabb.position);
-	JSON_PARENT();
-	JSON_OBJECT("EmitterSphere");
-	JSON_LOAD_BY_NAME("position", emitter.emitterArea.sphere.position);
-	JSON_LOAD_BY_NAME("radius", emitter.emitterArea.sphere.radius);
-	JSON_OBJECT("distanceFactor");
-	LoadMinMax(emitter.emitterArea.sphere.distanceFactor);
-	JSON_PARENT();
-	JSON_PARENT();
-
-	JSON_OBJECT("EmitterCapsule");
-	JSON_OBJECT("EmitterSegment");
-	JSON_LOAD_BY_NAME("start", emitter.emitterArea.capsule.segment.origin);
-	JSON_LOAD_BY_NAME("end", emitter.emitterArea.capsule.segment.diff);
-	JSON_PARENT();
-	JSON_LOAD_BY_NAME("radius", emitter.emitterArea.capsule.radius);
-	JSON_OBJECT("distanceFactor");
-	LoadMinMax(emitter.emitterArea.capsule.distanceFactor);
-	JSON_PARENT();
-	JSON_PARENT();
-
-	JSON_ROOT();
-
-	JSON_OBJECT("EmitterColor");
-	LoadStartEnd(emitter.color.range);
-	JSON_ROOT();
-
-	JSON_OBJECT("EmitterFrequency");
-	JSON_LOAD_BY_NAME("emitterLife", emitter.frequency.emitterLife);
-	JSON_LOAD_BY_NAME("interval", emitter.frequency.interval);
-	JSON_LOAD_BY_NAME("isLoop", emitter.frequency.isLoop);
-	JSON_ROOT();
-
-	JSON_OBJECT("ParticleLifeSpan");
-	LoadMinMax(emitter.particleLifeSpan.range);
-	JSON_ROOT();
-
-	JSON_OBJECT("RotateAnimation");
-	JSON_OBJECT("rotateSpeed");
-	LoadMinMax(emitter.rotate.rotateSpeed);
-	JSON_PARENT();
-	JSON_OBJECT("initializeAngle");
-	LoadMinMax(emitter.rotate.initializeAngle);
-	JSON_ROOT();
-
-	JSON_OBJECT("ScaleAnimation");
-	LoadStartEnd(emitter.scale.range);
-	JSON_LOAD_BY_NAME("isSame", emitter.scale.isSame);
-	JSON_ROOT();
-
-	JSON_OBJECT("Velocity3D");
-	LoadMinMax(emitter.velocity.range);
-	JSON_ROOT();
-
-	JSON_OBJECT("CollisionInfo");
-	JSON_LOAD_BY_NAME("mask", emitter.collisionInfo.mask);
-	JSON_LOAD_BY_NAME("attribute", emitter.collisionInfo.attribute);
-	JSON_ROOT();
-
-	JSON_LOAD_BY_NAME("createParticleNum", emitter.createParticleNum);
-	std::string path{};
-	JSON_LOAD_BY_NAME("textureIndex", path);
-	if (!path.empty()) {
-		emitter.textureIndex = TextureManager::GetInstance()->GetTexture(TextureManager::GetInstance()->Load(path)).GetDescriptorIndex();
-	}
-
+	LoadArea(emitter.emitterArea);
+	LoadColor(emitter.color);
+	LoadFrequency(emitter.frequency);
+	LoadParticleLife(emitter.particleLifeSpan);
+	LoadRotate(emitter.rotate);
+	LoadScale(emitter.scale);
+	LoadVelocity(emitter.velocity);
+	LoadCollisionInfo(emitter.collisionInfo);
+	LoadCreateParticleNum(emitter.createParticleNum);
+	LoadTextureHandle(emitter.textureIndex);
 	JSON_CLOSE();
 }
 
 void GPUParticleShaderStructs::Save(const std::string name, GPUParticleShaderStructs::EmitterForCPU& emitter) {
 	JSON_OPEN("Resources/GPUParticle/Emitter/" + name + ".json");
-
-	JSON_OBJECT("EmitterArea");
-	JSON_SAVE_BY_NAME("type", emitter.emitterArea.type);
-	JSON_OBJECT("EmitterAABB");
-	SaveMinMax(emitter.emitterArea.aabb.area);
-	JSON_SAVE_BY_NAME("position", emitter.emitterArea.aabb.position);
-	JSON_PARENT();
-	JSON_OBJECT("EmitterSphere");
-	JSON_SAVE_BY_NAME("radius", emitter.emitterArea.sphere.radius);
-	JSON_SAVE_BY_NAME("position", emitter.emitterArea.sphere.position);
-	JSON_OBJECT("distanceFactor");
-	SaveMinMax(emitter.emitterArea.sphere.distanceFactor);
-	JSON_PARENT();
-	JSON_PARENT();
-
-
-	JSON_OBJECT("EmitterCapsule");
-	JSON_OBJECT("EmitterSegment");
-	JSON_SAVE_BY_NAME("start", emitter.emitterArea.capsule.segment.origin);
-	JSON_SAVE_BY_NAME("end", emitter.emitterArea.capsule.segment.diff);
-	JSON_PARENT();
-	JSON_SAVE_BY_NAME("radius", emitter.emitterArea.capsule.radius);
-	JSON_OBJECT("distanceFactor");
-	SaveMinMax(emitter.emitterArea.capsule.distanceFactor);
-	JSON_PARENT();
-	JSON_PARENT();
-
-	JSON_ROOT();
-
-	JSON_OBJECT("EmitterColor");
-	SaveStartEnd(emitter.color.range);
-	JSON_ROOT();
-
-	JSON_OBJECT("EmitterFrequency");
-	JSON_SAVE_BY_NAME("emitterLife", emitter.frequency.emitterLife);
-	JSON_SAVE_BY_NAME("interval", emitter.frequency.interval);
-	JSON_SAVE_BY_NAME("isLoop", emitter.frequency.isLoop);
-	JSON_ROOT();
-
-	JSON_OBJECT("ParticleLifeSpan");
-	SaveMinMax(emitter.particleLifeSpan.range);
-	JSON_ROOT();
-
-	JSON_OBJECT("RotateAnimation");
-	JSON_OBJECT("rotateSpeed");
-	SaveMinMax(emitter.rotate.rotateSpeed);
-	JSON_PARENT();
-	JSON_OBJECT("initializeAngle");
-	SaveMinMax(emitter.rotate.initializeAngle);
-	JSON_ROOT();
-
-	JSON_OBJECT("ScaleAnimation");
-	SaveStartEnd(emitter.scale.range);
-	JSON_SAVE_BY_NAME("isSame", emitter.scale.isSame);
-	JSON_ROOT();
-
-	JSON_OBJECT("Velocity3D");
-	SaveMinMax(emitter.velocity.range);
-	JSON_ROOT();
-
-	JSON_SAVE_BY_NAME("createParticleNum", emitter.createParticleNum);
-	JSON_SAVE_BY_NAME("textureIndex", TextureManager::GetInstance()->GetTexture(TextureManager::GetInstance()->GetTextureLocation(emitter.textureIndex)).GetPath().string());
-
-	JSON_OBJECT("CollisionInfo");
-	JSON_SAVE_BY_NAME("mask", emitter.collisionInfo.mask);
-	JSON_SAVE_BY_NAME("attribute", emitter.collisionInfo.attribute);
-	JSON_ROOT();
-
+	SaveArea(emitter.emitterArea);
+	SaveColor(emitter.color);
+	SaveFrequency(emitter.frequency);
+	SaveParticleLife(emitter.particleLifeSpan);
+	SaveRotate(emitter.rotate);
+	SaveScale(emitter.scale);
+	SaveVelocity(emitter.velocity);
+	SaveCollisionInfo(emitter.collisionInfo);
+	SaveCreateParticleNum(emitter.createParticleNum);
+	SaveTextureHandle(emitter.textureIndex);
 	JSON_CLOSE();
 }
 
 void GPUParticleShaderStructs::Load(const std::string name, GPUParticleShaderStructs::MeshEmitterDesc& desc) {
 	JSON_OPEN("Resources/GPUParticle/MeshParticle/" + name + ".json");
-
-	JSON_OBJECT("ScaleAnimation");
-	LoadStartEnd(desc.emitter.scale.range);
-	JSON_LOAD_BY_NAME("isSame", desc.emitter.scale.isSame);
-	JSON_ROOT();
-
-	JSON_OBJECT("ParticleLifeTime");
-	LoadMinMax(desc.emitter.particleLifeSpan.range);
-	JSON_ROOT();
-
-	JSON_OBJECT("EmitterColor");
-	LoadStartEnd(desc.emitter.color.range);
-	JSON_ROOT();
-
-	JSON_OBJECT("RotateAnimation");
-	JSON_OBJECT("rotateSpeed");
-	LoadMinMax(desc.emitter.rotate.rotateSpeed);
-	JSON_PARENT();
-	JSON_OBJECT("initializeAngle");
-	LoadMinMax(desc.emitter.rotate.initializeAngle);
-	JSON_ROOT();
-
-	JSON_OBJECT("Velocity3D");
-	LoadMinMax(desc.emitter.velocity.range);
-	JSON_ROOT();
-
-	JSON_LOAD_BY_NAME("NumCreate", desc.numCreate);
-	std::string path{};
-	JSON_LOAD_BY_NAME("textureIndex", path);
-	if (!path.empty()) {
-		desc.emitter.textureIndex = TextureManager::GetInstance()->GetTexture(TextureManager::GetInstance()->Load(path)).GetDescriptorIndex();
-	}
-
-	JSON_OBJECT("CollisionInfo");
-	JSON_LOAD_BY_NAME("mask", desc.emitter.collisionInfo.mask);
-	JSON_LOAD_BY_NAME("attribute", desc.emitter.collisionInfo.attribute);
-	JSON_ROOT();
-
+	LoadScale(desc.emitter.scale);
+	LoadParticleLife(desc.emitter.particleLifeSpan);
+	LoadColor(desc.emitter.color);
+	LoadRotate(desc.emitter.rotate);
+	LoadVelocity(desc.emitter.velocity);
+	LoadCreateParticleNum(desc.numCreate);
+	LoadTextureHandle(desc.emitter.textureIndex);
+	LoadCollisionInfo(desc.emitter.collisionInfo);
 	JSON_CLOSE();
 }
 
@@ -1070,201 +1089,53 @@ void GPUParticleShaderStructs::Load(const std::string name, GPUParticleShaderStr
 
 void GPUParticleShaderStructs::Save(const std::string name, GPUParticleShaderStructs::MeshEmitterDesc& desc) {
 	JSON_OPEN("Resources/GPUParticle/MeshParticle/" + name + ".json");
-
-	JSON_OBJECT("ScaleAnimation");
-	SaveStartEnd(desc.emitter.scale.range);
-	JSON_SAVE_BY_NAME("isSame", desc.emitter.scale.isSame);
-	JSON_ROOT();
-
-	JSON_OBJECT("ParticleLifeTime");
-	SaveMinMax(desc.emitter.particleLifeSpan.range);
-	JSON_ROOT();
-
-	JSON_OBJECT("EmitterColor");
-	SaveStartEnd(desc.emitter.color.range);
-	JSON_ROOT();
-
-	JSON_OBJECT("RotateAnimation");
-	JSON_OBJECT("rotateSpeed");
-	SaveMinMax(desc.emitter.rotate.rotateSpeed);
-	JSON_PARENT();
-	JSON_OBJECT("initializeAngle");
-	SaveMinMax(desc.emitter.rotate.initializeAngle);
-	JSON_ROOT();
-
-	JSON_OBJECT("Velocity3D");
-	SaveMinMax(desc.emitter.velocity.range);
-	JSON_ROOT();
-
-	JSON_SAVE_BY_NAME("NumCreate", desc.numCreate);
-
-	JSON_SAVE_BY_NAME("textureIndex", TextureManager::GetInstance()->GetTexture(TextureManager::GetInstance()->GetTextureLocation(desc.emitter.textureIndex)).GetPath().string());
-
-	JSON_OBJECT("CollisionInfo");
-	JSON_SAVE_BY_NAME("mask", desc.emitter.collisionInfo.mask);
-	JSON_SAVE_BY_NAME("attribute", desc.emitter.collisionInfo.attribute);
-	JSON_ROOT();
-
+	SaveScale(desc.emitter.scale);
+	SaveParticleLife(desc.emitter.particleLifeSpan);
+	SaveColor(desc.emitter.color);
+	SaveRotate(desc.emitter.rotate);
+	SaveVelocity(desc.emitter.velocity);
+	SaveCreateParticleNum(desc.numCreate);
+	SaveTextureHandle(desc.emitter.textureIndex);
+	SaveCollisionInfo(desc.emitter.collisionInfo);
 	JSON_CLOSE();
 }
 
 void GPUParticleShaderStructs::Load(const std::string name, GPUParticleShaderStructs::VertexEmitterDesc& desc) {
 	JSON_OPEN("Resources/GPUParticle/VertexParticle/" + name + ".json");
-
-	JSON_OBJECT("ScaleAnimation");
-	LoadStartEnd(desc.emitter.scale.range);
-	JSON_LOAD_BY_NAME("isSame", desc.emitter.scale.isSame);
-	JSON_ROOT();
-
-	JSON_OBJECT("ParticleLifeTime");
-	LoadMinMax(desc.emitter.particleLifeSpan.range);
-	JSON_ROOT();
-
-	JSON_OBJECT("EmitterColor");
-	LoadStartEnd(desc.emitter.color.range);
-	JSON_ROOT();
-
-
-	JSON_OBJECT("RotateAnimation");
-	JSON_OBJECT("rotateSpeed");
-	LoadMinMax(desc.emitter.rotate.rotateSpeed);
-	JSON_PARENT();
-	JSON_OBJECT("initializeAngle");
-	LoadMinMax(desc.emitter.rotate.initializeAngle);
-	JSON_ROOT();
-
-	JSON_OBJECT("Velocity3D");
-	LoadMinMax(desc.emitter.velocity.range);
-	JSON_ROOT();
-
-	std::string path{};
-	JSON_LOAD_BY_NAME("textureIndex", path);
-	if (!path.empty()) {
-		desc.emitter.textureIndex = TextureManager::GetInstance()->GetTexture(TextureManager::GetInstance()->Load(path)).GetDescriptorIndex();
-	}
-	JSON_OBJECT("CollisionInfo");
-	JSON_LOAD_BY_NAME("mask", desc.emitter.collisionInfo.mask);
-	JSON_LOAD_BY_NAME("attribute", desc.emitter.collisionInfo.attribute);
-	JSON_ROOT();
-
-	JSON_CLOSE();
-}
-
-void GPUParticleShaderStructs::Save(const std::string name, FieldForCPU& desc) {
-	JSON_OPEN("Resources/GPUParticle/Field/" + name + ".json");
-
-	JSON_OBJECT("Field");
-	JSON_OBJECT("Attraction");
-	JSON_SAVE_BY_NAME("attraction", desc.field.attraction.attraction);
-	JSON_PARENT();
-	JSON_OBJECT("ExternalForce");
-	JSON_SAVE_BY_NAME("externalForce", desc.field.externalForce.externalForce);
-	JSON_PARENT();
-	JSON_SAVE_BY_NAME("type", desc.field.type);
-	JSON_ROOT();
-
-	JSON_OBJECT("FieldArea");
-	JSON_OBJECT("FieldAABB");
-	SaveMinMax(desc.fieldArea.aabb.area);
-	JSON_SAVE_BY_NAME("position", desc.fieldArea.aabb.position);
-	JSON_PARENT();
-
-	JSON_OBJECT("FieldSphere");
-	JSON_SAVE_BY_NAME("position", desc.fieldArea.sphere.position);
-	JSON_SAVE_BY_NAME("radius", desc.fieldArea.sphere.radius);
-	JSON_PARENT();
-
-	JSON_OBJECT("FieldCapsule");
-	JSON_OBJECT("FieldSegment");
-	JSON_SAVE_BY_NAME("start", desc.fieldArea.capsule.segment.origin);
-	JSON_SAVE_BY_NAME("end", desc.fieldArea.capsule.segment.diff);
-	JSON_PARENT();
-	JSON_SAVE_BY_NAME("radius", desc.fieldArea.capsule.radius);
-	JSON_ROOT();
-
-	JSON_OBJECT("FieldFrequency");
-	JSON_SAVE_BY_NAME("isLoop", desc.frequency.isLoop);
-	JSON_SAVE_BY_NAME("lifeCount", desc.frequency.lifeCount);
-	JSON_ROOT();
-
-	JSON_CLOSE();
-}
-
-void GPUParticleShaderStructs::Load(const std::string name, FieldForCPU& desc) {
-	JSON_OPEN("Resources/GPUParticle/Field/" + name + ".json");
-
-	JSON_OBJECT("Field");
-	JSON_OBJECT("Attraction");
-	JSON_LOAD_BY_NAME("attraction", desc.field.attraction.attraction);
-	JSON_PARENT();
-	JSON_OBJECT("ExternalForce");
-	JSON_LOAD_BY_NAME("externalForce", desc.field.externalForce.externalForce);
-	JSON_PARENT();
-	JSON_LOAD_BY_NAME("type", desc.field.type);
-	JSON_ROOT();
-
-	JSON_OBJECT("FieldArea");
-	JSON_OBJECT("FieldAABB");
-	LoadMinMax(desc.fieldArea.aabb.area);
-	JSON_LOAD_BY_NAME("position", desc.fieldArea.aabb.position);
-	JSON_PARENT();
-
-	JSON_OBJECT("FieldSphere");
-	JSON_LOAD_BY_NAME("position", desc.fieldArea.sphere.position);
-	JSON_LOAD_BY_NAME("radius", desc.fieldArea.sphere.radius);
-	JSON_PARENT();
-
-	JSON_OBJECT("FieldCapsule");
-	JSON_OBJECT("FieldSegment");
-	JSON_LOAD_BY_NAME("start", desc.fieldArea.capsule.segment.origin);
-	JSON_LOAD_BY_NAME("end", desc.fieldArea.capsule.segment.diff);
-	JSON_PARENT();
-	JSON_LOAD_BY_NAME("radius", desc.fieldArea.capsule.radius);
-	JSON_ROOT();
-
-	JSON_OBJECT("FieldFrequency");
-	JSON_LOAD_BY_NAME("isLoop", desc.frequency.isLoop);
-	JSON_LOAD_BY_NAME("lifeCount", desc.frequency.lifeCount);
-	JSON_ROOT();
-
+	LoadScale(desc.emitter.scale);
+	LoadParticleLife(desc.emitter.particleLifeSpan);
+	LoadColor(desc.emitter.color);
+	LoadRotate(desc.emitter.rotate);
+	LoadVelocity(desc.emitter.velocity);
+	LoadTextureHandle(desc.emitter.textureIndex);
+	LoadCollisionInfo(desc.emitter.collisionInfo);
 	JSON_CLOSE();
 }
 
 void GPUParticleShaderStructs::Save(const std::string name, GPUParticleShaderStructs::VertexEmitterDesc& desc) {
 	JSON_OPEN("Resources/GPUParticle/VertexParticle/" + name + ".json");
+	SaveScale(desc.emitter.scale);
+	SaveParticleLife(desc.emitter.particleLifeSpan);
+	SaveColor(desc.emitter.color);
+	SaveRotate(desc.emitter.rotate);
+	SaveVelocity(desc.emitter.velocity);
+	SaveTextureHandle(desc.emitter.textureIndex);
+	SaveCollisionInfo(desc.emitter.collisionInfo);
+	JSON_CLOSE();
+}
 
-	JSON_OBJECT("ScaleAnimation");
-	SaveStartEnd(desc.emitter.scale.range);
-	JSON_SAVE_BY_NAME("isSame", desc.emitter.scale.isSame);
-	JSON_ROOT();
+void GPUParticleShaderStructs::Save(const std::string name, FieldForCPU& desc) {
+	JSON_OPEN("Resources/GPUParticle/Field/" + name + ".json"); 
+	SaveFieldArea(desc.fieldArea);
+	SaveField(desc.field);
+	SaveFieldFrequency(desc.frequency);
+	JSON_CLOSE();
+}
 
-	JSON_OBJECT("ParticleLifeTime");
-	SaveMinMax(desc.emitter.particleLifeSpan.range);
-	JSON_ROOT();
-
-	JSON_OBJECT("EmitterColor");
-	SaveStartEnd(desc.emitter.color.range);
-	JSON_ROOT();
-
-
-	JSON_OBJECT("RotateAnimation");
-	JSON_OBJECT("rotateSpeed");
-	SaveMinMax(desc.emitter.rotate.rotateSpeed);
-	JSON_PARENT();
-	JSON_OBJECT("initializeAngle");
-	SaveMinMax(desc.emitter.rotate.initializeAngle);
-	JSON_ROOT();
-
-	JSON_OBJECT("Velocity3D");
-	SaveMinMax(desc.emitter.velocity.range);
-	JSON_ROOT();
-
-	JSON_SAVE_BY_NAME("textureIndex", TextureManager::GetInstance()->GetTexture(TextureManager::GetInstance()->GetTextureLocation(desc.emitter.textureIndex)).GetPath().string());
-
-	JSON_OBJECT("CollisionInfo");
-	JSON_SAVE_BY_NAME("mask", desc.emitter.collisionInfo.mask);
-	JSON_SAVE_BY_NAME("attribute", desc.emitter.collisionInfo.attribute);
-	JSON_ROOT();
-
+void GPUParticleShaderStructs::Load(const std::string name, FieldForCPU& desc) {
+	JSON_OPEN("Resources/GPUParticle/Field/" + name + ".json");
+	LoadFieldArea(desc.fieldArea);
+	LoadField(desc.field);
+	LoadFieldFrequency(desc.frequency);
 	JSON_CLOSE();
 }

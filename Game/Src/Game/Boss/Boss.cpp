@@ -13,7 +13,7 @@
 #include "Engine/Json/JsonUtils.h"
 
 Boss::Boss() {
-	bossModelHandle_ = ModelManager::GetInstance()->Load("Resources/Models/Boss/boss.gltf");
+	bossModelHandle_ = ModelManager::GetInstance()->Load("Resources/Models/Boss/truck.gltf");
 	animation_.Initialize("Resources/Animation/Boss/animation.gltf", bossModelHandle_);
 	gpuTexture_ = TextureManager::GetInstance()->Load("Resources/Images/GPUParticle.png");
 	bossStateManager_ = std::make_unique<BossStateManager>();
@@ -72,7 +72,7 @@ void Boss::Update(CommandContext& commandContext) {
 }
 
 void Boss::Draw(const ViewProjection& viewProjection, CommandContext& commandContext) {
-	//ModelManager::GetInstance()->Draw(animationTransform_, animation_, viewProjection, bossModelHandle_, commandContext);
+	ModelManager::GetInstance()->Draw(animationTransform_.matWorld, viewProjection, bossModelHandle_, commandContext);
 }
 
 void Boss::DrawImGui() {

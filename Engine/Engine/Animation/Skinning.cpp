@@ -82,7 +82,7 @@ namespace Animation {
 
 		device->CreateShaderResourceView(paletteResource, &paletteSrvDesc, paletteHandle);
 
-		auto verticesSize = model.GetMeshData().at(0)->vertices.size();
+		auto verticesSize = model.GetMeshData().at(0)->meshes->vertexCount;
 		influenceResource.Create(L"skinClusterInfluenceResource", sizeof(VertexInfluence) * verticesSize);
 
 		VertexInfluence* mappedInfluence = new VertexInfluence[verticesSize];
@@ -105,7 +105,7 @@ namespace Animation {
 		std::generate(inverseBindPoseMatrices.begin(), inverseBindPoseMatrices.end(), MakeIdentity4x4);
 
 
-		auto vertexBufferSize = model.GetMeshData().at(0)->vertexBuffer.GetBufferSize();
+		auto vertexBufferSize = model.GetVertexBuffer().GetBufferSize();
 
 		vertexBuffer.Create(L"SkinClusterVertexBuffer", vertexBufferSize, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
 		vertexBufferView.BufferLocation = vertexBuffer.GetGPUVirtualAddress();
@@ -118,7 +118,7 @@ namespace Animation {
 		vertexUAVDesc.Format = DXGI_FORMAT_UNKNOWN;
 		vertexUAVDesc.ViewDimension = D3D12_UAV_DIMENSION_BUFFER;
 		vertexUAVDesc.Buffer.FirstElement = 0;
-		vertexUAVDesc.Buffer.NumElements = UINT(model.GetMeshData().at(0)->vertices.size());
+		vertexUAVDesc.Buffer.NumElements = UINT(model.GetMeshData().at(0)->meshes->vertexCount);
 		vertexUAVDesc.Buffer.StructureByteStride = sizeof(Model::Vertex);
 		vertexUAVDesc.Buffer.Flags = D3D12_BUFFER_UAV_FLAG_NONE;
 		device->CreateUnorderedAccessView(
@@ -147,7 +147,7 @@ namespace Animation {
 		influenceResource.Copy(this->mappedInfluence.data(), sizeof(VertexInfluence) * verticesSize);
 
 		skinningInfomation.Create(L"SkinningInfomation", sizeof(UINT));
-		size_t size = (model.GetMeshData().at(0)->vertices.size());
+		size_t size = (model.GetMeshData().at(0)->meshes->vertexCount);
 		skinningInfomation.Copy(&size, sizeof(UINT));
 	}
 
@@ -162,21 +162,22 @@ namespace Animation {
 		}
 		paletteResource.Copy(mappedPalette.data(), sizeof(WellForGPU) * skeleton.joints.size());
 
+		auto& model = ModelManager::GetInstance()->GetModel(modelHandle);
 
 		commandContext.SetComputeRootSignature(rootSignature);
 		commandContext.SetPipelineState(pipelineState);
 
 		commandContext.TransitionResource(paletteResource, D3D12_RESOURCE_STATE_GENERIC_READ);
-		commandContext.TransitionResource(ModelManager::GetInstance()->GetModel(modelHandle).GetMeshData().at(0)->vertexBuffer, D3D12_RESOURCE_STATE_GENERIC_READ);
+		commandContext.TransitionResource(model.GetVertexBuffer(), D3D12_RESOURCE_STATE_GENERIC_READ);
 		commandContext.TransitionResource(influenceResource, D3D12_RESOURCE_STATE_GENERIC_READ);
 		commandContext.TransitionResource(vertexBuffer, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 
 		commandContext.SetComputeShaderResource(kWell, paletteResource.GetGPUVirtualAddress());
-		commandContext.SetComputeShaderResource(kInputVertex, ModelManager::GetInstance()->GetModel(modelHandle).GetMeshData().at(0)->vertexBuffer.GetGPUVirtualAddress());
+		commandContext.SetComputeShaderResource(kInputVertex, model.GetVertexBuffer().GetGPUVirtualAddress());
 		commandContext.SetComputeShaderResource(kInfluence, influenceResource.GetGPUVirtualAddress());
 		commandContext.SetComputeUAV(kOutputVertex, vertexBuffer.GetGPUVirtualAddress());
 		commandContext.SetComputeConstantBuffer(kSkinningInfomation, skinningInfomation.GetGPUVirtualAddress());
-		commandContext.Dispatch(UINT(ModelManager::GetInstance()->GetModel(modelHandle).GetMeshData().at(0)->vertices.size() + 1023) / 1024, 1, 1);
+		commandContext.Dispatch(UINT(ModelManager::GetInstance()->GetModel(modelHandle).GetMeshData().at(0)->meshes->vertexCount + 1023) / 1024, 1, 1);
 	}
 
 }

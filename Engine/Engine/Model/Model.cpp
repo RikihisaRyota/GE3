@@ -34,8 +34,10 @@ void Model::LoadFile(const std::filesystem::path& modelPath) {
 	path_ = modelPath;
 	name_ = modelPath.stem();
 
-	std::vector<Vertex> vertexPos; //!< 構築するModelData
-	std::vector<uint32_t> indices;
+	std::vector<Vertex> vertexPos{}; 
+	vertexPos.clear();
+	std::vector<uint32_t> indices{};
+	indices.clear();
 
 	Assimp::Importer importer{};
 
@@ -60,7 +62,10 @@ void Model::LoadFile(const std::filesystem::path& modelPath) {
 
 		assert(mesh->HasNormals()); // 法線がないMeshは今回は未対応
 		assert(mesh->HasTextureCoords(0)); // TexcoordがないMeshは今回は未対応
-
+		
+		currentModelData->meshes = new Mesh();
+		currentModelData->meshes->vertexCount = uint32_t(mesh->mNumVertices);
+		currentModelData->meshes->vertexOffset = uint32_t(vertexPos.size());
 		// 頂点データを解析
 		for (uint32_t vertexIndex = 0; vertexIndex < mesh->mNumVertices; ++vertexIndex) {
 			aiVector3D& position = mesh->mVertices[vertexIndex];
@@ -81,6 +86,8 @@ void Model::LoadFile(const std::filesystem::path& modelPath) {
 			vertexPos.emplace_back(vertex);
 		}
 		// インデックスデータを解析
+		currentModelData->meshes->indexCount = uint32_t(mesh->mNumFaces * 3);
+		currentModelData->meshes->indexOffset = uint32_t(indices.size());
 		for (uint32_t faceIndex = 0; faceIndex < mesh->mNumFaces; ++faceIndex) {
 			aiFace& face = mesh->mFaces[faceIndex];
 			assert(face.mNumIndices == 3); // 三角形のみサポート(四角形以上も対応できるようになる,CG3 04_00 assimpの資料)
@@ -110,43 +117,39 @@ void Model::LoadFile(const std::filesystem::path& modelPath) {
 		}
 
 		currentModelData->rootNode = ReadNode(scene->mRootNode);
-		currentModelData->vertices = vertexPos;
-		currentModelData->meshes = new Mesh();
-		currentModelData->meshes->indexCount = uint32_t(indices.size());
+
 		currentModelData->meshes->min = minIndex;
 		currentModelData->meshes->max = maxIndex;
-		currentModelData->indexBuffer.Create(name_.wstring() + L"IndexBuffer", indices.size() * sizeof(indices[0]));
-		currentModelData->indexBuffer.Copy(indices.data(), indices.size() * sizeof(indices[0]));
-		currentModelData->indexCountBuffer.Create(name_.wstring() + L"IndexCountBuffer",sizeof(UINT));
-		size_t indexCount = vertexPos.size();
-		currentModelData->indexCountBuffer.Copy(&indexCount,sizeof(UINT));
-		currentModelData->ibView.BufferLocation = currentModelData->indexBuffer.GetGPUVirtualAddress();
-		currentModelData->ibView.SizeInBytes = UINT(currentModelData->indexBuffer.GetBufferSize());
-		currentModelData->ibView.Format = DXGI_FORMAT_R32_UINT;
-
-
-		currentModelData->vertexBuffer.Create(name_.wstring() + L"VertexBuffer", vertexPos.size() * sizeof(vertexPos[0]));
-		currentModelData->vertexBuffer.Copy(vertexPos.data(), vertexPos.size() * sizeof(vertexPos[0]));
-		currentModelData->vertexCountBuffer.Create(name_.wstring() + L"VertexCountBuffer", sizeof(UINT));
-		size_t vertexCount = vertexPos.size();
-		currentModelData->vertexCountBuffer.Copy(&vertexCount, sizeof(UINT));
-		currentModelData->vbView.BufferLocation = currentModelData->vertexBuffer.GetGPUVirtualAddress();
-		currentModelData->vbView.SizeInBytes = UINT(currentModelData->vertexBuffer.GetBufferSize());
-		currentModelData->vbView.StrideInBytes = sizeof(vertexPos[0]);
-
-		currentModelData->srView = GraphicsCore::GetInstance()->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-
-		D3D12_SHADER_RESOURCE_VIEW_DESC vertexSrvDesc{};
-		vertexSrvDesc.Format = DXGI_FORMAT_UNKNOWN;
-		vertexSrvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-		vertexSrvDesc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
-		vertexSrvDesc.Buffer.FirstElement = 0;
-		vertexSrvDesc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
-		vertexSrvDesc.Buffer.NumElements = UINT(vertexPos.size());
-		vertexSrvDesc.Buffer.StructureByteStride = sizeof(Model::Vertex);
-		device->CreateShaderResourceView(currentModelData->vertexBuffer, &vertexSrvDesc, currentModelData->srView);
-
 	}
+
+	// View
+	size_t indexBufferSize = UINT(indices.size() * sizeof(indices[0]));
+	indexBuffer.Create(name_.wstring() + L"IndexBuffer", indexBufferSize);
+	indexBuffer.Copy(indices.data(), indexBufferSize);
+	ibView.BufferLocation = indexBuffer.GetGPUVirtualAddress();
+	ibView.SizeInBytes = UINT(indexBufferSize);
+	ibView.Format = DXGI_FORMAT_R32_UINT;
+
+
+	size_t vertexBufferSize = vertexPos.size() * sizeof(vertexPos[0]);
+	vertexBuffer.Create(name_.wstring() + L"VertexBuffer", vertexBufferSize);
+	vertexBuffer.Copy(vertexPos.data(), vertexBufferSize);
+	vbView.BufferLocation = vertexBuffer.GetGPUVirtualAddress();
+	vbView.SizeInBytes = UINT(vertexBufferSize);
+	vbView.StrideInBytes = sizeof(vertexPos[0]);
+
+	srView = GraphicsCore::GetInstance()->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+
+	D3D12_SHADER_RESOURCE_VIEW_DESC vertexSrvDesc{};
+	vertexSrvDesc.Format = DXGI_FORMAT_UNKNOWN;
+	vertexSrvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+	vertexSrvDesc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
+	vertexSrvDesc.Buffer.FirstElement = 0;
+	vertexSrvDesc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
+	vertexSrvDesc.Buffer.NumElements = UINT(vertexPos.size());
+	vertexSrvDesc.Buffer.StructureByteStride = sizeof(Model::Vertex);
+	device->CreateShaderResourceView(vertexBuffer, &vertexSrvDesc, srView);
+
 	// Material解析
 	for (uint32_t materialIndex = 0; materialIndex < scene->mNumMaterials; ++materialIndex) {
 		aiMaterial* material = scene->mMaterials[materialIndex];

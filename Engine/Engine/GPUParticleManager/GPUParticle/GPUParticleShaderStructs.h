@@ -254,15 +254,11 @@ struct Particle
 	};
 
 	struct MeshEmitterDesc {
-		MeshEmitterDesc();
-		UploadBuffer buffer;
 		MeshEmitter emitter;
 		uint32_t numCreate;
 	};
 
 	struct VertexEmitterDesc {
-		VertexEmitterDesc();
-		UploadBuffer buffer;
 		MeshEmitter emitter;
 	};
 

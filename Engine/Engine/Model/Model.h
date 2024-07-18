@@ -25,6 +25,9 @@ struct aiNode;
 class Model {
 public:
 	struct Mesh {
+		uint32_t vertexOffset;
+		uint32_t vertexCount;
+		uint32_t indexOffset;
 		uint32_t indexCount;
 		Vector3 min;
 		Vector3 max;
@@ -72,14 +75,6 @@ public:
 
 	struct MeshData {
 		std::map<std::string, JointWeightData> skinClusterData;
-		UploadBuffer indexCountBuffer{};
-		UploadBuffer indexBuffer{};
-		D3D12_INDEX_BUFFER_VIEW ibView{};
-
-		UploadBuffer vertexBuffer;
-		UploadBuffer vertexCountBuffer;
-		D3D12_VERTEX_BUFFER_VIEW vbView{};
-		DescriptorHandle srView{};
 
 		Mesh* meshes{};
 		std::vector<Vertex> vertices;
@@ -97,6 +92,11 @@ public:
 	const std::filesystem::path& GetPath()const { return path_; }
 	void SetMaterialColor(const Vector4& color);
 	Vector4& GetMaterialColor() { return material_->color; }
+	const D3D12_INDEX_BUFFER_VIEW& GetIndexView() const { return ibView; }
+	const D3D12_VERTEX_BUFFER_VIEW& GetVertexView() const { return vbView; }
+	UploadBuffer& GetIndexBuffer() { return indexBuffer; }
+	UploadBuffer& GetVertexBuffer() { return vertexBuffer; }
+	
 private:
 	void LoadFile(const std::filesystem::path& modelPath);
 	Node ReadNode(aiNode* node);
@@ -106,4 +106,13 @@ private:
 	UploadBuffer materialBuffer_;
 	std::filesystem::path name_;
 	std::filesystem::path path_;
+
+
+
+	UploadBuffer indexBuffer{};
+	D3D12_INDEX_BUFFER_VIEW ibView{};
+
+	UploadBuffer vertexBuffer;
+	D3D12_VERTEX_BUFFER_VIEW vbView{};
+	DescriptorHandle srView{};
 };

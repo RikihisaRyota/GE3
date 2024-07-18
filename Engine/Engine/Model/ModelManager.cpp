@@ -206,14 +206,13 @@ void ModelManager::Draw(const Matrix4x4& worldMatrix, const ViewProjection& view
 	commandContext.SetGraphicsRootSignature(*rootSignature_);
 	commandContext.SetPipelineState(*pipelineState_);
 	commandContext.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	commandContext.SetVertexBuffer(0, models_.at(modelHandle)->GetVertexView());
+	commandContext.SetIndexBuffer(models_.at(modelHandle)->GetIndexView());
 	for (auto& modelData : models_.at(modelHandle)->GetMeshData()) {
-		commandContext.SetVertexBuffer(0, modelData->vbView);
-		commandContext.SetIndexBuffer(modelData->ibView);
-
 		ConstBufferDataWorldTransform constBufferDataWorldTransform{};
 		constBufferDataWorldTransform.matWorld = worldMatrix;
 		constBufferDataWorldTransform.inverseMatWorld = Transpose(Inverse(worldMatrix));
-		commandContext.SetGraphicsDynamicConstantBufferView(Parameter::RootParameter::WorldTransform,sizeof(ConstBufferDataWorldTransform), &constBufferDataWorldTransform);
+		commandContext.SetGraphicsDynamicConstantBufferView(Parameter::RootParameter::WorldTransform, sizeof(ConstBufferDataWorldTransform), &constBufferDataWorldTransform);
 		commandContext.SetGraphicsConstantBuffer(Parameter::RootParameter::ViewProjection, viewProjection.constBuff_.GetGPUVirtualAddress());
 		commandContext.SetGraphicsConstantBuffer(Parameter::RootParameter::DirectionLight, Lighting::GetInstance()->GetDirectionLightBuffer().GetGPUVirtualAddress());
 		commandContext.SetGraphicsConstantBuffer(Parameter::RootParameter::PointLight, Lighting::GetInstance()->GetPointLightBuffer().GetGPUVirtualAddress());
@@ -222,7 +221,7 @@ void ModelManager::Draw(const Matrix4x4& worldMatrix, const ViewProjection& view
 		/// いったん決め打ち
 		commandContext.SetGraphicsDescriptorTable(Parameter::RootParameter::EnvironmentalMap, TextureManager::GetInstance()->GetTexture(TextureManager::GetInstance()->Load("Resources/Images/Skybox/rostock_laage_airport_4k.dds")).GetSRV());
 		commandContext.SetGraphicsDescriptorTable(Parameter::RootParameter::Sampler, SamplerManager::LinearWrap);
-		commandContext.DrawIndexed(modelData->meshes->indexCount);
+		commandContext.DrawIndexed(modelData->meshes->indexCount, modelData->meshes->indexOffset, modelData->meshes->vertexOffset);
 	}
 }
 
@@ -234,11 +233,12 @@ void ModelManager::Draw(const Matrix4x4& worldMatrix, Animation::Animation& skin
 
 	commandContext.SetGraphicsRootSignature(*rootSignature_);
 	commandContext.SetPipelineState(*pipelineState_);
+
 	commandContext.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	for (auto& modelData : models_.at(modelHandle)->GetMeshData()) {
+		commandContext.SetIndexBuffer(models_.at(modelHandle)->GetIndexView());
 		commandContext.TransitionResource(skinning.skinCluster.vertexBuffer, D3D12_RESOURCE_STATE_GENERIC_READ);
 		commandContext.SetVertexBuffer(0, skinning.skinCluster.vertexBufferView);
-		commandContext.SetIndexBuffer(modelData->ibView);
 		ConstBufferDataWorldTransform constBufferDataWorldTransform{};
 		constBufferDataWorldTransform.matWorld = worldMatrix;
 		constBufferDataWorldTransform.inverseMatWorld = Transpose(Inverse(worldMatrix));

@@ -205,7 +205,7 @@
 		{
 			"bufferView":4,
 			"componentType":5126,
-			"count":2512,
+			"count":2518,
 			"max":[
 				21.330337524414062,
 				8.864311218261719,
@@ -221,13 +221,13 @@
 		{
 			"bufferView":5,
 			"componentType":5126,
-			"count":2512,
+			"count":2518,
 			"type":"VEC2"
 		},
 		{
 			"bufferView":6,
 			"componentType":5126,
-			"count":2512,
+			"count":2518,
 			"type":"VEC3"
 		},
 		{
@@ -332,80 +332,80 @@
 		},
 		{
 			"buffer":0,
-			"byteLength":30144,
+			"byteLength":30216,
 			"byteOffset":1248,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":20096,
-			"byteOffset":31392,
+			"byteLength":20144,
+			"byteOffset":31464,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":30144,
-			"byteOffset":51488,
+			"byteLength":30216,
+			"byteOffset":51608,
 			"target":34962
 		},
 		{
 			"buffer":0,
 			"byteLength":8208,
-			"byteOffset":81632,
+			"byteOffset":81824,
 			"target":34963
 		},
 		{
 			"buffer":0,
 			"byteLength":96,
-			"byteOffset":89840,
+			"byteOffset":90032,
 			"target":34962
 		},
 		{
 			"buffer":0,
 			"byteLength":64,
-			"byteOffset":89936,
+			"byteOffset":90128,
 			"target":34962
 		},
 		{
 			"buffer":0,
 			"byteLength":96,
-			"byteOffset":90000,
+			"byteOffset":90192,
 			"target":34962
 		},
 		{
 			"buffer":0,
 			"byteLength":24,
-			"byteOffset":90096,
+			"byteOffset":90288,
 			"target":34963
 		},
 		{
 			"buffer":0,
 			"byteLength":19872,
-			"byteOffset":90120,
+			"byteOffset":90312,
 			"target":34962
 		},
 		{
 			"buffer":0,
 			"byteLength":13248,
-			"byteOffset":109992,
+			"byteOffset":110184,
 			"target":34962
 		},
 		{
 			"buffer":0,
 			"byteLength":19872,
-			"byteOffset":123240,
+			"byteOffset":123432,
 			"target":34962
 		},
 		{
 			"buffer":0,
 			"byteLength":5040,
-			"byteOffset":143112,
+			"byteOffset":143304,
 			"target":34963
 		}
 	],
 	"buffers":[
 		{
-			"byteLength":148152,
+			"byteLength":148344,
 			"uri":"truck.bin"
 		}
 	]

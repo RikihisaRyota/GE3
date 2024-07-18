@@ -1268,11 +1268,3 @@ void GPUParticleShaderStructs::Save(const std::string name, GPUParticleShaderStr
 
 	JSON_CLOSE();
 }
-
-GPUParticleShaderStructs::MeshEmitterDesc::MeshEmitterDesc() {
-	buffer.Create(L"MeshEmitterBuffer", sizeof(MeshEmitter));
-}
-
-GPUParticleShaderStructs::VertexEmitterDesc::VertexEmitterDesc() {
-	buffer.Create(L"VertexEmitterBuffer", sizeof(VertexEmitterDesc));
-}

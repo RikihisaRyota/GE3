@@ -45,7 +45,7 @@ ConstantBuffer<MeshEmitter> meshEmitter : register(b3);
 void main(uint3 DTid : SV_DispatchThreadID)
 {
     uint triIndex = DTid.x;
-    if (triIndex >= vertexCount.count)
+    if (triIndex > vertexCount.count)
     {
         return;
     }

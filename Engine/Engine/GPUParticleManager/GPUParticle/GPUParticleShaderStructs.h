@@ -243,9 +243,29 @@ struct Particle
 		UintMinMax range;
 	};
 
-	struct MeshEmitter {
+	struct TransformEmitter {
+		EmitterArea emitterArea;
+
 		Translate translate;
 
+		ScaleAnimation scale;
+
+		RotateAnimation rotate;
+
+		Velocity3D velocity;
+
+		EmitterColor color;
+
+		ParticleLifeSpan particleLifeSpan;
+
+		ParticleAttributes collisionInfo;
+
+		uint32_t textureIndex;
+
+		Vector3 pad;
+	};
+
+	struct MeshEmitter {
 		ScaleAnimation scale;
 
 		RotateAnimation rotate;
@@ -445,11 +465,13 @@ struct Particle
 	void EmitterEditor(const std::string name, std::tuple<bool*, EmitterForCPU*> emitter);
 	void EmitterEditor(const std::string name, std::tuple<bool*, MeshEmitterDesc*> desc);
 	void EmitterEditor(const std::string name, std::tuple<bool*, VertexEmitterDesc*> desc);
+	void EmitterEditor(const std::string name, std::tuple<bool*, TransformEmitter*> emitter);
 	void EmitterEditor(const std::string name, std::tuple<bool*, FieldForCPU*> desc);
 
 	void Debug(const std::string name, EmitterForCPU& emitter);
 	void Debug(const std::string name, MeshEmitterDesc& desc);
 	void Debug(const std::string name, VertexEmitterDesc& desc);
+	void Debug(const std::string name, TransformEmitter& emitter);
 	void Debug(const std::string name, FieldForCPU& desc);
 
 	void DebugDraw(const EmitterForCPU& emitter);
@@ -463,6 +485,8 @@ struct Particle
 	void Load(const std::string name, MeshEmitterDesc& desc);
 	void Save(const std::string name, VertexEmitterDesc& desc);
 	void Load(const std::string name, VertexEmitterDesc& desc);
+	void Save(const std::string name, TransformEmitter& emitter);
+	void Load(const std::string name, TransformEmitter& emitter);
 	void Save(const std::string name, FieldForCPU& desc);
 	void Load(const std::string name, FieldForCPU& desc);
 

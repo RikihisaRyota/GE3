@@ -21,6 +21,7 @@ public:
 	virtual void Initialize(CommandContext& commandContext) = 0;
 	virtual	void SetDesc() = 0;
 	virtual void Update(CommandContext& commandContext) = 0;
+	virtual void DebugDraw()=0;
 	//virtual void OnCollision(const ColliderDesc& colliderDesc) = 0;
 	const Animation::AnimationHandle& GetAnimationHandle() const { return animationHandle_; }
 	const ModelHandle& GetModelHandle() const { return modelHandle_; }
@@ -32,7 +33,7 @@ protected:
 	BossStateManager& manager_;
 	Random::RandomNumberGenerator rnd_;
 	bool inTransition_;
-	
+
 	Animation::AnimationHandle animationHandle_;
 	ModelHandle modelHandle_;
 	WorldTransform worldTransform_;
@@ -43,7 +44,7 @@ class BossStateRoot :
 	public BossState {
 public:
 	struct JsonData {
-		GPUParticleShaderStructs::VertexEmitterDesc transformEmitter;
+		GPUParticleShaderStructs::TransformEmitter transformEmitter;
 		float allFrame;
 		float transitionFrame;
 	};
@@ -51,6 +52,7 @@ public:
 	void Initialize(CommandContext& commandContext) override;
 	void SetDesc() override;
 	void Update(CommandContext& commandContext) override;
+	void DebugDraw()override;
 private:
 	JsonData data_;
 };
@@ -75,8 +77,10 @@ class BossStateCarAttack :
 public:
 	struct JsonData {
 		GPUParticleShaderStructs::VertexEmitterDesc vertexEmitter;
-		GPUParticleShaderStructs::VertexEmitterDesc transformEmitter;
+		GPUParticleShaderStructs::TransformEmitter transformEmitter;
+		GPUParticleShaderStructs::TransformEmitter transformRailEmitter;
 		OBB collider;
+		float frontAndBackOffset;
 		Vector3 start;
 		Vector3 end;
 		float allFrame;
@@ -86,9 +90,21 @@ public:
 	void Initialize(CommandContext& commandContext) override;
 	void SetDesc() override;
 	void Update(CommandContext& commandContext) override;
+	void DebugDraw()override;
 private:
+	enum AttackLocation {
+		kRight = 1 << 0,  // 0001
+		kLeft = 1 << 1,   // 0010
+		kBack = 1 << 2,   // 0100
+		kFront = 1 << 3,  // 1000
+	};
+	uint32_t attackLocation_;
 	void OnCollision(const ColliderDesc& collisionInfo);
 	void UpdateTransform();
+	void SetLocation();
+
+	ModelHandle railModelHandle_;
+	WorldTransform railWorldTransform_;
 	JsonData data_;
 	std::unique_ptr<OBBCollider> collider_;
 };

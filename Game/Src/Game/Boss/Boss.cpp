@@ -14,7 +14,9 @@
 
 Boss::Boss() {
 	ModelManager::GetInstance()->Load("Resources/Models/Boss/baggy.gltf");
-	//ModelManager::GetInstance()->Load("Resources/Models/Boss/train.gltf");
+	ModelManager::GetInstance()->Load("Resources/Models/Boss/train.gltf");
+	ModelManager::GetInstance()->Load("Resources/Models/Boss/rail.gltf");
+	ModelManager::GetInstance()->Load("Resources/Models/Boss/hand.gltf");
 	bossModelHandle_ = ModelManager::GetInstance()->Load("Resources/Models/Boss/boss_ts.gltf");
 	animation_.Initialize("Resources/Animation/Boss/animation.gltf", bossModelHandle_);
 	gpuTexture_ = TextureManager::GetInstance()->Load("Resources/Images/GPUParticle.png");
@@ -118,6 +120,7 @@ void Boss::DrawImGui() {
 				JSON_SAVE_BY_NAME("radius", collider.radius);
 				JSON_CLOSE();
 			}
+			ImGui::TreePop();
 		}
 		ImGui::EndMenu();
 	}

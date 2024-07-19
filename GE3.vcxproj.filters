@@ -910,5 +910,8 @@
     <FxCompile Include="Resources\Shaders\GPUParticle\TransformModelParticle.hlsl">
       <Filter>Shaders\GPUParticle</Filter>
     </FxCompile>
+    <FxCompile Include="Resources\Shaders\GPUParticle\TransformModelAreaParticle.hlsl">
+      <Filter>Shaders\GPUParticle</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

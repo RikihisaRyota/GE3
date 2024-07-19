@@ -708,6 +708,7 @@ namespace GPUParticleShaderStructs {
 	std::map<std::string, std::tuple<bool*, EmitterForCPU*>>debugEmitters_;
 	std::map<std::string, std::tuple<bool*, MeshEmitterDesc*>>debugMeshEmitterDesc_;
 	std::map<std::string, std::tuple<bool*, VertexEmitterDesc*>>debugVertexEmitterDesc_;
+	std::map<std::string, std::tuple<bool*, TransformEmitter*>>debugTransformEmitter_;
 	std::map<std::string, std::tuple<bool*, FieldForCPU*>>debugFields_;
 }
 
@@ -814,7 +815,39 @@ void GPUParticleShaderStructs::EmitterEditor(const std::string name, std::tuple<
 	ImGui::End();
 #endif // _DEBUG
 }
+void GPUParticleShaderStructs::EmitterEditor(const std::string name, std::tuple<bool*, TransformEmitter*> e) {
 
+#ifdef _DEBUG
+	ImGui::Begin(("TransfromEmitter:" + name).c_str());
+	ImGui::PushID(name.c_str());
+	auto emitter = std::get<1>(e);
+	if (ImGui::Button("Delete")) {
+		*std::get<0>(e) = false;
+	}
+
+	DrawArea(emitter->emitterArea);
+
+	DrawScale(emitter->scale);
+
+	DrawRotate(emitter->rotate);
+
+	DrawVelocity(emitter->velocity);
+
+	DrawColor(emitter->color);
+
+	DrawParticleLife(emitter->particleLifeSpan);
+
+	DrawTextureHandle(emitter->textureIndex);
+
+	DrawCollisionInfo(emitter->collisionInfo);
+
+	if (ImGui::Button("Save")) {
+		GPUParticleShaderStructs::Save(name, *emitter);
+	}
+	ImGui::PopID();
+	ImGui::End();
+#endif // _DEBUG
+}
 void GPUParticleShaderStructs::EmitterEditor(const std::string name, std::tuple<bool*, GPUParticleShaderStructs::FieldForCPU*> d) {
 #ifdef _DEBUG
 	ImGui::Begin(("Field:" + name).c_str());
@@ -857,6 +890,13 @@ void GPUParticleShaderStructs::Debug(const std::string name, GPUParticleShaderSt
 	if (debugVertexEmitterDesc_.find(name) == debugVertexEmitterDesc_.end()) {
 		bool* falseFlag = new bool(false);
 		debugVertexEmitterDesc_[name] = std::make_tuple(falseFlag, &emitter);
+	}
+}
+
+void GPUParticleShaderStructs::Debug(const std::string name, TransformEmitter& emitter) {
+	if (debugTransformEmitter_.find(name) == debugTransformEmitter_.end()) {
+		bool* falseFlag = new bool(false);
+		debugTransformEmitter_[name] = std::make_tuple(falseFlag, &emitter);
 	}
 }
 
@@ -971,6 +1011,17 @@ void GPUParticleShaderStructs::Update() {
 		ImGui::EndMenu();
 	}
 
+	if (ImGui::BeginMenu("TransformEmitter")) {
+		for (auto& emitter : debugTransformEmitter_) {
+			bool* debugFlag = std::get<0>(emitter.second);
+			if (ImGui::Button(emitter.first.c_str()) &&
+				!(*debugFlag)) {
+				*debugFlag = true;
+			}
+		}
+		ImGui::EndMenu();
+	}
+
 	if (ImGui::BeginMenu("Field")) {
 		for (auto& emitter : debugFields_) {
 			bool* debugFlag = std::get<0>(emitter.second);
@@ -981,6 +1032,7 @@ void GPUParticleShaderStructs::Update() {
 		}
 		ImGui::EndMenu();
 	}
+
 	ImGui::End();
 
 	for (auto it = debugEmitters_.begin(); it != debugEmitters_.end(); ) {
@@ -1016,6 +1068,20 @@ void GPUParticleShaderStructs::Update() {
 			EmitterEditor(it->first, it->second);
 			if (!*(std::get<0>(it->second))) {
 				it = debugVertexEmitterDesc_.erase(it);
+			}
+			else {
+				++it;
+			}
+		}
+		else {
+			++it;
+		}
+	}
+	for (auto it = debugTransformEmitter_.begin(); it != debugTransformEmitter_.end(); ) {
+		if (*(std::get<0>(it->second))) {
+			EmitterEditor(it->first, it->second);
+			if (!*(std::get<0>(it->second))) {
+				it = debugTransformEmitter_.erase(it);
 			}
 			else {
 				++it;
@@ -1109,6 +1175,32 @@ void GPUParticleShaderStructs::Load(const std::string name, GPUParticleShaderStr
 	LoadVelocity(desc.emitter.velocity);
 	LoadTextureHandle(desc.emitter.textureIndex);
 	LoadCollisionInfo(desc.emitter.collisionInfo);
+	JSON_CLOSE();
+}
+
+void GPUParticleShaderStructs::Save(const std::string name, TransformEmitter& emitter) {
+	JSON_OPEN("Resources/GPUParticle/TransformEmitter/" + name + ".json");
+	SaveArea(emitter.emitterArea);
+	SaveScale(emitter.scale);
+	SaveRotate(emitter.rotate);
+	SaveVelocity(emitter.velocity);
+	SaveParticleLife(emitter.particleLifeSpan);
+	SaveColor(emitter.color);
+	SaveCollisionInfo(emitter.collisionInfo);
+	SaveTextureHandle(emitter.textureIndex);
+	JSON_CLOSE();
+}
+
+void GPUParticleShaderStructs::Load(const std::string name, TransformEmitter& emitter) {
+	JSON_OPEN("Resources/GPUParticle/TransformEmitter/" + name + ".json");
+	LoadArea(emitter.emitterArea);
+	LoadScale(emitter.scale);
+	LoadRotate(emitter.rotate);
+	LoadVelocity(emitter.velocity);
+	LoadParticleLife(emitter.particleLifeSpan);
+	LoadColor(emitter.color);
+	LoadCollisionInfo(emitter.collisionInfo);
+	LoadTextureHandle(emitter.textureIndex);
 	JSON_CLOSE();
 }
 

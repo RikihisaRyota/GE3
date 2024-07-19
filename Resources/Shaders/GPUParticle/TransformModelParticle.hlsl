@@ -35,7 +35,7 @@ struct Time{
     float32_t time;
 };
 
-ConstantBuffer<MeshEmitter> meshEmitter : register(b4);
+ConstantBuffer<TransformEmitter> transformEmitter : register(b4);
 
 ConstantBuffer<Index> gRandom : register(b5);
 [numthreads(meshThreadBlockSize, 1, 1)]
@@ -53,10 +53,10 @@ void main( uint3 DTid : SV_DispatchThreadID )
         int32_t particleIndex = particleIndexCommands.Consume();
         uint32_t startModelIndex=index % startVerticeSize.index;
         uint32_t endModelIndex=index % endVerticeSize.index;
-        MeshEmitter emitter=meshEmitter;
+        TransformEmitter emitter=transformEmitter;
         emitter.translate.isEasing=true;
         emitter.translate.easing.min = mul(startVertices[startModelIndex].position, startWorldTransform.world).xyz;
         emitter.translate.easing.max = mul(endVertices[endModelIndex].position,endWorldTransform.world).xyz;
-        CreateParticle(Output[particleIndex], emitter,seed);
+        CreateParticle(Output[particleIndex], emitter,seed,false);
     }
 }

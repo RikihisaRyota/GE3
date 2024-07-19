@@ -77,7 +77,7 @@ void Model::LoadFile(const std::filesystem::path& modelPath) {
 		aiMesh* mesh = scene->mMeshes[meshIndex];
 
 		assert(mesh->HasNormals()); // 法線がないMeshは今回は未対応
-		assert(mesh->HasTextureCoords(0)); // TexcoordがないMeshは今回は未対応
+		//assert(mesh->HasTextureCoords(0)); // TexcoordがないMeshは今回は未対応
 
 		currentModelData->meshes = new Mesh();
 		currentModelData->meshes->vertexCount = uint32_t(mesh->mNumVertices);
@@ -87,12 +87,14 @@ void Model::LoadFile(const std::filesystem::path& modelPath) {
 		// 頂点データを解析
 		for (uint32_t vertexIndex = 0; vertexIndex < mesh->mNumVertices; ++vertexIndex) {
 			aiVector3D& position = mesh->mVertices[vertexIndex];
-			aiVector3D& texcoord = mesh->mTextureCoords[0][vertexIndex];
 			aiVector3D& normal = mesh->mNormals[vertexIndex];
 			Vertex vertex{};
 			vertex.position = { position.x,position.y,position.z,1.0f };
 			vertex.normal = { normal.x,normal.y,normal.z };
-			vertex.texcoord = { texcoord.x,texcoord.y };
+			if (mesh->HasTextureCoords(0)) {
+				aiVector3D& texcoord = mesh->mTextureCoords[0][vertexIndex];
+				vertex.texcoord = { texcoord.x,texcoord.y };
+			}
 			vertex.position.x *= -1.0f;
 			vertex.normal.x *= -1.0f;
 			minIndex.x = (std::min)(minIndex.x, position.x);

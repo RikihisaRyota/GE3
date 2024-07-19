@@ -180,9 +180,30 @@ struct ParticleLifeSpan
     UintMinMax range;
 };
 
-struct MeshEmitter {
+
+struct TransformEmitter {
+	EmitterArea area;
+
 	Translate translate;
 
+	ScaleAnimation scale;
+
+	RotateAnimation rotate;
+
+	Velocity3D velocity;
+
+	EmitterColor color;
+
+	ParticleLifeSpan particleLifeSpan;
+
+	ParticleAttributes collisionInfo;
+
+	uint32_t textureIndex;
+
+	float32_t3 pad;
+};
+
+struct MeshEmitter {
 	ScaleAnimation scale;
 
 	RotateAnimation rotateAnimation;
@@ -706,25 +727,124 @@ void CreateParticle(inout Particle particle,MeshEmitter emitter ,float32_t3 tran
     ParticleColor(particle, emitter,seed); 
 }
 
-void CreateParticle(inout Particle particle,MeshEmitter emitter , inout uint32_t seed){
+void CreateParticle(inout Particle particle,MeshEmitter emitter, inout uint32_t seed){
     particle.textureIndex = emitter.textureIndex;
     particle.collisionInfo = emitter.collisionInfo;
     
     particle.isAlive = 1;
     particle.isHit = 0;
     particle.translate.isEasing = false;
-
-    particle.translate.easing.min= emitter.translate.easing.min;
-    particle.translate.easing.max= emitter.translate.easing.max;
-    particle.translate.isEasing = true;
-
-    particle.translate.translate = emitter.translate.easing.min;
     
     ParticleLifeTime(particle, emitter,seed);
     
     ParticleScale(particle, emitter,seed);
     
     ParticleRotate(particle, emitter,seed);
+    
+    ParticleVelocity(particle, emitter,seed);
+    
+    ParticleColor(particle, emitter,seed); 
+}
+
+void ParticleLifeTime(inout Particle particle,TransformEmitter emitter ,inout uint32_t seed){
+    particle.particleLifeTime.maxTime = randomRange(emitter.particleLifeSpan.range.min, emitter.particleLifeSpan.range.max, seed);
+    particle.particleLifeTime.time = 0;
+}
+
+void ParticleScale(inout Particle particle,TransformEmitter emitter ,inout uint32_t seed){
+    if(!emitter.scale.isUniformScale && !emitter.scale.isStaticSize){
+        particle.scaleRange.min.x = randomRange(emitter.scale.range.start.min.x, emitter.scale.range.start.max.x,seed);
+        particle.scaleRange.min.y = randomRange(emitter.scale.range.start.min.y, emitter.scale.range.start.max.y,seed);
+        particle.scaleRange.min.z = randomRange(emitter.scale.range.start.min.z, emitter.scale.range.start.max.z,seed);
+        
+        particle.scaleRange.max.x = randomRange(emitter.scale.range.end.min.x, emitter.scale.range.end.max.x,seed);
+        particle.scaleRange.max.y = randomRange(emitter.scale.range.end.min.y, emitter.scale.range.end.max.y,seed);
+        particle.scaleRange.max.z = randomRange(emitter.scale.range.end.min.z, emitter.scale.range.end.max.z,seed);
+    }
+    else if(emitter.scale.isUniformScale&&!emitter.scale.isStaticSize) {
+        particle.scaleRange.min=randomRangeSame(emitter.scale.range.start.min, emitter.scale.range.start.max,seed);
+        particle.scaleRange.max=randomRangeSame(emitter.scale.range.end.min, emitter.scale.range.end.max,seed);
+    }else if(!emitter.scale.isUniformScale&&emitter.scale.isStaticSize) {
+        particle.scaleRange.min.x = randomRange(emitter.scale.range.start.min.x, emitter.scale.range.start.max.x,seed);
+        particle.scaleRange.min.y = randomRange(emitter.scale.range.start.min.y, emitter.scale.range.start.max.y,seed);
+        particle.scaleRange.min.z = randomRange(emitter.scale.range.start.min.z, emitter.scale.range.start.max.z,seed);
+        particle.scaleRange.max = particle.scaleRange.min;
+    }else {
+        particle.scaleRange.min=randomRangeSame(emitter.scale.range.start.min, emitter.scale.range.start.max,seed);
+        particle.scaleRange.max=particle.scaleRange.min;
+    }
+    particle.scale = particle.scaleRange.min;
+}
+
+void ParticleRotate(inout Particle particle,TransformEmitter emitter ,inout uint32_t seed){
+    particle.rotateVelocity =  randomRange(emitter.rotate.rotateSpeed.min,emitter.rotate.rotateSpeed.max,seed);
+    particle.rotate =  randomRange(emitter.rotate.initializeAngle.min,emitter.rotate.initializeAngle.max,seed);
+}
+
+void ParticleTranslate(inout Particle particle,TransformEmitter emitter ,inout uint32_t seed,uint32_t isArea){
+    if(isArea){
+        if(emitter.area.type==0){
+            particle.translate.translate = emitter.area.aabb.position;
+            particle.translate.translate += randomRange(emitter.area.aabb.range.min, emitter.area.aabb.range.max, seed);
+        }else if(emitter.area.type==1){
+            particle.translate.translate= emitter.area.sphere.position;
+            float32_t3 normal,direction;
+            normal.x = randomRange(-1.0f, 1.0f,seed);
+            normal.y = randomRange(-1.0f, 1.0f,seed);
+            normal.z = randomRange(-1.0f, 1.0f,seed);
+            direction=normalize(normal);
+            float distanceFactor = randomRange(emitter.area.sphere.distanceFactor.min, emitter.area.sphere.distanceFactor.max, seed);
+            direction *= emitter.area.sphere.radius * distanceFactor;
+            particle.translate.translate += direction;
+        } else if(emitter.area.type==2){
+            float32_t3 normal,direction,p;
+            p = randomRangeSame(emitter.area.capsule.segment.origin, emitter.area.capsule.segment.diff,seed);
+            normal.x = randomRange(-1.0f, 1.0f,seed);
+            normal.y = randomRange(-1.0f, 1.0f,seed);
+            normal.z = randomRange(-1.0f, 1.0f,seed);
+            direction = normalize(normal);
+            float distanceFactor = randomRange(emitter.area.capsule.distanceFactor.min, emitter.area.capsule.distanceFactor.max, seed);
+            direction *=  emitter.area.capsule.radius * distanceFactor;
+            particle.translate.translate =  pointOnCapsule(p + direction, emitter.area.capsule.segment.origin ,emitter.area.capsule.segment.diff ,emitter.area.capsule.radius ,randomRange(emitter.area.capsule.distanceFactor.min,emitter.area.capsule.distanceFactor.max,seed));
+        }
+        particle.translate.easing.min = particle.translate.translate;
+    }else{
+        particle.translate.easing.min = emitter.translate.easing.min;
+    }
+    particle.translate.easing.max = emitter.translate.easing.max;
+    particle.translate.isEasing = true;
+
+}
+
+void ParticleVelocity(inout Particle particle,TransformEmitter emitter ,inout uint32_t seed){
+    particle.velocity = randomRange(emitter.velocity.range.min, emitter.velocity.range.max, seed);
+}
+
+void ParticleColor(inout Particle particle,TransformEmitter emitter ,inout uint32_t seed){
+    if(!emitter.color.isStaticColor){
+        particle.colorRange.min=randomRange(emitter.color.range.start.min, emitter.color.range.start.max, seed);
+        particle.colorRange.max=randomRange(emitter.color.range.end.min, emitter.color.range.end.max, seed);
+    }else{
+        particle.colorRange.min=randomRange(emitter.color.range.start.min, emitter.color.range.start.max, seed);
+        particle.colorRange.min=particle.colorRange.max;
+    }
+    particle.color =particle.colorRange.min;
+}
+
+void CreateParticle(inout Particle particle,TransformEmitter emitter ,inout uint32_t seed,uint32_t isArea){
+    particle.textureIndex = emitter.textureIndex;
+    particle.collisionInfo = emitter.collisionInfo;
+    
+    particle.isAlive = true;
+    particle.isHit = false;
+    
+    ParticleLifeTime(particle, emitter,seed);
+    
+    ParticleScale(particle, emitter,seed);
+    
+    ParticleRotate(particle, emitter,seed);
+    
+    ParticleTranslate(particle,emitter ,seed, isArea);
     
     ParticleVelocity(particle, emitter,seed);
     

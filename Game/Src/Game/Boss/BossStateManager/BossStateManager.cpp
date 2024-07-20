@@ -11,10 +11,10 @@
 void BossStateRoot::Initialize(CommandContext& commandContext) {
 	auto boss = manager_.boss_;
 	SetDesc();
-	animationHandle_ = manager_.boss_->GetAnimation()->GetAnimationHandle("idle");
+	//animationHandle_ = manager_.boss_->GetAnimation()->GetAnimationHandle("idle");
 	time_ = 0.0f;
 	if (manager_.GetPreState() != BossStateManager::State::kRoot) {
-		manager_.gpuParticleManager_->CreateTransformModelParticle(manager_.GetModelHandle(), manager_.GetWorldTransform().matWorld, boss->GetModelHandle(), *boss->GetAnimation(), boss->GetWorldMatrix(), data_.transformEmitter, commandContext);
+		manager_.gpuParticleManager_->CreateTransformModelParticle(manager_.GetModelHandle(), manager_.GetWorldTransform().matWorld, boss->GetModelHandle(),/* *boss->GetAnimation(),*/ boss->GetWorldMatrix(), data_.transformEmitter, commandContext);
 	}
 }
 
@@ -50,7 +50,7 @@ void BossStateRoot::Update(CommandContext& commandContext) {
 
 	}
 	else {
-		animation->Update(animationHandle_, time_, commandContext, boss->GetModelHandle());
+		//animation->Update(animationHandle_, time_, commandContext, boss->GetModelHandle());
 	}
 }
 void BossStateRoot::DebugDraw() {}
@@ -111,18 +111,19 @@ void BossStateCarAttack::Initialize(CommandContext& commandContext) {
 	collider_->SetCallback([this](const ColliderDesc& collisionInfo) { OnCollision(collisionInfo); });
 	collider_->SetCollisionAttribute(CollisionAttribute::Boss);
 	collider_->SetCollisionMask(CollisionAttribute::Player | CollisionAttribute::PlayerBullet);
+	collider_->SetName("Boss");
 	collider_->SetIsActive(true);
 	time_ = 0.0f;
 	SetLocation();
 	auto boss = manager_.boss_;
 	if (manager_.GetPreState() == BossStateManager::State::kRoot) {
-		manager_.gpuParticleManager_->CreateTransformModelParticle(boss->GetModelHandle(), *boss->GetAnimation(), boss->GetWorldMatrix(), modelHandle_, worldTransform_.matWorld, data_.transformEmitter, commandContext);
+		manager_.gpuParticleManager_->CreateTransformModelParticle(boss->GetModelHandle(),/* *boss->GetAnimation(), */boss->GetWorldMatrix(), modelHandle_, worldTransform_.matWorld, data_.transformEmitter, commandContext);
 		GPUParticleShaderStructs::TransformEmitter emitter = data_.transformRailEmitter;
 		emitter.emitterArea.aabb.position = railWorldTransform_.translate;
 		manager_.gpuParticleManager_->CreateTransformModelAreaParticle(railModelHandle_, railWorldTransform_.matWorld, emitter, commandContext);
 	}
 	else {
-		manager_.gpuParticleManager_->CreateTransformModelParticle(manager_.GetModelHandle(), boss->GetWorldMatrix(), modelHandle_, worldTransform_.matWorld, data_.transformEmitter, commandContext);
+		//manager_.gpuParticleManager_->CreateTransformModelParticle(manager_.GetModelHandle(), boss->GetWorldMatrix(), modelHandle_, worldTransform_.matWorld, data_.transformEmitter, commandContext);
 	}
 }
 
@@ -161,15 +162,22 @@ void BossStateCarAttack::Update(CommandContext& commandContext) {
 		worldTransform_.translate.x = Lerp(data_.start.x, data_.end.x, t);
 		UpdateTransform();
 		manager_.gpuParticleManager_->CreateVertexParticle(modelHandle_, worldTransform_.matWorld, data_.vertexEmitter, commandContext);
+		manager_.gpuParticleManager_->CreateVertexParticle(railModelHandle_, railWorldTransform_.matWorld, data_.vertexEmitter, commandContext);
 	}
 
 	if (time_ >= 1.0f && !inTransition_) {
 		manager_.ChangeState<BossStateRoot>();
+		GPUParticleShaderStructs::VertexEmitterDesc emitter = data_.vertexEmitter;
+		emitter.emitter.velocity.range.min = { -0.5f,-0.1f,-0.5f };
+		emitter.emitter.velocity.range.max = { +0.5f,+0.1f,+0.5f };
+		emitter.emitter.particleLifeSpan.range.min = 30;
+		emitter.emitter.particleLifeSpan.range.max = 60;
+		manager_.gpuParticleManager_->CreateVertexParticle(railModelHandle_, railWorldTransform_.matWorld, emitter, commandContext);
 	}
 }
 
 void BossStateCarAttack::DebugDraw() {
-	collider_->DrawCollision({ 0.0f,1.0f,1.0f,1.0f });
+	collider_->DrawCollision({ 0.0f,1.0f,0.2f,1.0f });
 }
 
 void BossStateCarAttack::OnCollision(const ColliderDesc& collisionInfo) {
@@ -178,6 +186,7 @@ void BossStateCarAttack::OnCollision(const ColliderDesc& collisionInfo) {
 
 void BossStateCarAttack::UpdateTransform() {
 	worldTransform_.UpdateMatrix();
+	railWorldTransform_.UpdateMatrix();
 	collider_->SetCenter(MakeTranslateMatrix(worldTransform_.matWorld));
 	collider_->SetSize(data_.collider.size);
 	collider_->SetOrientation(worldTransform_.rotate);
@@ -203,7 +212,7 @@ void BossStateCarAttack::SetLocation() {
 
 	Quaternion rightRotate = MakeRotateYAngleQuaternion(DegToRad(-90.0f));
 	Quaternion leftRotate = MakeRotateYAngleQuaternion(DegToRad(90.0f));
-
+	Vector3 railPos = Vector3(data_.start.x, data_.start.y * 0.5f, 0.0f);
 	switch (attackLocation_) {
 		// 右前
 	case AttackLocation::kRight | AttackLocation::kFront:
@@ -212,7 +221,7 @@ void BossStateCarAttack::SetLocation() {
 		data_.end.x *= -1.0f;
 		worldTransform_.translate = data_.start + Vector3(0.0f, 0.0f, 1.0f) * data_.frontAndBackOffset;
 		worldTransform_.rotate = rightRotate;
-		railWorldTransform_.translate = Vector3(data_.start.x, data_.start.y, 0.0f) + Vector3(0.0f, 0.0f, 1.0f) * data_.frontAndBackOffset;
+		railWorldTransform_.translate = railPos + Vector3(0.0f, 0.0f, 1.0f) * data_.frontAndBackOffset;
 		railWorldTransform_.rotate = rightRotate;
 	}
 	break;
@@ -223,7 +232,7 @@ void BossStateCarAttack::SetLocation() {
 		data_.end.x *= -1.0f;
 		worldTransform_.translate = data_.start + Vector3(0.0f, 0.0f, 1.0f) * -data_.frontAndBackOffset;
 		worldTransform_.rotate = rightRotate;
-		railWorldTransform_.translate =Vector3(data_.start.x, data_.start.y, 0.0f) + Vector3(0.0f, 0.0f, 1.0f) * -data_.frontAndBackOffset;
+		railWorldTransform_.translate = railPos + Vector3(0.0f, 0.0f, 1.0f) * -data_.frontAndBackOffset;
 		railWorldTransform_.rotate = rightRotate;
 	}
 	break;
@@ -232,7 +241,7 @@ void BossStateCarAttack::SetLocation() {
 	{
 		worldTransform_.translate = data_.start + Vector3(0.0f, 0.0f, 1.0f) * data_.frontAndBackOffset;
 		worldTransform_.rotate = leftRotate;
-		railWorldTransform_.translate = Vector3(data_.start.x, data_.start.y, 0.0f) + Vector3(0.0f, 0.0f, 1.0f) * data_.frontAndBackOffset;
+		railWorldTransform_.translate = railPos + Vector3(0.0f, 0.0f, 1.0f) * data_.frontAndBackOffset;
 		railWorldTransform_.rotate = leftRotate;
 	}
 	break;
@@ -241,15 +250,15 @@ void BossStateCarAttack::SetLocation() {
 	{
 		worldTransform_.translate = data_.start + Vector3(0.0f, 0.0f, 1.0f) * -data_.frontAndBackOffset;
 		worldTransform_.rotate = leftRotate;
-		railWorldTransform_.translate = Vector3(data_.start.x, data_.start.y, 0.0f) + Vector3(0.0f, 0.0f, 1.0f) * -data_.frontAndBackOffset;
+		railWorldTransform_.translate = railPos + Vector3(0.0f, 0.0f, 1.0f) * -data_.frontAndBackOffset;
 		railWorldTransform_.rotate = leftRotate;
 	}
 	break;
 	default:
 		break;
 	}
-	worldTransform_.UpdateMatrix();
-	railWorldTransform_.UpdateMatrix();
+	UpdateTransform();
+
 }
 
 

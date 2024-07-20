@@ -162,7 +162,7 @@ void Model::LoadFile(const std::filesystem::path& modelPath) {
 	vbView.StrideInBytes = sizeof(vertexPos[0]);
 
 
-	srView = GraphicsCore::GetInstance()->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+	vertexSRV = GraphicsCore::GetInstance()->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 
 	D3D12_SHADER_RESOURCE_VIEW_DESC vertexSrvDesc{};
 	vertexSrvDesc.Format = DXGI_FORMAT_UNKNOWN;
@@ -171,8 +171,20 @@ void Model::LoadFile(const std::filesystem::path& modelPath) {
 	vertexSrvDesc.Buffer.FirstElement = 0;
 	vertexSrvDesc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
 	vertexSrvDesc.Buffer.NumElements = UINT(vertexPos.size());
-	vertexSrvDesc.Buffer.StructureByteStride = sizeof(Model::Vertex);
-	device->CreateShaderResourceView(vertexBuffer, &vertexSrvDesc, srView);
+	vertexSrvDesc.Buffer.StructureByteStride = sizeof(vertexPos[0]);
+	device->CreateShaderResourceView(vertexBuffer, &vertexSrvDesc, vertexSRV);
+
+	indexSRV = GraphicsCore::GetInstance()->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+
+	D3D12_SHADER_RESOURCE_VIEW_DESC indexSrvDesc{};
+	indexSrvDesc.Format = DXGI_FORMAT_UNKNOWN;
+	indexSrvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+	indexSrvDesc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
+	indexSrvDesc.Buffer.FirstElement = 0;
+	indexSrvDesc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
+	indexSrvDesc.Buffer.NumElements = UINT(indices.size());
+	indexSrvDesc.Buffer.StructureByteStride = sizeof(indices[0]);
+	device->CreateShaderResourceView(indexBuffer, &indexSrvDesc, indexSRV);
 
 	// Material解析
 	for (uint32_t materialIndex = 0; materialIndex < scene->mNumMaterials; ++materialIndex) {

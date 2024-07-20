@@ -635,9 +635,9 @@ void ParticleColor(inout Particle particle,Emitter emitter ,inout uint32_t seed)
         particle.colorRange.max=randomRange(emitter.color.range.end.min, emitter.color.range.end.max, seed);
     }else{
         particle.colorRange.min=randomRange(emitter.color.range.start.min, emitter.color.range.start.max, seed);
-        particle.colorRange.min=particle.colorRange.max;
+        particle.colorRange.max=particle.colorRange.min;
     }
-    particle.color =particle.colorRange.min;
+    particle.color = particle.colorRange.min;
 }
 
 void CreateParticle(inout Particle particle,Emitter emitter ,inout uint32_t seed){
@@ -701,9 +701,14 @@ void ParticleVelocity(inout Particle particle,MeshEmitter emitter ,inout uint32_
 }
 
 void ParticleColor(inout Particle particle,MeshEmitter emitter ,inout uint32_t seed){
-    particle.colorRange.min=randomRange(emitter.color.range.start.min, emitter.color.range.start.max, seed);
-    particle.colorRange.max=randomRange(emitter.color.range.end.min, emitter.color.range.end.max, seed);
-    particle.color =particle.colorRange.min;
+   if(!emitter.color.isStaticColor){
+        particle.colorRange.min=randomRange(emitter.color.range.start.min, emitter.color.range.start.max, seed);
+        particle.colorRange.max=randomRange(emitter.color.range.end.min, emitter.color.range.end.max, seed);
+    }else{
+        particle.colorRange.min=randomRange(emitter.color.range.start.min, emitter.color.range.start.max, seed);
+        particle.colorRange.max=particle.colorRange.min;
+    }
+    particle.color = particle.colorRange.min;
 }
 
 void CreateParticle(inout Particle particle,MeshEmitter emitter ,float32_t3 translate,inout uint32_t seed){
@@ -826,9 +831,9 @@ void ParticleColor(inout Particle particle,TransformEmitter emitter ,inout uint3
         particle.colorRange.max=randomRange(emitter.color.range.end.min, emitter.color.range.end.max, seed);
     }else{
         particle.colorRange.min=randomRange(emitter.color.range.start.min, emitter.color.range.start.max, seed);
-        particle.colorRange.min=particle.colorRange.max;
+        particle.colorRange.max=particle.colorRange.min;
     }
-    particle.color =particle.colorRange.min;
+    particle.color = particle.colorRange.min;
 }
 
 void CreateParticle(inout Particle particle,TransformEmitter emitter ,inout uint32_t seed,uint32_t isArea){

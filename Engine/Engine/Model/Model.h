@@ -96,6 +96,8 @@ public:
 	const D3D12_VERTEX_BUFFER_VIEW& GetVertexView() const { return vbView; }
 	UploadBuffer& GetIndexBuffer() { return indexBuffer; }
 	UploadBuffer& GetVertexBuffer() { return vertexBuffer; }
+	const DescriptorHandle& GetVertexSRV() const { return vertexSRV; }
+	const DescriptorHandle& GetIndexSRV() const { return indexSRV; }
 	const uint32_t GetAllVertexCount()const;
 	const uint32_t GetAllIndexCount()const;
 private:
@@ -115,5 +117,7 @@ private:
 
 	UploadBuffer vertexBuffer;
 	D3D12_VERTEX_BUFFER_VIEW vbView{};
-	DescriptorHandle srView{};
+
+	DescriptorHandle vertexSRV{};
+	DescriptorHandle indexSRV{};
 };

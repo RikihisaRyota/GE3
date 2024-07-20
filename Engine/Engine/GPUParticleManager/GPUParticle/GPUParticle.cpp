@@ -81,6 +81,7 @@ void GPUParticle::UpdateField(CommandContext& commandContext) {
 
 	if (!fields_.empty()) {
 		commandContext.CopyBufferRegion(fieldIndexBuffer_, fieldIndexBuffer_.GetCounterOffset(), resetAppendDrawIndexBufferCounterReset_, 0, sizeof(UINT));
+
 		commandContext.TransitionResource(fieldOriginalBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 		commandContext.TransitionResource(fieldIndexStockBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 		commandContext.TransitionResource(fieldIndexBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
@@ -90,6 +91,8 @@ void GPUParticle::UpdateField(CommandContext& commandContext) {
 		commandContext.SetComputeDescriptorTable(2, fieldIndexBuffer_.GetUAVHandle());
 		commandContext.Dispatch(1, 1, 1);
 		commandContext.UAVBarrier(fieldOriginalBuffer_);
+		commandContext.UAVBarrier(fieldIndexStockBuffer_);
+		commandContext.UAVBarrier(fieldIndexBuffer_);
 	}
 }
 
@@ -126,6 +129,7 @@ void GPUParticle::CheckEmitter(CommandContext& commandContext) {
 		commandContext.SetComputeUAV(1, emitterForGPUBuffer_->GetGPUVirtualAddress());
 		commandContext.Dispatch(uint32_t(emitterCount), 1, 1);
 
+		commandContext.UAVBarrier(emitterCopyDefaultBuffer_);
 		commandContext.UAVBarrier(emitterForGPUBuffer_);
 	}
 }
@@ -143,6 +147,8 @@ void GPUParticle::AddEmitter(CommandContext& commandContext) {
 		commandContext.SetComputeUAV(1, emitterForGPUBuffer_->GetGPUVirtualAddress());
 		commandContext.SetComputeUAV(2, createEmitterBuffer_->GetGPUVirtualAddress());
 		commandContext.Dispatch(1, 1, 1);
+		commandContext.UAVBarrier(emitterForGPUBuffer_);
+		commandContext.UAVBarrier(createEmitterBuffer_);
 		emitterForGPUs_.clear();
 	}
 }
@@ -161,6 +167,8 @@ void GPUParticle::EmitterUpdate(CommandContext& commandContext) {
 
 	commandContext.Dispatch(1, 1, 1);
 	commandContext.UAVBarrier(createParticleBuffer_);
+	commandContext.UAVBarrier(emitterForGPUBuffer_);
+	commandContext.UAVBarrier(createParticleCounterCopySrcBuffer_);
 	// x
 	commandContext.CopyBufferRegion(spawnArgumentBuffer_, 0, createParticleCounterCopySrcBuffer_, 0, sizeof(UINT));
 	// y
@@ -242,7 +250,6 @@ void GPUParticle::BulletUpdate(CommandContext& commandContext, const UploadBuffe
 		commandContext.SetComputeConstantBuffer(3, random.GetGPUVirtualAddress());
 		commandContext.Dispatch(static_cast<UINT>(ceil((GPUParticleShaderStructs::MaxParticleNum / GPUParticleShaderStructs::MaxProcessNum) / GPUParticleShaderStructs::ComputeThreadBlockSize)), 1, 1);
 		commandContext.UAVBarrier(particleBuffer_);
-
 		bullets_.clear();
 	}
 }
@@ -304,6 +311,7 @@ void GPUParticle::CreateMeshParticle(const ModelHandle& modelHandle, Animation::
 		uint32_t createParticleNum = mesh.numCreate;
 		commandContext.Dispatch(UINT(numThreadGroups), createParticleNum, 1);
 		commandContext.UAVBarrier(originalCommandBuffer_);
+		commandContext.UAVBarrier(particleBuffer_);
 	}
 }
 
@@ -340,6 +348,7 @@ void GPUParticle::CreateMeshParticle(const ModelHandle& modelHandle, const Matri
 		uint32_t createParticleNum = mesh.numCreate;
 		commandContext.Dispatch(UINT(numThreadGroups), createParticleNum, 1);
 		commandContext.UAVBarrier(originalCommandBuffer_);
+		commandContext.UAVBarrier(particleBuffer_);
 	}
 }
 
@@ -371,6 +380,7 @@ void GPUParticle::CreateVertexParticle(const ModelHandle& modelHandle, Animation
 
 	commandContext.Dispatch(UINT(numThreadGroups), 1, 1);
 	commandContext.UAVBarrier(originalCommandBuffer_);
+	commandContext.UAVBarrier(particleBuffer_);
 }
 void GPUParticle::CreateVertexParticle(const ModelHandle& modelHandle, const Matrix4x4& worldTransform, const GPUParticleShaderStructs::VertexEmitterDesc& mesh, const UploadBuffer& random, CommandContext& commandContext) {
 	auto& model = ModelManager::GetInstance()->GetModel(modelHandle);
@@ -399,6 +409,7 @@ void GPUParticle::CreateVertexParticle(const ModelHandle& modelHandle, const Mat
 
 	commandContext.Dispatch(UINT(numThreadGroups), 1, 1);
 	commandContext.UAVBarrier(originalCommandBuffer_);
+	commandContext.UAVBarrier(particleBuffer_);
 }
 
 void GPUParticle::CreateEdgeParticle(const ModelHandle& modelHandle, Animation::Animation& animation, const Matrix4x4& worldTransform, const GPUParticleShaderStructs::MeshEmitterDesc& mesh, const UploadBuffer& random, CommandContext& commandContext) {
@@ -423,7 +434,7 @@ void GPUParticle::CreateEdgeParticle(const ModelHandle& modelHandle, Animation::
 		constBufferDataWorldTransform.matWorld = worldTransform;
 		constBufferDataWorldTransform.inverseMatWorld = Transpose(Inverse(worldTransform));
 		commandContext.SetComputeDynamicConstantBufferView(6, sizeof(ConstBufferDataWorldTransform), &constBufferDataWorldTransform);
-		
+
 		size_t indexCount = model.GetAllIndexCount();
 		commandContext.SetComputeDynamicConstantBufferView(7, sizeof(indexCount), &indexCount);
 		commandContext.SetComputeDynamicConstantBufferView(8, sizeof(mesh.emitter), &mesh.emitter);
@@ -459,7 +470,7 @@ void GPUParticle::CreateEdgeParticle(const ModelHandle& modelHandle, const Matri
 		constBufferDataWorldTransform.matWorld = worldTransform;
 		constBufferDataWorldTransform.inverseMatWorld = Transpose(Inverse(worldTransform));
 		commandContext.SetComputeDynamicConstantBufferView(6, sizeof(ConstBufferDataWorldTransform), &constBufferDataWorldTransform);
-		
+
 		uint32_t indexCount = model.GetAllIndexCount();
 		commandContext.SetComputeDynamicConstantBufferView(7, sizeof(indexCount), &indexCount);
 		commandContext.SetComputeDynamicConstantBufferView(8, sizeof(mesh.emitter), &mesh.emitter);
@@ -469,6 +480,7 @@ void GPUParticle::CreateEdgeParticle(const ModelHandle& modelHandle, const Matri
 		//uint32_t createParticleNum = mesh.numCreate;
 		commandContext.Dispatch(UINT(numThreadGroups), 1, 1);
 		commandContext.UAVBarrier(originalCommandBuffer_);
+		commandContext.UAVBarrier(particleBuffer_);
 	}
 }
 
@@ -558,6 +570,7 @@ void GPUParticle::CreateTransformModelParticle(const ModelHandle& startModelHand
 
 	commandContext.Dispatch(static_cast<UINT>(ceil((GPUParticleShaderStructs::MaxParticleNum / GPUParticleShaderStructs::MaxProcessNum) / GPUParticleShaderStructs::ComputeThreadBlockSize)), 1, 1);
 	commandContext.UAVBarrier(originalCommandBuffer_);
+	commandContext.UAVBarrier(particleBuffer_);
 }
 
 void GPUParticle::CreateTransformModelParticle(const ModelHandle& startModelHandle, Animation::Animation& startAnimation, const Matrix4x4& startWorldTransform, const ModelHandle& endModelHandle, const Matrix4x4& endWorldTransform, const GPUParticleShaderStructs::TransformEmitter& transformEmitter, const UploadBuffer& random, CommandContext& commandContext) {
@@ -602,6 +615,7 @@ void GPUParticle::CreateTransformModelParticle(const ModelHandle& startModelHand
 
 	commandContext.Dispatch(static_cast<UINT>(ceil((GPUParticleShaderStructs::MaxParticleNum / GPUParticleShaderStructs::MaxProcessNum) / GPUParticleShaderStructs::ComputeThreadBlockSize)), 1, 1);
 	commandContext.UAVBarrier(originalCommandBuffer_);
+	commandContext.UAVBarrier(particleBuffer_);
 }
 
 void GPUParticle::CreateTransformModelParticle(const ModelHandle& startModelHandle, const Matrix4x4& startWorldTransform, const ModelHandle& endModelHandle, Animation::Animation& endAnimation, const Matrix4x4& endWorldTransform, const GPUParticleShaderStructs::TransformEmitter& transformEmitter, const UploadBuffer& random, CommandContext& commandContext) {
@@ -646,6 +660,7 @@ void GPUParticle::CreateTransformModelParticle(const ModelHandle& startModelHand
 
 	commandContext.Dispatch(static_cast<UINT>(ceil((GPUParticleShaderStructs::MaxParticleNum / GPUParticleShaderStructs::MaxProcessNum) / GPUParticleShaderStructs::ComputeThreadBlockSize)), 1, 1);
 	commandContext.UAVBarrier(originalCommandBuffer_);
+	commandContext.UAVBarrier(particleBuffer_);
 }
 
 void GPUParticle::CreateTransformModelAreaParticle(const ModelHandle& modelHandle, const Matrix4x4& worldTransform, const GPUParticleShaderStructs::TransformEmitter& transformEmitter, const UploadBuffer& random, CommandContext& commandContext) {
@@ -676,6 +691,7 @@ void GPUParticle::CreateTransformModelAreaParticle(const ModelHandle& modelHandl
 
 	commandContext.Dispatch(static_cast<UINT>(ceil((GPUParticleShaderStructs::MaxParticleNum / GPUParticleShaderStructs::MaxProcessNum) / GPUParticleShaderStructs::ComputeThreadBlockSize)), 1, 1);
 	commandContext.UAVBarrier(originalCommandBuffer_);
+	commandContext.UAVBarrier(particleBuffer_);
 }
 
 void GPUParticle::SetField(const GPUParticleShaderStructs::FieldForCPU& fieldForCPU) {

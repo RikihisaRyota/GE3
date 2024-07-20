@@ -6,12 +6,12 @@
     "EmitterArea": {
         "EmitterAABB": {
             "Max": [
-                20.0,
+                50.0,
                 20.0,
                 20.0
             ],
             "Min": [
-                -20.0,
+                -50.0,
                 -20.0,
                 -20.0
             ],
@@ -87,7 +87,7 @@
     },
     "ParticleLifeSpan": {
         "Max": 70,
-        "Min": 1
+        "Min": 30
     },
     "RotateAnimation": {
         "initializeAngle": {

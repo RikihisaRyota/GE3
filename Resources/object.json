@@ -68,7 +68,7 @@
                     1.0
                 ]
             },
-            "file_name": "Resources\\Models\\Ground\\ground_1.gltf",
+            "file_name": "Resources\\Models\\Ground\\ground.gltf",
             "collider": {
                 "type": "BOX",
                 "center": [

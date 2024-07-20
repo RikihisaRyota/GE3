@@ -173,8 +173,7 @@ void Player::Shot() {
 }
 
 void Player::OnCollision(const ColliderDesc& desc) {
-	if (desc.collider->GetName().find("Boss") != std::string::npos ||
-		desc.collider->GetName() == "GameObject") {
+	if (desc.collider->GetName() == "GameObject") {
 		// ワールド空間の押し出しベクトル
 		Vector3 pushVector = desc.normal * desc.depth;
 		auto parent = worldTransform_.parent_;
@@ -191,7 +190,7 @@ void Player::OnCollision(const ColliderDesc& desc) {
 		UpdateTransform();
 		colliderColor_ = { 1.0f,0.0f,0.0f,1.0f };
 	}
-	if (desc.collider->GetName() == "BossAttack") {
+	if (desc.collider->GetName() == "Boss") {
 		if (state_ != kHitDamage) {
 			velocity_ = { 0.0f,0.0f,0.0f };
 			playerHP_->HitDamage(1);

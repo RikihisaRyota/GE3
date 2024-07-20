@@ -17,8 +17,8 @@ Boss::Boss() {
 	ModelManager::GetInstance()->Load("Resources/Models/Boss/train.gltf");
 	ModelManager::GetInstance()->Load("Resources/Models/Boss/rail.gltf");
 	ModelManager::GetInstance()->Load("Resources/Models/Boss/hand.gltf");
-	bossModelHandle_ = ModelManager::GetInstance()->Load("Resources/Models/Boss/boss_ts.gltf");
-	animation_.Initialize("Resources/Animation/Boss/animation.gltf", bossModelHandle_);
+	bossModelHandle_ = ModelManager::GetInstance()->Load("Resources/Models/Boss/boss.gltf");
+	//animation_.Initialize("Resources/Animation/Boss/animation.gltf", bossModelHandle_);
 	gpuTexture_ = TextureManager::GetInstance()->Load("Resources/Images/GPUParticle.png");
 	bossStateManager_ = std::make_unique<BossStateManager>();
 	bossStateManager_->SetBoss(this);
@@ -129,6 +129,7 @@ void Boss::DrawImGui() {
 	bossHP_->DrawImGui();
 	GPUParticleShaderStructs::Debug("boss", meshEmitterDesc_);
 	GPUParticleShaderStructs::Debug("boss", vertexEmitterDesc_);
+	GPUParticleShaderStructs::Debug("boss", transformEmitter_);
 #endif // _DEBUG
 }
 
@@ -150,10 +151,9 @@ void Boss::UpdateGPUParticle(CommandContext& commandContext) {
 	//gpuParticleManager_->CreateMeshParticle(bossModelHandle_, animation_, worldTransform_.matWorld, meshEmitterDesc_, commandContext);
 	if (bossStateManager_->GetCurrentState() == BossStateManager::State::kRoot&&
 		!bossStateManager_->GetInTransition()) {
-		gpuParticleManager_->CreateVertexParticle(bossModelHandle_, animation_, worldTransform_.matWorld, vertexEmitterDesc_, commandContext);
+		gpuParticleManager_->CreateVertexParticle(bossModelHandle_, worldTransform_.matWorld, vertexEmitterDesc_, commandContext);
 	}
-	//gpuParticleManager_->CreateTransformModelParticle(bossModelHandle_, worldTransform_.matWorld, testModelHandle_, tmp, t_, vertexEmitterDesc_, commandContext);
-
+	//gpuParticleManager_->CreateTransformModelParticle(bossModelHandle_, worldTransform_.matWorld, testModelHandle_, worldTransform_.matWorld, transformEmitter_, commandContext);
 }
 
 void Boss::UpdateTransform() {

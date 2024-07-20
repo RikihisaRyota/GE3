@@ -64,6 +64,7 @@ private:
 	/// </summary>
 	GPUParticleShaderStructs::MeshEmitterDesc meshEmitterDesc_;
 	GPUParticleShaderStructs::VertexEmitterDesc vertexEmitterDesc_;
+	GPUParticleShaderStructs::TransformEmitter transformEmitter_;
 
 	WorldTransform worldTransform_;
 

@@ -27,9 +27,11 @@
 			"doubleSided":true,
 			"extensions":{
 				"KHR_materials_specular":{
-					"specularColorTexture":{
-						"index":0
-					}
+					"specularColorFactor":[
+						0.7843137828849162,
+						0.7843137828849162,
+						0.7843137828849162
+					]
 				},
 				"KHR_materials_ior":{
 					"ior":1.4500000476837158
@@ -38,7 +40,7 @@
 			"name":"Metal_Galvanized_A_10cm",
 			"pbrMetallicRoughness":{
 				"baseColorTexture":{
-					"index":1
+					"index":0
 				},
 				"metallicFactor":0
 			}
@@ -63,18 +65,9 @@
 		{
 			"sampler":0,
 			"source":0
-		},
-		{
-			"sampler":0,
-			"source":1
 		}
 	],
 	"images":[
-		{
-			"mimeType":"image/png",
-			"name":"Image",
-			"uri":"Image.png"
-		},
 		{
 			"mimeType":"image/jpeg",
 			"name":"Metal_Galvanized_A_10cm",
@@ -85,23 +78,23 @@
 		{
 			"bufferView":0,
 			"componentType":5126,
-			"count":130554,
+			"count":140128,
 			"max":[
-				10.121167182922363,
-				1.7892711162567139,
-				149.74041748046875
+				4.04846715927124,
+				0.7157084345817566,
+				119.7923355102539
 			],
 			"min":[
-				-10.12119197845459,
-				-1.7020180225372314,
-				-141.35726928710938
+				-4.048476696014404,
+				-0.6808072328567505,
+				-113.0858154296875
 			],
 			"type":"VEC3"
 		},
 		{
 			"bufferView":1,
 			"componentType":5126,
-			"count":130554,
+			"count":140128,
 			"type":"VEC3"
 		},
 		{
@@ -114,20 +107,20 @@
 	"bufferViews":[
 		{
 			"buffer":0,
-			"byteLength":1566648,
+			"byteLength":1681536,
 			"byteOffset":0,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":1566648,
-			"byteOffset":1566648,
+			"byteLength":1681536,
+			"byteOffset":1681536,
 			"target":34962
 		},
 		{
 			"buffer":0,
 			"byteLength":1220064,
-			"byteOffset":3133296,
+			"byteOffset":3363072,
 			"target":34963
 		}
 	],
@@ -139,7 +132,7 @@
 	],
 	"buffers":[
 		{
-			"byteLength":4353360,
+			"byteLength":4583136,
 			"uri":"rail.bin"
 		}
 	]

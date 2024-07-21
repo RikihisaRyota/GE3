@@ -62,8 +62,8 @@ void PlayerBullet::OnCollision(const ColliderDesc& desc) {
 		isAlive_ = false;
 	}
 	if (desc.collider->GetName().find("Boss") != std::string::npos) {
-		emitter_.sharp.emitterArea.sphere.position = MakeTranslateMatrix(worldTransform_.matWorld);
-		emitter_.crescent.emitterArea.sphere.position = MakeTranslateMatrix(worldTransform_.matWorld);
+		emitter_.sharp.emitterArea.position = MakeTranslateMatrix(worldTransform_.matWorld);
+		emitter_.crescent.emitterArea.position = MakeTranslateMatrix(worldTransform_.matWorld);
 		gpuParticleManager_->SetEmitter(emitter_.crescent);
 		gpuParticleManager_->SetEmitter(emitter_.sharp);
 		isAlive_ = false;

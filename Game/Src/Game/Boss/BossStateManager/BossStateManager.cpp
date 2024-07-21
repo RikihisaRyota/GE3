@@ -119,7 +119,7 @@ void BossStateCarAttack::Initialize(CommandContext& commandContext) {
 	if (manager_.GetPreState() == BossStateManager::State::kRoot) {
 		manager_.gpuParticleManager_->CreateTransformModelParticle(boss->GetModelHandle(),/* *boss->GetAnimation(), */boss->GetWorldMatrix(), modelHandle_, worldTransform_.matWorld, data_.transformEmitter, commandContext);
 		GPUParticleShaderStructs::TransformEmitter emitter = data_.transformRailEmitter;
-		emitter.emitterArea.aabb.position = railWorldTransform_.translate;
+		emitter.emitterArea.position = railWorldTransform_.translate;
 		manager_.gpuParticleManager_->CreateTransformModelAreaParticle(railModelHandle_, railWorldTransform_.matWorld, emitter, commandContext);
 	}
 	else {

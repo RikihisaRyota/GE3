@@ -45,7 +45,7 @@ public:
 	void CreateTransformModelAreaParticle(const ModelHandle& modelHandle, const Matrix4x4& worldTransform, const GPUParticleShaderStructs::TransformEmitter& transformEmitter, CommandContext& commandContext);
 
 
-	void SetEmitter(const GPUParticleShaderStructs::EmitterForCPU& emitterForCPU);
+	void SetEmitter(const GPUParticleShaderStructs::EmitterForCPU& emitterForCPU,const Matrix4x4& parent=Matrix4x4());
 	void SetField(const GPUParticleShaderStructs::FieldForCPU& fieldForCPU);
 	void SetBullet(const GPUParticleShaderStructs::BulletForGPU& bullets);
 

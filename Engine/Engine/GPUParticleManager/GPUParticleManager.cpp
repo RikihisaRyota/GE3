@@ -49,6 +49,9 @@ namespace ParticleManager {
 		kParticleBuffer,
 		kParticleIndexCommand,
 		kOutputDrawIndex,
+		kEmitter,
+		kMeshEmitter,
+		kTransformEmitter,
 
 		kUpdateRootSigunatureCount,
 	};
@@ -255,8 +258,8 @@ void GPUParticleManager::CreateTransformModelAreaParticle(const ModelHandle& mod
 	gpuParticle_->CreateTransformModelAreaParticle(modelHandle, worldTransform,  transformEmitter, randomBuffer_, commandContext);
 }
 
-void GPUParticleManager::SetEmitter(const GPUParticleShaderStructs::EmitterForCPU& emitter) {
-	gpuParticle_->SetEmitter(emitter);
+void GPUParticleManager::SetEmitter(const GPUParticleShaderStructs::EmitterForCPU& emitter, const Matrix4x4& parent) {
+	gpuParticle_->SetEmitter(emitter,parent);
 }
 
 void GPUParticleManager::SetField(const GPUParticleShaderStructs::FieldForCPU& fieldForCPU) {
@@ -456,6 +459,9 @@ void GPUParticleManager::CreateUpdate() {
 		rootParameters[ParticleManager::ParticleUpdateRootSigunature::kParticleBuffer].InitAsUnorderedAccessView(0);
 		rootParameters[ParticleManager::ParticleUpdateRootSigunature::kParticleIndexCommand].InitAsDescriptorTable(_countof(particleIndexRange), particleIndexRange);
 		rootParameters[ParticleManager::ParticleUpdateRootSigunature::kOutputDrawIndex].InitAsDescriptorTable(_countof(outputDrawRange), outputDrawRange);
+		rootParameters[ParticleManager::ParticleUpdateRootSigunature::kEmitter].InitAsShaderResourceView(0);
+		rootParameters[ParticleManager::ParticleUpdateRootSigunature::kMeshEmitter].InitAsShaderResourceView(1);
+		rootParameters[ParticleManager::ParticleUpdateRootSigunature::kTransformEmitter].InitAsShaderResourceView(2);
 
 		D3D12_ROOT_SIGNATURE_DESC desc{};
 		desc.pParameters = rootParameters;

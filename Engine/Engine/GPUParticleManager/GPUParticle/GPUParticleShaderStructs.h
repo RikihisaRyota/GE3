@@ -97,16 +97,19 @@ struct Particle
 		float4 max;
 	} colorRange;
 	float4 color;
+	
 	float3 scale;
 	uint textureIndex;
+	
 	float rotateVelocity;
 	float rotate;
-	uint isAlive;
-	uint pad1;
-	float3 translate;
-	uint pad2;
-	float3 velocity;
-	uint pad3;
+	int isAlive;
+    int isHit;
+	struct Translate {
+		Float3MinMax easing;
+		float3 translate;
+		int isEasing;
+	}translate;
 	float4x4 worldMatrix; // row_major
 	struct ParticleAttributes
 	{
@@ -114,6 +117,15 @@ struct Particle
 		uint attribute;
 		float2 pad;
 	} collisionInfo;
+	struct ParticleParent{
+		uint isParent;
+		uint emitterType;
+		uint emitterCount;
+		uint pad;
+	}parent;
+
+	float3 velocity;
+	uint pad3;
 } Element;
 
 
@@ -128,6 +140,14 @@ struct Particle
 		Vector3 translate;
 		uint32_t isEasing;
 	};
+
+	struct ParticleParent {
+		uint32_t isParent;
+		uint32_t emitterType;
+		uint32_t emitterCount;
+		uint32_t pad;
+	};
+
 	struct Particle {
 		Vector3MinMax scaleRange;
 		ParticleLifeTime particleLifeTime;
@@ -145,12 +165,14 @@ struct Particle
 
 		Translate translate;
 
-		Vector3 velocity;
-		uint32_t pad3;
-
 		Matrix4x4 matWorld;
 
 		ParticleAttributes collisionInfo;
+
+		ParticleParent parent;
+
+		Vector3 velocity;
+		float pad;
 	};
 
 	// hlsli側も変更すること
@@ -158,13 +180,11 @@ struct Particle
 	// エミッターの生成範囲と生成場所
 	struct EmitterAABB {
 		Vector3MinMax area;
-		Vector3 position;
-		float pad;
 	};
 
 	struct EmitterSphere {
 		float radius;
-		Vector3 position;
+		Vector3 pad;
 		FloatMinMax distanceFactor;
 	};
 
@@ -190,8 +210,8 @@ struct Particle
 		EmitterAABB aabb;
 		EmitterSphere sphere;
 		EmitterCapsule capsule;
+		Vector3 position;
 		uint32_t type;
-		Vector3 pad;
 	};
 
 	// エミッターの生成範囲と生成場所
@@ -241,6 +261,19 @@ struct Particle
 	// パーティクルのランダム寿命
 	struct ParticleLifeSpan {
 		UintMinMax range;
+	};
+
+	enum EmitterType {
+		kEmitter,
+		kMeshEmitter,
+		kTransformEmitter,
+		kCount,
+	};
+	struct EmitterParent {
+		Matrix4x4 worldMatrix;
+		uint32_t isParent;
+		uint32_t emitterType;
+		Vector2 pad;
 	};
 
 	struct TransformEmitter {
@@ -327,6 +360,8 @@ struct Particle
 
 		ParticleAttributes collisionInfo;
 
+		EmitterParent parent;
+
 		// クラス内でstatic宣言されたメンバ変数のサイズは0
 		static int32_t staticEmitterCount;
 	};
@@ -359,6 +394,8 @@ struct Particle
 		int32_t emitterCount = -1;
 
 		ParticleAttributes collisionInfo;
+
+		EmitterParent parent;
 	};
 
 	enum FieldType {
@@ -462,13 +499,13 @@ struct Particle
 		D3D12_DRAW_INDEXED_ARGUMENTS drawIndex;
 	};
 
-	void EmitterEditor(const std::string name, std::tuple<bool*, EmitterForCPU*> emitter);
+	void EmitterEditor(const std::string name, std::tuple<bool*, EmitterForCPU*, Matrix4x4> emitter);
 	void EmitterEditor(const std::string name, std::tuple<bool*, MeshEmitterDesc*> desc);
 	void EmitterEditor(const std::string name, std::tuple<bool*, VertexEmitterDesc*> desc);
 	void EmitterEditor(const std::string name, std::tuple<bool*, TransformEmitter*> emitter);
 	void EmitterEditor(const std::string name, std::tuple<bool*, FieldForCPU*> desc);
 
-	void Debug(const std::string name, EmitterForCPU& emitter);
+	void Debug(const std::string name, EmitterForCPU& emitter, const Matrix4x4& parent = Matrix4x4());
 	void Debug(const std::string name, MeshEmitterDesc& desc);
 	void Debug(const std::string name, VertexEmitterDesc& desc);
 	void Debug(const std::string name, TransformEmitter& emitter);
@@ -523,34 +560,50 @@ struct Particle
 	void DrawParticleLife(GPUParticleShaderStructs::ParticleLifeSpan& particleLifeSpan);
 	void DrawTextureHandle(uint32_t& texture);
 	void DrawCreateParticleNum(uint32_t& createParticleNum);
+	void DrawParent(uint32_t& parent);
 	void DrawCollisionInfo(GPUParticleShaderStructs::ParticleAttributes& particleAttributes);
 	void DrawField(GPUParticleShaderStructs::Field& fierd);
 	void DrawFieldFrequency(GPUParticleShaderStructs::FieldFrequency& fieldFrequency);
 
 	void LoadArea(GPUParticleShaderStructs::EmitterArea& area);
-	void LoadScale(GPUParticleShaderStructs::ScaleAnimation& scale);
-	void LoadRotate(GPUParticleShaderStructs::RotateAnimation& rotate);
-	void LoadVelocity(GPUParticleShaderStructs::Velocity3D& velocity);
-	void LoadColor(GPUParticleShaderStructs::EmitterColor& color);
-	void LoadFrequency(GPUParticleShaderStructs::EmitterFrequency& frequency);
-	void LoadParticleLife(GPUParticleShaderStructs::ParticleLifeSpan& particleLifeSpan);
-	void LoadTextureHandle(uint32_t& texture);
-	void LoadCreateParticleNum(uint32_t& createParticleNum);
-	void LoadCollisionInfo(GPUParticleShaderStructs::ParticleAttributes& particleAttributes);
-	void LoadField(GPUParticleShaderStructs::Field& fierd);
-	void LoadFieldArea(GPUParticleShaderStructs::EmitterArea& area);
-	void LoadFieldFrequency(GPUParticleShaderStructs::FieldFrequency& fieldFrequency);
 	void SaveArea(GPUParticleShaderStructs::EmitterArea& area);
+
+	void LoadScale(GPUParticleShaderStructs::ScaleAnimation& scale);
 	void SaveScale(GPUParticleShaderStructs::ScaleAnimation& scale);
+
+	void LoadRotate(GPUParticleShaderStructs::RotateAnimation& rotate);
 	void SaveRotate(GPUParticleShaderStructs::RotateAnimation& rotate);
+
+	void LoadVelocity(GPUParticleShaderStructs::Velocity3D& velocity);
 	void SaveVelocity(GPUParticleShaderStructs::Velocity3D& velocity);
+
+	void LoadColor(GPUParticleShaderStructs::EmitterColor& color);
 	void SaveColor(GPUParticleShaderStructs::EmitterColor& color);
+
+	void LoadFrequency(GPUParticleShaderStructs::EmitterFrequency& frequency);
 	void SaveFrequency(GPUParticleShaderStructs::EmitterFrequency& frequency);
+
+	void LoadParticleLife(GPUParticleShaderStructs::ParticleLifeSpan& particleLifeSpan);
 	void SaveParticleLife(GPUParticleShaderStructs::ParticleLifeSpan& particleLifeSpan);
+
+	void LoadTextureHandle(uint32_t& texture);
 	void SaveTextureHandle(uint32_t& texture);
+
+	void LoadCreateParticleNum(uint32_t& createParticleNum);
 	void SaveCreateParticleNum(uint32_t& createParticleNum);
+
+	void LoadCollisionInfo(GPUParticleShaderStructs::ParticleAttributes& particleAttributes);
 	void SaveCollisionInfo(GPUParticleShaderStructs::ParticleAttributes& particleAttributes);
+
+	void LoadParent(GPUParticleShaderStructs::EmitterParent& parent);
+	void SaveParent(GPUParticleShaderStructs::EmitterParent& parent);
+
+	void LoadField(GPUParticleShaderStructs::Field& fierd);
 	void SaveField(GPUParticleShaderStructs::Field& fierd);
+
+	void LoadFieldArea(GPUParticleShaderStructs::EmitterArea& area);
 	void SaveFieldArea(GPUParticleShaderStructs::EmitterArea& area);
+
+	void LoadFieldFrequency(GPUParticleShaderStructs::FieldFrequency& fieldFrequency);
 	void SaveFieldFrequency(GPUParticleShaderStructs::FieldFrequency& fieldFrequency);
 }

@@ -91,12 +91,16 @@
                 0.5,
                 1.0
             ]
-        }
+        },
+        "isStaticColor": 0
     },
     "EmitterFrequency": {
         "emitterLife": 1,
         "interval": 1,
         "isLoop": 1
+    },
+    "Parent": {
+        "isParent": 0
     },
     "ParticleLifeSpan": {
         "Max": 360,
@@ -128,17 +132,19 @@
         },
         "Start": {
             "Max": [
-                0.30000001192092896,
-                0.30000001192092896,
-                0.30000001192092896
+                0.5,
+                0.5,
+                0.5
             ],
             "Min": [
-                1.0,
+                0.10000000149011612,
                 0.10000000149011612,
                 0.10000000149011612
             ]
         },
-        "isSame": 0
+        "isSame": 0,
+        "isStaticSize": 0,
+        "isUniformScale": 1
     },
     "Velocity3D": {
         "Max": [

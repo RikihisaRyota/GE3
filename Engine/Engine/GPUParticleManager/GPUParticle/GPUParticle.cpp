@@ -216,12 +216,14 @@ void GPUParticle::ParticleUpdate(const ViewProjection& viewProjection, CommandCo
 	commandContext.TransitionResource(particleBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 	commandContext.TransitionResource(originalCommandBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 	commandContext.TransitionResource(drawIndexCommandBuffers_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+	commandContext.TransitionResource(emitterForGPUBuffer_, D3D12_RESOURCE_STATE_GENERIC_READ);
 
 
 	commandContext.SetComputeConstantBuffer(0, viewProjection.constBuff_.GetGPUVirtualAddress());
 	commandContext.SetComputeUAV(1, particleBuffer_->GetGPUVirtualAddress());
 	commandContext.SetComputeDescriptorTable(2, originalCommandBuffer_.GetUAVHandle());
 	commandContext.SetComputeDescriptorTable(3, drawIndexCommandBuffers_.GetUAVHandle());
+	commandContext.SetComputeShaderResource(4, emitterForGPUBuffer_->GetGPUVirtualAddress());
 
 	commandContext.Dispatch(static_cast<UINT>(ceil((GPUParticleShaderStructs::MaxParticleNum / GPUParticleShaderStructs::MaxProcessNum) / GPUParticleShaderStructs::ComputeThreadBlockSize)), 1, 1);
 	commandContext.UAVBarrier(particleBuffer_);
@@ -705,8 +707,11 @@ void GPUParticle::SetField(const GPUParticleShaderStructs::FieldForCPU& fieldFor
 	fields_.emplace_back(fieldForGPU);
 }
 
-void GPUParticle::SetEmitter(const GPUParticleShaderStructs::EmitterForCPU& emitterForCPU) {
+void GPUParticle::SetEmitter(const GPUParticleShaderStructs::EmitterForCPU& emitterForCPU, const Matrix4x4& parent) {
 	GPUParticleShaderStructs::EmitterForGPU emitterForGPU{};
+	emitterForGPU.parent = emitterForCPU.parent;
+	emitterForGPU.parent.emitterType = GPUParticleShaderStructs::EmitterType::kEmitter;
+	emitterForGPU.parent.worldMatrix = parent;
 	emitterForGPU.emitterArea = emitterForCPU.emitterArea;
 	emitterForGPU.scale = emitterForCPU.scale;
 	emitterForGPU.rotate.initializeAngle.min = DegToRad(emitterForCPU.rotate.initializeAngle.min);

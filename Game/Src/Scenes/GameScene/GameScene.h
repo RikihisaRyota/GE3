@@ -49,5 +49,6 @@ private:
 	//WorldTransform fieldWorldTransform_;
 
 	GPUParticleShaderStructs::EmitterForCPU testEmitter_;
+	WorldTransform testWorldTransform_;
 	GPUParticleShaderStructs::FieldForCPU testField_;
 };

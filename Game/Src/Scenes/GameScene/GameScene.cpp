@@ -56,7 +56,7 @@ GameScene::GameScene() {
 
 	//fieldWorldTransform_.Initialize();
 	//field_ = ModelManager::GetInstance()->Load("Resources/Models/Ground/ground_1.gltf");
-
+	testWorldTransform_.Initialize();
 }
 
 GameScene::~GameScene() {
@@ -106,13 +106,16 @@ void GameScene::Update(CommandContext& commandContext) {
 	}
 
 
-	gpuParticleManager_->SetEmitter(testEmitter_);
+	gpuParticleManager_->SetEmitter(testEmitter_, testWorldTransform_.matWorld);
 	gpuParticleManager_->SetField(testField_);
 	gpuParticleManager_->Update(*viewProjection_, RenderManager::GetInstance()->GetCommandContext());
 	//gpuParticleEditor_->Update(RenderManager::GetInstance()->GetCommandContext());
 
 	CollisionManager::GetInstance()->Collision();
 #ifdef _DEBUG
+	ImGui::DragFloat3("Scale", &testWorldTransform_.scale.x, 0.1f);
+	ImGui::DragFloat3("Translate", &testWorldTransform_.translate.x, 0.1f);
+	testWorldTransform_.UpdateMatrix();
 	if (ImGui::Button("GameObjectLoad")) {
 		LevelDataLoader::Load("Resources/object.json");
 		for (auto& object : gameObject_) {

@@ -69,8 +69,8 @@ void Boss::Initialize() {
 }
 
 void Boss::Update(CommandContext& commandContext) {
-	UpdateGPUParticle(commandContext);
-	bossStateManager_->Update(commandContext);
+//	UpdateGPUParticle(commandContext);
+	//bossStateManager_->Update(commandContext);
 	UpdateTransform();
 	UpdateCollider();
 }

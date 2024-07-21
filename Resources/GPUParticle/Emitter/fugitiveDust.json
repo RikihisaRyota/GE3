@@ -87,6 +87,7 @@
         "interval": 1,
         "isLoop": 1
     },
+    "Parent": {},
     "ParticleLifeSpan": {
         "Max": 30,
         "Min": 15

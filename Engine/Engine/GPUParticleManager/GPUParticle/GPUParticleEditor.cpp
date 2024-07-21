@@ -299,9 +299,9 @@ void GPUParticleEditor::CreateIndexBuffer() {
 void GPUParticleEditor::CreateEmitterBuffer() {
 	emitter_.emitterArea.aabb.area.min = { -10.0f, -10.0f, -20.0f };
 	emitter_.emitterArea.aabb.area.max = { 10.0f, 10.0f, 20.0f };
-	emitter_.emitterArea.aabb.position = { 0.0f, 0.0f, 0.0f };
+	//emitter_.emitterArea.aabb.position = { 0.0f, 0.0f, 0.0f };
 	emitter_.emitterArea.sphere.radius = 10.0f;
-	emitter_.emitterArea.sphere.position = { 0.0f, 0.0f, 0.0f };
+	emitter_.emitterArea.position = { 0.0f, 0.0f, 0.0f };
 	emitter_.emitterArea.type = 0;
 
 	emitter_.scale.range.start.min = { 0.5f, 0.5f, 0.5f };

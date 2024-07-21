@@ -66,7 +66,7 @@ public:
 	void SetSpawnCommandSignature(CommandSignature* commandSignature) { spawnCommandSignature_ = commandSignature; }
 
 	void SetField(const GPUParticleShaderStructs::FieldForCPU& fieldForCPU);
-	void SetEmitter(const GPUParticleShaderStructs::EmitterForCPU& emitterForGPU);
+	void SetEmitter(const GPUParticleShaderStructs::EmitterForCPU& emitterForGPU,const Matrix4x4& parent);
 	void SetBullet(const GPUParticleShaderStructs::BulletForGPU& bullet);
 private:
 	void InitializeParticleBuffer();

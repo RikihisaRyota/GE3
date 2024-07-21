@@ -184,14 +184,12 @@ namespace GPUParticleShaderStructs {
 			case GPUParticleShaderStructs::kAABB:
 				if (ImGui::TreeNode("AABB")) {
 					DrawMinMax(area.aabb.area);
-					ImGui::DragFloat3("Position", &area.aabb.position.x, 0.1f);
 					ImGui::TreePop();
 				}
 				break;
 			case GPUParticleShaderStructs::kSphere:
 				if (ImGui::TreeNode("Sphere")) {
 					ImGui::DragFloat("Radius", &area.sphere.radius, 0.1f);
-					ImGui::DragFloat3("Position", &area.sphere.position.x, 0.1f);
 					DrawMinMax(area.sphere.distanceFactor, 0.01f, 0.0f, 1.0f);
 					ImGui::TreePop();
 				}
@@ -210,6 +208,7 @@ namespace GPUParticleShaderStructs {
 			default:
 				break;
 			}
+			ImGui::DragFloat3("Position", &area.position.x, 0.1f);
 
 			std::vector<const char*> stateNamesCStr{ "AABB","Sphere","Capsule" };
 			int currentState = static_cast<int>(area.type);
@@ -368,6 +367,14 @@ namespace GPUParticleShaderStructs {
 #endif // _DEBUG
 	}
 
+	void DrawParent(uint32_t& parent) {
+		bool isParent = static_cast<bool>(parent);
+
+		if (ImGui::Checkbox("IsParent", &isParent)) {
+			parent = static_cast<uint32_t>(isParent);
+		}
+	}
+
 	void DrawCollisionInfo(GPUParticleShaderStructs::ParticleAttributes& particleAttributes) {
 #ifdef _DEBUG
 		if (ImGui::TreeNode("CollisionInfo")) {
@@ -441,13 +448,12 @@ namespace GPUParticleShaderStructs {
 
 	void LoadArea(GPUParticleShaderStructs::EmitterArea& area) {
 		JSON_OBJECT("EmitterArea");
+		JSON_LOAD_BY_NAME("position", area.position);
 		JSON_LOAD_BY_NAME("type", area.type);
 		JSON_OBJECT("EmitterAABB");
 		LoadMinMax(area.aabb.area);
-		JSON_LOAD_BY_NAME("position", area.aabb.position);
 		JSON_PARENT();
 		JSON_OBJECT("EmitterSphere");
-		JSON_LOAD_BY_NAME("position", area.sphere.position);
 		JSON_LOAD_BY_NAME("radius", area.sphere.radius);
 		JSON_OBJECT("distanceFactor");
 		LoadMinMax(area.sphere.distanceFactor);
@@ -547,13 +553,12 @@ namespace GPUParticleShaderStructs {
 
 	void LoadFieldArea(GPUParticleShaderStructs::EmitterArea& area) {
 		JSON_OBJECT("FieldArea");
+		JSON_LOAD_BY_NAME("position", area.position);
 		JSON_OBJECT("FieldAABB");
 		LoadMinMax(area.aabb.area);
-		JSON_LOAD_BY_NAME("position", area.aabb.position);
 		JSON_PARENT();
 
 		JSON_OBJECT("FieldSphere");
-		JSON_LOAD_BY_NAME("position", area.sphere.position);
 		JSON_LOAD_BY_NAME("radius", area.sphere.radius);
 		JSON_PARENT();
 
@@ -575,14 +580,13 @@ namespace GPUParticleShaderStructs {
 
 	void SaveArea(GPUParticleShaderStructs::EmitterArea& area) {
 		JSON_OBJECT("EmitterArea");
+		JSON_SAVE_BY_NAME("position", area.position);
 		JSON_SAVE_BY_NAME("type", area.type);
 		JSON_OBJECT("EmitterAABB");
 		SaveMinMax(area.aabb.area);
-		JSON_SAVE_BY_NAME("position", area.aabb.position);
 		JSON_PARENT();
 		JSON_OBJECT("EmitterSphere");
 		JSON_SAVE_BY_NAME("radius", area.sphere.radius);
-		JSON_SAVE_BY_NAME("position", area.sphere.position);
 		JSON_OBJECT("distanceFactor");
 		SaveMinMax(area.sphere.distanceFactor);
 		JSON_PARENT();
@@ -666,6 +670,19 @@ namespace GPUParticleShaderStructs {
 		JSON_ROOT();
 	}
 
+
+	void LoadParent(GPUParticleShaderStructs::EmitterParent& parent) {
+		JSON_OBJECT("Parent");
+		JSON_LOAD_BY_NAME("isParent", parent.isParent);
+		JSON_ROOT();
+	}
+
+	void SaveParent(GPUParticleShaderStructs::EmitterParent& parent) {
+		JSON_OBJECT("Parent");
+		JSON_SAVE_BY_NAME("isParent", parent.isParent);
+		JSON_ROOT();
+	}
+
 	void SaveField(GPUParticleShaderStructs::Field& field) {
 		JSON_OBJECT("Field");
 		JSON_OBJECT("Attraction");
@@ -680,13 +697,12 @@ namespace GPUParticleShaderStructs {
 
 	void SaveFieldArea(GPUParticleShaderStructs::EmitterArea& area) {
 		JSON_OBJECT("FieldArea");
+		JSON_SAVE_BY_NAME("position", area.position);
 		JSON_OBJECT("FieldAABB");
 		LoadMinMax(area.aabb.area);
-		JSON_SAVE_BY_NAME("position", area.aabb.position);
 		JSON_PARENT();
 
 		JSON_OBJECT("FieldSphere");
-		JSON_SAVE_BY_NAME("position", area.sphere.position);
 		JSON_SAVE_BY_NAME("radius", area.sphere.radius);
 		JSON_PARENT();
 
@@ -705,14 +721,14 @@ namespace GPUParticleShaderStructs {
 		JSON_SAVE_BY_NAME("lifeCount", fieldFrequency.lifeCount);
 		JSON_ROOT();
 	}
-	std::map<std::string, std::tuple<bool*, EmitterForCPU*>>debugEmitters_;
+	std::map<std::string, std::tuple<bool*, EmitterForCPU*, Matrix4x4>>debugEmitters_;
 	std::map<std::string, std::tuple<bool*, MeshEmitterDesc*>>debugMeshEmitterDesc_;
 	std::map<std::string, std::tuple<bool*, VertexEmitterDesc*>>debugVertexEmitterDesc_;
 	std::map<std::string, std::tuple<bool*, TransformEmitter*>>debugTransformEmitter_;
 	std::map<std::string, std::tuple<bool*, FieldForCPU*>>debugFields_;
 }
 
-void GPUParticleShaderStructs::EmitterEditor(const std::string name, std::tuple<bool*, GPUParticleShaderStructs::EmitterForCPU*>e) {
+void GPUParticleShaderStructs::EmitterEditor(const std::string name, std::tuple<bool*, GPUParticleShaderStructs::EmitterForCPU*, Matrix4x4>e) {
 #ifdef _DEBUG
 	ImGui::Begin(("Emitter:" + name).c_str());
 	ImGui::PushID(name.c_str());
@@ -721,6 +737,8 @@ void GPUParticleShaderStructs::EmitterEditor(const std::string name, std::tuple<
 		*std::get<0>(e) = false;
 	}
 	ImGui::Text("EmitterCount : %d", emitter->emitterCount);
+
+	DrawParent(emitter->parent.isParent);
 
 	DrawArea(emitter->emitterArea);
 
@@ -871,10 +889,10 @@ void GPUParticleShaderStructs::EmitterEditor(const std::string name, std::tuple<
 #endif // _DEBUG
 }
 
-void GPUParticleShaderStructs::Debug(const std::string name, GPUParticleShaderStructs::EmitterForCPU& emitter) {
+void GPUParticleShaderStructs::Debug(const std::string name, GPUParticleShaderStructs::EmitterForCPU& emitter, const Matrix4x4& parent) {
 	if (debugEmitters_.find(name) == debugEmitters_.end()) {
 		bool* falseFlag = new bool(false);
-		debugEmitters_[name] = std::make_tuple(falseFlag, &emitter);
+		debugEmitters_[name] = std::make_tuple(falseFlag, &emitter, parent);
 	}
 }
 
@@ -916,14 +934,14 @@ void GPUParticleShaderStructs::DebugDraw(const EmitterForCPU& emitter) {
 		AABB aabb{};
 		aabb.min_ = emitter.emitterArea.aabb.area.min;
 		aabb.max_ = emitter.emitterArea.aabb.area.max;
-		aabb.center_ = emitter.emitterArea.aabb.position;
+		aabb.center_ = emitter.emitterArea.position;
 		DrawLine(aabb, emitterColor);
 	}
 	break;
 	case GPUParticleShaderStructs::Type::kSphere:
 	{
 		Sphere sphere{};
-		sphere.center = emitter.emitterArea.sphere.position;
+		sphere.center = emitter.emitterArea.position;
 		sphere.radius = emitter.emitterArea.sphere.radius;
 		DrawLine(sphere, emitterColor);
 	}
@@ -931,8 +949,8 @@ void GPUParticleShaderStructs::DebugDraw(const EmitterForCPU& emitter) {
 	case GPUParticleShaderStructs::Type::kCapsule:
 	{
 		Capsule capsule{};
-		capsule.segment.start = emitter.emitterArea.capsule.segment.origin;
-		capsule.segment.end = emitter.emitterArea.capsule.segment.diff;
+		capsule.segment.start = emitter.emitterArea.capsule.segment.origin + emitter.emitterArea.position;
+		capsule.segment.end = emitter.emitterArea.capsule.segment.diff + emitter.emitterArea.position;
 		capsule.radius = emitter.emitterArea.capsule.radius;
 		DrawLine(capsule, emitterColor);
 	}
@@ -950,14 +968,14 @@ void GPUParticleShaderStructs::DebugDraw(const FieldForCPU& emitter) {
 		AABB aabb{};
 		aabb.min_ = emitter.fieldArea.aabb.area.min;
 		aabb.max_ = emitter.fieldArea.aabb.area.max;
-		aabb.center_ = emitter.fieldArea.aabb.position;
+		aabb.center_ = emitter.fieldArea.position;
 		DrawLine(aabb, emitterColor);
 	}
 	break;
 	case GPUParticleShaderStructs::Type::kSphere:
 	{
 		Sphere sphere{};
-		sphere.center = emitter.fieldArea.sphere.position;
+		sphere.center = emitter.fieldArea.position;
 		sphere.radius = emitter.fieldArea.sphere.radius;
 		DrawLine(sphere, emitterColor);
 	}
@@ -965,8 +983,8 @@ void GPUParticleShaderStructs::DebugDraw(const FieldForCPU& emitter) {
 	case GPUParticleShaderStructs::Type::kCapsule:
 	{
 		Capsule capsule{};
-		capsule.segment.start = emitter.fieldArea.capsule.segment.origin;
-		capsule.segment.end = emitter.fieldArea.capsule.segment.diff;
+		capsule.segment.start = emitter.fieldArea.capsule.segment.origin + emitter.fieldArea.position;
+		capsule.segment.end = emitter.fieldArea.capsule.segment.diff + emitter.fieldArea.position;
 		capsule.radius = emitter.fieldArea.capsule.radius;
 		DrawLine(capsule, emitterColor);
 	}
@@ -1120,6 +1138,7 @@ void GPUParticleShaderStructs::Load(const std::string name, GPUParticleShaderStr
 	LoadCollisionInfo(emitter.collisionInfo);
 	LoadCreateParticleNum(emitter.createParticleNum);
 	LoadTextureHandle(emitter.textureIndex);
+	LoadParent(emitter.parent);
 	JSON_CLOSE();
 }
 
@@ -1135,6 +1154,7 @@ void GPUParticleShaderStructs::Save(const std::string name, GPUParticleShaderStr
 	SaveCollisionInfo(emitter.collisionInfo);
 	SaveCreateParticleNum(emitter.createParticleNum);
 	SaveTextureHandle(emitter.textureIndex);
+	SaveParent(emitter.parent);
 	JSON_CLOSE();
 }
 
@@ -1217,7 +1237,7 @@ void GPUParticleShaderStructs::Save(const std::string name, GPUParticleShaderStr
 }
 
 void GPUParticleShaderStructs::Save(const std::string name, FieldForCPU& desc) {
-	JSON_OPEN("Resources/GPUParticle/Field/" + name + ".json"); 
+	JSON_OPEN("Resources/GPUParticle/Field/" + name + ".json");
 	SaveFieldArea(desc.fieldArea);
 	SaveField(desc.field);
 	SaveFieldFrequency(desc.frequency);

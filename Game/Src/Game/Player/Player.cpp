@@ -139,7 +139,7 @@ void Player::Update(CommandContext& commandContext) {
 
 	UpdateTransform();
 
-	GPUParticleSpawn(commandContext);
+	//GPUParticleSpawn(commandContext);
 
 	playerUI_->Update();
 
@@ -215,8 +215,8 @@ void Player::GPUParticleSpawn(CommandContext& commandContext) {
 	//gpuParticleManager_->CreateMeshParticle(playerModelHandle_, animation_, worldTransform_, meshEmitterDesc_, commandContext);
 	gpuParticleManager_->CreateEdgeParticle(playerModelHandle_, animation_, worldTransform_.matWorld, meshEmitterDesc_, commandContext);
 	//gpuParticleManager_->CreateVertexParticle(playerModelHandle_, animation_, worldTransform_, vertexEmitterDesc_, commandContext);
-	footEmitter_.fugitiveDust.emitterArea.aabb.position = MakeTranslateMatrix(worldTransform_.matWorld);
-	footEmitter_.fugitiveDust.emitterArea.sphere.position = MakeTranslateMatrix(worldTransform_.matWorld);
+	footEmitter_.fugitiveDust.emitterArea.position = MakeTranslateMatrix(worldTransform_.matWorld);
+	footEmitter_.fugitiveDust.emitterArea.position = MakeTranslateMatrix(worldTransform_.matWorld);
 	gpuParticleManager_->SetEmitter(footEmitter_.fugitiveDust);
 }
 

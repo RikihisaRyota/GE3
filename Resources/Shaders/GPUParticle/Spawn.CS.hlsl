@@ -43,7 +43,7 @@ void main(uint3 DTid : SV_DispatchThreadID, uint3 GTid : SV_GroupThreadID, uint3
                 uint32_t emitterIndex=createParticle[emitterNum].emitterNum;
                 Emitter emitter=gEmitter[emitterIndex];
 
-                CreateParticle(Output[index], emitter,seed);
+                CreateParticle(Output[index], emitter,seed,emitterIndex);
             }
         }
     }

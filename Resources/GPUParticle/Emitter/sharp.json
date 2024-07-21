@@ -15,6 +15,7 @@
         "Start": {}
     },
     "EmitterFrequency": {},
+    "Parent": {},
     "ParticleLifeSpan": {},
     "RotateAnimation": {
         "initializeAngle": {},

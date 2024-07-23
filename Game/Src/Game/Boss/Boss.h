@@ -37,7 +37,7 @@ public:
 
 	Vector3 GetWorldTranslate();
 	const Matrix4x4& GetWorldMatrix()const { return worldTransform_.matWorld; }
-	const GPUParticleShaderStructs::VertexEmitterDesc& GetVertexEmitter()const { return vertexEmitterDesc_; }
+	const GPUParticleShaderStructs::VertexEmitterForCPU& GetVertexEmitter()const { return vertexEmitterDesc_; }
 private:
 	void UpdateCollider();
 	void UpdateGPUParticle(CommandContext& commandContext);
@@ -53,18 +53,10 @@ private:
 	Animation::Animation animation_;
 
 	WorldTransform animationTransform_;
-	/// <summary>
-	GPUParticleShaderStructs::ParticleLifeSpan particleLifeSpan;
-	GPUParticleShaderStructs::ScaleAnimation scaleAnimation;
-	GPUParticleShaderStructs::FloatMinMax distanceFactor;
 
-	float t_;
-	ModelHandle testModelHandle_;
-
-	/// </summary>
-	GPUParticleShaderStructs::MeshEmitterDesc meshEmitterDesc_;
-	GPUParticleShaderStructs::VertexEmitterDesc vertexEmitterDesc_;
-	GPUParticleShaderStructs::TransformEmitter transformEmitter_;
+	GPUParticleShaderStructs::MeshEmitterForCPU meshEmitterDesc_;
+	GPUParticleShaderStructs::VertexEmitterForCPU vertexEmitterDesc_;
+	GPUParticleShaderStructs::TransformModelEmitterForCPU  transformEmitter_;
 
 	WorldTransform worldTransform_;
 

@@ -113,6 +113,7 @@ namespace Animation {
 		vertexBufferView.StrideInBytes = sizeof(Model::Vertex);
 
 		outputVertexBufferView = graphics->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+		vertexBufferDescriptorIndex = GraphicsCore::GetInstance()->GetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV).GetFreeDescriptors();
 
 		D3D12_UNORDERED_ACCESS_VIEW_DESC vertexUAVDesc{};
 		vertexUAVDesc.Format = DXGI_FORMAT_UNKNOWN;

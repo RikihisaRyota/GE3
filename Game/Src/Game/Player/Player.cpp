@@ -59,7 +59,7 @@ Player::Player() {
 	collider_->SetRadius(colliderRadius_);
 	collider_->SetCallback([this](const ColliderDesc& collisionInfo) { OnCollision(collisionInfo); });
 	collider_->SetCollisionAttribute(CollisionAttribute::Player);
-	collider_->SetCollisionMask(CollisionAttribute::Boss  | CollisionAttribute::GameObject);
+	collider_->SetCollisionMask(CollisionAttribute::Boss | CollisionAttribute::GameObject);
 	collider_->SetIsActive(true);
 #pragma endregion
 }
@@ -139,7 +139,7 @@ void Player::Update(CommandContext& commandContext) {
 
 	UpdateTransform();
 
-	//GPUParticleSpawn(commandContext);
+	GPUParticleSpawn(commandContext);
 
 	playerUI_->Update();
 
@@ -212,9 +212,10 @@ void Player::OnCollision(const ColliderDesc& desc) {
 
 
 void Player::GPUParticleSpawn(CommandContext& commandContext) {
+
 	//gpuParticleManager_->CreateMeshParticle(playerModelHandle_, animation_, worldTransform_, meshEmitterDesc_, commandContext);
-	gpuParticleManager_->CreateEdgeParticle(playerModelHandle_, animation_, worldTransform_.matWorld, meshEmitterDesc_, commandContext);
-	//gpuParticleManager_->CreateVertexParticle(playerModelHandle_, animation_, worldTransform_, vertexEmitterDesc_, commandContext);
+	//gpuParticleManager_->CreateEdgeParticle(playerModelHandle_, animation_, worldTransform_.matWorld, meshEmitterDesc_, commandContext);
+	gpuParticleManager_->SetVertexEmitter(playerModelHandle_, animation_, vertexEmitterDesc_, worldTransform_.matWorld);
 	footEmitter_.fugitiveDust.emitterArea.position = MakeTranslateMatrix(worldTransform_.matWorld);
 	footEmitter_.fugitiveDust.emitterArea.position = MakeTranslateMatrix(worldTransform_.matWorld);
 	gpuParticleManager_->SetEmitter(footEmitter_.fugitiveDust);

@@ -71,7 +71,8 @@ namespace GPUParticleShaderStructs {
 	struct ParticleLifeTime {
 		uint32_t time;
 		uint32_t maxTime;
-		uint32_t pad[2];
+		uint32_t isEmitterLife;
+		uint32_t pad;
 	};
 	/*
 	*
@@ -89,7 +90,8 @@ struct Particle
 	{
 		uint time;
 		uint maxTime;
-		uint2 pad;
+		uint isEmitterLife;
+		uint pad;
 	} particleLifeTime;
 	struct Float4MinMax
 	{
@@ -97,14 +99,14 @@ struct Particle
 		float4 max;
 	} colorRange;
 	float4 color;
-	
+
 	float3 scale;
 	uint textureIndex;
-	
+
 	float rotateVelocity;
 	float rotate;
 	int isAlive;
-    int isHit;
+	int isHit;
 	struct Translate {
 		Float3MinMax easing;
 		float3 translate;
@@ -246,27 +248,31 @@ struct Particle
 
 	// エミッターの生成間隔
 	struct EmitterFrequency {
-		uint32_t interval;
-		uint32_t isLoop;
-		uint32_t emitterLife;
-		uint32_t pad;
+		int32_t interval;
+		int32_t isLoop;
+		int32_t emitterLife;
+		int32_t isOnce;
 	};
 
 	struct EmitterTime {
-		uint32_t particleTime = 0;
-		uint32_t emitterTime = 0;
+		int32_t particleTime = 0;
+		int32_t emitterTime = 0;
 		Vector2 pad;
 	};
 
 	// パーティクルのランダム寿命
 	struct ParticleLifeSpan {
 		UintMinMax range;
+		uint32_t isEmitterLife;
+		Vector3 pad;
 	};
 
 	enum EmitterType {
 		kEmitter,
+		kVertexEmitter,
 		kMeshEmitter,
-		kTransformEmitter,
+		kTransformModelEmitter,
+		kTransformAreaEmitter,
 		kCount,
 	};
 	struct EmitterParent {
@@ -276,7 +282,111 @@ struct Particle
 		Vector2 pad;
 	};
 
-	struct TransformEmitter {
+	struct EmitterModel {
+		uint32_t vertexBufferIndex;
+		uint32_t indexBufferIndex;
+		uint32_t vertexCount;
+		uint32_t indexCount;
+	};
+
+	struct EmitterLocalTransform {
+		Vector3 translate;
+		float pad;
+	};
+
+	struct TransformModelEmitterForCPU {
+		TransformModelEmitterForCPU() {
+			if (staticEmitterCount == (std::numeric_limits<int32_t>::max)()) {
+				staticEmitterCount = 0;
+			}
+			emitterCount = staticEmitterCount;
+			staticEmitterCount++;
+		}
+		Translate translate;
+
+		ScaleAnimation scale;
+
+		RotateAnimation rotate;
+
+		Velocity3D velocity;
+
+		EmitterColor color;
+
+		EmitterFrequency frequency;
+
+		EmitterTime time;
+
+		ParticleLifeSpan particleLifeSpan;
+
+		ParticleAttributes collisionInfo;
+
+		EmitterParent parent;
+
+		EmitterModel startModel;
+
+		Matrix4x4 startModelWorldMatrix;
+
+		EmitterModel endModel;
+
+		Matrix4x4 endModelWorldMatrix;
+
+		uint32_t textureIndex;
+
+		int32_t emitterCount;
+
+		uint32_t isAlive = true;
+
+		// クラス内でstatic宣言されたメンバ変数のサイズは0
+		static int32_t staticEmitterCount;
+	};
+
+	struct TransformModelEmitterForGPU {
+		Translate translate;
+
+		ScaleAnimation scale;
+
+		RotateAnimation rotate;
+
+		Velocity3D velocity;
+
+		EmitterColor color;
+
+		EmitterFrequency frequency;
+
+		EmitterTime time;
+
+		ParticleLifeSpan particleLifeSpan;
+
+		ParticleAttributes collisionInfo;
+
+		EmitterParent parent;
+
+		EmitterModel startModel;
+
+		Matrix4x4 startModelWorldMatrix;
+
+		EmitterModel endModel;
+
+		Matrix4x4 endModelWorldMatrix;
+
+		uint32_t textureIndex;
+
+		int32_t emitterCount = -1;
+
+		uint32_t isAlive = false;
+
+		float pad;
+	};
+
+	struct TransformAreaEmitterForCPU {
+		TransformAreaEmitterForCPU() {
+			if (staticEmitterCount == (std::numeric_limits<int32_t>::max)()) {
+				staticEmitterCount = 0;
+			}
+			emitterCount = staticEmitterCount;
+			staticEmitterCount++;
+		}
+
 		EmitterArea emitterArea;
 
 		Translate translate;
@@ -289,16 +399,36 @@ struct Particle
 
 		EmitterColor color;
 
+		EmitterFrequency frequency;
+
+		EmitterTime time;
+
 		ParticleLifeSpan particleLifeSpan;
 
 		ParticleAttributes collisionInfo;
 
+		EmitterParent parent;
+
+		EmitterModel model;
+
 		uint32_t textureIndex;
 
-		Vector3 pad;
+		int32_t emitterCount;
+
+		uint32_t isAlive = true;
+
+		float pad;
+
+		// クラス内でstatic宣言されたメンバ変数のサイズは0
+		static int32_t staticEmitterCount;
 	};
 
-	struct MeshEmitter {
+	struct TransformAreaEmitterForGPU {
+
+		EmitterArea emitterArea;
+
+		Translate translate;
+
 		ScaleAnimation scale;
 
 		RotateAnimation rotate;
@@ -307,24 +437,172 @@ struct Particle
 
 		EmitterColor color;
 
+		EmitterFrequency frequency;
+
+		EmitterTime time;
+
 		ParticleLifeSpan particleLifeSpan;
 
 		ParticleAttributes collisionInfo;
 
+		EmitterParent parent;
+
+		EmitterModel model;
+
 		uint32_t textureIndex;
 
-		Vector3 pad;
+		int32_t emitterCount = -1;
+
+		uint32_t isAlive = false;
+
+		float pad;
 	};
 
-	struct MeshEmitterDesc {
-		MeshEmitter emitter;
+	struct MeshEmitterForCPU {
+		MeshEmitterForCPU() {
+			if (staticEmitterCount == (std::numeric_limits<int32_t>::max)()) {
+				staticEmitterCount = 0;
+			}
+			emitterCount = staticEmitterCount;
+			staticEmitterCount++;
+		}
+		EmitterLocalTransform localTransform;
+
+		ScaleAnimation scale;
+
+		RotateAnimation rotate;
+
+		Velocity3D velocity;
+
+		EmitterColor color;
+
+		EmitterFrequency frequency;
+
+		EmitterTime time;
+
+		ParticleLifeSpan particleLifeSpan;
+
+		ParticleAttributes collisionInfo;
+
+		EmitterParent parent;
+
+		EmitterModel model;
+
+		uint32_t textureIndex;
+
 		uint32_t numCreate;
+
+		uint32_t isAlive = true;
+
+		int32_t emitterCount;
+
+		// クラス内でstatic宣言されたメンバ変数のサイズは0
+		static int32_t staticEmitterCount;
 	};
 
-	struct VertexEmitterDesc {
-		MeshEmitter emitter;
+	struct MeshEmitterForGPU {
+		EmitterLocalTransform localTransform;
+
+		ScaleAnimation scale;
+
+		RotateAnimation rotate;
+
+		Velocity3D velocity;
+
+		EmitterColor color;
+
+		EmitterFrequency frequency;
+
+		EmitterTime time;
+
+		ParticleLifeSpan particleLifeSpan;
+
+		ParticleAttributes collisionInfo;
+
+		EmitterParent parent;
+
+		EmitterModel model;
+		
+		uint32_t textureIndex;
+
+		uint32_t numCreate;
+
+		uint32_t isAlive = false;
+
+		int32_t emitterCount = -1;
 	};
 
+	struct VertexEmitterForCPU {
+		VertexEmitterForCPU() {
+			if (staticEmitterCount == (std::numeric_limits<int32_t>::max)()) {
+				staticEmitterCount = 0;
+			}
+			emitterCount = staticEmitterCount;
+			staticEmitterCount++;
+		}
+		EmitterLocalTransform localTransform;
+
+		ScaleAnimation scale;
+
+		RotateAnimation rotate;
+
+		Velocity3D velocity;
+
+		EmitterColor color;
+
+		EmitterFrequency frequency;
+
+		EmitterTime time;
+
+		ParticleLifeSpan particleLifeSpan;
+
+		ParticleAttributes collisionInfo;
+
+		EmitterParent parent;
+
+		EmitterModel model;
+
+		uint32_t textureIndex;
+
+		uint32_t isAlive = true;
+
+		int32_t emitterCount;
+
+		// クラス内でstatic宣言されたメンバ変数のサイズは0
+		static int32_t staticEmitterCount;
+	};
+
+	struct VertexEmitterForGPU {
+		EmitterLocalTransform localTransform;
+
+		ScaleAnimation scale;
+
+		RotateAnimation rotate;
+
+		Velocity3D velocity;
+
+		EmitterColor color;
+
+		EmitterFrequency frequency;
+
+		EmitterTime time;
+
+		ParticleLifeSpan particleLifeSpan;
+
+		ParticleAttributes collisionInfo;
+
+		EmitterParent parent;
+
+		EmitterModel model;
+
+		uint32_t textureIndex;
+
+		uint32_t isAlive = false;
+
+		int32_t emitterCount = -1;
+
+		float pad;
+	};
 	// エミッター(CPUとGPUある)
 	struct EmitterForCPU {
 		EmitterForCPU() {
@@ -474,6 +752,7 @@ struct Particle
 	struct CreateParticle {
 		uint32_t emitterIndex;
 		int32_t createParticleNum;
+		uint32_t emitterType;
 	};
 
 	// 弾
@@ -500,16 +779,18 @@ struct Particle
 	};
 
 	void EmitterEditor(const std::string name, std::tuple<bool*, EmitterForCPU*, Matrix4x4> emitter);
-	void EmitterEditor(const std::string name, std::tuple<bool*, MeshEmitterDesc*> desc);
-	void EmitterEditor(const std::string name, std::tuple<bool*, VertexEmitterDesc*> desc);
-	void EmitterEditor(const std::string name, std::tuple<bool*, TransformEmitter*> emitter);
-	void EmitterEditor(const std::string name, std::tuple<bool*, FieldForCPU*> desc);
+	void EmitterEditor(const std::string name, std::tuple<bool*, MeshEmitterForCPU*> emitter);
+	void EmitterEditor(const std::string name, std::tuple<bool*, VertexEmitterForCPU*> emitter);
+	void EmitterEditor(const std::string name, std::tuple<bool*, TransformModelEmitterForCPU*> emitter);
+	void EmitterEditor(const std::string name, std::tuple<bool*, TransformAreaEmitterForCPU*> emitter);
+	void EmitterEditor(const std::string name, std::tuple<bool*, FieldForCPU*> emitter);
 
 	void Debug(const std::string name, EmitterForCPU& emitter, const Matrix4x4& parent = Matrix4x4());
-	void Debug(const std::string name, MeshEmitterDesc& desc);
-	void Debug(const std::string name, VertexEmitterDesc& desc);
-	void Debug(const std::string name, TransformEmitter& emitter);
-	void Debug(const std::string name, FieldForCPU& desc);
+	void Debug(const std::string name, MeshEmitterForCPU& emitter);
+	void Debug(const std::string name, VertexEmitterForCPU& emitter);
+	void Debug(const std::string name, TransformModelEmitterForCPU& emitter);
+	void Debug(const std::string name, TransformAreaEmitterForCPU& emitter);
+	void Debug(const std::string name, FieldForCPU& emitter);
 
 	void DebugDraw(const EmitterForCPU& emitter);
 	void DebugDraw(const FieldForCPU& emitter);
@@ -518,12 +799,14 @@ struct Particle
 
 	void Save(const std::string name, EmitterForCPU& emitter);
 	void Load(const std::string name, EmitterForCPU& emitter);
-	void Save(const std::string name, MeshEmitterDesc& desc);
-	void Load(const std::string name, MeshEmitterDesc& desc);
-	void Save(const std::string name, VertexEmitterDesc& desc);
-	void Load(const std::string name, VertexEmitterDesc& desc);
-	void Save(const std::string name, TransformEmitter& emitter);
-	void Load(const std::string name, TransformEmitter& emitter);
+	void Save(const std::string name, MeshEmitterForCPU& desc);
+	void Load(const std::string name, MeshEmitterForCPU& desc);
+	void Save(const std::string name, VertexEmitterForCPU& desc);
+	void Load(const std::string name, VertexEmitterForCPU& desc);
+	void Save(const std::string name, TransformModelEmitterForCPU& emitter);
+	void Load(const std::string name, TransformModelEmitterForCPU& emitter);
+	void Save(const std::string name, TransformAreaEmitterForCPU& emitter);
+	void Load(const std::string name, TransformAreaEmitterForCPU& emitter);
 	void Save(const std::string name, FieldForCPU& desc);
 	void Load(const std::string name, FieldForCPU& desc);
 
@@ -550,6 +833,7 @@ struct Particle
 
 	void DrawColorMinMax(GPUParticleShaderStructs::Vector4MinMax& startEnd);
 
+	void DrawLocalTranslate(GPUParticleShaderStructs::EmitterLocalTransform& localTransform);
 	void DrawColor(GPUParticleShaderStructs::Vector4StartEnd& startEnd);
 	void DrawArea(GPUParticleShaderStructs::EmitterArea& area);
 	void DrawScale(GPUParticleShaderStructs::ScaleAnimation& scale);
@@ -564,6 +848,9 @@ struct Particle
 	void DrawCollisionInfo(GPUParticleShaderStructs::ParticleAttributes& particleAttributes);
 	void DrawField(GPUParticleShaderStructs::Field& fierd);
 	void DrawFieldFrequency(GPUParticleShaderStructs::FieldFrequency& fieldFrequency);
+
+	void LoadLocalTransform(GPUParticleShaderStructs::EmitterLocalTransform& local);
+	void SaveLocalTransform(GPUParticleShaderStructs::EmitterLocalTransform& local);
 
 	void LoadArea(GPUParticleShaderStructs::EmitterArea& area);
 	void SaveArea(GPUParticleShaderStructs::EmitterArea& area);

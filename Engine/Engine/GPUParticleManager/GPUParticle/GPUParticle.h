@@ -4,6 +4,7 @@
 #include <memory>
 #include <vector>
 #include <cstdint>
+#include <string>
 
 #include <wrl.h>
 
@@ -41,32 +42,37 @@ public:
 	void UpdateField(CommandContext& commandContext);
 	void CollisionField(CommandContext& commandContext);
 	void Spawn(CommandContext& commandContext, const UploadBuffer& random);
-	void EmitterUpdate(CommandContext& commandContext);
+	void UpdateEmitter(CommandContext& commandContext);
 	void CheckEmitter(CommandContext& commandContext);
 	void AddEmitter(CommandContext& commandContext);
 	void ParticleUpdate(const ViewProjection& viewProjection, CommandContext& commandContext);
-	void BulletUpdate(CommandContext& commandContext,  const UploadBuffer& random);
+	void BulletUpdate(CommandContext& commandContext, const UploadBuffer& random);
 	void Draw(const ViewProjection& viewProjection, CommandContext& commandContext);
 	void DrawImGui();
-	void CreateMeshParticle(const ModelHandle& modelHandle, Animation::Animation& animation, const Matrix4x4& worldTransform, const GPUParticleShaderStructs::MeshEmitterDesc& mesh, const UploadBuffer& random, CommandContext& commandContext);
-	void CreateMeshParticle(const ModelHandle& modelHandle, const Matrix4x4& worldTransform, const GPUParticleShaderStructs::MeshEmitterDesc& mesh, const UploadBuffer& random, CommandContext& commandContext);
-	void CreateVertexParticle(const ModelHandle& modelHandle, Animation::Animation& animation, const Matrix4x4& worldTransform, const GPUParticleShaderStructs::VertexEmitterDesc& mesh, const UploadBuffer& random, CommandContext& commandContext);
-	void CreateVertexParticle(const ModelHandle& modelHandle, const Matrix4x4& worldTransform, const GPUParticleShaderStructs::VertexEmitterDesc& mesh, const UploadBuffer& random, CommandContext& commandContext);
-	void CreateEdgeParticle(const ModelHandle& modelHandle, Animation::Animation& animation, const Matrix4x4& worldTransform, const GPUParticleShaderStructs::MeshEmitterDesc& mesh, const UploadBuffer& random, CommandContext& commandContext);
-	void CreateEdgeParticle(const ModelHandle& modelHandle, const Matrix4x4& worldTransform, const GPUParticleShaderStructs::MeshEmitterDesc& mesh, const UploadBuffer& random, CommandContext& commandContext);
+	void CreateMeshParticle(const ModelHandle& modelHandle, Animation::Animation& animation, const Matrix4x4& worldTransform, const GPUParticleShaderStructs::MeshEmitterForCPU& mesh, const UploadBuffer& random, CommandContext& commandContext);
+	void CreateMeshParticle(const ModelHandle& modelHandle, const Matrix4x4& worldTransform, const GPUParticleShaderStructs::MeshEmitterForCPU& mesh, const UploadBuffer& random, CommandContext& commandContext);
+	void CreateVertexParticle(const ModelHandle& modelHandle, Animation::Animation& animation, const Matrix4x4& worldTransform, const GPUParticleShaderStructs::VertexEmitterForCPU& mesh, const UploadBuffer& random, CommandContext& commandContext);
+	void CreateVertexParticle(const ModelHandle& modelHandle, const Matrix4x4& worldTransform, const GPUParticleShaderStructs::VertexEmitterForCPU& mesh, const UploadBuffer& random, CommandContext& commandContext);
+	void CreateEdgeParticle(const ModelHandle& modelHandle, Animation::Animation& animation, const Matrix4x4& worldTransform, const GPUParticleShaderStructs::MeshEmitterForCPU& mesh, const UploadBuffer& random, CommandContext& commandContext);
+	void CreateEdgeParticle(const ModelHandle& modelHandle, const Matrix4x4& worldTransform, const GPUParticleShaderStructs::MeshEmitterForCPU& mesh, const UploadBuffer& random, CommandContext& commandContext);
 
-	void CreateTransformModelParticle(const ModelHandle& startModelHandle, const Matrix4x4& startWorldTransform, const ModelHandle& endModelHandle, const Matrix4x4& endWorldTransform, const GPUParticleShaderStructs::TransformEmitter& transformEmitter, const UploadBuffer& random, CommandContext& commandContext);
-	void CreateTransformModelParticle(const ModelHandle& startModelHandle, Animation::Animation& startAnimation, const Matrix4x4& startWorldTransform, const ModelHandle& endModelHandle, Animation::Animation& endAnimation, const Matrix4x4& endWorldTransform,  const GPUParticleShaderStructs::TransformEmitter& transformEmitter, const UploadBuffer& random, CommandContext& commandContext);
-	void CreateTransformModelParticle(const ModelHandle& startModelHandle, Animation::Animation& startAnimation, const Matrix4x4& startWorldTransform, const ModelHandle& endModelHandle, const Matrix4x4& endWorldTransform, const GPUParticleShaderStructs::TransformEmitter& transformEmitter, const UploadBuffer& random, CommandContext& commandContext);
-	void CreateTransformModelParticle(const ModelHandle& startModelHandle,  const Matrix4x4& startWorldTransform, const ModelHandle& endModelHandle, Animation::Animation& endAnimation, const Matrix4x4& endWorldTransform, const GPUParticleShaderStructs::TransformEmitter& transformEmitter, const UploadBuffer& random, CommandContext& commandContext);
-	void CreateTransformModelAreaParticle(const ModelHandle& modelHandle, const Matrix4x4& worldTransform,  const GPUParticleShaderStructs::TransformEmitter& transformEmitter, const UploadBuffer& random, CommandContext& commandContext);
+	//void CreateTransformModelParticle(const ModelHandle& startModelHandle, const Matrix4x4& startWorldTransform, const ModelHandle& endModelHandle, const Matrix4x4& endWorldTransform, const GPUParticleShaderStructs::TransformModelEmitterForGPU& transformEmitter, const UploadBuffer& random, CommandContext& commandContext);
+	//void CreateTransformModelParticle(const ModelHandle& startModelHandle, Animation::Animation& startAnimation, const Matrix4x4& startWorldTransform, const ModelHandle& endModelHandle, Animation::Animation& endAnimation, const Matrix4x4& endWorldTransform,  const GPUParticleShaderStructs::TransformModelEmitterForGPU& transformEmitter, const UploadBuffer& random, CommandContext& commandContext);
+	//void CreateTransformModelParticle(const ModelHandle& startModelHandle, Animation::Animation& startAnimation, const Matrix4x4& startWorldTransform, const ModelHandle& endModelHandle, const Matrix4x4& endWorldTransform, const GPUParticleShaderStructs::TransformModelEmitterForGPU& transformEmitter, const UploadBuffer& random, CommandContext& commandContext);
+	//void CreateTransformModelParticle(const ModelHandle& startModelHandle,  const Matrix4x4& startWorldTransform, const ModelHandle& endModelHandle, Animation::Animation& endAnimation, const Matrix4x4& endWorldTransform, const GPUParticleShaderStructs::TransformModelEmitterForGPU& transformEmitter, const UploadBuffer& random, CommandContext& commandContext);
+	//
+	//void CreateTransformModelAreaParticle(const ModelHandle& modelHandle, const Matrix4x4& worldTransform,  const GPUParticleShaderStructs::TransformAreaEmitterForGPU& transformEmitter, const UploadBuffer& random, CommandContext& commandContext);
 
 
 	void SetDrawCommandSignature(CommandSignature* commandSignature) { commandSignature_ = commandSignature; }
 	void SetSpawnCommandSignature(CommandSignature* commandSignature) { spawnCommandSignature_ = commandSignature; }
 
 	void SetField(const GPUParticleShaderStructs::FieldForCPU& fieldForCPU);
-	void SetEmitter(const GPUParticleShaderStructs::EmitterForCPU& emitterForGPU,const Matrix4x4& parent);
+	void SetEmitter(const GPUParticleShaderStructs::EmitterForCPU& emitterForCPU, const Matrix4x4& parent);
+	void SetEmitter(const GPUParticleShaderStructs::VertexEmitterForCPU& emitterForCPU, const Matrix4x4& parent);
+	void SetEmitter(const GPUParticleShaderStructs::MeshEmitterForCPU& emitterForCPU, const Matrix4x4& parent);
+	void SetEmitter(const GPUParticleShaderStructs::TransformModelEmitterForCPU& emitterForCPU, const Matrix4x4& parent);
+	void SetEmitter(const GPUParticleShaderStructs::TransformAreaEmitterForCPU& emitterForCPU, const Matrix4x4& parent);
 	void SetBullet(const GPUParticleShaderStructs::BulletForGPU& bullet);
 private:
 	void InitializeParticleBuffer();
@@ -92,27 +98,63 @@ private:
 	// 何番目のパーティクルが生きているか積み込みよう(ExecuteIndirect用)
 	DefaultBuffer drawIndexCommandBuffers_;
 	ReadBackBuffer drawIndexCountBuffer_;
-	UploadBuffer resetAppendDrawIndexBufferCounterReset_;
 	// 描画引数用
 	DefaultBuffer drawArgumentBuffer_;
-	// パーティクルのエミッター
-	DefaultBuffer emitterForGPUBuffer_;
+	
 	// エミッターのIndexと何個生成するか
 	DefaultBuffer createParticleBuffer_;
-	UploadBuffer resetCreateParticleBuffer_;
+	UploadBuffer resetCounterBuffer_;
 	//DescriptorHandle createParticleUAVHandle_;
 	DefaultBuffer spawnArgumentBuffer_;
 	DefaultBuffer originalCounterBuffer_;
 	CommandSignature* spawnCommandSignature_;
 	// 何個生成するか数える用
 	DefaultBuffer createParticleCounterCopySrcBuffer_;
-	// AddParticle用
-	UploadBuffer emitterCopyUploadBuffer_;
-	DefaultBuffer emitterCopyDefaultBuffer_;
-	// 追加するエミッターが何個あるか
-	UploadBuffer addEmitterCountBuffer_;
+
+	struct EmitterDesc {
+		void Initialize(CommandContext& commandContext);
+		void Create(const std::wstring& name, const GPUParticleShaderStructs::EmitterType& type);
+		size_t CheckEmitter(CommandContext& commandContext, size_t emitterCount,void* data);
+		void AddEmitter(CommandContext& commandContext);
+		void UpdateEmitter(CommandContext& commandContext);
+		void Spawn(CommandContext& commandContext);
+		void UpdateParticle(CommandContext& commandContext);
+		DefaultBuffer originalBuffer;
+		UploadBuffer uploadCopyBuffer;
+		DefaultBuffer defaultCopyBuffer;
+		UploadBuffer addCountBuffer;
+		DefaultBuffer createEmitterBuffer;
+		GPUParticleShaderStructs::EmitterType type;
+	};
+	EmitterDesc emitterForGPUDesc_;
 	std::vector<GPUParticleShaderStructs::EmitterForGPU> emitterForGPUs_;
-	DefaultBuffer createEmitterBuffer_;
+
+	EmitterDesc vertexEmitterForGPUDesc_;
+	std::vector<GPUParticleShaderStructs::VertexEmitterForGPU> vertexEmitterForGPUs_;
+	
+	EmitterDesc meshEmitterForGPUDesc_;
+	std::vector<GPUParticleShaderStructs::MeshEmitterForGPU> meshEmitterForGPUs_;
+	
+	EmitterDesc transformModelEmitterForGPUDesc_;
+	std::vector<GPUParticleShaderStructs::TransformModelEmitterForGPU> transformModelEmitterForGPUs_;
+	
+	EmitterDesc transformAreaEmitterForGPUDesc_;
+	std::vector<GPUParticleShaderStructs::TransformAreaEmitterForGPU> transformAreaEmitterForGPUs_;
+	//// AddParticle用
+	//UploadBuffer emitterCopyUploadBuffer_;
+	//DefaultBuffer emitterCopyDefaultBuffer_;
+	//// 追加するエミッターが何個あるか
+	//UploadBuffer addEmitterCountBuffer_;
+	//std::vector<GPUParticleShaderStructs::EmitterForGPU> emitterForGPUs_;
+	//DefaultBuffer createEmitterBuffer_;
+
+	//UploadBuffer meshEmitterCopyUploadBuffer_;
+	//DefaultBuffer meshEmitterCopyDefaultBuffer_;
+	//UploadBuffer addMeshEmitterCountBuffer_;
+	//std::vector<GPUParticleShaderStructs::MeshEmitterForGPU> meshEmitterForGPUs_;
+	//DefaultBuffer createMeshEmitterBuffer_;
+
+
 	// 弾
 	StructuredBuffer bulletsBuffer_;
 	UploadBuffer bulletCountBuffer_;
@@ -127,16 +169,6 @@ private:
 	DefaultBuffer fieldIndexBuffer_;
 	DefaultBuffer createFieldNumBuffer_;
 	std::vector<GPUParticleShaderStructs::FieldForGPU> fields_;
-
-	// メッシュパーティクル
-	UINT particleIndexSize_;
-	UINT particleIndexCounterOffset_;
-
-	UINT emitterIndexSize_;
-	UINT emitterIndexCounterOffset_;
-
-	UINT addEmitterSize_;
-	UINT addEmitterCounterOffset_;
 
 	TextureHandle texture_;
 

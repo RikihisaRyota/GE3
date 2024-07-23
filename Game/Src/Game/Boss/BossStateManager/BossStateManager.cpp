@@ -14,7 +14,7 @@ void BossStateRoot::Initialize(CommandContext& commandContext) {
 	//animationHandle_ = manager_.boss_->GetAnimation()->GetAnimationHandle("idle");
 	time_ = 0.0f;
 	if (manager_.GetPreState() != BossStateManager::State::kRoot) {
-		manager_.gpuParticleManager_->CreateTransformModelParticle(manager_.GetModelHandle(), manager_.GetWorldTransform().matWorld, boss->GetModelHandle(),/* *boss->GetAnimation(),*/ boss->GetWorldMatrix(), data_.transformEmitter, commandContext);
+		//manager_.gpuParticleManager_->CreateTransformModelParticle(manager_.GetModelHandle(), manager_.GetWorldTransform().matWorld, boss->GetModelHandle(),/* *boss->GetAnimation(),*/ boss->GetWorldMatrix(), data_.transformEmitter, commandContext);
 	}
 }
 
@@ -33,14 +33,14 @@ void BossStateRoot::Update(CommandContext& commandContext) {
 	}
 	else {
 		time_ += 1.0f / data_.allFrame;
-		if (time_ >= 1.0f) {
-			BossStateManager::State tmp = static_cast<BossStateManager::State>((rnd_.NextUIntLimit() % 1) + int(BossStateManager::State::kCarAttack));
-			switch (tmp) {
-			case BossStateManager::State::kCarAttack:
-				manager_.ChangeState<BossStateCarAttack>();
-				break;
-			}
-		}
+		//if (time_ >= 1.0f) {
+		//	BossStateManager::State tmp = static_cast<BossStateManager::State>((rnd_.NextUIntLimit() % 1) + int(BossStateManager::State::kCarAttack));
+		//	switch (tmp) {
+		//	case BossStateManager::State::kCarAttack:
+		//		manager_.ChangeState<BossStateCarAttack>();
+		//		break;
+		//	}
+		//}
 		time_ = std::fmod(time_, 1.0f);
 	}
 
@@ -117,10 +117,10 @@ void BossStateCarAttack::Initialize(CommandContext& commandContext) {
 	SetLocation();
 	auto boss = manager_.boss_;
 	if (manager_.GetPreState() == BossStateManager::State::kRoot) {
-		manager_.gpuParticleManager_->CreateTransformModelParticle(boss->GetModelHandle(),/* *boss->GetAnimation(), */boss->GetWorldMatrix(), modelHandle_, worldTransform_.matWorld, data_.transformEmitter, commandContext);
-		GPUParticleShaderStructs::TransformEmitter emitter = data_.transformRailEmitter;
+		//manager_.gpuParticleManager_->CreateTransformModelParticle(boss->GetModelHandle(),/* *boss->GetAnimation(), */boss->GetWorldMatrix(), modelHandle_, worldTransform_.matWorld, data_.transformEmitter, commandContext);
+		GPUParticleShaderStructs::TransformAreaEmitterForCPU  emitter = data_.transformRailEmitter;
 		emitter.emitterArea.position = railWorldTransform_.translate;
-		manager_.gpuParticleManager_->CreateTransformModelAreaParticle(railModelHandle_, railWorldTransform_.matWorld, emitter, commandContext);
+		//manager_.gpuParticleManager_->CreateTransformModelAreaParticle(railModelHandle_, railWorldTransform_.matWorld, emitter, commandContext);
 	}
 	else {
 		//manager_.gpuParticleManager_->CreateTransformModelParticle(manager_.GetModelHandle(), boss->GetWorldMatrix(), modelHandle_, worldTransform_.matWorld, data_.transformEmitter, commandContext);
@@ -161,18 +161,18 @@ void BossStateCarAttack::Update(CommandContext& commandContext) {
 		}
 		worldTransform_.translate.x = Lerp(data_.start.x, data_.end.x, t);
 		UpdateTransform();
-		manager_.gpuParticleManager_->CreateVertexParticle(modelHandle_, worldTransform_.matWorld, data_.vertexEmitter, commandContext);
-		manager_.gpuParticleManager_->CreateVertexParticle(railModelHandle_, railWorldTransform_.matWorld, data_.vertexEmitter, commandContext);
+		//manager_.gpuParticleManager_->CreateVertexParticle(modelHandle_, worldTransform_.matWorld, data_.vertexEmitter, commandContext);
+		//manager_.gpuParticleManager_->CreateVertexParticle(railModelHandle_, railWorldTransform_.matWorld, data_.vertexEmitter, commandContext);
 	}
 
 	if (time_ >= 1.0f && !inTransition_) {
 		manager_.ChangeState<BossStateRoot>();
-		GPUParticleShaderStructs::VertexEmitterDesc emitter = data_.vertexEmitter;
-		emitter.emitter.velocity.range.min = { -0.5f,-0.1f,-0.5f };
-		emitter.emitter.velocity.range.max = { +0.5f,+0.1f,+0.5f };
-		emitter.emitter.particleLifeSpan.range.min = 30;
-		emitter.emitter.particleLifeSpan.range.max = 60;
-		manager_.gpuParticleManager_->CreateVertexParticle(railModelHandle_, railWorldTransform_.matWorld, emitter, commandContext);
+		GPUParticleShaderStructs::VertexEmitterForCPU  emitter = data_.vertexEmitter;
+		emitter.velocity.range.min = { -0.5f,-0.1f,-0.5f };
+		emitter.velocity.range.max = { +0.5f,+0.1f,+0.5f };
+		emitter.particleLifeSpan.range.min = 30;
+		emitter.particleLifeSpan.range.max = 60;
+		//manager_.gpuParticleManager_->CreateVertexParticle(railModelHandle_, railWorldTransform_.matWorld, emitter, commandContext);
 	}
 }
 

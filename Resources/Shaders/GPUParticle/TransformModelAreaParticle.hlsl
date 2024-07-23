@@ -29,24 +29,24 @@ struct WorldTransform
 
 ConstantBuffer<WorldTransform> worldTransform : register(b1);
 
-ConstantBuffer<TransformEmitter> transformEmitter : register(b2);
+ConstantBuffer<TransformAreaEmitter> transformEmitter : register(b2);
 
 ConstantBuffer<Index> gRandom : register(b3);
 [numthreads(meshThreadBlockSize, 1, 1)]
 void main( uint3 DTid : SV_DispatchThreadID )
 {
-    uint32_t index = DTid.x;
-    if(index >= verticeSize.index){
-        return;
-    }
-    uint32_t seed = gRandom.index*index;
-    int32_t createParticlenum = -1;
-    InterlockedAdd(particleIndexCounter[0], -1, createParticlenum);
-    if (createParticlenum > 0){
-        int32_t particleIndex = particleIndexCommands.Consume();
-        TransformEmitter emitter=transformEmitter;
-        emitter.translate.isEasing=true;
-        emitter.translate.easing.max = mul(vertices[index].position,worldTransform.world).xyz;
-        CreateParticle(Output[particleIndex], emitter,seed,true);
-    }
+    //uint32_t index = DTid.x;
+    //if(index >= verticeSize.index){
+    //    return;
+    //}
+    //uint32_t seed = gRandom.index*index;
+    //int32_t createParticlenum = -1;
+    //InterlockedAdd(particleIndexCounter[0], -1, createParticlenum);
+    //if (createParticlenum > 0){
+    //    int32_t particleIndex = particleIndexCommands.Consume();
+    //    TransformEmitter emitter=transformEmitter;
+    //    emitter.translate.isEasing=true;
+    //    emitter.translate.easing.max = mul(vertices[index].position,worldTransform.world).xyz;
+    //    //CreateParticle(Output[particleIndex], emitter,seed,true);
+    //}
 }

@@ -55,6 +55,6 @@ void main(uint3 DTid : SV_DispatchThreadID)
     {
         int32_t index = particleIndexCommands.Consume();
         float32_t3 translate=  mul(vertices[triIndex].position, worldTransform.world).xyz;
-        CreateParticle(Output[index], meshEmitter,translate,seed);
+        //CreateParticle(Output[index], meshEmitter,translate,seed);
     }
 }

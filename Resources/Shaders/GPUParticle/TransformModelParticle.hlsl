@@ -35,28 +35,28 @@ struct Time{
     float32_t time;
 };
 
-ConstantBuffer<TransformEmitter> transformEmitter : register(b4);
+ConstantBuffer<TransformModelEmitter> transformEmitter : register(b4);
 
 ConstantBuffer<Index> gRandom : register(b5);
 [numthreads(meshThreadBlockSize, 1, 1)]
 void main( uint3 DTid : SV_DispatchThreadID )
 {
-    uint32_t index = DTid.x;
-    uint32_t sumCreateParticle = max(startVerticeSize.index,endVerticeSize.index);
-    if(index >= sumCreateParticle){
-        return;
-    }
-    uint32_t seed = gRandom.index*index;
-    int32_t createParticlenum = -1;
-    InterlockedAdd(particleIndexCounter[0], -1, createParticlenum);
-    if (createParticlenum > 0){
-        int32_t particleIndex = particleIndexCommands.Consume();
-        uint32_t startModelIndex = index % startVerticeSize.index;
-        uint32_t endModelIndex = index % endVerticeSize.index;
-        TransformEmitter emitter=transformEmitter;
-        emitter.translate.isEasing=true;
-        emitter.translate.easing.min = mul(startVertices[startModelIndex].position, startWorldTransform.world).xyz;
-        emitter.translate.easing.max = mul(endVertices[endModelIndex].position,endWorldTransform.world).xyz;
-        CreateParticle(Output[particleIndex], emitter,seed,false);
-    }
+    //uint32_t index = DTid.x;
+    //uint32_t sumCreateParticle = max(startVerticeSize.index,endVerticeSize.index);
+    //if(index >= sumCreateParticle){
+    //    return;
+    //}
+    //uint32_t seed = gRandom.index*index;
+    //int32_t createParticlenum = -1;
+    //InterlockedAdd(particleIndexCounter[0], -1, createParticlenum);
+    //if (createParticlenum > 0){
+    //    int32_t particleIndex = particleIndexCommands.Consume();
+    //    uint32_t startModelIndex = index % startVerticeSize.index;
+    //    uint32_t endModelIndex = index % endVerticeSize.index;
+    //    TransformEmitter emitter=transformEmitter;
+    //    emitter.translate.isEasing=true;
+    //    emitter.translate.easing.min = mul(startVertices[startModelIndex].position, startWorldTransform.world).xyz;
+    //    emitter.translate.easing.max = mul(endVertices[endModelIndex].position,endWorldTransform.world).xyz;
+    //    //CreateParticle(Output[particleIndex], emitter,seed,false);
+    //}
 }

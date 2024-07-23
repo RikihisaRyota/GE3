@@ -33,6 +33,9 @@
             ]
         }
     },
+    "EmitterFrequency": {},
+    "EmitterLocalTransform": {},
+    "Parent": {},
     "ParticleLifeSpan": {},
     "ParticleLifeTime": {
         "Max": 2,

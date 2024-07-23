@@ -1,4 +1,16 @@
 #include "GPUParticle.hlsli"
+
+RWStructuredBuffer<Particle> input : register(u0);
+
+AppendStructuredBuffer<uint> particleIndexCommands : register(u1);
+AppendStructuredBuffer<uint> outputDrawIndexCommands : register(u2);
+
+StructuredBuffer<Emitter> emitter : register(t0);
+StructuredBuffer<VertexEmitter> vertexEmitter : register(t1);
+StructuredBuffer<MeshEmitter> meshEmitter : register(t2);
+StructuredBuffer<TransformModelEmitter> transformModelEmitter : register(t3);
+StructuredBuffer<TransformAreaEmitter> transformAreaEmitter : register(t4);
+
 struct ViewProjection
 {
     float32_t4x4 view; // ビュー変換行列
@@ -8,16 +20,6 @@ struct ViewProjection
     float32_t pad;
 };
 ConstantBuffer<ViewProjection> gViewProjection : register(b0);
-
-RWStructuredBuffer<Particle> input : register(u0);
-
-AppendStructuredBuffer<uint> particleIndexCommands : register(u1);
-
-AppendStructuredBuffer<uint> outputDrawIndexCommands : register(u2);
-
-StructuredBuffer<Emitter> emitter : register(t0);
-StructuredBuffer<MeshEmitter> meshEmitter : register(t1);
-StructuredBuffer<TransformEmitter> transformEmitter : register(t2);
 
 [numthreads(threadBlockSize, 1, 1)]
 void main(uint3 DTid : SV_DispatchThreadID)
@@ -29,17 +31,32 @@ void main(uint3 DTid : SV_DispatchThreadID)
         }
         if(input[index].isAlive)
         {
-            float t = float(input[index].particleLifeTime.time) / float(input[index].particleLifeTime.maxTime);
-    
+            float t = 0.0f; 
+            if(!input[index].particleLifeTime.isEmitterLife){
+                t = float(input[index].particleLifeTime.time) / float(input[index].particleLifeTime.maxTime);
+            }else{
+                if(input[index].parent.emitterType==0 && !emitter[input[index].parent.emitterCount].isAlive){
+                    t=1.0f;
+                } else if(input[index].parent.emitterType==1 && !vertexEmitter[input[index].parent.emitterCount].isAlive){
+                    t=1.0f;
+                } else if(input[index].parent.emitterType==2 && !meshEmitter[input[index].parent.emitterCount].isAlive){
+                    t=1.0f;
+                }else if(input[index].parent.emitterType==3 && !transformModelEmitter[input[index].parent.emitterCount].isAlive) {
+                    t=1.0f;
+                }else if(input[index].parent.emitterType==4 && !transformAreaEmitter[input[index].parent.emitterCount].isAlive){
+                    t=1.0f;
+                }
+            }
+
             // 移動
             if(!input[index].translate.isEasing){
                 input[index].translate.translate += input[index].velocity;
             }else{
                 input[index].translate.translate = lerp(input[index].translate.easing.min, input[index].translate.easing.max, t);
             }
-    
+
             float32_t4x4 translateMatrix = MakeTranslationMatrix(input[index].translate.translate);
-    
+
             // スケール
             input[index].scale = lerp(input[index].scaleRange.min, input[index].scaleRange.max, t);
             float32_t4x4 scaleMatrix = MakeScaleMatrix(input[index].scale);
@@ -56,11 +73,15 @@ void main(uint3 DTid : SV_DispatchThreadID)
                 if(input[index].parent.emitterType==0){
                     parentWorldMatrix = emitter[input[index].parent.emitterCount].parent.worldMatrix;
                 } else if(input[index].parent.emitterType==1){
-                    //parentWorldMatrix = meshEmitter[input[index].parent.emitterCount].parent.worldMatrix;
-                }else {
-                    //parentWorldMatrix = transformEmitter[input[index].parent.emitterCount].parent.worldMatrix;
+                    parentWorldMatrix = vertexEmitter[input[index].parent.emitterCount].parent.worldMatrix;
+                } else if(input[index].parent.emitterType==2){
+                    parentWorldMatrix = meshEmitter[input[index].parent.emitterCount].parent.worldMatrix;
+                }else if(input[index].parent.emitterType==3) {
+                    parentWorldMatrix = transformModelEmitter[input[index].parent.emitterCount].parent.worldMatrix;
+                }else if(input[index].parent.emitterType==4){
+                    parentWorldMatrix = transformAreaEmitter[input[index].parent.emitterCount].parent.worldMatrix;
                 }
-                float32_t4 parentTranslation = mul(parentWorldMatrix, float32_t4(input[index].translate.translate, 1.0f));
+                float32_t4 parentTranslation = mul(float32_t4(input[index].translate.translate, 1.0f),parentWorldMatrix);
                 finalPosition = parentTranslation.xyz;
             } else {
                 finalPosition = input[index].translate.translate;
@@ -93,11 +114,11 @@ void main(uint3 DTid : SV_DispatchThreadID)
             } else {
                 finalRotateMatrix = particleRotate;
             }
-            float32_t4x4 rotateMatrix = mul(finalRotateMatrix, billboardMatrix); // パーティクルの回転を適用
+            float32_t4x4 rotateMatrix = mul(billboardMatrix,finalRotateMatrix); // パーティクルの回転を適用
     
             input[index].color = lerp(input[index].colorRange.min, input[index].colorRange.max, t);
     
-            if(input[index].particleLifeTime.time >= input[index].particleLifeTime.maxTime)
+            if((t >= 1.0f))
             {
                 input[index].isAlive = false;
                 particleIndexCommands.Append(index);

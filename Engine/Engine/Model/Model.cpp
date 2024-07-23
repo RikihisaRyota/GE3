@@ -163,6 +163,7 @@ void Model::LoadFile(const std::filesystem::path& modelPath) {
 
 
 	vertexSRV = GraphicsCore::GetInstance()->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+	vertexBufferDescriptorIndex_ = GraphicsCore::GetInstance()->GetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV).GetFreeDescriptors();
 
 	D3D12_SHADER_RESOURCE_VIEW_DESC vertexSrvDesc{};
 	vertexSrvDesc.Format = DXGI_FORMAT_UNKNOWN;
@@ -174,8 +175,10 @@ void Model::LoadFile(const std::filesystem::path& modelPath) {
 	vertexSrvDesc.Buffer.StructureByteStride = sizeof(vertexPos[0]);
 	device->CreateShaderResourceView(vertexBuffer, &vertexSrvDesc, vertexSRV);
 
-	indexSRV = GraphicsCore::GetInstance()->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 
+
+	indexSRV = GraphicsCore::GetInstance()->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+	indexBufferDescriptorIndex_ = GraphicsCore::GetInstance()->GetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV).GetFreeDescriptors();
 	D3D12_SHADER_RESOURCE_VIEW_DESC indexSrvDesc{};
 	indexSrvDesc.Format = DXGI_FORMAT_UNKNOWN;
 	indexSrvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;

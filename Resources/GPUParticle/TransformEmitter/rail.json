@@ -85,6 +85,8 @@
         },
         "isStaticColor": 1
     },
+    "EmitterFrequency": {},
+    "Parent": {},
     "ParticleLifeSpan": {
         "Max": 70,
         "Min": 30

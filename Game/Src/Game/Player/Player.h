@@ -104,8 +104,8 @@ private:
 		GPUParticleShaderStructs::EmitterForCPU fugitiveDust;
 	};
 	FootEmitter footEmitter_;
-	GPUParticleShaderStructs::MeshEmitterDesc meshEmitterDesc_;
-	GPUParticleShaderStructs::VertexEmitterDesc vertexEmitterDesc_;
+	GPUParticleShaderStructs::MeshEmitterForCPU meshEmitterDesc_;
+	GPUParticleShaderStructs::VertexEmitterForCPU vertexEmitterDesc_;
 
 	State state_;
 	State preState_;

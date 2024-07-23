@@ -10,39 +10,13 @@
 #include "Engine/Graphics/Helper.h"
 #include "Engine/Graphics/RenderManager.h"
 #include "Engine/Model/ModelHandle.h"
+#include "Engine/Model/ModelManager.h"
 #include "Engine/Texture/TextureManager.h"
 #include "Engine/ShderCompiler/ShaderCompiler.h"
 #include "Engine/Math/WorldTransform.h"
 
 
 namespace ParticleManager {
-	enum SpawnRootSignature {
-		kParticleInfo,
-		kEmitterSRV,
-		//kEmitterCount,
-		kRandomBuffer,
-		kOutputCommand,
-		kCreateParticle,
-		kSpawnCounterBuffer,
-
-		kSpawnRootSignatureCount,
-	};
-
-	enum EmitterUpdateRootSigunature {
-		kEmitterUAV,
-		kCreateParticleNum,
-		kCounterBuffer,
-
-		kEmitterUpdateRootSigunatureCount,
-	};
-
-	enum AddEmitterRootSigunature {
-		kAddEmitter,
-		kOriginalEmitter,
-		kEmitterCounter,
-
-		kAddEmitterRootSigunatureCount,
-	};
 
 	enum ParticleUpdateRootSigunature {
 		kViewPrijection,
@@ -86,10 +60,8 @@ namespace ParticleManager {
 void GPUParticleManager::Initialize() {
 	CreateParticleBuffer();
 	CreateEmitter();
-	CreateSpawn();
 	CreateUpdate();
 	CreateGraphics();
-	CreateAddEmitter();
 	CreateIndexBuffer();
 	CreateBullet();
 	CreateMeshParticle();
@@ -122,7 +94,7 @@ void GPUParticleManager::Update(const ViewProjection& viewProjection, CommandCon
 
 	commandContext.SetComputeRootSignature(*emitterUpdateComputeRootSignature_);
 	commandContext.SetPipelineState(*emitterUpdateComputePipelineState_);
-	gpuParticle_->EmitterUpdate(commandContext);
+	gpuParticle_->UpdateEmitter(commandContext);
 
 	commandContext.SetComputeRootSignature(*spawnComputeRootSignature_);
 	commandContext.SetPipelineState(*spawnComputePipelineState_);
@@ -180,86 +152,147 @@ void GPUParticleManager::Draw(const ViewProjection& viewProjection, CommandConte
 void GPUParticleManager::DrawImGui() {
 	gpuParticle_->DrawImGui();
 }
-
-void GPUParticleManager::CreateMeshParticle(const ModelHandle& modelHandle, Animation::Animation& animation, const Matrix4x4& worldTransform, const GPUParticleShaderStructs::MeshEmitterDesc& mesh, CommandContext& commandContext) {
-	commandContext.SetComputeRootSignature(*meshParticleRootSignature_);
-	commandContext.SetPipelineState(*meshParticlePipelineState_);
-
-	gpuParticle_->CreateMeshParticle(modelHandle, animation, worldTransform, mesh, randomBuffer_, commandContext);
-}
-
-void GPUParticleManager::CreateMeshParticle(const ModelHandle& modelHandle, const Matrix4x4& worldTransform, const GPUParticleShaderStructs::MeshEmitterDesc& mesh, CommandContext& commandContext) {
-	commandContext.SetComputeRootSignature(*meshParticleRootSignature_);
-	commandContext.SetPipelineState(*meshParticlePipelineState_);
-
-	gpuParticle_->CreateMeshParticle(modelHandle, worldTransform, mesh, randomBuffer_, commandContext);
-}
-
-void GPUParticleManager::CreateVertexParticle(const ModelHandle& modelHandle, Animation::Animation& animation, const Matrix4x4& worldTransform, const GPUParticleShaderStructs::VertexEmitterDesc& mesh, CommandContext& commandContext) {
-	commandContext.SetComputeRootSignature(*vertexParticleRootSignature_);
-	commandContext.SetPipelineState(*vertexParticlePipelineState_);
-
-	gpuParticle_->CreateVertexParticle(modelHandle, animation, worldTransform, mesh, randomBuffer_, commandContext);
-}
-
-void GPUParticleManager::CreateVertexParticle(const ModelHandle& modelHandle, const Matrix4x4& worldTransform, const GPUParticleShaderStructs::VertexEmitterDesc& mesh, CommandContext& commandContext) {
-	commandContext.SetComputeRootSignature(*vertexParticleRootSignature_);
-	commandContext.SetPipelineState(*vertexParticlePipelineState_);
-
-	gpuParticle_->CreateVertexParticle(modelHandle, worldTransform, mesh, randomBuffer_, commandContext);
-}
-
-void GPUParticleManager::CreateEdgeParticle(const ModelHandle& modelHandle, Animation::Animation& animation, const Matrix4x4& worldTransform, const GPUParticleShaderStructs::MeshEmitterDesc& mesh, CommandContext& commandContext) {
-	commandContext.SetComputeRootSignature(*edgeParticleRootSignature_);
-	commandContext.SetPipelineState(*edgeParticlePipelineState_);
-
-	gpuParticle_->CreateEdgeParticle(modelHandle, animation, worldTransform, mesh, randomBuffer_, commandContext);
-}
-
-void GPUParticleManager::CreateEdgeParticle(const ModelHandle& modelHandle, const Matrix4x4& worldTransform, const GPUParticleShaderStructs::MeshEmitterDesc& mesh, CommandContext& commandContext) {
-	commandContext.SetComputeRootSignature(*edgeParticleRootSignature_);
-	commandContext.SetPipelineState(*edgeParticlePipelineState_);
-
-	gpuParticle_->CreateEdgeParticle(modelHandle, worldTransform, mesh, randomBuffer_, commandContext);
-}
-
-void GPUParticleManager::CreateTransformModelParticle(const ModelHandle& startModelHandle, const Matrix4x4& startWorldTransform, const ModelHandle& endModelHandle, const Matrix4x4& endWorldTransform,const GPUParticleShaderStructs::TransformEmitter& transformEmitter, CommandContext& commandContext) {
-	commandContext.SetComputeRootSignature(*translateModelParticleRootSignature_);
-	commandContext.SetPipelineState(*translateModelParticlePipelineState_);
-
-	gpuParticle_->CreateTransformModelParticle(startModelHandle, startWorldTransform, endModelHandle, endWorldTransform, transformEmitter, randomBuffer_, commandContext);
-}
-
-void GPUParticleManager::CreateTransformModelParticle(const ModelHandle& startModelHandle, Animation::Animation& startAnimation, const Matrix4x4& startWorldTransform, const ModelHandle& endModelHandle, Animation::Animation& endAnimation, const Matrix4x4& endWorldTransform, const GPUParticleShaderStructs::TransformEmitter& transformEmitter, CommandContext& commandContext) {
-	commandContext.SetComputeRootSignature(*translateModelParticleRootSignature_);
-	commandContext.SetPipelineState(*translateModelParticlePipelineState_);
-
-	gpuParticle_->CreateTransformModelParticle(startModelHandle, startAnimation, startWorldTransform, endModelHandle, endAnimation, endWorldTransform, transformEmitter, randomBuffer_, commandContext);
-}
-
-void GPUParticleManager::CreateTransformModelParticle(const ModelHandle& startModelHandle, Animation::Animation& startAnimation, const Matrix4x4& startWorldTransform, const ModelHandle& endModelHandle, const Matrix4x4& endWorldTransform, const GPUParticleShaderStructs::TransformEmitter& transformEmitter, CommandContext& commandContext) {
-	commandContext.SetComputeRootSignature(*translateModelParticleRootSignature_);
-	commandContext.SetPipelineState(*translateModelParticlePipelineState_);
-
-	gpuParticle_->CreateTransformModelParticle(startModelHandle, startAnimation, startWorldTransform, endModelHandle, endWorldTransform, transformEmitter, randomBuffer_, commandContext);
-}
-
-void GPUParticleManager::CreateTransformModelParticle(const ModelHandle& startModelHandle, const Matrix4x4& startWorldTransform, const ModelHandle& endModelHandle, Animation::Animation& endAnimation, const Matrix4x4& endWorldTransform, const GPUParticleShaderStructs::TransformEmitter& transformEmitter, CommandContext& commandContext) {
-	commandContext.SetComputeRootSignature(*translateModelParticleRootSignature_);
-	commandContext.SetPipelineState(*translateModelParticlePipelineState_);
-
-	gpuParticle_->CreateTransformModelParticle(startModelHandle, startWorldTransform, endModelHandle, endAnimation, endWorldTransform, transformEmitter, randomBuffer_, commandContext);
-}
-
-void GPUParticleManager::CreateTransformModelAreaParticle(const ModelHandle& modelHandle, const Matrix4x4& worldTransform, const GPUParticleShaderStructs::TransformEmitter& transformEmitter, CommandContext& commandContext) {
-	commandContext.SetComputeRootSignature(*translateModelAreaParticleRootSignature_);
-	commandContext.SetPipelineState(*translateModelAreaParticlePipelineState_);
-
-	gpuParticle_->CreateTransformModelAreaParticle(modelHandle, worldTransform,  transformEmitter, randomBuffer_, commandContext);
-}
+//
+//void GPUParticleManager::CreateMeshParticle(const ModelHandle& modelHandle, Animation::Animation& animation, const Matrix4x4& worldTransform, const GPUParticleShaderStructs::MeshEmitterForCPU& mesh, CommandContext& commandContext) {
+//	commandContext.SetComputeRootSignature(*meshParticleRootSignature_);
+//	commandContext.SetPipelineState(*meshParticlePipelineState_);
+//
+//	gpuParticle_->CreateMeshParticle(modelHandle, animation, worldTransform, mesh, randomBuffer_, commandContext);
+//}
+//
+//void GPUParticleManager::CreateMeshParticle(const ModelHandle& modelHandle, const Matrix4x4& worldTransform, const GPUParticleShaderStructs::MeshEmitterForCPU& mesh, CommandContext& commandContext) {
+//	commandContext.SetComputeRootSignature(*meshParticleRootSignature_);
+//	commandContext.SetPipelineState(*meshParticlePipelineState_);
+//
+//	gpuParticle_->CreateMeshParticle(modelHandle, worldTransform, mesh, randomBuffer_, commandContext);
+//}
+//
+//void GPUParticleManager::CreateVertexParticle(const ModelHandle& modelHandle, Animation::Animation& animation, const Matrix4x4& worldTransform, const GPUParticleShaderStructs::VertexEmitterForCPU& mesh, CommandContext& commandContext) {
+//	commandContext.SetComputeRootSignature(*vertexParticleRootSignature_);
+//	commandContext.SetPipelineState(*vertexParticlePipelineState_);
+//
+//	gpuParticle_->CreateVertexParticle(modelHandle, animation, worldTransform, mesh, randomBuffer_, commandContext);
+//}
+//
+//void GPUParticleManager::CreateVertexParticle(const ModelHandle& modelHandle, const Matrix4x4& worldTransform, const GPUParticleShaderStructs::VertexEmitterForCPU& mesh, CommandContext& commandContext) {
+//	commandContext.SetComputeRootSignature(*vertexParticleRootSignature_);
+//	commandContext.SetPipelineState(*vertexParticlePipelineState_);
+//
+//	gpuParticle_->CreateVertexParticle(modelHandle, worldTransform, mesh, randomBuffer_, commandContext);
+//}
+//
+//void GPUParticleManager::CreateEdgeParticle(const ModelHandle& modelHandle, Animation::Animation& animation, const Matrix4x4& worldTransform, const GPUParticleShaderStructs::MeshEmitterForCPU& mesh, CommandContext& commandContext) {
+//	commandContext.SetComputeRootSignature(*edgeParticleRootSignature_);
+//	commandContext.SetPipelineState(*edgeParticlePipelineState_);
+//
+//	gpuParticle_->CreateEdgeParticle(modelHandle, animation, worldTransform, mesh, randomBuffer_, commandContext);
+//}
+//
+//void GPUParticleManager::CreateEdgeParticle(const ModelHandle& modelHandle, const Matrix4x4& worldTransform, const GPUParticleShaderStructs::MeshEmitterForCPU& mesh, CommandContext& commandContext) {
+//	commandContext.SetComputeRootSignature(*edgeParticleRootSignature_);
+//	commandContext.SetPipelineState(*edgeParticlePipelineState_);
+//
+//	gpuParticle_->CreateEdgeParticle(modelHandle, worldTransform, mesh, randomBuffer_, commandContext);
+//}
+//
+//void GPUParticleManager::CreateTransformModelParticle(const ModelHandle& startModelHandle, const Matrix4x4& startWorldTransform, const ModelHandle& endModelHandle, const Matrix4x4& endWorldTransform, const GPUParticleShaderStructs::TransformModelEmitterForCPU& transformEmitter, CommandContext& commandContext) {
+//	commandContext.SetComputeRootSignature(*translateModelParticleRootSignature_);
+//	commandContext.SetPipelineState(*translateModelParticlePipelineState_);
+//
+//	//gpuParticle_->CreateTransformModelParticle(startModelHandle, startWorldTransform, endModelHandle, endWorldTransform, transformEmitter, randomBuffer_, commandContext);
+//}
+//
+//void GPUParticleManager::CreateTransformModelParticle(const ModelHandle& startModelHandle, Animation::Animation& startAnimation, const Matrix4x4& startWorldTransform, const ModelHandle& endModelHandle, Animation::Animation& endAnimation, const Matrix4x4& endWorldTransform, const GPUParticleShaderStructs::TransformModelEmitterForCPU& transformEmitter, CommandContext& commandContext) {
+//	commandContext.SetComputeRootSignature(*translateModelParticleRootSignature_);
+//	commandContext.SetPipelineState(*translateModelParticlePipelineState_);
+//
+//	//gpuParticle_->CreateTransformModelParticle(startModelHandle, startAnimation, startWorldTransform, endModelHandle, endAnimation, endWorldTransform, transformEmitter, randomBuffer_, commandContext);
+//}
+//
+//void GPUParticleManager::CreateTransformModelParticle(const ModelHandle& startModelHandle, Animation::Animation& startAnimation, const Matrix4x4& startWorldTransform, const ModelHandle& endModelHandle, const Matrix4x4& endWorldTransform, const GPUParticleShaderStructs::TransformModelEmitterForCPU& transformEmitter, CommandContext& commandContext) {
+//	commandContext.SetComputeRootSignature(*translateModelParticleRootSignature_);
+//	commandContext.SetPipelineState(*translateModelParticlePipelineState_);
+//
+//	//gpuParticle_->CreateTransformModelParticle(startModelHandle, startAnimation, startWorldTransform, endModelHandle, endWorldTransform, transformEmitter, randomBuffer_, commandContext);
+//}
+//
+//void GPUParticleManager::CreateTransformModelParticle(const ModelHandle& startModelHandle, const Matrix4x4& startWorldTransform, const ModelHandle& endModelHandle, Animation::Animation& endAnimation, const Matrix4x4& endWorldTransform, const GPUParticleShaderStructs::TransformModelEmitterForCPU& transformEmitter, CommandContext& commandContext) {
+//	commandContext.SetComputeRootSignature(*translateModelParticleRootSignature_);
+//	commandContext.SetPipelineState(*translateModelParticlePipelineState_);
+//
+//	//gpuParticle_->CreateTransformModelParticle(startModelHandle, startWorldTransform, endModelHandle, endAnimation, endWorldTransform, transformEmitter, randomBuffer_, commandContext);
+//}
+//
+//void GPUParticleManager::CreateTransformAreaParticle(const ModelHandle& modelHandle, const Matrix4x4& worldTransform, const GPUParticleShaderStructs::TransformAreaEmitterForCPU& transformEmitter, CommandContext& commandContext) {
+//	commandContext.SetComputeRootSignature(*translateModelAreaParticleRootSignature_);
+//	commandContext.SetPipelineState(*translateModelAreaParticlePipelineState_);
+//
+//	//gpuParticle_->CreateTransformModelAreaParticle(modelHandle, worldTransform, transformEmitter, randomBuffer_, commandContext);
+//}
 
 void GPUParticleManager::SetEmitter(const GPUParticleShaderStructs::EmitterForCPU& emitter, const Matrix4x4& parent) {
-	gpuParticle_->SetEmitter(emitter,parent);
+	gpuParticle_->SetEmitter(emitter, parent);
+}
+
+void GPUParticleManager::SetVertexEmitter(const ModelHandle& modelHandle, const GPUParticleShaderStructs::VertexEmitterForCPU& emitter, const Matrix4x4& parent) {
+	auto& model = ModelManager::GetInstance()->GetModel(modelHandle);
+	GPUParticleShaderStructs::VertexEmitterForCPU vertexEmitter = emitter;
+	vertexEmitter.model.vertexBufferIndex = model.GetVertexBufferDescriptorIndex();
+	vertexEmitter.model.vertexCount = model.GetAllVertexCount();
+	vertexEmitter.model.indexBufferIndex = model.GetIndexBufferDescriptorIndex();
+	vertexEmitter.model.indexCount = model.GetAllIndexCount();
+	gpuParticle_->SetEmitter(vertexEmitter, parent);
+}
+
+void GPUParticleManager::SetVertexEmitter(const ModelHandle& modelHandle, const Animation::Animation& animation, const GPUParticleShaderStructs::VertexEmitterForCPU& emitter, const Matrix4x4& parent) {
+	auto& model = ModelManager::GetInstance()->GetModel(modelHandle);
+	GPUParticleShaderStructs::VertexEmitterForCPU vertexEmitter = emitter;
+	vertexEmitter.model.vertexBufferIndex = animation.skinCluster.vertexBufferDescriptorIndex;
+	vertexEmitter.model.vertexCount = model.GetAllVertexCount();
+	vertexEmitter.model.indexBufferIndex = model.GetIndexBufferDescriptorIndex();
+	vertexEmitter.model.indexCount = model.GetAllIndexCount();
+	gpuParticle_->SetEmitter(vertexEmitter, parent);
+}
+
+void GPUParticleManager::SetMeshEmitter(const ModelHandle& modelHandle, const GPUParticleShaderStructs::MeshEmitterForCPU& emitter, const Matrix4x4& parent) {
+	auto& model = ModelManager::GetInstance()->GetModel(modelHandle);
+	GPUParticleShaderStructs::MeshEmitterForCPU meshEmitter = emitter;
+	meshEmitter.model.vertexBufferIndex = model.GetVertexBufferDescriptorIndex();
+	meshEmitter.model.vertexCount = model.GetAllVertexCount();
+	meshEmitter.model.indexBufferIndex = model.GetIndexBufferDescriptorIndex();
+	meshEmitter.model.indexCount = model.GetAllIndexCount();
+	gpuParticle_->SetEmitter(meshEmitter, parent);
+}
+
+void GPUParticleManager::SetTransformModelEmitter(const ModelHandle& startModelHandle, const Matrix4x4& startWorldMatrix, const ModelHandle& endModelHandle, const Matrix4x4& endWorldMatrix, const GPUParticleShaderStructs::TransformModelEmitterForCPU& emitter, const Matrix4x4& parent) {
+	auto& startModel = ModelManager::GetInstance()->GetModel(startModelHandle);
+	auto& endModel = ModelManager::GetInstance()->GetModel(endModelHandle);
+	GPUParticleShaderStructs::TransformModelEmitterForCPU transformModelEmitter = emitter;
+	transformModelEmitter.startModel.vertexBufferIndex = startModel.GetVertexBufferDescriptorIndex();
+	transformModelEmitter.startModel.vertexCount = startModel.GetAllVertexCount();
+	transformModelEmitter.startModel.indexBufferIndex = startModel.GetIndexBufferDescriptorIndex();
+	transformModelEmitter.startModel.indexCount = startModel.GetAllIndexCount();
+
+	transformModelEmitter.startModelWorldMatrix = startWorldMatrix;
+
+	transformModelEmitter.endModel.vertexBufferIndex = endModel.GetVertexBufferDescriptorIndex();
+	transformModelEmitter.endModel.vertexCount = endModel.GetAllVertexCount();
+	transformModelEmitter.endModel.indexBufferIndex = endModel.GetIndexBufferDescriptorIndex();
+	transformModelEmitter.endModel.indexCount = endModel.GetAllIndexCount();
+
+	transformModelEmitter.endModelWorldMatrix = endWorldMatrix;
+
+	gpuParticle_->SetEmitter(transformModelEmitter, parent);
+}
+
+void GPUParticleManager::SetTransformAreaEmitter(const ModelHandle& modelHandle, const GPUParticleShaderStructs::TransformAreaEmitterForCPU& emitter, const Matrix4x4& parent) {
+	auto& model = ModelManager::GetInstance()->GetModel(modelHandle);
+	GPUParticleShaderStructs::TransformAreaEmitterForCPU transformAreaEmitter = emitter;
+	transformAreaEmitter.model.vertexBufferIndex = model.GetVertexBufferDescriptorIndex();
+	transformAreaEmitter.model.vertexCount = model.GetAllVertexCount();
+	transformAreaEmitter.model.indexBufferIndex = model.GetIndexBufferDescriptorIndex();
+	transformAreaEmitter.model.indexCount = model.GetAllIndexCount();
+	gpuParticle_->SetEmitter(transformAreaEmitter, parent);
 }
 
 void GPUParticleManager::SetField(const GPUParticleShaderStructs::FieldForCPU& fieldForCPU) {
@@ -355,45 +388,52 @@ void GPUParticleManager::CreateGraphics() {
 void GPUParticleManager::CreateEmitter() {
 	auto graphics = GraphicsCore::GetInstance();
 	auto device = graphics->GetDevice();
-	// アップデートシグネイチャー
+	// check
 	{
-		emitterUpdateComputeRootSignature_ = std::make_unique<RootSignature>();
+		struct CheckEmitterRootParameter {
+			enum Param {
+				kAddEmitter,
+				kOriginalEmitter,
 
-		//	createParticle用
-		CD3DX12_DESCRIPTOR_RANGE addParticleRange[1]{};
-		addParticleRange[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, ParticleManager::EmitterUpdateRootSigunature::kCreateParticleNum, 0);
+				kAddVertexEmitter,
+				kOriginalVertexEmitter,
 
-		CD3DX12_ROOT_PARAMETER rootParameters[ParticleManager::EmitterUpdateRootSigunature::kEmitterUpdateRootSigunatureCount]{};
-		rootParameters[ParticleManager::EmitterUpdateRootSigunature::kEmitterUAV].InitAsUnorderedAccessView(0);
-		rootParameters[ParticleManager::EmitterUpdateRootSigunature::kCreateParticleNum].InitAsDescriptorTable(_countof(addParticleRange), addParticleRange);
-		rootParameters[ParticleManager::EmitterUpdateRootSigunature::kCounterBuffer].InitAsUnorderedAccessView(2);
+				kAddMeshEmitter,
+				kOriginalMeshEmitter,
 
-		D3D12_ROOT_SIGNATURE_DESC desc{};
-		desc.pParameters = rootParameters;
-		desc.NumParameters = _countof(rootParameters);
+				kAddTransformModelEmitter,
+				kOriginalTransfomrModelEmitter,
 
-		emitterUpdateComputeRootSignature_->Create(L"EmitterUpdateComputeRootSignature", desc);
-	}
-	// アップデートパイプライン
-	{
-		emitterUpdateComputePipelineState_ = std::make_unique<PipelineState>();
-		D3D12_COMPUTE_PIPELINE_STATE_DESC desc{};
-		desc.pRootSignature = *emitterUpdateComputeRootSignature_;
-		auto cs = ShaderCompiler::Compile(L"Resources/Shaders/GPUParticle/EmitterUpdate.CS.hlsl", L"cs_6_0");
-		desc.CS = CD3DX12_SHADER_BYTECODE(cs->GetBufferPointer(), cs->GetBufferSize());
-		emitterUpdateComputePipelineState_->Create(L"EmitterUpdateComputePipelineState", desc);
-	}
-	// アップデートシグネイチャー
-	{
+				kAddTransformAreaEmitter,
+				kOriginalTransformAreaEmitter,
+
+				kAddEmitterCount,
+				kAddVertexEmitterCount,
+				kAddMeshEmitterCount,
+				kAddTransformModelEmitterCount,
+				kAddTransfomrAreaEmitterCount,
+				kCount,
+			};
+		};
+
 		checkEmitterComputeRootSignature_ = std::make_unique<RootSignature>();
 
-		//	createParticle用
-		CD3DX12_DESCRIPTOR_RANGE addParticleRange[1]{};
-		addParticleRange[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, ParticleManager::EmitterUpdateRootSigunature::kCreateParticleNum, 0);
-
-		CD3DX12_ROOT_PARAMETER rootParameters[2]{};
-		rootParameters[0].InitAsUnorderedAccessView(0);
-		rootParameters[1].InitAsUnorderedAccessView(1);
+		CD3DX12_ROOT_PARAMETER rootParameters[CheckEmitterRootParameter::kCount]{};
+		rootParameters[CheckEmitterRootParameter::kAddEmitter].InitAsUnorderedAccessView(0);
+		rootParameters[CheckEmitterRootParameter::kOriginalEmitter].InitAsUnorderedAccessView(1);
+		rootParameters[CheckEmitterRootParameter::kAddVertexEmitter].InitAsUnorderedAccessView(2);
+		rootParameters[CheckEmitterRootParameter::kOriginalVertexEmitter].InitAsUnorderedAccessView(3);
+		rootParameters[CheckEmitterRootParameter::kAddMeshEmitter].InitAsUnorderedAccessView(4);
+		rootParameters[CheckEmitterRootParameter::kOriginalMeshEmitter].InitAsUnorderedAccessView(5);
+		rootParameters[CheckEmitterRootParameter::kAddTransformModelEmitter].InitAsUnorderedAccessView(6);
+		rootParameters[CheckEmitterRootParameter::kOriginalTransfomrModelEmitter].InitAsUnorderedAccessView(7);
+		rootParameters[CheckEmitterRootParameter::kAddTransformAreaEmitter].InitAsUnorderedAccessView(8);
+		rootParameters[CheckEmitterRootParameter::kOriginalTransformAreaEmitter].InitAsUnorderedAccessView(9);
+		rootParameters[CheckEmitterRootParameter::kAddEmitterCount].InitAsConstantBufferView(0);
+		rootParameters[CheckEmitterRootParameter::kAddVertexEmitterCount].InitAsConstantBufferView(1);
+		rootParameters[CheckEmitterRootParameter::kAddMeshEmitterCount].InitAsConstantBufferView(2);
+		rootParameters[CheckEmitterRootParameter::kAddTransformModelEmitterCount].InitAsConstantBufferView(3);
+		rootParameters[CheckEmitterRootParameter::kAddTransfomrAreaEmitterCount].InitAsConstantBufferView(4);
 
 		D3D12_ROOT_SIGNATURE_DESC desc{};
 		desc.pParameters = rootParameters;
@@ -401,7 +441,6 @@ void GPUParticleManager::CreateEmitter() {
 
 		checkEmitterComputeRootSignature_->Create(L"CheckEmitterComputeRootSignature", desc);
 	}
-	// アップデートパイプライン
 	{
 		checkEmitterComputePipelineState_ = std::make_unique<PipelineState>();
 		D3D12_COMPUTE_PIPELINE_STATE_DESC desc{};
@@ -410,19 +449,58 @@ void GPUParticleManager::CreateEmitter() {
 		desc.CS = CD3DX12_SHADER_BYTECODE(cs->GetBufferPointer(), cs->GetBufferSize());
 		checkEmitterComputePipelineState_->Create(L"CheckEmitterComputePipelineState", desc);
 	}
-}
-
-void GPUParticleManager::CreateAddEmitter() {
-	auto graphics = GraphicsCore::GetInstance();
-	auto device = graphics->GetDevice();
-	// アップデートシグネイチャー
+	// add
 	{
+		struct AddEmitterRootParameter {
+			enum Param {
+				kOriginalEmitter,
+				kAddEmitterCount,
+
+				kOriginalVertexEmitter,
+				kAddVertexEmitterCount,
+
+				kOriginalMeshEmitter,
+				kAddMeshEmitterCount,
+
+				kOriginalTransfomrModelEmitter,
+				kAddTransformModelEmitterCount,
+
+				kOriginalTransformAreaEmitter,
+				kAddTransfomrAreaEmitterCount,
+
+				kAddEmitter,
+				kAddVertexEmitter,
+				kAddMeshEmitter,
+				kAddTransformModelEmitter,
+				kAddTransformAreaEmitter,
+
+				kCount,
+			};
+		};
+
 		addEmitterComputeRootSignature_ = std::make_unique<RootSignature>();
 
-		CD3DX12_ROOT_PARAMETER rootParameters[ParticleManager::AddEmitterRootSigunature::kAddEmitterRootSigunatureCount]{};
-		rootParameters[ParticleManager::AddEmitterRootSigunature::kAddEmitter].InitAsShaderResourceView(0);
-		rootParameters[ParticleManager::AddEmitterRootSigunature::kOriginalEmitter].InitAsUnorderedAccessView(0);
-		rootParameters[ParticleManager::AddEmitterRootSigunature::kEmitterCounter].InitAsUnorderedAccessView(1);
+		CD3DX12_ROOT_PARAMETER rootParameters[AddEmitterRootParameter::kCount]{};
+		rootParameters[AddEmitterRootParameter::kOriginalEmitter].InitAsUnorderedAccessView(0);
+		rootParameters[AddEmitterRootParameter::kAddEmitterCount].InitAsUnorderedAccessView(1);
+
+		rootParameters[AddEmitterRootParameter::kOriginalVertexEmitter].InitAsUnorderedAccessView(2);
+		rootParameters[AddEmitterRootParameter::kAddVertexEmitterCount].InitAsUnorderedAccessView(3);
+
+		rootParameters[AddEmitterRootParameter::kOriginalMeshEmitter].InitAsUnorderedAccessView(4);
+		rootParameters[AddEmitterRootParameter::kAddMeshEmitterCount].InitAsUnorderedAccessView(5);
+
+		rootParameters[AddEmitterRootParameter::kOriginalTransfomrModelEmitter].InitAsUnorderedAccessView(6);
+		rootParameters[AddEmitterRootParameter::kAddTransformModelEmitterCount].InitAsUnorderedAccessView(7);
+
+		rootParameters[AddEmitterRootParameter::kOriginalTransformAreaEmitter].InitAsUnorderedAccessView(8);
+		rootParameters[AddEmitterRootParameter::kAddTransfomrAreaEmitterCount].InitAsUnorderedAccessView(9);
+
+		rootParameters[AddEmitterRootParameter::kAddEmitter].InitAsShaderResourceView(0);
+		rootParameters[AddEmitterRootParameter::kAddVertexEmitter].InitAsShaderResourceView(1);
+		rootParameters[AddEmitterRootParameter::kAddMeshEmitter].InitAsShaderResourceView(2);
+		rootParameters[AddEmitterRootParameter::kAddTransformModelEmitter].InitAsShaderResourceView(3);
+		rootParameters[AddEmitterRootParameter::kAddTransformAreaEmitter].InitAsShaderResourceView(4);
 
 		D3D12_ROOT_SIGNATURE_DESC desc{};
 		desc.pParameters = rootParameters;
@@ -430,7 +508,6 @@ void GPUParticleManager::CreateAddEmitter() {
 
 		addEmitterComputeRootSignature_->Create(L"GPUParticle AddEmitterUpdateCPSO", desc);
 	}
-	// アップデートパイプライン
 	{
 		addEmitterComputePipelineState_ = std::make_unique<PipelineState>();
 		D3D12_COMPUTE_PIPELINE_STATE_DESC desc{};
@@ -439,64 +516,56 @@ void GPUParticleManager::CreateAddEmitter() {
 		desc.CS = CD3DX12_SHADER_BYTECODE(cs->GetBufferPointer(), cs->GetBufferSize());
 		addEmitterComputePipelineState_->Create(L"GPUParticle AddEmitterUpdateCPSO", desc);
 	}
-}
-
-void GPUParticleManager::CreateUpdate() {
-	auto graphics = GraphicsCore::GetInstance();
-	auto device = graphics->GetDevice();
-	// アップデートシグネイチャー
+	// spawn
 	{
-		updateComputeRootSignature_ = std::make_unique<RootSignature>();
+		struct SpawnRootParameter {
+			enum Param {
+				kParticle,
+				kParticleIndex,
+				kCreateParticleNum,
+				kParticleIndexCounter,
 
-		//	ParticleIndexCommand用（カウンター付きUAVの場合このように宣言）
-		CD3DX12_DESCRIPTOR_RANGE particleIndexRange[1]{};
-		particleIndexRange[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 1, 0);
-		CD3DX12_DESCRIPTOR_RANGE outputDrawRange[1]{};
-		outputDrawRange[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 2, 0);
+				kOriginalEmitter,
+				kOriginalVertexEmitter,
+				kOriginalMeshEmitter,
+				kOriginalTransfomrModelEmitter,
+				kOriginalTransformAreaEmitter,
 
-		CD3DX12_ROOT_PARAMETER rootParameters[ParticleManager::ParticleUpdateRootSigunature::kUpdateRootSigunatureCount]{};
-		rootParameters[ParticleManager::ParticleUpdateRootSigunature::kViewPrijection].InitAsConstantBufferView(0);
-		rootParameters[ParticleManager::ParticleUpdateRootSigunature::kParticleBuffer].InitAsUnorderedAccessView(0);
-		rootParameters[ParticleManager::ParticleUpdateRootSigunature::kParticleIndexCommand].InitAsDescriptorTable(_countof(particleIndexRange), particleIndexRange);
-		rootParameters[ParticleManager::ParticleUpdateRootSigunature::kOutputDrawIndex].InitAsDescriptorTable(_countof(outputDrawRange), outputDrawRange);
-		rootParameters[ParticleManager::ParticleUpdateRootSigunature::kEmitter].InitAsShaderResourceView(0);
-		rootParameters[ParticleManager::ParticleUpdateRootSigunature::kMeshEmitter].InitAsShaderResourceView(1);
-		rootParameters[ParticleManager::ParticleUpdateRootSigunature::kTransformEmitter].InitAsShaderResourceView(2);
+				kVertexBuffer,
+				kIndexBufferBuffer,
 
-		D3D12_ROOT_SIGNATURE_DESC desc{};
-		desc.pParameters = rootParameters;
-		desc.NumParameters = _countof(rootParameters);
+				kRandom,
 
-		updateComputeRootSignature_->Create(L"GPUParticle UpdateRootSignature", desc);
-	}
-	// アップデートパイプライン
-	{
-		updateComputePipelineState_ = std::make_unique<PipelineState>();
-		D3D12_COMPUTE_PIPELINE_STATE_DESC desc{};
-		desc.pRootSignature = *updateComputeRootSignature_;
-		auto cs = ShaderCompiler::Compile(L"Resources/Shaders/GPUParticle/Update.CS.hlsl", L"cs_6_0");
-		desc.CS = CD3DX12_SHADER_BYTECODE(cs->GetBufferPointer(), cs->GetBufferSize());
-		updateComputePipelineState_->Create(L"GPUParticle UpdateCPSO", desc);
-	}
-}
+				kCount,
+			};
+		};
 
-void GPUParticleManager::CreateSpawn() {
-	auto graphics = GraphicsCore::GetInstance();
-	auto device = graphics->GetDevice();
-	// スポーンシグネイチャー
-	{
 		spawnComputeRootSignature_ = std::make_unique<RootSignature>();
 		// AppendStructuredBuffer用（カウンター付きUAVの場合このように宣言）
 		CD3DX12_DESCRIPTOR_RANGE consumeRanges[1]{};
 		consumeRanges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 1, 0);
-		CD3DX12_ROOT_PARAMETER rootParameters[ParticleManager::SpawnRootSignature::kSpawnRootSignatureCount]{};
-		rootParameters[ParticleManager::SpawnRootSignature::kParticleInfo].InitAsUnorderedAccessView(0);
-		rootParameters[ParticleManager::SpawnRootSignature::kEmitterSRV].InitAsShaderResourceView(0);
-		//rootParameters[ParticleManager::SpawnRootSignature::kEmitterCount].InitAsConstantBufferView(0);
-		rootParameters[ParticleManager::SpawnRootSignature::kRandomBuffer].InitAsConstantBufferView(0);
-		rootParameters[ParticleManager::SpawnRootSignature::kOutputCommand].InitAsDescriptorTable(_countof(consumeRanges), consumeRanges);
-		rootParameters[ParticleManager::SpawnRootSignature::kCreateParticle].InitAsUnorderedAccessView(2);
-		rootParameters[ParticleManager::SpawnRootSignature::kSpawnCounterBuffer].InitAsUnorderedAccessView(3);
+		// レジスタースペースがびにょ
+		CD3DX12_DESCRIPTOR_RANGE vertexBuffer[1]{};
+		vertexBuffer[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, graphics->kNumSRVs, 5, 0);
+		CD3DX12_DESCRIPTOR_RANGE indexBuffer[1]{};
+		indexBuffer[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, graphics->kNumSRVs, 6, 1);
+
+		CD3DX12_ROOT_PARAMETER rootParameters[SpawnRootParameter::kCount]{};
+		rootParameters[SpawnRootParameter::kParticle].InitAsUnorderedAccessView(0);
+		rootParameters[SpawnRootParameter::kParticleIndex].InitAsDescriptorTable(_countof(consumeRanges), consumeRanges);
+		rootParameters[SpawnRootParameter::kCreateParticleNum].InitAsUnorderedAccessView(2);
+		rootParameters[SpawnRootParameter::kParticleIndexCounter].InitAsUnorderedAccessView(3);
+
+		rootParameters[SpawnRootParameter::kOriginalEmitter].InitAsShaderResourceView(0);
+		rootParameters[SpawnRootParameter::kOriginalVertexEmitter].InitAsShaderResourceView(1);
+		rootParameters[SpawnRootParameter::kOriginalMeshEmitter].InitAsShaderResourceView(2);
+		rootParameters[SpawnRootParameter::kOriginalTransfomrModelEmitter].InitAsShaderResourceView(3);
+		rootParameters[SpawnRootParameter::kOriginalTransformAreaEmitter].InitAsShaderResourceView(4);
+
+		rootParameters[SpawnRootParameter::kVertexBuffer].InitAsDescriptorTable(_countof(vertexBuffer), vertexBuffer);
+		rootParameters[SpawnRootParameter::kIndexBufferBuffer].InitAsDescriptorTable(_countof(indexBuffer), indexBuffer);
+
+		rootParameters[SpawnRootParameter::kRandom].InitAsConstantBufferView(0);
 		D3D12_ROOT_SIGNATURE_DESC desc{};
 		desc.pParameters = rootParameters;
 		desc.NumParameters = _countof(rootParameters);
@@ -523,6 +592,113 @@ void GPUParticleManager::CreateSpawn() {
 		commandSignatureDesc.NumArgumentDescs = _countof(argumentDescs);
 		commandSignatureDesc.ByteStride = sizeof(D3D12_DISPATCH_ARGUMENTS);
 		spawnCommandSignature_->Create(L"spawnCommandSignature", commandSignatureDesc, nullptr);
+	}
+
+	// update
+	{
+
+		struct UpdateEmitterRootParameter {
+			enum Param {
+				kEmitter,
+				kVertexEmitter,
+				kMeshEmitter,
+				kTransformModelEmitter,
+				kTransformAreaEmitter,
+				kCreateParticleNum,
+				kCreateParticleCounter,
+				kCount,
+			};
+		};
+		emitterUpdateComputeRootSignature_ = std::make_unique<RootSignature>();
+
+		//	createParticle用
+		CD3DX12_DESCRIPTOR_RANGE addParticleRange[1]{};
+		addParticleRange[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 5, 0);
+
+		CD3DX12_ROOT_PARAMETER rootParameters[UpdateEmitterRootParameter::kCount]{};
+		rootParameters[UpdateEmitterRootParameter::kEmitter].InitAsUnorderedAccessView(0);
+		rootParameters[UpdateEmitterRootParameter::kVertexEmitter].InitAsUnorderedAccessView(1);
+		rootParameters[UpdateEmitterRootParameter::kMeshEmitter].InitAsUnorderedAccessView(2);
+		rootParameters[UpdateEmitterRootParameter::kTransformModelEmitter].InitAsUnorderedAccessView(3);
+		rootParameters[UpdateEmitterRootParameter::kTransformAreaEmitter].InitAsUnorderedAccessView(4);
+		rootParameters[UpdateEmitterRootParameter::kCreateParticleNum].InitAsDescriptorTable(_countof(addParticleRange), addParticleRange);
+		rootParameters[UpdateEmitterRootParameter::kCreateParticleCounter].InitAsUnorderedAccessView(6);
+
+		D3D12_ROOT_SIGNATURE_DESC desc{};
+		desc.pParameters = rootParameters;
+		desc.NumParameters = _countof(rootParameters);
+
+		emitterUpdateComputeRootSignature_->Create(L"EmitterUpdateComputeRootSignature", desc);
+	}
+	// アップデートパイプライン
+	{
+		emitterUpdateComputePipelineState_ = std::make_unique<PipelineState>();
+		D3D12_COMPUTE_PIPELINE_STATE_DESC desc{};
+		desc.pRootSignature = *emitterUpdateComputeRootSignature_;
+		auto cs = ShaderCompiler::Compile(L"Resources/Shaders/GPUParticle/EmitterUpdate.CS.hlsl", L"cs_6_0");
+		desc.CS = CD3DX12_SHADER_BYTECODE(cs->GetBufferPointer(), cs->GetBufferSize());
+		emitterUpdateComputePipelineState_->Create(L"EmitterUpdateComputePipelineState", desc);
+	}
+}
+
+void GPUParticleManager::CreateUpdate() {
+	auto graphics = GraphicsCore::GetInstance();
+	auto device = graphics->GetDevice();
+	// アップデートシグネイチャー
+	{
+		struct UpdateParticle {
+			enum Param {
+				kParticle,
+				kParticleIndex,
+				kCreateParticleNum,
+
+				kEmitter,
+				kVertexEmitter,
+				kMeshEmitter,
+				kTransformModelEmitter,
+				kTransformAreaEmitter,
+
+				kViewPrijection,
+
+				kCount
+			};
+		};
+
+		updateComputeRootSignature_ = std::make_unique<RootSignature>();
+
+		//	ParticleIndexCommand用（カウンター付きUAVの場合このように宣言）
+		CD3DX12_DESCRIPTOR_RANGE particleIndexRange[1]{};
+		particleIndexRange[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 1, 0);
+		CD3DX12_DESCRIPTOR_RANGE outputDrawRange[1]{};
+		outputDrawRange[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 2, 0);
+
+		CD3DX12_ROOT_PARAMETER rootParameters[UpdateParticle::kCount]{};
+		rootParameters[UpdateParticle::kParticle].InitAsUnorderedAccessView(0);
+		rootParameters[UpdateParticle::kParticleIndex].InitAsDescriptorTable(_countof(particleIndexRange), particleIndexRange);
+		rootParameters[UpdateParticle::kCreateParticleNum].InitAsDescriptorTable(_countof(outputDrawRange), outputDrawRange);
+
+		rootParameters[UpdateParticle::kEmitter].InitAsShaderResourceView(0);
+		rootParameters[UpdateParticle::kVertexEmitter].InitAsShaderResourceView(1);
+		rootParameters[UpdateParticle::kMeshEmitter].InitAsShaderResourceView(2);
+		rootParameters[UpdateParticle::kTransformModelEmitter].InitAsShaderResourceView(3);
+		rootParameters[UpdateParticle::kTransformAreaEmitter].InitAsShaderResourceView(4);
+
+		rootParameters[UpdateParticle::kViewPrijection].InitAsConstantBufferView(0);
+
+		D3D12_ROOT_SIGNATURE_DESC desc{};
+		desc.pParameters = rootParameters;
+		desc.NumParameters = _countof(rootParameters);
+
+		updateComputeRootSignature_->Create(L"GPUParticle UpdateRootSignature", desc);
+	}
+	// アップデートパイプライン
+	{
+		updateComputePipelineState_ = std::make_unique<PipelineState>();
+		D3D12_COMPUTE_PIPELINE_STATE_DESC desc{};
+		desc.pRootSignature = *updateComputeRootSignature_;
+		auto cs = ShaderCompiler::Compile(L"Resources/Shaders/GPUParticle/Update.CS.hlsl", L"cs_6_0");
+		desc.CS = CD3DX12_SHADER_BYTECODE(cs->GetBufferPointer(), cs->GetBufferSize());
+		updateComputePipelineState_->Create(L"GPUParticle UpdateCPSO", desc);
 	}
 }
 

@@ -107,7 +107,7 @@ void main(uint3 DTid : SV_DispatchThreadID) {
                 int32_t index = particleIndexCommands.Consume();
                 float32_t t = float32_t(j) / float32_t(sumCreateParticleNum);
                 float32_t3 translate = lerp(start, end, t);
-                CreateParticle(Output[index], meshEmitter,translate,seed);
+                //CreateParticle(Output[index], meshEmitter,translate,seed);
             }
         }
     }

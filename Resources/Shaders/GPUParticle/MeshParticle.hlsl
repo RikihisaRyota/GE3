@@ -86,6 +86,6 @@ void main(uint3 DTid : SV_DispatchThreadID)
 
         // ランダムな点を計算
         float32_t3 p = v0 + u * (v1 - v0) + v * (v2 - v0);
-        CreateParticle(Output[index], meshEmitter,p,seed);
+        //CreateParticle(Output[index], meshEmitter,p,seed);
     }
 }

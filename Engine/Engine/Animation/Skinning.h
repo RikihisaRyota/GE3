@@ -45,6 +45,7 @@ namespace Animation {
 		DescriptorHandle paletteHandle;
 
 		DefaultBuffer vertexBuffer;
+		uint32_t vertexBufferDescriptorIndex;
 		DescriptorHandle outputVertexBufferView;
 		D3D12_VERTEX_BUFFER_VIEW vertexBufferView;
 

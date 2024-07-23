@@ -32,20 +32,25 @@ public:
 
 	void DrawImGui();
 
-	void CreateMeshParticle(const ModelHandle& modelHandle, Animation::Animation& animation, const Matrix4x4& worldTransform, const GPUParticleShaderStructs::MeshEmitterDesc& mesh, CommandContext& commandContext);
-	void CreateMeshParticle(const ModelHandle& modelHandle, const Matrix4x4& worldTransform, const GPUParticleShaderStructs::MeshEmitterDesc& mesh, CommandContext& commandContext);
-	void CreateVertexParticle(const ModelHandle& modelHandle, Animation::Animation& animation, const Matrix4x4& worldTransform, const GPUParticleShaderStructs::VertexEmitterDesc& mesh, CommandContext& commandContext);
-	void CreateVertexParticle(const ModelHandle& modelHandle, const Matrix4x4& worldTransform, const GPUParticleShaderStructs::VertexEmitterDesc& mesh, CommandContext& commandContext);
-	void CreateEdgeParticle(const ModelHandle& modelHandle, Animation::Animation& animation, const Matrix4x4& worldTransform, const GPUParticleShaderStructs::MeshEmitterDesc& mesh, CommandContext& commandContext);
-	void CreateEdgeParticle(const ModelHandle& modelHandle, const Matrix4x4& worldTransform, const GPUParticleShaderStructs::MeshEmitterDesc& mesh, CommandContext& commandContext);
-	void CreateTransformModelParticle(const ModelHandle& startModelHandle, const Matrix4x4& startWorldTransform, const ModelHandle& endModelHandle, const Matrix4x4& endWorldTransform, const GPUParticleShaderStructs::TransformEmitter& transformEmitter, CommandContext& commandContext);
-	void CreateTransformModelParticle(const ModelHandle& startModelHandle, Animation::Animation& startAnimation, const Matrix4x4& startWorldTransform, const ModelHandle& endModelHandle, Animation::Animation& endAnimation, const Matrix4x4& endWorldTransform,const GPUParticleShaderStructs::TransformEmitter& transformEmitter, CommandContext& commandContext);
-	void CreateTransformModelParticle(const ModelHandle& startModelHandle, Animation::Animation& startAnimation, const Matrix4x4& startWorldTransform, const ModelHandle& endModelHandle, const Matrix4x4& endWorldTransform, const GPUParticleShaderStructs::TransformEmitter& transformEmitter, CommandContext& commandContext);
-	void CreateTransformModelParticle(const ModelHandle& startModelHandle, const Matrix4x4& startWorldTransform, const ModelHandle& endModelHandle, Animation::Animation& endAnimation, const Matrix4x4& endWorldTransform, const GPUParticleShaderStructs::TransformEmitter& transformEmitter, CommandContext& commandContext);
-	void CreateTransformModelAreaParticle(const ModelHandle& modelHandle, const Matrix4x4& worldTransform, const GPUParticleShaderStructs::TransformEmitter& transformEmitter, CommandContext& commandContext);
+	//void CreateMeshParticle(const ModelHandle& modelHandle, Animation::Animation& animation, const Matrix4x4& worldTransform, const GPUParticleShaderStructs::MeshEmitterForCPU& mesh, CommandContext& commandContext);
+	//void CreateMeshParticle(const ModelHandle& modelHandle, const Matrix4x4& worldTransform, const GPUParticleShaderStructs::MeshEmitterForCPU& mesh, CommandContext& commandContext);
+	//void CreateVertexParticle(const ModelHandle& modelHandle, Animation::Animation& animation, const Matrix4x4& worldTransform, const GPUParticleShaderStructs::VertexEmitterForCPU& mesh, CommandContext& commandContext);
+	//void CreateVertexParticle(const ModelHandle& modelHandle, const Matrix4x4& worldTransform, const GPUParticleShaderStructs::VertexEmitterForCPU& mesh, CommandContext& commandContext);
+	//void CreateEdgeParticle(const ModelHandle& modelHandle, Animation::Animation& animation, const Matrix4x4& worldTransform, const GPUParticleShaderStructs::MeshEmitterForCPU& mesh, CommandContext& commandContext);
+	//void CreateEdgeParticle(const ModelHandle& modelHandle, const Matrix4x4& worldTransform, const GPUParticleShaderStructs::MeshEmitterForCPU& mesh, CommandContext& commandContext);
+	//void CreateTransformModelParticle(const ModelHandle& startModelHandle, const Matrix4x4& startWorldTransform, const ModelHandle& endModelHandle, const Matrix4x4& endWorldTransform, const GPUParticleShaderStructs::TransformModelEmitterForCPU& transformEmitter, CommandContext& commandContext);
+	//void CreateTransformModelParticle(const ModelHandle& startModelHandle, Animation::Animation& startAnimation, const Matrix4x4& startWorldTransform, const ModelHandle& endModelHandle, Animation::Animation& endAnimation, const Matrix4x4& endWorldTransform,const GPUParticleShaderStructs::TransformModelEmitterForCPU& transformEmitter, CommandContext& commandContext);
+	//void CreateTransformModelParticle(const ModelHandle& startModelHandle, Animation::Animation& startAnimation, const Matrix4x4& startWorldTransform, const ModelHandle& endModelHandle, const Matrix4x4& endWorldTransform, const GPUParticleShaderStructs::TransformModelEmitterForCPU& transformEmitter, CommandContext& commandContext);
+	//void CreateTransformModelParticle(const ModelHandle& startModelHandle, const Matrix4x4& startWorldTransform, const ModelHandle& endModelHandle, Animation::Animation& endAnimation, const Matrix4x4& endWorldTransform, const GPUParticleShaderStructs::TransformModelEmitterForCPU& transformEmitter, CommandContext& commandContext);
+	//void CreateTransformAreaParticle(const ModelHandle& modelHandle, const Matrix4x4& worldTransform, const GPUParticleShaderStructs::TransformAreaEmitterForCPU& transformEmitter, CommandContext& commandContext);
 
 
-	void SetEmitter(const GPUParticleShaderStructs::EmitterForCPU& emitterForCPU,const Matrix4x4& parent=Matrix4x4());
+	void SetEmitter(const GPUParticleShaderStructs::EmitterForCPU& emitter,const Matrix4x4& parent=Matrix4x4());
+	void SetVertexEmitter(const ModelHandle& modelHandle, const GPUParticleShaderStructs::VertexEmitterForCPU& emitter,const Matrix4x4& parent=Matrix4x4());
+	void SetVertexEmitter(const ModelHandle& modelHandle, const Animation::Animation& animation, const GPUParticleShaderStructs::VertexEmitterForCPU& emitter,const Matrix4x4& parent=Matrix4x4());
+	void SetMeshEmitter(const ModelHandle& modelHandle, const GPUParticleShaderStructs::MeshEmitterForCPU& emitter,const Matrix4x4& parent=Matrix4x4());
+	void SetTransformModelEmitter(const ModelHandle& startModelHandle, const Matrix4x4& startWorldMatrix,const ModelHandle& endModelHandle, const Matrix4x4& endWorldMatrix, const GPUParticleShaderStructs::TransformModelEmitterForCPU& emitter,const Matrix4x4& parent=Matrix4x4());
+	void SetTransformAreaEmitter(const ModelHandle& modelHandle, const GPUParticleShaderStructs::TransformAreaEmitterForCPU& emitter,const Matrix4x4& parent=Matrix4x4());
 	void SetField(const GPUParticleShaderStructs::FieldForCPU& fieldForCPU);
 	void SetBullet(const GPUParticleShaderStructs::BulletForGPU& bullets);
 
@@ -53,9 +58,7 @@ private:
 	void CreateParticleBuffer();
 	void CreateGraphics();
 	void CreateEmitter();
-	void CreateAddEmitter();
 	void CreateUpdate();
-	void CreateSpawn();
 	void CreateIndexBuffer();
 	void CreateBullet();
 	void CreateMeshParticle();

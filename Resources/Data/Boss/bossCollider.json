@@ -1,3 +1,5 @@
 {
-    "Collider": {}
+    "Collider": {
+        "radius": 10.0
+    }
 }

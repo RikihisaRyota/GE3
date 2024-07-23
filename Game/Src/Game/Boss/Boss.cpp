@@ -29,10 +29,6 @@ Boss::Boss() {
 
 	collider_ = std::make_unique<SphereCollider>();
 
-	// test
-	t_ = 0.0f;
-	testModelHandle_ = ModelManager::GetInstance()->Load("Resources/Models/Player/player.gltf");
-
 	float radius = 0.0f;
 	JSON_OPEN("Resources/Data/Boss/bossCollider.json");
 	JSON_OBJECT("Collider");
@@ -69,8 +65,8 @@ void Boss::Initialize() {
 }
 
 void Boss::Update(CommandContext& commandContext) {
-//	UpdateGPUParticle(commandContext);
-	//bossStateManager_->Update(commandContext);
+	UpdateGPUParticle(commandContext);
+	bossStateManager_->Update(commandContext);
 	UpdateTransform();
 	UpdateCollider();
 }
@@ -83,15 +79,7 @@ void Boss::DrawImGui() {
 #ifdef _DEBUG
 	ImGui::Begin("InGame");
 	if (ImGui::BeginMenu("Boss")) {
-		GPUParticleShaderStructs::DrawStartEnd(scaleAnimation.range);
-		GPUParticleShaderStructs::DrawMinMax(particleLifeSpan.range);
-		ImGui::DragFloat("T", &t_, 0.001f, 0.0f, 1.0f);
-
-
-		if (ImGui::TreeNode("distanceFactor")) {
-			GPUParticleShaderStructs::DrawMinMax(distanceFactor);
-			ImGui::TreePop();
-		}
+		ImGui::Checkbox("isAliveEmitter", reinterpret_cast<bool*>(&vertexEmitterDesc_.isAlive));
 		auto& color = ModelManager::GetInstance()->GetModel(bossModelHandle_).GetMaterialColor();
 		ImGui::DragFloat3("color", &color.x, 0.1f, 0.0f, 1.0f);
 		ModelManager::GetInstance()->GetModel(bossModelHandle_).SetMaterialColor(color);
@@ -151,7 +139,9 @@ void Boss::UpdateGPUParticle(CommandContext& commandContext) {
 	//gpuParticleManager_->CreateMeshParticle(bossModelHandle_, animation_, worldTransform_.matWorld, meshEmitterDesc_, commandContext);
 	if (bossStateManager_->GetCurrentState() == BossStateManager::State::kRoot&&
 		!bossStateManager_->GetInTransition()) {
-		gpuParticleManager_->CreateVertexParticle(bossModelHandle_, worldTransform_.matWorld, vertexEmitterDesc_, commandContext);
+
+		//gpuParticleManager_->CreateVertexParticle(bossModelHandle_, worldTransform_.matWorld, vertexEmitterDesc_, commandContext);
+		gpuParticleManager_->SetVertexEmitter(bossModelHandle_,vertexEmitterDesc_, worldTransform_.matWorld);
 	}
 	//gpuParticleManager_->CreateTransformModelParticle(bossModelHandle_, worldTransform_.matWorld, testModelHandle_, worldTransform_.matWorld, transformEmitter_, commandContext);
 }

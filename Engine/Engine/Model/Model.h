@@ -100,6 +100,8 @@ public:
 	const DescriptorHandle& GetIndexSRV() const { return indexSRV; }
 	const uint32_t GetAllVertexCount()const;
 	const uint32_t GetAllIndexCount()const;
+	const uint32_t GetIndexBufferDescriptorIndex()const { return indexBufferDescriptorIndex_; }
+	const uint32_t GetVertexBufferDescriptorIndex()const { return vertexBufferDescriptorIndex_; }
 private:
 	void LoadFile(const std::filesystem::path& modelPath);
 	Node ReadNode(aiNode* node);
@@ -113,9 +115,11 @@ private:
 
 
 	UploadBuffer indexBuffer{};
+	uint32_t indexBufferDescriptorIndex_;
 	D3D12_INDEX_BUFFER_VIEW ibView{};
 
 	UploadBuffer vertexBuffer;
+	uint32_t vertexBufferDescriptorIndex_;
 	D3D12_VERTEX_BUFFER_VIEW vbView{};
 
 	DescriptorHandle vertexSRV{};

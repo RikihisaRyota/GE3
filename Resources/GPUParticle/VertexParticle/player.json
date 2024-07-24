@@ -6,37 +6,55 @@
     "EmitterColor": {
         "End": {
             "Max": [
-                0.20000000298023224,
-                0.4000000059604645,
-                0.20000000298023224,
-                0.5
+                0.6644126772880554,
+                0.5,
+                0.800000011920929,
+                1.0
             ],
             "Min": [
-                0.10000000149011612,
-                0.3499999940395355,
-                0.10000000149011612,
-                0.5
+                0.47900351881980896,
+                0.20000000298023224,
+                0.6000000238418579,
+                1.0
             ]
         },
         "Start": {
             "Max": [
+                0.6644126772880554,
                 0.5,
                 0.800000011920929,
-                0.5,
                 1.0
             ],
             "Min": [
+                0.47900351881980896,
                 0.20000000298023224,
                 0.6000000238418579,
-                0.20000000298023224,
                 1.0
             ]
-        }
+        },
+        "isStaticColor": 1
     },
-    "EmitterFrequency": {},
-    "EmitterLocalTransform": {},
-    "Parent": {},
-    "ParticleLifeSpan": {},
+    "EmitterFrequency": {
+        "emitterLife": 1,
+        "interval": 0,
+        "isLoop": 1,
+        "isOnce": 0
+    },
+    "EmitterLocalTransform": {
+        "translate": [
+            2.3355345726013184,
+            5.982889175415039,
+            4.740198612213135
+        ]
+    },
+    "Parent": {
+        "isParent": 0
+    },
+    "ParticleLifeSpan": {
+        "Max": 1,
+        "Min": 1,
+        "isEmitterLife": 0
+    },
     "ParticleLifeTime": {
         "Max": 2,
         "Min": 1
@@ -77,7 +95,9 @@
                 0.009999999776482582
             ]
         },
-        "isSame": 0
+        "isSame": 0,
+        "isStaticSize": 1,
+        "isUniformScale": 1
     },
     "Velocity3D": {
         "Max": [

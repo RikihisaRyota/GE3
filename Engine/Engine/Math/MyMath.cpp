@@ -383,6 +383,10 @@ Matrix4x4 MakeScaleMatrix(const Vector3& scale) {
 	return tmp;
 }
 
+Vector3 MakeScaleMatrix(const Matrix4x4& mat) {
+	return { GetXAxis(mat).Length(), GetYAxis(mat).Length(), GetZAxis(mat).Length() };
+}
+
 Vector3 Transform(const Vector3& vector, const Matrix4x4& matrix) {
 	Vector3 result{ 0.0f, 0.0f, 0.0f };
 	result.x = vector.x * matrix.m[0][0] + vector.y * matrix.m[1][0] + vector.z * matrix.m[2][0] +
@@ -399,6 +403,10 @@ Vector3 Transform(const Vector3& vector, const Matrix4x4& matrix) {
 	result.y /= w;
 	result.z /= w;
 	return result;
+}
+
+Quaternion MakeRotateMatrix(const Matrix4x4& mat) {
+	return MakeFromOrthonormal(GetXAxis(mat).Normalize(), GetYAxis(mat).Normalize(), GetZAxis(mat).Normalize());
 }
 
 Matrix4x4 MakeRotateXMatrix(float radian) {

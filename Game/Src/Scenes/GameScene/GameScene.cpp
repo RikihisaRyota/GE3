@@ -113,7 +113,7 @@ void GameScene::Update(CommandContext& commandContext) {
 
 	CollisionManager::GetInstance()->Collision();
 #ifdef _DEBUG
-	RenderManager::GetInstance()->GetHSVFilter().Debug();
+	//RenderManager::GetInstance()->GetHSVFilter().Debug();
 	ImGui::DragFloat3("Scale", &testWorldTransform_.scale.x, 0.1f);
 	ImGui::DragFloat3("Translate", &testWorldTransform_.translate.x, 0.1f);
 	testWorldTransform_.UpdateMatrix();

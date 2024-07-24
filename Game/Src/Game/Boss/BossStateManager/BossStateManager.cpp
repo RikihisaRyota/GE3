@@ -14,7 +14,10 @@ void BossStateRoot::Initialize(CommandContext& commandContext) {
 	//animationHandle_ = manager_.boss_->GetAnimation()->GetAnimationHandle("idle");
 	time_ = 0.0f;
 	if (manager_.GetPreState() != BossStateManager::State::kRoot) {
-		//manager_.gpuParticleManager_->CreateTransformModelParticle(manager_.GetModelHandle(), manager_.GetWorldTransform().matWorld, boss->GetModelHandle(),/* *boss->GetAnimation(),*/ boss->GetWorldMatrix(), data_.transformEmitter, commandContext);
+
+		data_.transformEmitter.startModelWorldMatrix = manager_.GetWorldTransform().matWorld;
+		data_.transformEmitter.endModelWorldMatrix = boss->GetWorldMatrix();
+		manager_.gpuParticleManager_->SetTransformModelEmitter(manager_.GetModelHandle(),  boss->GetModelHandle(), data_.transformEmitter);
 	}
 }
 
@@ -33,14 +36,14 @@ void BossStateRoot::Update(CommandContext& commandContext) {
 	}
 	else {
 		time_ += 1.0f / data_.allFrame;
-		//if (time_ >= 1.0f) {
-		//	BossStateManager::State tmp = static_cast<BossStateManager::State>((rnd_.NextUIntLimit() % 1) + int(BossStateManager::State::kCarAttack));
-		//	switch (tmp) {
-		//	case BossStateManager::State::kCarAttack:
-		//		manager_.ChangeState<BossStateCarAttack>();
-		//		break;
-		//	}
-		//}
+		/*if (time_ >= 1.0f) {
+			BossStateManager::State tmp = static_cast<BossStateManager::State>((rnd_.NextUIntLimit() % 1) + int(BossStateManager::State::kCarAttack));
+			switch (tmp) {
+			case BossStateManager::State::kCarAttack:
+				manager_.ChangeState<BossStateCarAttack>();
+				break;
+			}
+		}*/
 		time_ = std::fmod(time_, 1.0f);
 	}
 
@@ -117,10 +120,13 @@ void BossStateCarAttack::Initialize(CommandContext& commandContext) {
 	SetLocation();
 	auto boss = manager_.boss_;
 	if (manager_.GetPreState() == BossStateManager::State::kRoot) {
-		//manager_.gpuParticleManager_->CreateTransformModelParticle(boss->GetModelHandle(),/* *boss->GetAnimation(), */boss->GetWorldMatrix(), modelHandle_, worldTransform_.matWorld, data_.transformEmitter, commandContext);
+		data_.transformTrainEmitter.startModelWorldMatrix = boss->GetWorldMatrix();
+		data_.transformTrainEmitter.endModelWorldMatrix = worldTransform_.matWorld;
+		manager_.gpuParticleManager_->SetTransformModelEmitter(boss->GetModelHandle(), modelHandle_, data_.transformTrainEmitter);
+		data_.transformRailEmitter.modelWorldMatrix = railWorldTransform_.matWorld;
 		GPUParticleShaderStructs::TransformAreaEmitterForCPU  emitter = data_.transformRailEmitter;
 		emitter.emitterArea.position = railWorldTransform_.translate;
-		//manager_.gpuParticleManager_->CreateTransformModelAreaParticle(railModelHandle_, railWorldTransform_.matWorld, emitter, commandContext);
+		manager_.gpuParticleManager_->SetTransformAreaEmitter(railModelHandle_,emitter);
 	}
 	else {
 		//manager_.gpuParticleManager_->CreateTransformModelParticle(manager_.GetModelHandle(), boss->GetWorldMatrix(), modelHandle_, worldTransform_.matWorld, data_.transformEmitter, commandContext);
@@ -161,18 +167,27 @@ void BossStateCarAttack::Update(CommandContext& commandContext) {
 		}
 		worldTransform_.translate.x = Lerp(data_.start.x, data_.end.x, t);
 		UpdateTransform();
-		//manager_.gpuParticleManager_->CreateVertexParticle(modelHandle_, worldTransform_.matWorld, data_.vertexEmitter, commandContext);
-		//manager_.gpuParticleManager_->CreateVertexParticle(railModelHandle_, railWorldTransform_.matWorld, data_.vertexEmitter, commandContext);
+		data_.trainEmitter.localTransform.translate = MakeTranslateMatrix(worldTransform_.matWorld);
+		data_.trainEmitter.localTransform.rotate = MakeRotateMatrix(worldTransform_.matWorld);
+		data_.railEmitter.localTransform.translate = MakeTranslateMatrix(railWorldTransform_.matWorld);
+		data_.railEmitter.localTransform.rotate = MakeRotateMatrix(railWorldTransform_.matWorld);
+		manager_.gpuParticleManager_->SetVertexEmitter(modelHandle_, data_.trainEmitter);
+		manager_.gpuParticleManager_->SetVertexEmitter(railModelHandle_, data_.railEmitter);
 	}
 
 	if (time_ >= 1.0f && !inTransition_) {
 		manager_.ChangeState<BossStateRoot>();
-		GPUParticleShaderStructs::VertexEmitterForCPU  emitter = data_.vertexEmitter;
-		emitter.velocity.range.min = { -0.5f,-0.1f,-0.5f };
-		emitter.velocity.range.max = { +0.5f,+0.1f,+0.5f };
-		emitter.particleLifeSpan.range.min = 30;
-		emitter.particleLifeSpan.range.max = 60;
-		//manager_.gpuParticleManager_->CreateVertexParticle(railModelHandle_, railWorldTransform_.matWorld, emitter, commandContext);
+		data_.trainEmitter.isAlive = false;
+		data_.railEmitter.isAlive = false;
+		manager_.gpuParticleManager_->SetVertexEmitter(modelHandle_, data_.trainEmitter);
+		manager_.gpuParticleManager_->SetVertexEmitter(railModelHandle_, data_.railEmitter);
+		//GPUParticleShaderStructs::VertexEmitterForCPU  emitter = data_.railEmitter;
+		//emitter.velocity.range.min = { -0.5f,-0.1f,-0.5f };
+		//emitter.velocity.range.max = { +0.5f,+0.1f,+0.5f };
+		//emitter.particleLifeSpan.range.min = 30;
+		//emitter.particleLifeSpan.range.max = 60;
+		//emitter.localTransform.translate = MakeTranslateMatrix(railWorldTransform_.matWorld);
+		//manager_.gpuParticleManager_->SetVertexEmitter(railModelHandle_, emitter);
 	}
 }
 
@@ -212,7 +227,7 @@ void BossStateCarAttack::SetLocation() {
 
 	Quaternion rightRotate = MakeRotateYAngleQuaternion(DegToRad(-90.0f));
 	Quaternion leftRotate = MakeRotateYAngleQuaternion(DegToRad(90.0f));
-	Vector3 railPos = Vector3(data_.start.x, data_.start.y * 0.5f, 0.0f);
+	Vector3 railPos = Vector3(0.0f, data_.start.y * 0.5f, 0.0f);
 	switch (attackLocation_) {
 		// 右前
 	case AttackLocation::kRight | AttackLocation::kFront:
@@ -287,8 +302,10 @@ void BossStateManager::Initialize() {
 
 	JSON_CLOSE();
 	GPUParticleShaderStructs::Load("root", jsonData_.root.transformEmitter);
-	GPUParticleShaderStructs::Load("carAttack", jsonData_.carAttack.vertexEmitter);
-	GPUParticleShaderStructs::Load("carAttack", jsonData_.carAttack.transformEmitter);
+
+	GPUParticleShaderStructs::Load("train", jsonData_.carAttack.trainEmitter);
+	GPUParticleShaderStructs::Load("train", jsonData_.carAttack.transformTrainEmitter);
+	GPUParticleShaderStructs::Load("rail", jsonData_.carAttack.railEmitter);
 	GPUParticleShaderStructs::Load("rail", jsonData_.carAttack.transformRailEmitter);
 
 	activeStateEnum_ = kRoot;
@@ -391,8 +408,9 @@ void BossStateManager::DrawImGui() {
 				JSON_ROOT();
 				JSON_CLOSE();
 				GPUParticleShaderStructs::Save("root", jsonData_.root.transformEmitter);
-				GPUParticleShaderStructs::Save("carAttack", jsonData_.carAttack.vertexEmitter);
-				GPUParticleShaderStructs::Save("carAttack", jsonData_.carAttack.transformEmitter);
+				GPUParticleShaderStructs::Save("carAttack", jsonData_.carAttack.trainEmitter);
+				GPUParticleShaderStructs::Save("carAttack", jsonData_.carAttack.transformTrainEmitter);
+				GPUParticleShaderStructs::Save("rail", jsonData_.carAttack.railEmitter);
 				GPUParticleShaderStructs::Save("rail", jsonData_.carAttack.transformRailEmitter);
 			}
 			ImGui::TreePop();
@@ -401,8 +419,9 @@ void BossStateManager::DrawImGui() {
 	}
 	ImGui::End();
 	GPUParticleShaderStructs::Debug("root", jsonData_.root.transformEmitter);
-	GPUParticleShaderStructs::Debug("carAttack", jsonData_.carAttack.vertexEmitter);
-	GPUParticleShaderStructs::Debug("carAttack", jsonData_.carAttack.transformEmitter);
+	GPUParticleShaderStructs::Debug("train", jsonData_.carAttack.trainEmitter);
+	GPUParticleShaderStructs::Debug("train", jsonData_.carAttack.transformTrainEmitter);
+	GPUParticleShaderStructs::Debug("rail", jsonData_.carAttack.railEmitter);
 	GPUParticleShaderStructs::Debug("rail", jsonData_.carAttack.transformRailEmitter);
 #endif // _DEBUG
 }

@@ -209,6 +209,7 @@ struct EmitterModel {
 struct EmitterLocalTransform {
 	float32_t3 translate;
 	float32_t pad;
+    float32_t4 rotate;
 };
 
 struct TransformModelEmitter {
@@ -274,6 +275,8 @@ struct TransformAreaEmitter {
 		EmitterParent parent;
 
 		EmitterModel model;
+
+        float32_t4x4 modelWorldMatrix;
 
 		uint32_t textureIndex;
 
@@ -670,6 +673,49 @@ float32_t4x4 MakeRotationMatrix(float32_t3  rotate)
 
 }
 
+float4x4 MakeRotationMatrix(float32_t4 quaternion)
+{
+    float32_t x = quaternion.x;
+    float32_t y = quaternion.y;
+    float32_t z = quaternion.z;
+    float32_t w = quaternion.w;
+
+    float32_t xx = x * x;
+    float32_t yy = y * y;
+    float32_t zz = z * z;
+    float32_t xy = x * y;
+    float32_t xz = x * z;
+    float32_t yz = y * z;
+    float32_t wx = w * x;
+    float32_t wy = w * y;
+    float32_t wz = w * z;
+
+    float32_t4x4 rotationMatrix;
+
+    rotationMatrix[0][0] = 1.0f - 2.0f * (yy + zz);
+    rotationMatrix[0][1] = 2.0f * (xy - wz);
+    rotationMatrix[0][2] = 2.0f * (xz + wy);
+    rotationMatrix[0][3] = 0.0f;
+
+    rotationMatrix[1][0] = 2.0f * (xy + wz);
+    rotationMatrix[1][1] = 1.0f - 2.0f * (xx + zz);
+    rotationMatrix[1][2] = 2.0f * (yz - wx);
+    rotationMatrix[1][3] = 0.0f;
+
+    rotationMatrix[2][0] = 2.0f * (xz - wy);
+    rotationMatrix[2][1] = 2.0f * (yz + wx);
+    rotationMatrix[2][2] = 1.0f - 2.0f * (xx + yy);
+    rotationMatrix[2][3] = 0.0f;
+
+    rotationMatrix[3][0] = 0.0f;
+    rotationMatrix[3][1] = 0.0f;
+    rotationMatrix[3][2] = 0.0f;
+    rotationMatrix[3][3] = 1.0f;
+
+    return rotationMatrix;
+}
+
+
 float32_t4x4 MakeTranslationMatrix(float32_t3  translate)
 {
     return float32_t4x4(
@@ -688,6 +734,12 @@ float32_t4x4 MakeAffine(float32_t3  scale, float32_t3  rotate, float32_t3  trans
 }
 
 float32_t4x4 MakeAffine(float32_t scale, float32_t3 rotate, float32_t3 translate)
+{
+    return float32_t4x4(mul(mul(MakeScaleMatrix(scale), MakeRotationMatrix(rotate)), MakeTranslationMatrix(translate)));
+
+}
+
+float32_t4x4 MakeAffine(float32_t3 scale, float32_t4 rotate, float32_t3 translate)
 {
     return float32_t4x4(mul(mul(MakeScaleMatrix(scale), MakeRotationMatrix(rotate)), MakeTranslationMatrix(translate)));
 
@@ -788,6 +840,20 @@ void SetParent(inout Particle particle,MeshEmitter emitter,uint32_t emitterCount
    particle.parent.emitterType=emitter.parent.emitterType;
    particle.parent.emitterCount=emitterCount;
 };
+
+void SetParent(inout Particle particle,TransformModelEmitter emitter,uint32_t emitterCount){
+   particle.parent.isParent=emitter.parent.isParent;
+   particle.parent.emitterType=emitter.parent.emitterType;
+   particle.parent.emitterCount=emitterCount;
+};
+
+
+void SetParent(inout Particle particle,TransformAreaEmitter emitter,uint32_t emitterCount){
+   particle.parent.isParent=emitter.parent.isParent;
+   particle.parent.emitterType=emitter.parent.emitterType;
+   particle.parent.emitterCount=emitterCount;
+};
+
 
 void ParticleReset(inout Particle particle){
     particle.isAlive = true;
@@ -1106,11 +1172,13 @@ void CreateParticle(inout Particle particle,MeshEmitter emitter,float32_t3 trans
     ParticleColor(particle, emitter,seed); 
 }
 
-void CreateParticle(inout Particle particle,TransformModelEmitter emitter ,inout uint32_t seed){
+void CreateParticle(inout Particle particle,TransformModelEmitter emitter ,inout uint32_t seed,uint32_t emitterCount){
     particle.textureIndex = emitter.textureIndex;
     particle.collisionInfo = emitter.collisionInfo;
     
     ParticleReset(particle);
+    
+    SetParent(particle, emitter,emitterCount);
     
     ParticleLifeTime(particle, emitter,seed);
     
@@ -1125,11 +1193,13 @@ void CreateParticle(inout Particle particle,TransformModelEmitter emitter ,inout
     ParticleColor(particle, emitter,seed); 
 }
 
-void CreateParticle(inout Particle particle,TransformAreaEmitter emitter ,inout uint32_t seed){
+void CreateParticle(inout Particle particle,TransformAreaEmitter emitter ,inout uint32_t seed,uint32_t emitterCount){
     particle.textureIndex = emitter.textureIndex;
     particle.collisionInfo = emitter.collisionInfo;
     
     ParticleReset(particle);
+
+    SetParent(particle, emitter,emitterCount);
     
     ParticleLifeTime(particle, emitter,seed);
     

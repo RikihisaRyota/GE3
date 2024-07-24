@@ -81,10 +81,13 @@ Matrix4x4 MakeTranslateMatrix(const Vector3& translate);
 Vector3 MakeTranslateMatrix(const Matrix4x4& matrix);
 // 2,拡大縮小行列
 Matrix4x4 MakeScaleMatrix(const Vector3& scale);
+Vector3 MakeScaleMatrix(const Matrix4x4& mat);
 // 3,座標変換
 Vector3 Transform(const Vector3& vector, const Matrix4x4& matrix);
 
 // 1,X軸回転行列
+Quaternion MakeRotateMatrix(const Matrix4x4& mat);
+
 Matrix4x4 MakeRotateXMatrix(float radian);
 // 2,Y軸回転行列
 Matrix4x4 MakeRotateYMatrix(float radian);

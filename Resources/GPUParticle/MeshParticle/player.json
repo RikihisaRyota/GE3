@@ -34,13 +34,27 @@
         },
         "isStaticColor": 0
     },
-    "EmitterFrequency": {},
-    "EmitterLocalTransform": {},
+    "EmitterFrequency": {
+        "emitterLife": 0,
+        "interval": 1,
+        "isLoop": 1,
+        "isOnce": 0
+    },
+    "EmitterLocalTransform": {
+        "translate": [
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
     "NumCreate": 3,
-    "Parent": {},
+    "Parent": {
+        "isParent": 0
+    },
     "ParticleLifeSpan": {
         "Max": 1,
-        "Min": 1
+        "Min": 1,
+        "isEmitterLife": 0
     },
     "ParticleLifeTime": {
         "Max": 10,

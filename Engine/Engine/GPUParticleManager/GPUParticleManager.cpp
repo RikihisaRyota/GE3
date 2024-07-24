@@ -264,7 +264,18 @@ void GPUParticleManager::SetMeshEmitter(const ModelHandle& modelHandle, const GP
 	gpuParticle_->SetEmitter(meshEmitter, parent);
 }
 
-void GPUParticleManager::SetTransformModelEmitter(const ModelHandle& startModelHandle, const Matrix4x4& startWorldMatrix, const ModelHandle& endModelHandle, const Matrix4x4& endWorldMatrix, const GPUParticleShaderStructs::TransformModelEmitterForCPU& emitter, const Matrix4x4& parent) {
+void GPUParticleManager::SetMeshEmitter(const ModelHandle& modelHandle, const Animation::Animation& animation, const GPUParticleShaderStructs::MeshEmitterForCPU& emitter, const Matrix4x4& parent) {
+	auto& model = ModelManager::GetInstance()->GetModel(modelHandle);
+	GPUParticleShaderStructs::MeshEmitterForCPU meshEmitter = emitter;
+	meshEmitter.model.vertexBufferIndex = animation.skinCluster.vertexBufferDescriptorIndex;
+	meshEmitter.model.vertexCount = model.GetAllVertexCount();
+	meshEmitter.model.indexBufferIndex = model.GetIndexBufferDescriptorIndex();
+	meshEmitter.model.indexCount = model.GetAllIndexCount();
+	gpuParticle_->SetEmitter(meshEmitter, parent);
+}
+
+
+void GPUParticleManager::SetTransformModelEmitter(const ModelHandle& startModelHandle, const ModelHandle& endModelHandle, const GPUParticleShaderStructs::TransformModelEmitterForCPU& emitter, const Matrix4x4& parent) {
 	auto& startModel = ModelManager::GetInstance()->GetModel(startModelHandle);
 	auto& endModel = ModelManager::GetInstance()->GetModel(endModelHandle);
 	GPUParticleShaderStructs::TransformModelEmitterForCPU transformModelEmitter = emitter;
@@ -273,14 +284,10 @@ void GPUParticleManager::SetTransformModelEmitter(const ModelHandle& startModelH
 	transformModelEmitter.startModel.indexBufferIndex = startModel.GetIndexBufferDescriptorIndex();
 	transformModelEmitter.startModel.indexCount = startModel.GetAllIndexCount();
 
-	transformModelEmitter.startModelWorldMatrix = startWorldMatrix;
-
 	transformModelEmitter.endModel.vertexBufferIndex = endModel.GetVertexBufferDescriptorIndex();
 	transformModelEmitter.endModel.vertexCount = endModel.GetAllVertexCount();
 	transformModelEmitter.endModel.indexBufferIndex = endModel.GetIndexBufferDescriptorIndex();
 	transformModelEmitter.endModel.indexCount = endModel.GetAllIndexCount();
-
-	transformModelEmitter.endModelWorldMatrix = endWorldMatrix;
 
 	gpuParticle_->SetEmitter(transformModelEmitter, parent);
 }

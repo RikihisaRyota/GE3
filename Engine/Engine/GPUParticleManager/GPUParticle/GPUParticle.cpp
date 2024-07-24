@@ -912,6 +912,7 @@ void GPUParticle::SetEmitter(const GPUParticleShaderStructs::TransformAreaEmitte
 	emitterForGPU.parent.emitterType = GPUParticleShaderStructs::EmitterType::kTransformAreaEmitter;
 	emitterForGPU.parent.worldMatrix = parent;
 	emitterForGPU.model = emitterForCPU.model;
+	emitterForGPU.modelWorldMatrix = emitterForCPU.modelWorldMatrix;
 	emitterForGPU.textureIndex= emitterForCPU.textureIndex;
 	emitterForGPU.isAlive = emitterForCPU.isAlive;
 	emitterForGPU.emitterCount = emitterForCPU.emitterCount;

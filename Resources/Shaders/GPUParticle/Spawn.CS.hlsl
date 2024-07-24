@@ -77,7 +77,12 @@ void main(uint3 DTid : SV_DispatchThreadID, uint3 GTid : SV_GroupThreadID, uint3
                     uint32_t seed = setSeed(index * gRandom.random);
                     uint32_t emitterIndex=createParticle[emitterNum].emitterNum;
                     VertexEmitter emitter = gVertexEmitter[emitterIndex];
-                    float32_t4x4 worldMatrix = MakeTranslationMatrix(emitter.localTransform.translate);
+                    float32_t4x4 worldMatrix;
+                    if(!emitter.parent.isParent){
+                        worldMatrix=MakeAffine(float32_t3(1.0f,1.0f,1.0f),emitter.localTransform.rotate,emitter.localTransform.translate);
+                    }else{
+                        worldMatrix=mul(MakeAffine(float32_t3(1.0f,1.0f,1.0f),emitter.localTransform.rotate,emitter.localTransform.translate),emitter.parent.worldMatrix);
+                    }
                     float32_t3 translate =  mul(vertexBuffers[emitter.model.vertexBufferIndex][createNum].position,worldMatrix).xyz;
                     CreateParticle(Output[index], emitter,translate,seed,emitterIndex);
                 }
@@ -105,7 +110,12 @@ void main(uint3 DTid : SV_DispatchThreadID, uint3 GTid : SV_GroupThreadID, uint3
                     );
 
                     // 三角形の頂点座標を取得
-                    float32_t4x4 worldMatrix=MakeTranslationMatrix(emitter.localTransform.translate);
+                    float32_t4x4 worldMatrix;
+                    if(!emitter.parent.isParent){
+                        worldMatrix=MakeAffine(float32_t3(1.0f,1.0f,1.0f),emitter.localTransform.rotate,emitter.localTransform.translate);
+                    }else{
+                        worldMatrix=mul(MakeAffine(float32_t3(1.0f,1.0f,1.0f),emitter.localTransform.rotate,emitter.localTransform.translate),emitter.parent.worldMatrix);
+                    }
                     float32_t3 v1 = mul(vertexBuffers[emitter.model.vertexBufferIndex][triIndices.y].position, worldMatrix).xyz;
                     float32_t3 v0 = mul(vertexBuffers[emitter.model.vertexBufferIndex][triIndices.x].position, worldMatrix).xyz;
                     float32_t3 v2 = mul(vertexBuffers[emitter.model.vertexBufferIndex][triIndices.z].position, worldMatrix).xyz;
@@ -134,18 +144,26 @@ void main(uint3 DTid : SV_DispatchThreadID, uint3 GTid : SV_GroupThreadID, uint3
             { 
                 int32_t counter=-1;
                 InterlockedAdd(particleIndexCounter[0].count, -1,counter);
-                //if(counter>0){
-                //    int32_t particleIndex = particleIndexCommands.Consume();
-                //    uint32_t seed = setSeed(index * gRandom.random);
-                //    uint32_t emitterIndex=createParticle[emitterNum].emitterNum;
-                //    TransformModelEmitter emitter = gTransformModelEmitter[emitterIndex];
-                //    uint32_t startModelIndex = createNum % emitter.startModel.vertexCount;
-                //    uint32_t endModelIndex = createNum % emitter.endModel.vertexCount;
-                //    emitter.translate.isEasing=true;
-                //    emitter.translate.easing.min = mul(vertexBuffers[emitter.startModel.vertexBufferIndex][startModelIndex].position,emitter.startModelWorldMatrix).xyz;
-                //    emitter.translate.easing.max = mul(vertexBuffers[emitter.endModel.vertexBufferIndex][endModelIndex].position,emitter.endModelWorldMatrix).xyz;
-                //    CreateParticle(Output[particleIndex], emitter,seed,emitterIndex);
-                //}
+                if(counter>0){
+                    int32_t particleIndex = particleIndexCommands.Consume();
+                    uint32_t seed = setSeed(particleIndex * gRandom.random);
+                    uint32_t emitterIndex=createParticle[emitterNum].emitterNum;
+                    TransformModelEmitter emitter = gTransformModelEmitter[emitterIndex];
+                    uint32_t startModelIndex = createNum % emitter.startModel.vertexCount;
+                    uint32_t endModelIndex = createNum % emitter.endModel.vertexCount;
+                    float32_t4x4 startWorldMatrix,endWorldMatrix;
+                    if(!emitter.parent.isParent){
+                        startWorldMatrix=emitter.startModelWorldMatrix;
+                        endWorldMatrix=emitter.endModelWorldMatrix;
+                    }else{
+                        startWorldMatrix=mul(emitter.startModelWorldMatrix,emitter.parent.worldMatrix);
+                        endWorldMatrix=mul(emitter.endModelWorldMatrix,emitter.parent.worldMatrix);
+                    }
+                    emitter.translate.isEasing=true;
+                    emitter.translate.easing.min = mul(vertexBuffers[emitter.startModel.vertexBufferIndex][startModelIndex].position,startWorldMatrix).xyz;
+                    emitter.translate.easing.max = mul(vertexBuffers[emitter.endModel.vertexBufferIndex][endModelIndex].position,endWorldMatrix).xyz;
+                    CreateParticle(Output[particleIndex], emitter,seed,emitterIndex);
+                }
             }
         }
     }else if(createParticle[emitterNum].emitterType == 4){
@@ -156,16 +174,22 @@ void main(uint3 DTid : SV_DispatchThreadID, uint3 GTid : SV_GroupThreadID, uint3
             { 
                 int32_t counter=-1;
                 InterlockedAdd(particleIndexCounter[0].count, -1,counter);
-                //if(counter>0){
-                //    int32_t particleIndex = particleIndexCommands.Consume();
-                //    uint32_t seed = setSeed(index * gRandom.random);
-                //    uint32_t emitterIndex=createParticle[emitterNum].emitterNum;
-                //    TransformAreaEmitter emitter = gTransformAreaEmitter[emitterIndex];
-                //    uint32_t modelIndex = createNum % emitter.model.vertexCount;
-                //    emitter.translate.isEasing=true;
-                //    emitter.translate.easing.max = mul(vertexBuffers[emitter.model.vertexBufferIndex][modelIndex].position,emitter.endModelWorldMatrix).xyz;
-                //    CreateParticle(Output[particleIndex], emitter,seed,emitterIndex);
-                //}
+                if(counter>0){
+                    int32_t particleIndex = particleIndexCommands.Consume();
+                    uint32_t seed = setSeed(particleIndex * gRandom.random);
+                    uint32_t emitterIndex=createParticle[emitterNum].emitterNum;
+                    TransformAreaEmitter emitter = gTransformAreaEmitter[emitterIndex];
+                    uint32_t modelIndex = createNum % emitter.model.vertexCount;
+                    float32_t4x4 worldMatrix;
+                    if(!emitter.parent.isParent){
+                        worldMatrix=emitter.modelWorldMatrix;
+                    }else{
+                        worldMatrix=mul(emitter.modelWorldMatrix,emitter.parent.worldMatrix);
+                    }
+                    emitter.translate.isEasing=true;
+                    emitter.translate.easing.max = mul(vertexBuffers[emitter.model.vertexBufferIndex][modelIndex].position,worldMatrix).xyz;
+                    CreateParticle(Output[particleIndex], emitter,seed,emitterIndex);
+                }
             }
         }
     }

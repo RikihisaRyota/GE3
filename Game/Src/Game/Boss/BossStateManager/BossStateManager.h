@@ -76,8 +76,9 @@ class BossStateCarAttack :
 	public BossState {
 public:
 	struct JsonData {
-		GPUParticleShaderStructs::VertexEmitterForCPU  vertexEmitter;
-		GPUParticleShaderStructs::TransformModelEmitterForCPU  transformEmitter;
+		GPUParticleShaderStructs::VertexEmitterForCPU  trainEmitter;
+		GPUParticleShaderStructs::VertexEmitterForCPU  railEmitter;
+		GPUParticleShaderStructs::TransformModelEmitterForCPU  transformTrainEmitter;
 		GPUParticleShaderStructs::TransformAreaEmitterForCPU  transformRailEmitter;
 		OBB collider;
 		float frontAndBackOffset;

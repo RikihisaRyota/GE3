@@ -13,6 +13,7 @@
 #include "Engine/Math/Vector3.h"
 #include "Engine/Math/Vector4.h"
 #include "Engine/Math/Matrix4x4.h"
+#include "Engine/Math/Quaternion.h"
 
 namespace GPUParticleShaderStructs {
 	// hlsli側も変更するように
@@ -292,6 +293,7 @@ struct Particle
 	struct EmitterLocalTransform {
 		Vector3 translate;
 		float pad;
+		Quaternion rotate = {0.0f,0.0f,0.0f,1.0f};
 	};
 
 	struct TransformModelEmitterForCPU {
@@ -411,6 +413,8 @@ struct Particle
 
 		EmitterModel model;
 
+		Matrix4x4 modelWorldMatrix;
+
 		uint32_t textureIndex;
 
 		int32_t emitterCount;
@@ -448,6 +452,8 @@ struct Particle
 		EmitterParent parent;
 
 		EmitterModel model;
+
+		Matrix4x4 modelWorldMatrix;
 
 		uint32_t textureIndex;
 

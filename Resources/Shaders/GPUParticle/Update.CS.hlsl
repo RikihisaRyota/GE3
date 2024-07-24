@@ -92,9 +92,9 @@ void main(uint3 DTid : SV_DispatchThreadID)
             float32_t3 cameraDir = normalize(finalPosition - cameraPos);
     
             // カメラの方向を基にビルボードの回転行列を計算する
-            float32_t3 upVector = float32_t3(0.0f, 1.0f, 0.0f);
-            float32_t3 sideVector = cross(upVector, cameraDir); // カメラの方向と上方向の外積を取る
-            float32_t3 newUpVector = cross(cameraDir, sideVector); // カメラの方向と側方向の外積を取る
+            float32_t3 upVector = normalize(float32_t3(gViewProjection.inverseView[1].xyz));
+            float32_t3 sideVector = normalize(cross(upVector, cameraDir)); // カメラの方向と上方向の外積を取る
+            float32_t3 newUpVector =normalize(cross(cameraDir, sideVector)) ; // カメラの方向と側方向の外積を取る
     
             float32_t4x4 billboardMatrix =
             {

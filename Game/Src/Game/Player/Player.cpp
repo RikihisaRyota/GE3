@@ -220,7 +220,8 @@ void Player::GPUParticleSpawn(CommandContext& commandContext) {
 	//meshEmitterDesc_.localTransform.rotate = MakeRotateMatrix(worldTransform_.matWorld);
 	//gpuParticleManager_->SetMeshEmitter(playerModelHandle_, animation_, meshEmitterDesc_, worldTransform_.matWorld);
 	vertexEmitterDesc_.localTransform.translate = MakeTranslateMatrix(worldTransform_.matWorld);
-	vertexEmitterDesc_.localTransform.rotate = worldTransform_.rotate;
+	// 謎インバース
+	vertexEmitterDesc_.localTransform.rotate = Inverse(worldTransform_.rotate);
 	gpuParticleManager_->SetVertexEmitter(playerModelHandle_, animation_, vertexEmitterDesc_, worldTransform_.matWorld);
 	footEmitter_.fugitiveDust.emitterArea.position = MakeTranslateMatrix(worldTransform_.matWorld);
 	footEmitter_.fugitiveDust.emitterArea.position = MakeTranslateMatrix(worldTransform_.matWorld);

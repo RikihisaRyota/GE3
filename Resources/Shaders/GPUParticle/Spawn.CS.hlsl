@@ -79,17 +79,8 @@ void main(uint3 DTid : SV_DispatchThreadID, uint3 GTid : SV_GroupThreadID, uint3
                     VertexEmitter emitter = gVertexEmitter[emitterIndex];
                     float32_t4x4 worldMatrix;
                     float32_t3 translate;
-                    if(!emitter.parent.isParent){
-                        worldMatrix = MakeAffine(float32_t3(1.0f,1.0f,1.0f),emitter.localTransform.rotate,emitter.localTransform.translate);
-                        // 回転だけ正しい
-                        //translate =  mul(worldMatrix,vertexBuffers[emitter.model.vertexBufferIndex][createNum].position).xyz;
-                        // 位置だけ正しい
-                        translate =  mul(vertexBuffers[emitter.model.vertexBufferIndex][createNum].position,worldMatrix).xyz;
-                    }else{
-                        worldMatrix=mul(emitter.parent.worldMatrix,MakeAffine(float32_t3(1.0f,1.0f,1.0f),emitter.localTransform.rotate,emitter.localTransform.translate));
-                        //translate = mul( worldMatrix,vertexBuffers[emitter.model.vertexBufferIndex][createNum].position).xyz;
-                        translate = vertexBuffers[emitter.model.vertexBufferIndex][createNum].position.xyz;
-                    }
+                    worldMatrix = MakeAffine(float32_t3(1.0f,1.0f,1.0f),emitter.localTransform.rotate,emitter.localTransform.translate);
+                    translate =  mul(vertexBuffers[emitter.model.vertexBufferIndex][createNum].position,worldMatrix).xyz;
                     CreateParticle(Output[index], emitter,translate,seed,emitterIndex);
                 }
             }
@@ -158,16 +149,11 @@ void main(uint3 DTid : SV_DispatchThreadID, uint3 GTid : SV_GroupThreadID, uint3
                     uint32_t startModelIndex = createNum % emitter.startModel.vertexCount;
                     uint32_t endModelIndex = createNum % emitter.endModel.vertexCount;
                     float32_t4x4 startWorldMatrix,endWorldMatrix;
-                    if(!emitter.parent.isParent){
-                        startWorldMatrix=emitter.startModelWorldMatrix;
-                        endWorldMatrix=emitter.endModelWorldMatrix;
-                    }else{
-                        startWorldMatrix=mul(emitter.parent.worldMatrix,emitter.startModelWorldMatrix);
-                        endWorldMatrix=mul(emitter.parent.worldMatrix,emitter.endModelWorldMatrix);
-                    }
+                    startWorldMatrix=emitter.startModelWorldMatrix;
+                    endWorldMatrix=emitter.endModelWorldMatrix;
                     emitter.translate.isEasing=true;
-                    emitter.translate.easing.min = mul(startWorldMatrix,vertexBuffers[emitter.startModel.vertexBufferIndex][startModelIndex].position).xyz;
-                    emitter.translate.easing.max = mul(endWorldMatrix,vertexBuffers[emitter.endModel.vertexBufferIndex][endModelIndex].position).xyz;
+                    emitter.translate.easing.min = mul(vertexBuffers[emitter.startModel.vertexBufferIndex][startModelIndex].position,startWorldMatrix).xyz;
+                    emitter.translate.easing.max = mul(vertexBuffers[emitter.endModel.vertexBufferIndex][endModelIndex].position,endWorldMatrix).xyz;
                     CreateParticle(Output[particleIndex], emitter,seed,emitterIndex);
                 }
             }
@@ -187,13 +173,9 @@ void main(uint3 DTid : SV_DispatchThreadID, uint3 GTid : SV_GroupThreadID, uint3
                     TransformAreaEmitter emitter = gTransformAreaEmitter[emitterIndex];
                     uint32_t modelIndex = createNum % emitter.model.vertexCount;
                     float32_t4x4 worldMatrix;
-                    if(!emitter.parent.isParent){
-                        worldMatrix=emitter.modelWorldMatrix;
-                    }else{
-                        worldMatrix=mul(emitter.parent.worldMatrix,emitter.modelWorldMatrix);
-                    }
+                    worldMatrix=emitter.modelWorldMatrix;
                     emitter.translate.isEasing=true;
-                    emitter.translate.easing.max = mul(worldMatrix,vertexBuffers[emitter.model.vertexBufferIndex][modelIndex].position).xyz;
+                    emitter.translate.easing.max = mul(vertexBuffers[emitter.model.vertexBufferIndex][modelIndex].position,worldMatrix).xyz;
                     CreateParticle(Output[particleIndex], emitter,seed,emitterIndex);
                 }
             }

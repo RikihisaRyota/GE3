@@ -729,20 +729,29 @@ float32_t4x4 MakeTranslationMatrix(float32_t3  translate)
 
 float32_t4x4 MakeAffine(float32_t3  scale, float32_t3  rotate, float32_t3  translate)
 {
-    return float32_t4x4(mul(mul(MakeScaleMatrix(scale), MakeRotationMatrix(rotate)), MakeTranslationMatrix(translate)));
+    float32_t4x4 scaleMatrix=MakeScaleMatrix(scale);
+    float32_t4x4 rotateMatrix=MakeRotationMatrix(rotate);
+    float32_t4x4 translateMatrix=MakeTranslationMatrix(translate);
 
+    return mul(mul(scaleMatrix,rotateMatrix),translateMatrix);
 }
 
 float32_t4x4 MakeAffine(float32_t scale, float32_t3 rotate, float32_t3 translate)
 {
-    return float32_t4x4(mul(mul(MakeScaleMatrix(scale), MakeRotationMatrix(rotate)), MakeTranslationMatrix(translate)));
+    float32_t4x4 scaleMatrix=MakeScaleMatrix(scale);
+    float32_t4x4 rotateMatrix=MakeRotationMatrix(rotate);
+    float32_t4x4 translateMatrix=MakeTranslationMatrix(translate);
 
+    return mul(mul(scaleMatrix,rotateMatrix),translateMatrix);
 }
 
 float32_t4x4 MakeAffine(float32_t3 scale, float32_t4 rotate, float32_t3 translate)
 {
-    return float32_t4x4(mul(mul(MakeScaleMatrix(scale), MakeRotationMatrix(rotate)), MakeTranslationMatrix(translate)));
+    float32_t4x4 scaleMatrix=MakeScaleMatrix(scale);
+    float32_t4x4 rotateMatrix=MakeRotationMatrix(rotate);
+    float32_t4x4 translateMatrix=MakeTranslationMatrix(translate);
 
+    return mul(mul(scaleMatrix,rotateMatrix),translateMatrix);
 }
 
 void ParticleLifeTime(inout Particle particle,Emitter emitter ,inout uint32_t seed){

@@ -218,10 +218,10 @@ void Player::GPUParticleSpawn(CommandContext& commandContext) {
 	
 	//meshEmitterDesc_.localTransform.translate = MakeTranslateMatrix(worldTransform_.matWorld);
 	//meshEmitterDesc_.localTransform.rotate = MakeRotateMatrix(worldTransform_.matWorld);
-	vertexEmitterDesc_.localTransform.translate = MakeTranslateMatrix(worldTransform_.matWorld);
-	vertexEmitterDesc_.localTransform.rotate = MakeRotateMatrix(worldTransform_.matWorld);
 	//gpuParticleManager_->SetMeshEmitter(playerModelHandle_, animation_, meshEmitterDesc_, worldTransform_.matWorld);
-	gpuParticleManager_->SetVertexEmitter(playerModelHandle_, animation_, vertexEmitterDesc_);
+	vertexEmitterDesc_.localTransform.translate = MakeTranslateMatrix(worldTransform_.matWorld);
+	vertexEmitterDesc_.localTransform.rotate = worldTransform_.rotate;
+	gpuParticleManager_->SetVertexEmitter(playerModelHandle_, animation_, vertexEmitterDesc_, worldTransform_.matWorld);
 	footEmitter_.fugitiveDust.emitterArea.position = MakeTranslateMatrix(worldTransform_.matWorld);
 	footEmitter_.fugitiveDust.emitterArea.position = MakeTranslateMatrix(worldTransform_.matWorld);
 	gpuParticleManager_->SetEmitter(footEmitter_.fugitiveDust);

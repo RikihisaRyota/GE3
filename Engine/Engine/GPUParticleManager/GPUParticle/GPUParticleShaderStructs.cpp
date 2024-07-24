@@ -815,7 +815,10 @@ void GPUParticleShaderStructs::EmitterEditor(const std::string name, std::tuple<
 	auto& desc = std::get<1>(d);
 	if (ImGui::Button("Delete")) {
 		*std::get<0>(d) = false;
+
 	}
+	ImGui::Text("EmitterCount : %d", desc->emitterCount);
+
 	DrawParent(desc->parent.isParent);
 
 	DrawLocalTranslate(desc->localTransform);
@@ -856,6 +859,8 @@ void GPUParticleShaderStructs::EmitterEditor(const std::string name, std::tuple<
 	if (ImGui::Button("Delete")) {
 		*std::get<0>(d) = false;
 	}
+	ImGui::Text("EmitterCount : %d", desc->emitterCount);
+
 	DrawParent(desc->parent.isParent);
 
 	DrawLocalTranslate(desc->localTransform);
@@ -893,6 +898,8 @@ void GPUParticleShaderStructs::EmitterEditor(const std::string name, std::tuple<
 	if (ImGui::Button("Delete")) {
 		*std::get<0>(e) = false;
 	}
+	ImGui::Text("EmitterCount : %d", emitter->emitterCount);
+
 	DrawParent(emitter->parent.isParent);
 
 	DrawScale(emitter->scale);
@@ -927,6 +934,8 @@ void GPUParticleShaderStructs::EmitterEditor(const std::string name, std::tuple<
 	if (ImGui::Button("Delete")) {
 		*std::get<0>(e) = false;
 	}
+	ImGui::Text("EmitterCount : %d", emitter->emitterCount);
+
 	DrawParent(emitter->parent.isParent);
 
 	DrawArea(emitter->emitterArea);

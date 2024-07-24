@@ -65,6 +65,9 @@ private:
 
 	std::unique_ptr<SphereCollider> collider_;
 
+	// 
+	float tsRotate_;
+
 #pragma region Properties
 	Vector3 offset_;
 	Vector3 animationWorldTransformOffset_;

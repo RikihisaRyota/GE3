@@ -51,8 +51,8 @@
         "isParent": 1
     },
     "ParticleLifeSpan": {
-        "Max": 3600,
-        "Min": 3600,
+        "Max": 1,
+        "Min": 1,
         "isEmitterLife": 1
     },
     "ParticleLifeTime": {

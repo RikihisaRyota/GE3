@@ -78,12 +78,18 @@ void main(uint3 DTid : SV_DispatchThreadID, uint3 GTid : SV_GroupThreadID, uint3
                     uint32_t emitterIndex=createParticle[emitterNum].emitterNum;
                     VertexEmitter emitter = gVertexEmitter[emitterIndex];
                     float32_t4x4 worldMatrix;
+                    float32_t3 translate;
                     if(!emitter.parent.isParent){
-                        worldMatrix=MakeAffine(float32_t3(1.0f,1.0f,1.0f),emitter.localTransform.rotate,emitter.localTransform.translate);
+                        worldMatrix = MakeAffine(float32_t3(1.0f,1.0f,1.0f),emitter.localTransform.rotate,emitter.localTransform.translate);
+                        // 回転だけ正しい
+                        //translate =  mul(worldMatrix,vertexBuffers[emitter.model.vertexBufferIndex][createNum].position).xyz;
+                        // 位置だけ正しい
+                        translate =  mul(vertexBuffers[emitter.model.vertexBufferIndex][createNum].position,worldMatrix).xyz;
                     }else{
-                        worldMatrix=mul(MakeAffine(float32_t3(1.0f,1.0f,1.0f),emitter.localTransform.rotate,emitter.localTransform.translate),emitter.parent.worldMatrix);
+                        worldMatrix=mul(emitter.parent.worldMatrix,MakeAffine(float32_t3(1.0f,1.0f,1.0f),emitter.localTransform.rotate,emitter.localTransform.translate));
+                        //translate = mul( worldMatrix,vertexBuffers[emitter.model.vertexBufferIndex][createNum].position).xyz;
+                        translate = vertexBuffers[emitter.model.vertexBufferIndex][createNum].position.xyz;
                     }
-                    float32_t3 translate =  mul(vertexBuffers[emitter.model.vertexBufferIndex][createNum].position,worldMatrix).xyz;
                     CreateParticle(Output[index], emitter,translate,seed,emitterIndex);
                 }
             }
@@ -114,11 +120,11 @@ void main(uint3 DTid : SV_DispatchThreadID, uint3 GTid : SV_GroupThreadID, uint3
                     if(!emitter.parent.isParent){
                         worldMatrix=MakeAffine(float32_t3(1.0f,1.0f,1.0f),emitter.localTransform.rotate,emitter.localTransform.translate);
                     }else{
-                        worldMatrix=mul(MakeAffine(float32_t3(1.0f,1.0f,1.0f),emitter.localTransform.rotate,emitter.localTransform.translate),emitter.parent.worldMatrix);
+                        worldMatrix=mul(emitter.parent.worldMatrix,MakeAffine(float32_t3(1.0f,1.0f,1.0f),emitter.localTransform.rotate,emitter.localTransform.translate));
                     }
-                    float32_t3 v1 = mul(vertexBuffers[emitter.model.vertexBufferIndex][triIndices.y].position, worldMatrix).xyz;
-                    float32_t3 v0 = mul(vertexBuffers[emitter.model.vertexBufferIndex][triIndices.x].position, worldMatrix).xyz;
-                    float32_t3 v2 = mul(vertexBuffers[emitter.model.vertexBufferIndex][triIndices.z].position, worldMatrix).xyz;
+                    float32_t3 v1 = mul(worldMatrix,vertexBuffers[emitter.model.vertexBufferIndex][triIndices.y].position).xyz;
+                    float32_t3 v0 = mul(worldMatrix,vertexBuffers[emitter.model.vertexBufferIndex][triIndices.x].position).xyz;
+                    float32_t3 v2 = mul(worldMatrix,vertexBuffers[emitter.model.vertexBufferIndex][triIndices.z].position).xyz;
 
                     // ランダムなバリセンター座標を生成
                     float32_t u = randFloat(seed);
@@ -156,12 +162,12 @@ void main(uint3 DTid : SV_DispatchThreadID, uint3 GTid : SV_GroupThreadID, uint3
                         startWorldMatrix=emitter.startModelWorldMatrix;
                         endWorldMatrix=emitter.endModelWorldMatrix;
                     }else{
-                        startWorldMatrix=mul(emitter.startModelWorldMatrix,emitter.parent.worldMatrix);
-                        endWorldMatrix=mul(emitter.endModelWorldMatrix,emitter.parent.worldMatrix);
+                        startWorldMatrix=mul(emitter.parent.worldMatrix,emitter.startModelWorldMatrix);
+                        endWorldMatrix=mul(emitter.parent.worldMatrix,emitter.endModelWorldMatrix);
                     }
                     emitter.translate.isEasing=true;
-                    emitter.translate.easing.min = mul(vertexBuffers[emitter.startModel.vertexBufferIndex][startModelIndex].position,startWorldMatrix).xyz;
-                    emitter.translate.easing.max = mul(vertexBuffers[emitter.endModel.vertexBufferIndex][endModelIndex].position,endWorldMatrix).xyz;
+                    emitter.translate.easing.min = mul(startWorldMatrix,vertexBuffers[emitter.startModel.vertexBufferIndex][startModelIndex].position).xyz;
+                    emitter.translate.easing.max = mul(endWorldMatrix,vertexBuffers[emitter.endModel.vertexBufferIndex][endModelIndex].position).xyz;
                     CreateParticle(Output[particleIndex], emitter,seed,emitterIndex);
                 }
             }
@@ -184,10 +190,10 @@ void main(uint3 DTid : SV_DispatchThreadID, uint3 GTid : SV_GroupThreadID, uint3
                     if(!emitter.parent.isParent){
                         worldMatrix=emitter.modelWorldMatrix;
                     }else{
-                        worldMatrix=mul(emitter.modelWorldMatrix,emitter.parent.worldMatrix);
+                        worldMatrix=mul(emitter.parent.worldMatrix,emitter.modelWorldMatrix);
                     }
                     emitter.translate.isEasing=true;
-                    emitter.translate.easing.max = mul(vertexBuffers[emitter.model.vertexBufferIndex][modelIndex].position,worldMatrix).xyz;
+                    emitter.translate.easing.max = mul(worldMatrix,vertexBuffers[emitter.model.vertexBufferIndex][modelIndex].position).xyz;
                     CreateParticle(Output[particleIndex], emitter,seed,emitterIndex);
                 }
             }

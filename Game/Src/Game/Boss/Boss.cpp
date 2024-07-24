@@ -56,6 +56,7 @@ void Boss::Initialize() {
 	bossHP_->Initialize();
 	worldTransform_.Reset();
 	worldTransform_.translate = offset_;
+	tsRotate_ = 180.0f;
 	worldTransform_.rotate = MakeRotateYAngleQuaternion(DegToRad(180.0f));
 	animationTransform_.Reset();
 	animationTransform_.parent_ = &worldTransform_;
@@ -84,6 +85,8 @@ void Boss::DrawImGui() {
 		ImGui::DragFloat3("color", &color.x, 0.1f, 0.0f, 1.0f);
 		ModelManager::GetInstance()->GetModel(bossModelHandle_).SetMaterialColor(color);
 		ImGui::DragFloat3("translate", &worldTransform_.translate.x, 0.1f);
+		ImGui::DragFloat("TestRotate:Y", &tsRotate_, 0.1f, 0.0f, 360.0f);
+		//worldTransform_.rotate = MakeRotateYAngleQuaternion(DegToRad(tsRotate_));
 		ImGui::DragFloat3("animationTranslate", &animationTransform_.translate.x, 0.1f);
 		ImGui::Text("matWorld: x:%f,y:%f,z:%f", MakeTranslateMatrix(worldTransform_.matWorld).x, MakeTranslateMatrix(worldTransform_.matWorld).y, MakeTranslateMatrix(worldTransform_.matWorld).z, 0.1f);
 		if (ImGui::TreeNode("Properties")) {
@@ -141,11 +144,11 @@ void Boss::UpdateGPUParticle(CommandContext& commandContext) {
 		!bossStateManager_->GetInTransition()) {
 
 		//gpuParticleManager_->CreateVertexParticle(bossModelHandle_, worldTransform_.matWorld, vertexEmitterDesc_, commandContext);
-		vertexEmitterDesc_.isAlive = true;
+		//vertexEmitterDesc_.isAlive = true;
 		gpuParticleManager_->SetVertexEmitter(bossModelHandle_,vertexEmitterDesc_, worldTransform_.matWorld);
 	}
 	else {
-		vertexEmitterDesc_.isAlive = false;
+		//vertexEmitterDesc_.isAlive = false;
 		gpuParticleManager_->SetVertexEmitter(bossModelHandle_,vertexEmitterDesc_, worldTransform_.matWorld);
 	}
 	//gpuParticleManager_->CreateTransformModelParticle(bossModelHandle_, worldTransform_.matWorld, testModelHandle_, worldTransform_.matWorld, transformEmitter_, commandContext);

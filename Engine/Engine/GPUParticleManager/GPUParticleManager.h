@@ -18,6 +18,7 @@
 #include "Engine/Math/Vector4.h"
 #include "Engine/Math/Matrix4x4.h"
 
+#include "Engine/Math/MyMath.h"
 class CommandContext;
 class ModelHandle;
 struct ViewProjection;
@@ -47,11 +48,11 @@ public:
 
 	void SetEmitter(const GPUParticleShaderStructs::EmitterForCPU& emitter,const Matrix4x4& parent=Matrix4x4());
 	void SetVertexEmitter(const ModelHandle& modelHandle, const GPUParticleShaderStructs::VertexEmitterForCPU& emitter,const Matrix4x4& parent=Matrix4x4());
-	void SetVertexEmitter(const ModelHandle& modelHandle, const Animation::Animation& animation, const GPUParticleShaderStructs::VertexEmitterForCPU& emitter,const Matrix4x4& parent=Matrix4x4());
+	void SetVertexEmitter(const ModelHandle& modelHandle, const Animation::Animation& animation, const GPUParticleShaderStructs::VertexEmitterForCPU& emitter,const Matrix4x4& parent=MakeIdentity4x4());
 	void SetMeshEmitter(const ModelHandle& modelHandle, const GPUParticleShaderStructs::MeshEmitterForCPU& emitter,const Matrix4x4& parent=Matrix4x4());
-	void SetMeshEmitter(const ModelHandle& modelHandle, const Animation::Animation& animation, const GPUParticleShaderStructs::MeshEmitterForCPU& emitter,const Matrix4x4& parent=Matrix4x4());
-	void SetTransformModelEmitter(const ModelHandle& startModelHandle,const ModelHandle& endModelHandle, const GPUParticleShaderStructs::TransformModelEmitterForCPU& emitter,const Matrix4x4& parent=Matrix4x4());
-	void SetTransformAreaEmitter(const ModelHandle& modelHandle, const GPUParticleShaderStructs::TransformAreaEmitterForCPU& emitter,const Matrix4x4& parent=Matrix4x4());
+	void SetMeshEmitter(const ModelHandle& modelHandle, const Animation::Animation& animation, const GPUParticleShaderStructs::MeshEmitterForCPU& emitter,const Matrix4x4& parent= MakeIdentity4x4());
+	void SetTransformModelEmitter(const ModelHandle& startModelHandle,const ModelHandle& endModelHandle, const GPUParticleShaderStructs::TransformModelEmitterForCPU& emitter,const Matrix4x4& parent= MakeIdentity4x4());
+	void SetTransformAreaEmitter(const ModelHandle& modelHandle, const GPUParticleShaderStructs::TransformAreaEmitterForCPU& emitter,const Matrix4x4& parent= MakeIdentity4x4());
 	void SetField(const GPUParticleShaderStructs::FieldForCPU& fieldForCPU);
 	void SetBullet(const GPUParticleShaderStructs::BulletForGPU& bullets);
 

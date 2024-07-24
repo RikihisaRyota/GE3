@@ -17,7 +17,7 @@ void BossStateRoot::Initialize(CommandContext& commandContext) {
 
 		data_.transformEmitter.startModelWorldMatrix = manager_.GetWorldTransform().matWorld;
 		data_.transformEmitter.endModelWorldMatrix = boss->GetWorldMatrix();
-		manager_.gpuParticleManager_->SetTransformModelEmitter(manager_.GetModelHandle(),  boss->GetModelHandle(), data_.transformEmitter);
+		manager_.gpuParticleManager_->SetTransformModelEmitter(manager_.GetModelHandle(), boss->GetModelHandle(), data_.transformEmitter);
 	}
 }
 
@@ -126,7 +126,7 @@ void BossStateCarAttack::Initialize(CommandContext& commandContext) {
 		data_.transformRailEmitter.modelWorldMatrix = railWorldTransform_.matWorld;
 		GPUParticleShaderStructs::TransformAreaEmitterForCPU  emitter = data_.transformRailEmitter;
 		emitter.emitterArea.position = railWorldTransform_.translate;
-		manager_.gpuParticleManager_->SetTransformAreaEmitter(railModelHandle_,emitter);
+		manager_.gpuParticleManager_->SetTransformAreaEmitter(railModelHandle_, emitter);
 	}
 	else {
 		//manager_.gpuParticleManager_->CreateTransformModelParticle(manager_.GetModelHandle(), boss->GetWorldMatrix(), modelHandle_, worldTransform_.matWorld, data_.transformEmitter, commandContext);
@@ -171,16 +171,12 @@ void BossStateCarAttack::Update(CommandContext& commandContext) {
 		data_.trainEmitter.localTransform.rotate = MakeRotateMatrix(worldTransform_.matWorld);
 		data_.railEmitter.localTransform.translate = MakeTranslateMatrix(railWorldTransform_.matWorld);
 		data_.railEmitter.localTransform.rotate = MakeRotateMatrix(railWorldTransform_.matWorld);
-		manager_.gpuParticleManager_->SetVertexEmitter(modelHandle_, data_.trainEmitter);
-		manager_.gpuParticleManager_->SetVertexEmitter(railModelHandle_, data_.railEmitter);
 	}
 
 	if (time_ >= 1.0f && !inTransition_) {
 		manager_.ChangeState<BossStateRoot>();
 		data_.trainEmitter.isAlive = false;
 		data_.railEmitter.isAlive = false;
-		manager_.gpuParticleManager_->SetVertexEmitter(modelHandle_, data_.trainEmitter);
-		manager_.gpuParticleManager_->SetVertexEmitter(railModelHandle_, data_.railEmitter);
 		//GPUParticleShaderStructs::VertexEmitterForCPU  emitter = data_.railEmitter;
 		//emitter.velocity.range.min = { -0.5f,-0.1f,-0.5f };
 		//emitter.velocity.range.max = { +0.5f,+0.1f,+0.5f };
@@ -189,6 +185,8 @@ void BossStateCarAttack::Update(CommandContext& commandContext) {
 		//emitter.localTransform.translate = MakeTranslateMatrix(railWorldTransform_.matWorld);
 		//manager_.gpuParticleManager_->SetVertexEmitter(railModelHandle_, emitter);
 	}
+	manager_.gpuParticleManager_->SetVertexEmitter(modelHandle_, data_.trainEmitter);
+	manager_.gpuParticleManager_->SetVertexEmitter(railModelHandle_, data_.railEmitter);
 }
 
 void BossStateCarAttack::DebugDraw() {

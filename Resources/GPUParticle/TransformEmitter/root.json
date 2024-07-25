@@ -83,13 +83,25 @@
                 1.0
             ]
         },
-        "isStaticColor": 1
+        "isStaticColor": 0
     },
-    "EmitterFrequency": {},
-    "Parent": {},
+    "EmitterFrequency": {
+        "emitterLife": 0,
+        "interval": 0,
+        "isLoop": 0,
+        "isOnce": 0
+    },
+    "EmitterTranslate": {
+        "attraction": 0.03999999910593033,
+        "radius": 5.0
+    },
+    "Parent": {
+        "isParent": 0
+    },
     "ParticleLifeSpan": {
-        "Max": 70,
-        "Min": 1
+        "Max": 60,
+        "Min": 60,
+        "isEmitterLife": 0
     },
     "RotateAnimation": {
         "initializeAngle": {
@@ -131,14 +143,14 @@
     },
     "Velocity3D": {
         "Max": [
-            0.0,
-            0.0,
-            0.0
+            0.05000000074505806,
+            0.05000000074505806,
+            0.05000000074505806
         ],
         "Min": [
-            0.0,
-            0.0,
-            0.0
+            -0.05000000074505806,
+            -0.05000000074505806,
+            -0.05000000074505806
         ]
     },
     "textureIndex": "Resources/Images/GPUParticle.png"

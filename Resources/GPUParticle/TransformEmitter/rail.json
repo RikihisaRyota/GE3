@@ -7,12 +7,12 @@
         "EmitterAABB": {
             "Max": [
                 50.0,
-                20.0,
+                5.0,
                 20.0
             ],
             "Min": [
                 -50.0,
-                -20.0,
+                -5.0,
                 -20.0
             ],
             "position": [
@@ -57,7 +57,7 @@
             0.0,
             0.0
         ],
-        "type": 0
+        "type": 1
     },
     "EmitterColor": {
         "End": {
@@ -88,7 +88,7 @@
                 1.0
             ]
         },
-        "isStaticColor": 1
+        "isStaticColor": 0
     },
     "EmitterFrequency": {
         "emitterLife": 0,
@@ -96,12 +96,16 @@
         "isLoop": 0,
         "isOnce": 1
     },
+    "EmitterTranslate": {
+        "attraction": 0.10000000149011612,
+        "radius": 5.0
+    },
     "Parent": {
         "isParent": 0
     },
     "ParticleLifeSpan": {
-        "Max": 70,
-        "Min": 30,
+        "Max": 60,
+        "Min": 60,
         "isEmitterLife": 0
     },
     "RotateAnimation": {
@@ -144,14 +148,14 @@
     },
     "Velocity3D": {
         "Max": [
-            0.0,
-            0.0,
-            0.0
+            0.10000000149011612,
+            0.10000000149011612,
+            0.10000000149011612
         ],
         "Min": [
-            0.0,
-            0.0,
-            0.0
+            -0.10000000149011612,
+            -0.10000000149011612,
+            -0.10000000149011612
         ]
     },
     "textureIndex": "Resources/Images/GPUParticle.png"

@@ -235,7 +235,7 @@ void CommandContext::SetComputeDynamicShaderResource(UINT rootIndex, size_t buff
 void CommandContext::SetDynamicVertexBuffer(UINT slot, size_t numVertices, size_t vertexStride, const void* vertexData) {
 	assert(vertexData);
 
-	size_t bufferSize = LinearAllocator().AlignUp(numVertices * vertexStride, 16);
+	size_t bufferSize = LinearAllocator().AlignUp(numVertices * vertexStride, 32);
 	auto allocation = currentDynamicBuffers_[LinearAllocatorType::kUpload].Allocate(bufferSize);
 	memcpy(allocation.cpuAddress, vertexData, bufferSize);
 	D3D12_VERTEX_BUFFER_VIEW vbv{

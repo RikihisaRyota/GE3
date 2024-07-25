@@ -112,6 +112,9 @@ struct Particle
 		Float3MinMax easing;
 		float3 translate;
 		int isEasing;
+		float radius;
+		float attraction;
+		float2 pad;
 	}translate;
 	float4x4 worldMatrix; // row_major
 	struct ParticleAttributes
@@ -132,7 +135,9 @@ struct Particle
 } Element;
 
 
-	*/
+*/
+
+
 	struct ParticleAttributes {
 		uint32_t mask;
 		uint32_t attribute;
@@ -142,6 +147,10 @@ struct Particle
 		Vector3MinMax easing;
 		Vector3 translate;
 		uint32_t isEasing;
+
+		float radius;
+		float attraction;
+		Vector2 pad;
 	};
 
 	struct ParticleParent {
@@ -293,7 +302,7 @@ struct Particle
 	struct EmitterLocalTransform {
 		Vector3 translate;
 		float pad;
-		Quaternion rotate = {0.0f,0.0f,0.0f,1.0f};
+		Quaternion rotate = { 0.0f,0.0f,0.0f,1.0f };
 	};
 
 	struct TransformModelEmitterForCPU {
@@ -528,7 +537,7 @@ struct Particle
 		EmitterParent parent;
 
 		EmitterModel model;
-		
+
 		uint32_t textureIndex;
 
 		uint32_t numCreate;
@@ -840,6 +849,7 @@ struct Particle
 	void DrawColorMinMax(GPUParticleShaderStructs::Vector4MinMax& startEnd);
 
 	void DrawLocalTranslate(GPUParticleShaderStructs::EmitterLocalTransform& localTransform);
+	void DrawTranslate(GPUParticleShaderStructs::Translate& translate);
 	void DrawColor(GPUParticleShaderStructs::Vector4StartEnd& startEnd);
 	void DrawArea(GPUParticleShaderStructs::EmitterArea& area);
 	void DrawScale(GPUParticleShaderStructs::ScaleAnimation& scale);
@@ -857,6 +867,9 @@ struct Particle
 
 	void LoadLocalTransform(GPUParticleShaderStructs::EmitterLocalTransform& local);
 	void SaveLocalTransform(GPUParticleShaderStructs::EmitterLocalTransform& local);
+
+	void LoadTranslate(GPUParticleShaderStructs::Translate& translate);
+	void SaveTranslate(GPUParticleShaderStructs::Translate& translate);
 
 	void LoadArea(GPUParticleShaderStructs::EmitterArea& area);
 	void SaveArea(GPUParticleShaderStructs::EmitterArea& area);

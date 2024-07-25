@@ -39,9 +39,9 @@ void DrawLine::Draw(CommandContext& commandContext, const ViewProjection& viewPr
 
 		commandContext.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
 
-		commandContext.SetVertexBuffer(0, vbView_);
+		commandContext.SetDynamicVertexBuffer(0, vertices_.size(), sizeof(vertices_.at(0)), vertices_.data());
 
-		commandContext.SetGraphicsConstantBuffer(0,viewProjection.constBuff_.GetGPUVirtualAddress());
+		commandContext.SetGraphicsDynamicConstantBufferView(0,sizeof(ConstBufferDataViewProjection), viewProjection.constMap_);
 
 		commandContext.Draw(static_cast<UINT>(vertices_.size()));
 		

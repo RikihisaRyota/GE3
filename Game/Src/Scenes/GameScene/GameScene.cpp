@@ -106,7 +106,7 @@ void GameScene::Update(CommandContext& commandContext) {
 	}
 
 
-	gpuParticleManager_->SetEmitter(testEmitter_, testWorldTransform_.matWorld);
+	//gpuParticleManager_->SetEmitter(testEmitter_, testWorldTransform_.matWorld);
 	gpuParticleManager_->SetField(testField_);
 	gpuParticleManager_->Update(*viewProjection_, RenderManager::GetInstance()->GetCommandContext());
 	//gpuParticleEditor_->Update(RenderManager::GetInstance()->GetCommandContext());

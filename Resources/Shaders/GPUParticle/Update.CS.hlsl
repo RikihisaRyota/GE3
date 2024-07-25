@@ -52,7 +52,15 @@ void main(uint3 DTid : SV_DispatchThreadID)
             if(!input[index].translate.isEasing){
                 input[index].translate.translate += input[index].velocity;
             }else{
-                input[index].translate.translate = lerp(input[index].translate.easing.min, input[index].translate.easing.max, t);
+                float32_t3 direction = normalize(input[index].translate.easing.max - input[index].translate.translate);
+                float32_t attraction=input[index].translate.attraction;
+                float32_t radius=input[index].translate.radius;
+                input[index].velocity+=direction*attraction;
+                if(length(input[index].translate.translate-input[index].translate.easing.max) <= radius){
+                    input[index].translate.translate=input[index].translate.easing.max;
+                }else{
+                    input[index].translate.translate += input[index].velocity;
+                }
             }
 
             float32_t4x4 translateMatrix = MakeTranslationMatrix(input[index].translate.translate);

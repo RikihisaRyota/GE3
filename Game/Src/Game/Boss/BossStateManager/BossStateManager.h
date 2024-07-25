@@ -72,7 +72,7 @@ private:
 //	JsonData data_;
 //};
 
-class BossStateCarAttack :
+class BossStateRushAttack :
 	public BossState {
 public:
 	struct JsonData {
@@ -110,23 +110,57 @@ private:
 	std::unique_ptr<OBBCollider> collider_;
 };
 
+
+class BossStateSmashAttack :
+	public BossState {
+public:
+	struct JsonData {
+		GPUParticleShaderStructs::VertexEmitterForCPU  smashEmitter;
+		GPUParticleShaderStructs::TransformModelEmitterForCPU  transformEmitter;
+		OBB collider;
+		float y;
+		uint32_t smashCount;
+		float allFrame;
+		float transitionFrame;
+	};
+	using BossState::BossState;
+	void Initialize(CommandContext& commandContext) override;
+	void SetDesc() override;
+	void Update(CommandContext& commandContext) override;
+	void DebugDraw()override;
+private:
+	struct SmashDesc {
+		Vector3 start;
+		Vector3 end;
+		WorldTransform transform;
+		std::unique_ptr<OBBCollider> collider;
+		GPUParticleShaderStructs::VertexEmitterForCPU  emitter;
+	};
+	void OnCollision(const ColliderDesc& collisionInfo);
+	void UpdateTransform();
+	void SetLocation();
+	std::vector<SmashDesc> smash_;
+	JsonData data_;
+};
+
 class BossStateManager {
 public:
 	std::vector<std::string> stateNames_{
 		"None",
 		"Root",
-		"CarAttack",
+		"RushAttack",
 	};
 	enum State {
 		kNone,
 		kRoot,
-		kCarAttack,
+		kRushAttack,
 		kCount,
 	};
 
 	struct JsonData {
 		BossStateRoot::JsonData root;
-		BossStateCarAttack::JsonData carAttack;
+		BossStateRushAttack::JsonData rushAttack;
+		BossStateSmashAttack::JsonData smashAttack;
 	};
 
 	void SetBoss(Boss* boss) { boss_ = boss; }
@@ -163,6 +197,7 @@ public:
 		}
 		return 0.0f;
 	}
+
 	template<class T>
 	void ChangeState() {
 		bool inTransition = false;

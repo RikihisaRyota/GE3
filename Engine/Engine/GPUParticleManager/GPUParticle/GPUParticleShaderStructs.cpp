@@ -177,6 +177,16 @@ namespace GPUParticleShaderStructs {
 #endif // _DEBUG
 	}
 
+	void DrawTranslate(GPUParticleShaderStructs::Translate& translate) {
+#ifdef _DEBUG
+		if (ImGui::TreeNode("Translate")) {
+			ImGui::DragFloat("Radius",&translate.radius,0.1f,0.0f);
+			ImGui::DragFloat("Attraction",&translate.attraction,0.001f,0.0f);
+			ImGui::TreePop();
+		}
+#endif // _DEBUG
+	}
+
 
 	void DrawColor(GPUParticleShaderStructs::Vector4StartEnd& startEnd) {
 #ifdef _DEBUG
@@ -478,6 +488,20 @@ namespace GPUParticleShaderStructs {
 	void SaveLocalTransform(GPUParticleShaderStructs::EmitterLocalTransform& local) {
 		JSON_OBJECT("EmitterLocalTransform");
 		JSON_SAVE_BY_NAME("translate", local.translate);
+		JSON_ROOT();
+	}
+
+	void LoadTranslate(GPUParticleShaderStructs::Translate& translate) {
+		JSON_OBJECT("EmitterTranslate");
+		JSON_LOAD_BY_NAME("radius", translate.radius);
+		JSON_LOAD_BY_NAME("attraction", translate.attraction);
+		JSON_ROOT();
+	}
+
+	void SaveTranslate(GPUParticleShaderStructs::Translate& translate) {
+		JSON_OBJECT("EmitterTranslate");
+		JSON_SAVE_BY_NAME("radius", translate.radius);
+		JSON_SAVE_BY_NAME("attraction", translate.attraction);
 		JSON_ROOT();
 	}
 
@@ -902,6 +926,8 @@ void GPUParticleShaderStructs::EmitterEditor(const std::string name, std::tuple<
 
 	DrawParent(emitter->parent.isParent);
 
+	DrawTranslate(emitter->translate);
+
 	DrawScale(emitter->scale);
 
 	DrawRotate(emitter->rotate);
@@ -939,6 +965,8 @@ void GPUParticleShaderStructs::EmitterEditor(const std::string name, std::tuple<
 	DrawParent(emitter->parent.isParent);
 
 	DrawArea(emitter->emitterArea);
+
+	DrawTranslate(emitter->translate);
 
 	DrawScale(emitter->scale);
 
@@ -1355,6 +1383,7 @@ void GPUParticleShaderStructs::Save(const std::string name, GPUParticleShaderStr
 void GPUParticleShaderStructs::Save(const std::string name, GPUParticleShaderStructs::TransformModelEmitterForCPU& emitter) {
 	JSON_OPEN("Resources/GPUParticle/TransformEmitter/" + name + ".json");
 	SaveScale(emitter.scale);
+	SaveTranslate(emitter.translate);
 	SaveRotate(emitter.rotate);
 	SaveVelocity(emitter.velocity);
 	SaveParticleLife(emitter.particleLifeSpan);
@@ -1369,6 +1398,7 @@ void GPUParticleShaderStructs::Save(const std::string name, GPUParticleShaderStr
 void GPUParticleShaderStructs::Load(const std::string name, GPUParticleShaderStructs::TransformModelEmitterForCPU& emitter) {
 	JSON_OPEN("Resources/GPUParticle/TransformEmitter/" + name + ".json");
 	LoadScale(emitter.scale);
+	LoadTranslate(emitter.translate);
 	LoadRotate(emitter.rotate);
 	LoadVelocity(emitter.velocity);
 	LoadParticleLife(emitter.particleLifeSpan);
@@ -1383,6 +1413,7 @@ void GPUParticleShaderStructs::Load(const std::string name, GPUParticleShaderStr
 void GPUParticleShaderStructs::Save(const std::string name, GPUParticleShaderStructs::TransformAreaEmitterForCPU& emitter) {
 	JSON_OPEN("Resources/GPUParticle/TransformEmitter/" + name + ".json");
 	SaveArea(emitter.emitterArea);
+	SaveTranslate(emitter.translate);
 	SaveScale(emitter.scale);
 	SaveRotate(emitter.rotate);
 	SaveVelocity(emitter.velocity);
@@ -1398,6 +1429,7 @@ void GPUParticleShaderStructs::Save(const std::string name, GPUParticleShaderStr
 void GPUParticleShaderStructs::Load(const std::string name, GPUParticleShaderStructs::TransformAreaEmitterForCPU& emitter) {
 	JSON_OPEN("Resources/GPUParticle/TransformEmitter/" + name + ".json");
 	LoadArea(emitter.emitterArea);
+	LoadTranslate(emitter.translate);
 	LoadScale(emitter.scale);
 	LoadRotate(emitter.rotate);
 	LoadVelocity(emitter.velocity);

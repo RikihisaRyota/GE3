@@ -43,7 +43,7 @@ void ViewProjection::UpdateMatrix() {
 	constBufferDate.projection = matProjection_;
 	constBufferDate.inverseView = Inverse(matView_);
 	constBufferDate.cameraPos = translation_;
-
+	TransferMatrix();
 	constBuff_.Copy(constBufferDate);
 }
 

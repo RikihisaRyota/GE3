@@ -139,12 +139,13 @@ struct Particle
 
 
 	struct ParticleAttributes {
-		uint32_t mask;
 		uint32_t attribute;
+		uint32_t mask;
 		Vector2 pad;
 	};
 	struct Translate {
 		Vector3MinMax easing;
+		// パーティクルのローカルTranslate
 		Vector3 translate;
 		uint32_t isEasing;
 
@@ -300,8 +301,10 @@ struct Particle
 	};
 
 	struct EmitterLocalTransform {
-		Vector3 translate;
+		Vector3 scale = {1.0f,1.0f,1.0f};
 		float pad;
+		Vector3 translate;
+		float pad1;
 		Quaternion rotate = { 0.0f,0.0f,0.0f,1.0f };
 	};
 
@@ -555,6 +558,8 @@ struct Particle
 			emitterCount = staticEmitterCount;
 			staticEmitterCount++;
 		}
+		Translate translate;
+
 		EmitterLocalTransform localTransform;
 
 		ScaleAnimation scale;
@@ -588,6 +593,8 @@ struct Particle
 	};
 
 	struct VertexEmitterForGPU {
+		Translate translate;
+
 		EmitterLocalTransform localTransform;
 
 		ScaleAnimation scale;
@@ -741,6 +748,8 @@ struct Particle
 		uint32_t isAlive = true;
 
 		int32_t fieldCount;
+
+		Vector2 pad;
 
 		// クラス内でstatic宣言されたメンバ変数のサイズは0
 		static int32_t staticFieldCount;

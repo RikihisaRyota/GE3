@@ -45,10 +45,12 @@ private:
 	int32_t soundHandle_;
 	int32_t playHandle_;
 
-	//ModelHandle field_ ;
-	//WorldTransform fieldWorldTransform_;
+	//ModelHandle testModel_;
+	//WorldTransform WorldTransform_;
 
 	GPUParticleShaderStructs::EmitterForCPU testEmitter_;
+	GPUParticleShaderStructs::EmitterForCPU test1Emitter_;
+	GPUParticleShaderStructs::EmitterForCPU test2Emitter_;
 	WorldTransform testWorldTransform_;
 	GPUParticleShaderStructs::FieldForCPU testField_;
 };

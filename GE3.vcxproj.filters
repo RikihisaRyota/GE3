@@ -190,6 +190,9 @@
     <Filter Include="Shaders\HSVFilter">
       <UniqueIdentifier>{07d75020-5be8-445c-a812-0b2d53302f40}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shaders\Bloom">
+      <UniqueIdentifier>{e1783208-5467-46c1-be13-5d249f148cf1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine\Engine\Math\MyMath.cpp">
@@ -444,6 +447,7 @@
     <ClCompile Include="Engine\Engine\Graphics\GpuResource.cpp" />
     <ClCompile Include="Engine\Engine\Graphics\CommandAllocatorPool.cpp" />
     <ClCompile Include="Engine\Engine\Graphics\HSVFilter.cpp" />
+    <ClCompile Include="Engine\Engine\Graphics\Bloom.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\Engine\WinApp\WinApp.h">
@@ -758,6 +762,9 @@
     <ClInclude Include="Engine\Engine\Graphics\HSVFilter.h">
       <Filter>Engine\Graphics</Filter>
     </ClInclude>
+    <ClInclude Include="Engine\Engine\Graphics\Bloom.h">
+      <Filter>Engine\Graphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Externals\Imgui\LICENSE.txt">
@@ -922,6 +929,9 @@
     </FxCompile>
     <FxCompile Include="Resources\Shaders\HSVFilter\HSVFilter.PS.hlsl">
       <Filter>Shaders\HSVFilter</Filter>
+    </FxCompile>
+    <FxCompile Include="Resources\Shaders\Bloom\Bloom.PS.hlsl">
+      <Filter>Shaders\Bloom</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

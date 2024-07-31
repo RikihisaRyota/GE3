@@ -34,7 +34,10 @@
                     0.0
                 ]
             },
-            "distanceFactor": {},
+            "distanceFactor": {
+                "Max": 0.0,
+                "Min": 0.0
+            },
             "radius": 0.0
         },
         "EmitterSphere": {
@@ -42,7 +45,10 @@
                 "EmitterSegment": {},
                 "distanceFactor": {}
             },
-            "distanceFactor": {},
+            "distanceFactor": {
+                "Max": 0.0,
+                "Min": 0.0
+            },
             "position": [
                 -1.2718544006347656,
                 5.982889175415039,
@@ -50,6 +56,11 @@
             ],
             "radius": 0.5
         },
+        "position": [
+            -10.919880867004395,
+            5.982889175415039,
+            -7.764537811279297
+        ],
         "type": 1
     },
     "EmitterColor": {
@@ -80,26 +91,31 @@
                 0.3665480613708496,
                 1.0
             ]
-        }
+        },
+        "isStaticColor": 0
     },
     "EmitterFrequency": {
         "emitterLife": 0,
         "interval": 1,
-        "isLoop": 1
+        "isLoop": 1,
+        "isOnce": 0
     },
-    "Parent": {},
+    "Parent": {
+        "isParent": 0
+    },
     "ParticleLifeSpan": {
         "Max": 30,
-        "Min": 15
+        "Min": 15,
+        "isEmitterLife": 0
     },
     "RotateAnimation": {
         "initializeAngle": {
-            "Max": 0.0,
+            "Max": 180.0,
             "Min": 0.0
         },
         "rotateSpeed": {
-            "Max": 0.0,
-            "Min": 0.0
+            "Max": 30.0,
+            "Min": 10.0
         }
     },
     "ScaleAnimation": {
@@ -117,9 +133,9 @@
         },
         "Start": {
             "Max": [
-                0.5,
-                0.5,
-                0.5
+                0.20000000298023224,
+                0.20000000298023224,
+                0.20000000298023224
             ],
             "Min": [
                 0.10000000149011612,
@@ -127,17 +143,19 @@
                 0.10000000149011612
             ]
         },
-        "isSame": 1
+        "isSame": 1,
+        "isStaticSize": 0,
+        "isUniformScale": 0
     },
     "Velocity3D": {
         "Max": [
             0.0,
-            0.0,
+            0.05000000074505806,
             0.0
         ],
         "Min": [
             0.0,
-            0.0,
+            0.009999999776482582,
             0.0
         ]
     },

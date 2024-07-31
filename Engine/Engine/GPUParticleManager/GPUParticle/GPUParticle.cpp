@@ -798,7 +798,7 @@ void GPUParticle::SetField(const GPUParticleShaderStructs::FieldForCPU& fieldFor
 	fieldForGPU.field = fieldForCPU.field;
 	fieldForGPU.fieldArea = fieldForCPU.fieldArea;
 	fieldForGPU.frequency = fieldForCPU.frequency;
-	fieldForGPU.collisionInfo.mask = CollisionAttribute::ParticleField;
+	fieldForGPU.collisionInfo = fieldForCPU.collisionInfo;
 	fieldForGPU.isAlive = fieldForCPU.isAlive;
 	fieldForGPU.fieldCount = fieldForCPU.fieldCount;
 	fields_.emplace_back(fieldForGPU);
@@ -832,6 +832,7 @@ void GPUParticle::SetEmitter(const GPUParticleShaderStructs::EmitterForCPU& emit
 void GPUParticle::SetEmitter(const GPUParticleShaderStructs::VertexEmitterForCPU& emitterForCPU, const Matrix4x4& parent) {
 	GPUParticleShaderStructs::VertexEmitterForGPU emitterForGPU{};
 	emitterForGPU.localTransform = emitterForCPU.localTransform;
+	emitterForGPU.translate = emitterForCPU.translate;
 	emitterForGPU.scale = emitterForCPU.scale;
 	emitterForGPU.rotate.initializeAngle.min = DegToRad(emitterForCPU.rotate.initializeAngle.min);
 	emitterForGPU.rotate.initializeAngle.max = DegToRad(emitterForCPU.rotate.initializeAngle.max);
@@ -1272,6 +1273,7 @@ size_t GPUParticle::EmitterDesc::CheckEmitter(CommandContext& commandContext, si
 	default:
 		break;
 	}
+
 	uploadCopyBuffer.ResetBuffer();
 	uploadCopyBuffer.Copy(data, copySize);
 	commandContext.CopyBuffer(defaultCopyBuffer, uploadCopyBuffer);

@@ -1,0 +1,114 @@
+{
+    "CollisionInfo": {
+        "attribute": 0,
+        "mask": 0
+    },
+    "EmitterColor": {
+        "End": {
+            "Max": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+            ],
+            "Min": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+            ]
+        },
+        "Start": {
+            "Max": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+            ],
+            "Min": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+            ]
+        },
+        "isStaticColor": 1
+    },
+    "EmitterFrequency": {
+        "emitterLife": 0,
+        "interval": 0,
+        "isLoop": 0,
+        "isOnce": 1
+    },
+    "EmitterLocalTransform": {
+        "translate": [
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    "EmitterTranslate": {
+        "attraction": 0.0,
+        "isEasing": 0,
+        "radius": 0.0
+    },
+    "Parent": {
+        "isParent": 0
+    },
+    "ParticleLifeSpan": {
+        "Max": 120,
+        "Min": 80,
+        "isEmitterLife": 0
+    },
+    "RotateAnimation": {
+        "initializeAngle": {
+            "Max": 0.0,
+            "Min": 0.0
+        },
+        "rotateSpeed": {
+            "Max": 0.0,
+            "Min": 0.0
+        }
+    },
+    "ScaleAnimation": {
+        "End": {
+            "Max": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "Min": [
+                0.0,
+                0.0,
+                0.0
+            ]
+        },
+        "Start": {
+            "Max": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "Min": [
+                0.0,
+                0.0,
+                0.0
+            ]
+        },
+        "isStaticSize": 0,
+        "isUniformScale": 0
+    },
+    "Velocity3D": {
+        "Max": [
+            0.05000000074505806,
+            0.05000000074505806,
+            0.05000000074505806
+        ],
+        "Min": [
+            -0.05000000074505806,
+            -0.05000000074505806,
+            -0.05000000074505806
+        ]
+    },
+    "textureIndex": "Resources/Images/GPUParticle.png"
+}

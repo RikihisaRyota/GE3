@@ -41,8 +41,8 @@ GameScene::GameScene() {
 	TextureManager::GetInstance()->Load("Resources/Images/smoke.png");
 	TextureManager::GetInstance()->Load("Resources/Images/crescent.png");
 
-	soundHandle_ = Audio::GetInstance()->SoundLoad("Resources/Audios/walk.mp3");
-	playHandle_ = Audio::GetInstance()->SoundPlayLoopStart(soundHandle_);
+	//soundHandle_ = Audio::GetInstance()->SoundLoad("Resources/Audios/walk.mp3");
+	//playHandle_ = Audio::GetInstance()->SoundPlayLoopStart(soundHandle_);
 
 	//gpuParticleEditor_->Initialize();
 	gpuParticleManager_->Initialize();
@@ -52,10 +52,12 @@ GameScene::GameScene() {
 	boss_->SetGPUParticleManager(gpuParticleManager_.get());
 
 	GPUParticleShaderStructs::Load("test", testEmitter_);
+	GPUParticleShaderStructs::Load("test1", test1Emitter_);
+	GPUParticleShaderStructs::Load("test2", test2Emitter_);
 	GPUParticleShaderStructs::Load("test", testField_);
 
 	//fieldWorldTransform_.Initialize();
-	//field_ = ModelManager::GetInstance()->Load("Resources/Models/Ground/ground_1.gltf");
+	//testModel_ = ModelManager::GetInstance()->Load("Resources/Models/Player/player.gltf");
 	testWorldTransform_.Initialize();
 }
 
@@ -106,14 +108,17 @@ void GameScene::Update(CommandContext& commandContext) {
 	}
 
 
-	//gpuParticleManager_->SetEmitter(testEmitter_, testWorldTransform_.matWorld);
-	gpuParticleManager_->SetField(testField_);
+	gpuParticleManager_->SetEmitter(testEmitter_, testWorldTransform_.matWorld);
+	//gpuParticleManager_->SetEmitter(test1Emitter_, testWorldTransform_.matWorld);
+	//gpuParticleManager_->SetEmitter(test2Emitter_, testWorldTransform_.matWorld);
+	//gpuParticleManager_->SetField(testField_);
 	gpuParticleManager_->Update(*viewProjection_, RenderManager::GetInstance()->GetCommandContext());
 	//gpuParticleEditor_->Update(RenderManager::GetInstance()->GetCommandContext());
 
 	CollisionManager::GetInstance()->Collision();
 #ifdef _DEBUG
-	//RenderManager::GetInstance()->GetHSVFilter().Debug();
+	RenderManager::GetInstance()->GetHSVFilter().Debug();
+	RenderManager::GetInstance()->GetBloom().Debug();
 	ImGui::DragFloat3("Scale", &testWorldTransform_.scale.x, 0.1f);
 	ImGui::DragFloat3("Translate", &testWorldTransform_.translate.x, 0.1f);
 	testWorldTransform_.UpdateMatrix();
@@ -140,8 +145,10 @@ void GameScene::Update(CommandContext& commandContext) {
 	for (auto& object : gameObject_) {
 		object->DrawImGui();
 	}
-	GPUParticleShaderStructs::Debug("test", testEmitter_);
 	GPUParticleShaderStructs::Debug("test", testField_);
+	GPUParticleShaderStructs::Debug("test", testEmitter_);
+	GPUParticleShaderStructs::Debug("test1", test1Emitter_);
+	GPUParticleShaderStructs::Debug("test2", test2Emitter_);
 	GPUParticleShaderStructs::Update();
 	if (Input::GetInstance()->PushKey(DIK_R)) {
 		skybox_->Initialize();
@@ -183,6 +190,8 @@ void GameScene::Draw(CommandContext& commandContext) {
 		object->DrawDebug();
 	}
 	GPUParticleShaderStructs::DebugDraw(testEmitter_);
+	GPUParticleShaderStructs::DebugDraw(test1Emitter_);
+	GPUParticleShaderStructs::DebugDraw(test2Emitter_);
 	GPUParticleShaderStructs::DebugDraw(testField_);
 #endif // _DEBUG
 

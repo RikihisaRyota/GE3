@@ -142,7 +142,7 @@ void BossStateRushAttack::Initialize(CommandContext& commandContext) {
 		manager_.gpuParticleManager_->SetTransformModelEmitter(boss->GetModelHandle(), modelHandle_, data_.transformTrainEmitter);
 		data_.transformRailEmitter.modelWorldMatrix = railWorldTransform_.matWorld;
 		GPUParticleShaderStructs::TransformAreaEmitterForCPU  emitter = data_.transformRailEmitter;
-		emitter.emitterArea.position = railWorldTransform_.translate;
+		emitter.emitterArea.position = worldTransform_.translate;
 		emitter.modelWorldMatrix = railWorldTransform_.matWorld;
 		manager_.gpuParticleManager_->SetTransformAreaEmitter(railModelHandle_, emitter);
 	}
@@ -194,6 +194,12 @@ void BossStateRushAttack::Update(CommandContext& commandContext) {
 		manager_.ChangeState<BossStateRoot>();
 		data_.trainEmitter.isAlive = false;
 		data_.railEmitter.isAlive = false;
+		data_.transformRailVertexEmitter.color = data_.railEmitter.color;
+		data_.transformRailVertexEmitter.scale.range.start = data_.railEmitter.scale.range.start;
+		data_.transformRailVertexEmitter.localTransform.translate = data_.railEmitter.localTransform.translate;
+		data_.transformRailVertexEmitter.localTransform.rotate = data_.railEmitter.localTransform.rotate;
+
+		manager_.gpuParticleManager_->SetVertexEmitter(railModelHandle_, data_.transformRailVertexEmitter);
 	}
 	manager_.gpuParticleManager_->SetVertexEmitter(modelHandle_, data_.trainEmitter);
 	manager_.gpuParticleManager_->SetVertexEmitter(railModelHandle_, data_.railEmitter);
@@ -288,6 +294,8 @@ void BossStateSmashAttack::Initialize(CommandContext& commandContext) {
 	SetDesc();
 	modelHandle_ = ModelManager::GetInstance()->Load("Resources/Models/Boss/hand.gltf");
 	worldTransform_.Initialize();
+	worldTransform_.translate.y = data_.y;
+	worldTransform_.UpdateMatrix();
 	for (uint32_t i = 0; i < data_.smashCount; i++) {
 		SmashDesc desc{};
 		desc.collider = std::make_unique<OBBCollider>();
@@ -295,7 +303,7 @@ void BossStateSmashAttack::Initialize(CommandContext& commandContext) {
 		desc.collider->SetCollisionAttribute(CollisionAttribute::Boss);
 		desc.collider->SetCollisionMask(CollisionAttribute::Player | CollisionAttribute::PlayerBullet);
 		desc.collider->SetName("Boss");
-		desc.collider->SetIsActive(true);
+		desc.collider->SetIsActive(false);
 		desc.transform.Initialize();
 		// カウント
 		uint32_t emitterCount = desc.emitter.emitterCount;
@@ -373,9 +381,7 @@ void BossStateSmashAttack::Update(CommandContext& commandContext) {
 
 	}
 	for (auto& smash : smash_) {
-		for (auto& smash : smash_) {
-			manager_.gpuParticleManager_->SetVertexEmitter(modelHandle_, smash.emitter);
-		}
+		manager_.gpuParticleManager_->SetVertexEmitter(modelHandle_, smash.emitter);
 	}
 }
 
@@ -383,11 +389,20 @@ void BossStateSmashAttack::DebugDraw() {}
 
 void BossStateSmashAttack::OnCollision(const ColliderDesc& collisionInfo) {}
 
-void BossStateSmashAttack::UpdateTransform() {}
+void BossStateSmashAttack::UpdateTransform() {
+	worldTransform_.UpdateMatrix();
+	for (auto& smash : smash_) {
+
+		smash.transform.UpdateMatrix();
+		smash.collider->SetCenter(smash.transform.translate);
+		smash.collider->SetOrientation(smash.transform.rotate);
+		smash.collider->SetSize(smash.transform.scale);
+	}
+}
 
 void BossStateSmashAttack::SetLocation() {
 	for (auto& smash : smash_) {
-		//smash.start
+
 	}
 }
 
@@ -414,14 +429,30 @@ void BossStateManager::Initialize() {
 	JSON_PARENT();
 	JSON_ROOT();
 
+	JSON_OBJECT("SmashAttack");
+	JSON_OBJECT("Animation");
+	JSON_LOAD_BY_NAME("allFrame", jsonData_.smashAttack.allFrame);
+	JSON_LOAD_BY_NAME("transitionFrame", jsonData_.smashAttack.transitionFrame);
+	JSON_PARENT();
+	JSON_OBJECT("Collider");
+	JSON_LOAD_BY_NAME("size", jsonData_.smashAttack.collider.size);
+	JSON_PARENT();
+	JSON_OBJECT("Properties");
+	JSON_LOAD_BY_NAME("height", jsonData_.smashAttack.y);
+	JSON_LOAD_BY_NAME("count", jsonData_.smashAttack.smashCount);
+	JSON_PARENT();
+	JSON_ROOT();
+
 	JSON_CLOSE();
 	GPUParticleShaderStructs::Load("root", jsonData_.root.transformEmitter);
 
 	GPUParticleShaderStructs::Load("train", jsonData_.rushAttack.trainEmitter);
 	GPUParticleShaderStructs::Load("train", jsonData_.rushAttack.transformTrainEmitter);
 	GPUParticleShaderStructs::Load("rail", jsonData_.rushAttack.railEmitter);
+	GPUParticleShaderStructs::Load("transformRailVertexEmitter", jsonData_.rushAttack.transformRailVertexEmitter);
 	GPUParticleShaderStructs::Load("rail", jsonData_.rushAttack.transformRailEmitter);
-
+	GPUParticleShaderStructs::Load("smash", jsonData_.smashAttack.smashEmitter);
+	GPUParticleShaderStructs::Load("smash", jsonData_.smashAttack.transformEmitter);
 	activeStateEnum_ = kRoot;
 	standbyStateEnum_ = kRoot;
 	ChangeState<BossStateRoot>();
@@ -447,6 +478,8 @@ void BossStateManager::Update(CommandContext& commandContext) {
 
 void BossStateManager::DrawImGui() {
 #ifdef _DEBUG
+
+
 	ImGui::Begin("InGame");
 	if (ImGui::BeginMenu("Boss")) {
 		if (ImGui::TreeNode("BossStateManager")) {
@@ -466,6 +499,9 @@ void BossStateManager::DrawImGui() {
 					break;
 				case kRushAttack:
 					ChangeState<BossStateRushAttack>();
+					break;
+				case kSmashAttack:
+					ChangeState<BossStateSmashAttack>();
 					break;
 				default:
 					break;
@@ -497,6 +533,25 @@ void BossStateManager::DrawImGui() {
 				}
 				ImGui::TreePop();
 			}
+			if (ImGui::TreeNode("SmashAttack")) {
+				if (ImGui::TreeNode("Properties")) {
+					ImGui::DragFloat("height", &jsonData_.smashAttack.y, 0.1f, 0.0f);
+					int i = jsonData_.smashAttack.smashCount;
+					ImGui::DragInt("count", &i, 1, 0, 10);
+					jsonData_.smashAttack.smashCount = i;
+					ImGui::TreePop();
+				}
+				if (ImGui::TreeNode("Collider")) {
+					ImGui::DragFloat3("size", &jsonData_.smashAttack.collider.size.x, 0.1f, 0.0f);
+					ImGui::TreePop();
+				}
+				if (ImGui::TreeNode("Animation")) {
+					ImGui::DragFloat("allFrame", &jsonData_.smashAttack.allFrame, 0.1f, 0.0f);
+					ImGui::DragFloat("transitionFrame", &jsonData_.smashAttack.transitionFrame, 0.1f, 0.0f);
+					ImGui::TreePop();
+				}
+				ImGui::TreePop();
+			}
 
 			if (ImGui::Button("Save")) {
 				JSON_OPEN("Resources/Data/Boss/bossState.json");
@@ -520,12 +575,29 @@ void BossStateManager::DrawImGui() {
 				JSON_SAVE_BY_NAME("end", jsonData_.rushAttack.end);
 				JSON_PARENT();
 				JSON_ROOT();
+
+				JSON_OBJECT("SmashAttack");
+				JSON_OBJECT("Animation");
+				JSON_SAVE_BY_NAME("allFrame", jsonData_.smashAttack.allFrame);
+				JSON_SAVE_BY_NAME("transitionFrame", jsonData_.smashAttack.transitionFrame);
+				JSON_PARENT();
+				JSON_OBJECT("Collider");
+				JSON_SAVE_BY_NAME("size", jsonData_.smashAttack.collider.size);
+				JSON_PARENT();
+				JSON_OBJECT("Properties");
+				JSON_SAVE_BY_NAME("height", jsonData_.smashAttack.y);
+				JSON_SAVE_BY_NAME("count", jsonData_.smashAttack.smashCount);
+				JSON_PARENT();
+				JSON_ROOT();
+
 				JSON_CLOSE();
-				GPUParticleShaderStructs::Save("root", jsonData_.root.transformEmitter);
-				GPUParticleShaderStructs::Save("rushAttack", jsonData_.rushAttack.trainEmitter);
-				GPUParticleShaderStructs::Save("rushAttack", jsonData_.rushAttack.transformTrainEmitter);
-				GPUParticleShaderStructs::Save("rail", jsonData_.rushAttack.railEmitter);
-				GPUParticleShaderStructs::Save("rail", jsonData_.rushAttack.transformRailEmitter);
+				//GPUParticleShaderStructs::Save("root", jsonData_.root.transformEmitter);
+				//GPUParticleShaderStructs::Save("rushAttack", jsonData_.rushAttack.trainEmitter);
+				//GPUParticleShaderStructs::Save("rushAttack", jsonData_.rushAttack.transformTrainEmitter);
+				//GPUParticleShaderStructs::Save("rail", jsonData_.rushAttack.railEmitter);
+				//GPUParticleShaderStructs::Save("rail", jsonData_.rushAttack.transformRailEmitter);
+				//GPUParticleShaderStructs::Save("smash", jsonData_.smashAttack.smashEmitter);
+				//GPUParticleShaderStructs::Save("smash", jsonData_.smashAttack.transformEmitter);
 			}
 			ImGui::TreePop();
 		}
@@ -537,6 +609,10 @@ void BossStateManager::DrawImGui() {
 	GPUParticleShaderStructs::Debug("train", jsonData_.rushAttack.transformTrainEmitter);
 	GPUParticleShaderStructs::Debug("rail", jsonData_.rushAttack.railEmitter);
 	GPUParticleShaderStructs::Debug("rail", jsonData_.rushAttack.transformRailEmitter);
+	GPUParticleShaderStructs::Debug("transformRailVertexEmitter", jsonData_.rushAttack.transformRailVertexEmitter);
+	GPUParticleShaderStructs::Debug("smash", jsonData_.smashAttack.smashEmitter);
+	GPUParticleShaderStructs::Debug("smash", jsonData_.smashAttack.transformEmitter);
+
 #endif // _DEBUG
 }
 // 特定の型に対する GetStateEnum の特殊化
@@ -548,4 +624,9 @@ BossStateManager::State BossStateManager::GetStateEnum<BossStateRoot>() {
 template<>
 BossStateManager::State BossStateManager::GetStateEnum<BossStateRushAttack>() {
 	return kRushAttack;
+}
+
+template<>
+BossStateManager::State BossStateManager::GetStateEnum<BossStateSmashAttack>() {
+	return kSmashAttack;
 }

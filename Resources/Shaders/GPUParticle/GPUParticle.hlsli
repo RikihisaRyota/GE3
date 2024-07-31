@@ -385,8 +385,8 @@ struct ParticleLifeTime
 };
 
 struct ParticleAttributes {
-	uint32_t mask;
 	uint32_t attribute;
+	uint32_t mask;
 	float32_t2 pad;
 };
 struct Translate {
@@ -529,8 +529,10 @@ struct EmitterModel {
 };
 
 struct EmitterLocalTransform {
-	float32_t3 translate;
+	float32_t3 scale;
 	float32_t pad;
+	float32_t3 translate;
+	float32_t pad1;
     float32_t4 rotate;
 };
 
@@ -642,6 +644,8 @@ struct MeshEmitter {
 };
 
 struct VertexEmitter {
+    Translate translate;
+
 	EmitterLocalTransform localTransform;
 
 	ScaleAnimation scale;
@@ -767,9 +771,8 @@ void ParticleArea(inout Particle particle,EmitterArea area ,inout uint32_t seed)
         normal.y = randomRange(-1.0f, 1.0f,seed);
         normal.z = randomRange(-1.0f, 1.0f,seed);
         direction=normalize(normal);
-        float distanceFactor = randomRange(area.sphere.distanceFactor.min, area.sphere.distanceFactor.max, seed);
-        direction *= area.sphere.radius * distanceFactor;
-        particle.translate.translate += direction;
+        float32_t distanceFactor = randomRange(area.sphere.distanceFactor.min, area.sphere.distanceFactor.max, seed);
+        particle.translate.translate +=  direction * (area.sphere.radius * distanceFactor);
     } else if(area.type==2){
         float32_t3 normal,direction,p;
         p = randomRangeSame(area.capsule.segment.origin+area.position, area.capsule.segment.diff+area.position,seed);
@@ -777,7 +780,7 @@ void ParticleArea(inout Particle particle,EmitterArea area ,inout uint32_t seed)
         normal.y = randomRange(-1.0f, 1.0f,seed);
         normal.z = randomRange(-1.0f, 1.0f,seed);
         direction = normalize(normal);
-        float distanceFactor = randomRange(area.capsule.distanceFactor.min, area.capsule.distanceFactor.max, seed);
+        float32_t distanceFactor = randomRange(area.capsule.distanceFactor.min, area.capsule.distanceFactor.max, seed);
         direction *=  area.capsule.radius * distanceFactor;
         particle.translate.translate =  pointOnCapsule(p + direction, area.capsule.segment.origin +area.position,area.capsule.segment.diff +area.position,area.capsule.radius ,randomRange(area.capsule.distanceFactor.min,area.capsule.distanceFactor.max,seed));
     }
@@ -878,7 +881,7 @@ void ParticleTranslate(inout Particle particle,EmitterArea area ,Translate trans
         direction *=  area.capsule.radius * distanceFactor;
         particle.translate.translate =  pointOnCapsule(p + direction, area.capsule.segment.origin +area.position,area.capsule.segment.diff +area.position,area.capsule.radius ,randomRange(area.capsule.distanceFactor.min,area.capsule.distanceFactor.max,seed));
     }
-    particle.translate.easing.min = particle.translate.translate ;
+    particle.translate.easing.min = particle.translate.translate;
 }
 
 void CreateParticle(inout Particle particle,Emitter emitter ,inout uint32_t seed,uint32_t emitterCount){
@@ -909,14 +912,15 @@ void CreateParticle(inout Particle particle,VertexEmitter emitter ,float32_t3 tr
     ParticleReset(particle);
 
     SetParent(particle, emitter.parent,emitterCount);
-
-    particle.translate.translate = translate;
     
     ParticleLifeTime(particle, emitter.particleLifeSpan,seed);
     
     ParticleScale(particle, emitter.scale,seed);
     
     ParticleRotate(particle, emitter.rotateAnimation,seed);
+
+    ParticleTranslate(particle,emitter.translate,seed);
+    particle.translate.translate = translate;
     
     ParticleVelocity(particle, emitter.velocity3D,seed);
     

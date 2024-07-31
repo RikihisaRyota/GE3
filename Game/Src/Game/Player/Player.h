@@ -113,6 +113,8 @@ private:
 	float animationTime_;
 	float transitionTime_;
 	bool onTransition_;
+	// 遷移なしでアニメーションスタート
+	bool immediatelyTransition_;
 
 	Vector4 colliderColor_;
 

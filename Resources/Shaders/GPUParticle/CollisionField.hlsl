@@ -45,8 +45,8 @@ void main( uint3 DTid : SV_DispatchThreadID , uint3 GTid : SV_GroupThreadID)
                 if(sdAABB(
                     particle[particleIndex].translate.translate,
                     origalField[fieldIndex].fieldArea.position,
-                    origalField[fieldIndex].fieldArea.aabb.range.min,
-                    origalField[fieldIndex].fieldArea.aabb.range.max) <= 0){
+                    origalField[fieldIndex].fieldArea.aabb.range.min+origalField[fieldIndex].fieldArea.position,
+                    origalField[fieldIndex].fieldArea.aabb.range.max+origalField[fieldIndex].fieldArea.position) <= 0){
                     UpdateField(origalField[fieldIndex],particle[particleIndex]);
                 }
             }

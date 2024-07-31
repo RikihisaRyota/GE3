@@ -180,6 +180,8 @@ namespace Animation {
 		commandContext.SetComputeUAV(kOutputVertex, vertexBuffer.GetGPUVirtualAddress());
 		commandContext.SetComputeConstantBuffer(kSkinningInfomation, skinningInfomation.GetGPUVirtualAddress());
 		commandContext.Dispatch(UINT(model.GetAllVertexCount() + 1023) / 1024, 1, 1);
+
+		commandContext.UAVBarrier(vertexBuffer);
 	}
 
 }

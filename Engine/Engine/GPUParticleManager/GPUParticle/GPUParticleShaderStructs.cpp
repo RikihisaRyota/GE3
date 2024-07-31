@@ -180,8 +180,11 @@ namespace GPUParticleShaderStructs {
 	void DrawTranslate(GPUParticleShaderStructs::Translate& translate) {
 #ifdef _DEBUG
 		if (ImGui::TreeNode("Translate")) {
-			ImGui::DragFloat("Radius",&translate.radius,0.1f,0.0f);
-			ImGui::DragFloat("Attraction",&translate.attraction,0.001f,0.0f);
+			ImGui::Checkbox("IsEasing", reinterpret_cast<bool*>(&translate.isEasing));
+			if (translate.isEasing) {
+				ImGui::DragFloat("Radius", &translate.radius, 0.1f, 0.0f);
+				ImGui::DragFloat("Attraction", &translate.attraction, 0.001f, 0.0f);
+			}
 			ImGui::TreePop();
 		}
 #endif // _DEBUG
@@ -426,7 +429,7 @@ namespace GPUParticleShaderStructs {
 				ImGui::CheckboxFlags("Player Bullet", &particleAttributes.mask, CollisionAttribute::PlayerBullet);
 				ImGui::CheckboxFlags("Boss", &particleAttributes.mask, CollisionAttribute::Boss);
 				ImGui::CheckboxFlags("GameObject", &particleAttributes.mask, CollisionAttribute::GameObject);
-
+				ImGui::CheckboxFlags("ParticleField", &particleAttributes.mask, CollisionAttribute::ParticleField);
 				ImGui::TreePop();
 			}
 			ImGui::TreePop();
@@ -493,6 +496,7 @@ namespace GPUParticleShaderStructs {
 
 	void LoadTranslate(GPUParticleShaderStructs::Translate& translate) {
 		JSON_OBJECT("EmitterTranslate");
+		JSON_LOAD_BY_NAME("isEasing", translate.isEasing);
 		JSON_LOAD_BY_NAME("radius", translate.radius);
 		JSON_LOAD_BY_NAME("attraction", translate.attraction);
 		JSON_ROOT();
@@ -500,6 +504,7 @@ namespace GPUParticleShaderStructs {
 
 	void SaveTranslate(GPUParticleShaderStructs::Translate& translate) {
 		JSON_OBJECT("EmitterTranslate");
+		JSON_SAVE_BY_NAME("isEasing", translate.isEasing);
 		JSON_SAVE_BY_NAME("radius", translate.radius);
 		JSON_SAVE_BY_NAME("attraction", translate.attraction);
 		JSON_ROOT();
@@ -614,6 +619,7 @@ namespace GPUParticleShaderStructs {
 
 	void LoadFieldArea(GPUParticleShaderStructs::EmitterArea& area) {
 		JSON_OBJECT("FieldArea");
+		JSON_LOAD_BY_NAME("type", area.type);
 		JSON_LOAD_BY_NAME("position", area.position);
 		JSON_OBJECT("FieldAABB");
 		LoadMinMax(area.aabb.area);
@@ -728,8 +734,8 @@ namespace GPUParticleShaderStructs {
 
 	void SaveCollisionInfo(GPUParticleShaderStructs::ParticleAttributes& particleAttributes) {
 		JSON_OBJECT("CollisionInfo");
-		JSON_SAVE_BY_NAME("mask", particleAttributes.mask);
 		JSON_SAVE_BY_NAME("attribute", particleAttributes.attribute);
+		JSON_SAVE_BY_NAME("mask", particleAttributes.mask);
 		JSON_ROOT();
 	}
 
@@ -760,6 +766,7 @@ namespace GPUParticleShaderStructs {
 
 	void SaveFieldArea(GPUParticleShaderStructs::EmitterArea& area) {
 		JSON_OBJECT("FieldArea");
+		JSON_SAVE_BY_NAME("type", area.type);
 		JSON_SAVE_BY_NAME("position", area.position);
 		JSON_OBJECT("FieldAABB");
 		LoadMinMax(area.aabb.area);
@@ -889,6 +896,8 @@ void GPUParticleShaderStructs::EmitterEditor(const std::string name, std::tuple<
 
 	DrawLocalTranslate(desc->localTransform);
 
+	DrawTranslate(desc->translate);
+
 	DrawScale(desc->scale);
 
 	DrawRotate(desc->rotate);
@@ -1006,6 +1015,8 @@ void GPUParticleShaderStructs::EmitterEditor(const std::string name, std::tuple<
 	DrawField(emitter->field);
 
 	DrawFieldFrequency(emitter->frequency);
+
+	DrawCollisionInfo(emitter->collisionInfo);
 
 	if (ImGui::Button("Save")) {
 		GPUParticleShaderStructs::Save(name, *emitter);
@@ -1353,6 +1364,7 @@ void GPUParticleShaderStructs::Save(const std::string name, GPUParticleShaderStr
 void GPUParticleShaderStructs::Load(const std::string name, GPUParticleShaderStructs::VertexEmitterForCPU& desc) {
 	JSON_OPEN("Resources/GPUParticle/VertexParticle/" + name + ".json");
 	LoadLocalTransform(desc.localTransform);
+	LoadTranslate(desc.translate);
 	LoadScale(desc.scale);
 	LoadParticleLife(desc.particleLifeSpan);
 	LoadColor(desc.color);
@@ -1367,6 +1379,7 @@ void GPUParticleShaderStructs::Load(const std::string name, GPUParticleShaderStr
 void GPUParticleShaderStructs::Save(const std::string name, GPUParticleShaderStructs::VertexEmitterForCPU& desc) {
 	JSON_OPEN("Resources/GPUParticle/VertexParticle/" + name + ".json");
 	SaveLocalTransform(desc.localTransform);
+	SaveTranslate(desc.translate);
 	SaveScale(desc.scale);
 	SaveParticleLife(desc.particleLifeSpan);
 	SaveColor(desc.color);
@@ -1448,6 +1461,7 @@ void GPUParticleShaderStructs::Save(const std::string name, FieldForCPU& desc) {
 	SaveFieldArea(desc.fieldArea);
 	SaveField(desc.field);
 	SaveFieldFrequency(desc.frequency);
+	SaveCollisionInfo(desc.collisionInfo);
 	JSON_CLOSE();
 }
 
@@ -1456,5 +1470,6 @@ void GPUParticleShaderStructs::Load(const std::string name, FieldForCPU& desc) {
 	LoadFieldArea(desc.fieldArea);
 	LoadField(desc.field);
 	LoadFieldFrequency(desc.frequency);
+	LoadCollisionInfo(desc.collisionInfo);
 	JSON_CLOSE();
 }

@@ -53,7 +53,7 @@ void PlayerBullet::Draw(const ViewProjection& viewProjection, CommandContext& co
 	ModelManager::GetInstance()->Draw(worldTransform_.matWorld, viewProjection, modelHandle_, commandContext);
 }
 
-void PlayerBullet::DrawDebug(){
+void PlayerBullet::DrawDebug() {
 	collider_->DrawCollision({ 0.0f, 1.0f, 0.0f, 1.0f });
 }
 
@@ -62,10 +62,15 @@ void PlayerBullet::OnCollision(const ColliderDesc& desc) {
 		isAlive_ = false;
 	}
 	if (desc.collider->GetName().find("Boss") != std::string::npos) {
-		emitter_.sharp.emitterArea.position = MakeTranslateMatrix(worldTransform_.matWorld);
-		emitter_.crescent.emitterArea.position = MakeTranslateMatrix(worldTransform_.matWorld);
+		Vector3 position = MakeTranslateMatrix(worldTransform_.matWorld);
+		emitter_.sharp.emitterArea.position = position;
+		emitter_.crescent.emitterArea.position = position;
+		emitter_.bullet.emitterArea.position = position;
+		emitter_.field.fieldArea.position = position;
 		gpuParticleManager_->SetEmitter(emitter_.crescent);
 		gpuParticleManager_->SetEmitter(emitter_.sharp);
+		gpuParticleManager_->SetEmitter(emitter_.bullet);
+		gpuParticleManager_->SetField(emitter_.field);
 		isAlive_ = false;
 	}
 }

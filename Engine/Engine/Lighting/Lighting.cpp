@@ -12,8 +12,8 @@ Lighting* Lighting::GetInstance() {
 void Lighting::Initialize() {
 	directionLightBuffer_.Create(L"DirectionLightBuffer", sizeof(DirectionLight));
 	directionLightData_ = new DirectionLight();
-	directionLightData_->color = { 1.0f,1.0f,1.0f,1.0f };
-	directionLightData_->direction = { 0.0f,-1.0f,0.0f };
+	directionLightData_->color = { 0.5f,0.5f,0.5f,1.0f };
+	directionLightData_->direction = { 0.0f,1.0f,0.0f };
 	directionLightData_->intensity = 1.0f;
 	directionLightData_->sharpness = 1.0f;
 	directionLightBuffer_.Copy(directionLightData_, sizeof(DirectionLight));
@@ -23,7 +23,7 @@ void Lighting::Initialize() {
 	pointLightData_->color = { 1.0f,1.0f,1.0f,1.0f };
 	pointLightData_->position = { 0.0f,6.0f,0.0f };
 	pointLightData_->intensity = 1.0f;
-	pointLightData_->radius = 5.0f;
+	pointLightData_->radius = 0.0f;
 	pointLightData_->decay = 1.0f;
 	pointLightData_->sharpness = 1.0f;
 	pointLightBuffer_.Copy(pointLightData_, sizeof(PointLight));

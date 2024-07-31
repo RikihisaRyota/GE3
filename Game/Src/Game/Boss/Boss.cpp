@@ -24,6 +24,7 @@ Boss::Boss() {
 	bossStateManager_->SetBoss(this);
 	worldTransform_.Initialize();
 	animationTransform_.Initialize();
+	collisionTransform_.Initialize();
 
 	bossHP_ = std::make_unique<BossHP>();
 
@@ -35,6 +36,7 @@ Boss::Boss() {
 	JSON_LOAD_BY_NAME("radius", radius);
 	JSON_CLOSE();
 	collider_->SetRadius(radius);
+	collider_->SetName("Boss");
 	//collider_->SetCallback([this](const ColliderDesc& collisionInfo) { OnCollision(collisionInfo); });
 	collider_->SetCollisionAttribute(CollisionAttribute::Boss);
 	collider_->SetCollisionMask(CollisionAttribute::Player | CollisionAttribute::PlayerBullet);
@@ -43,6 +45,7 @@ Boss::Boss() {
 	JSON_OPEN("Resources/Data/Boss/boss.json");
 	JSON_OBJECT("bossProperties");
 	JSON_LOAD(offset_);
+	JSON_LOAD(collisionWorldTransformOffset_);
 	JSON_LOAD(animationWorldTransformOffset_);
 	JSON_ROOT();
 	JSON_CLOSE();
@@ -58,6 +61,9 @@ void Boss::Initialize() {
 	worldTransform_.translate = offset_;
 	tsRotate_ = 180.0f;
 	worldTransform_.rotate = MakeRotateYAngleQuaternion(DegToRad(180.0f));
+	collisionTransform_.Reset();
+	collisionTransform_.parent_ = &worldTransform_;
+	collisionTransform_.translate = collisionWorldTransformOffset_;
 	animationTransform_.Reset();
 	animationTransform_.parent_ = &worldTransform_;
 	animationTransform_.translate = animationWorldTransformOffset_;
@@ -66,9 +72,9 @@ void Boss::Initialize() {
 }
 
 void Boss::Update(CommandContext& commandContext) {
-	UpdateGPUParticle(commandContext);
 	bossStateManager_->Update(commandContext);
 	UpdateTransform();
+	UpdateGPUParticle(commandContext);
 	UpdateCollider();
 }
 
@@ -81,21 +87,19 @@ void Boss::DrawImGui() {
 	ImGui::Begin("InGame");
 	if (ImGui::BeginMenu("Boss")) {
 		ImGui::Checkbox("isAliveEmitter", reinterpret_cast<bool*>(&vertexEmitterDesc_.isAlive));
-		auto& color = ModelManager::GetInstance()->GetModel(bossModelHandle_).GetMaterialColor();
-		ImGui::DragFloat3("color", &color.x, 0.1f, 0.0f, 1.0f);
-		ModelManager::GetInstance()->GetModel(bossModelHandle_).SetMaterialColor(color);
 		ImGui::DragFloat3("translate", &worldTransform_.translate.x, 0.1f);
-		ImGui::DragFloat("TestRotate:Y", &tsRotate_, 0.1f, 0.0f, 360.0f);
-		//worldTransform_.rotate = MakeRotateYAngleQuaternion(DegToRad(tsRotate_));
+		ImGui::DragFloat3("collisionTranslate", &collisionTransform_.translate.x, 0.1f);
 		ImGui::DragFloat3("animationTranslate", &animationTransform_.translate.x, 0.1f);
 		ImGui::Text("matWorld: x:%f,y:%f,z:%f", MakeTranslateMatrix(worldTransform_.matWorld).x, MakeTranslateMatrix(worldTransform_.matWorld).y, MakeTranslateMatrix(worldTransform_.matWorld).z, 0.1f);
 		if (ImGui::TreeNode("Properties")) {
 			ImGui::DragFloat3("Offset", &offset_.x, 0.1f);
-			ImGui::DragFloat3("AnimationWorldTransformOffset_", &animationWorldTransformOffset_.x, 0.1f);
+			ImGui::DragFloat3("CollisionWorldTransformOffset", &collisionWorldTransformOffset_.x, 0.1f);
+			ImGui::DragFloat3("AnimationWorldTransformOffset", &animationWorldTransformOffset_.x, 0.1f);
 			if (ImGui::Button("Save")) {
 				JSON_OPEN("Resources/Data/Boss/boss.json");
 				JSON_OBJECT("bossProperties");
 				JSON_SAVE(offset_);
+				JSON_SAVE(collisionWorldTransformOffset_);
 				JSON_SAVE(animationWorldTransformOffset_);
 				JSON_CLOSE();
 			}
@@ -134,7 +138,14 @@ Vector3 Boss::GetWorldTranslate() {
 }
 
 void Boss::UpdateCollider() {
-	collider_->SetCenter(MakeTranslateMatrix(worldTransform_.matWorld));
+	if (bossStateManager_->GetCurrentState() == BossStateManager::State::kRoot &&
+		!bossStateManager_->GetInTransition()) {
+		collider_->SetIsActive(true);
+	}
+	else {
+		collider_->SetIsActive(false);
+	}
+	collider_->SetCenter(MakeTranslateMatrix(collisionTransform_.matWorld));
 }
 
 void Boss::UpdateGPUParticle(CommandContext& commandContext) {
@@ -155,6 +166,7 @@ void Boss::UpdateGPUParticle(CommandContext& commandContext) {
 void Boss::UpdateTransform() {
 	worldTransform_.UpdateMatrix();
 	animationTransform_.UpdateMatrix();
+	collisionTransform_.UpdateMatrix();
 }
 
 void Boss::OnCollisionBody(const ColliderDesc& desc) {

@@ -31,7 +31,7 @@ void RenderManager::Initialize() {
 	mainColorBufferFormat_ = DXGI_FORMAT_R8G8B8A8_UNORM;
 	mainDepthBufferFormat_ = DXGI_FORMAT_D32_FLOAT;
 	auto& swapChainBuffer = swapChain_.GetColorBuffer(targetSwapChainBufferIndex);
-	Color clearColor = { 0.2f,0.2f,0.2f,1.0f };
+	Color clearColor = { 0.0f,0.0f,0.0f,1.0f };
 	for (uint32_t i = 0; i < SwapChain::kNumBuffers; i++) {
 		swapChain_.GetColorBuffer(i).SetClearColor(clearColor);
 	}
@@ -108,6 +108,8 @@ void RenderManager::Initialize() {
 	dissolve_.Initialize(mainColorBuffer_);
 
 	hsvFilter_.Initialize(mainColorBuffer_);
+
+	bloom_.Initialize(mainColorBuffer_);
 	// ImGUi初期化
 
 	ImGuiManager::GetInstance()->Initialize(window->GetHwnd(), swapChain_.GetColorBuffer(targetSwapChainBufferIndex).GetFormat());
@@ -144,6 +146,7 @@ void RenderManager::EndRender(const ViewProjection& viewProjection) {
 	//radialBlur_.Render(commandContext, mainColorBuffer_);
 	//dissolve_.Render(commandContext, mainColorBuffer_);
 	//hsvFilter_.Render(commandContext, mainColorBuffer_);
+	bloom_.Render(commandContext,mainColorBuffer_);
 
 	commandContext.TransitionResource(swapChainColorBuffer, D3D12_RESOURCE_STATE_RENDER_TARGET);
 	commandContext.SetRenderTarget(swapChainColorBuffer.GetRTV());

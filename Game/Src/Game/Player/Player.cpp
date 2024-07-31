@@ -66,6 +66,7 @@ Player::Player() {
 
 void Player::Initialize() {
 	state_ = kRoot;
+	immediatelyTransition_ = false;
 	playerBulletManager_->Initialize();
 	playerHP_->Initialize();
 	playerUI_->Initialize();
@@ -146,7 +147,7 @@ void Player::Update(CommandContext& commandContext) {
 }
 
 void Player::Draw(const ViewProjection& viewProjection, CommandContext& commandContext) {
-	//ModelManager::GetInstance()->Draw(animationTransform_.matWorld, animation_, *viewProjection_, playerModelHandle_, commandContext);
+	ModelManager::GetInstance()->Draw(animationTransform_.matWorld, animation_, *viewProjection_, playerModelHandle_, commandContext);
 
 	playerBulletManager_->Draw(viewProjection, commandContext);
 }
@@ -195,6 +196,7 @@ void Player::OnCollision(const ColliderDesc& desc) {
 			velocity_ = { 0.0f,0.0f,0.0f };
 			playerHP_->HitDamage(1);
 			tmpState_ = kHitDamage;
+			immediatelyTransition_ = true;
 			Vector3 vector = Vector3(desc.normal.x, 0.0f, desc.normal.z);
 			if (vector.Length() == 0.0f) {
 				vector.y = 1.0f;
@@ -222,13 +224,17 @@ void Player::GPUParticleSpawn(CommandContext& commandContext) {
 	vertexEmitterDesc_.localTransform.translate = MakeTranslateMatrix(worldTransform_.matWorld);
 	// 謎インバース
 	vertexEmitterDesc_.localTransform.rotate = Inverse(worldTransform_.rotate);
-	gpuParticleManager_->SetVertexEmitter(playerModelHandle_, animation_, vertexEmitterDesc_, worldTransform_.matWorld);
+	//vertexEmitterDesc_.localTransform.scale = {10.0f,10.0f,10.0f};
+	//gpuParticleManager_->SetVertexEmitter(playerModelHandle_, animation_, vertexEmitterDesc_, worldTransform_.matWorld);
 	footEmitter_.fugitiveDust.emitterArea.position = MakeTranslateMatrix(worldTransform_.matWorld);
 	footEmitter_.fugitiveDust.emitterArea.position = MakeTranslateMatrix(worldTransform_.matWorld);
 	gpuParticleManager_->SetEmitter(footEmitter_.fugitiveDust);
 }
 
 void Player::UpdateTransform() {
+	static const float kStageLimit = 15.0f;
+	worldTransform_.translate.x = std::clamp(worldTransform_.translate.x, -kStageLimit, kStageLimit);
+	worldTransform_.translate.z = std::clamp(worldTransform_.translate.z, -kStageLimit, kStageLimit);
 	worldTransform_.UpdateMatrix();
 	auto& mesh = ModelManager::GetInstance()->GetModel(playerModelHandle_).GetMeshData().at(0);
 	Vector3 modelSize = mesh->meshes->max - mesh->meshes->min;
@@ -365,7 +371,13 @@ void Player::DrawImGui() {
 }
 
 void Player::AnimationUpdate(CommandContext& commandContext) {
-	if (state_ != preState_) {
+	if (immediatelyTransition_) {
+		immediatelyTransition_ = false;
+		animationTime_ = 0.0f;
+		currentAnimationHandle_ = animationInfo_[name_.at(state_)].handle;
+		preAnimationHandle_ = animationInfo_[name_.at(preState_)].handle;
+	}
+	else if (state_ != preState_ ) {
 		onTransition_ = true;
 		transitionTime_ = 0.0f;
 		currentAnimationHandle_ = animationInfo_[name_.at(state_)].handle;

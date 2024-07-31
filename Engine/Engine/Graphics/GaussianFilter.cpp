@@ -87,7 +87,6 @@ void GaussianFilter::Initialize(const ColorBuffer& target) {
 	}
 	{
 		temporaryBuffer_.Create(L"GaussianFilterTempBuffer", target.GetWidth(), target.GetHeight(), target.GetFormat());
-
 	}
 }
 

@@ -20,7 +20,8 @@ public:
 	struct BulletEmitter {
 		GPUParticleShaderStructs::EmitterForCPU sharp;
 		GPUParticleShaderStructs::EmitterForCPU crescent;
-
+		GPUParticleShaderStructs::EmitterForCPU bullet;
+		GPUParticleShaderStructs::FieldForCPU field;
 	};
 	void Create(GPUParticleManager* GPUParticleManager, const Vector3& position, const Vector3& velocity, uint32_t time,const BulletEmitter& emitter);
 	void Update();
@@ -29,6 +30,7 @@ public:
 	bool GetIsAlive() { return isAlive_; }
 
 	const Vector3 GetPosition()const { return worldTransform_.translate; }
+	const Quaternion GetRotate()const { return worldTransform_.rotate; }
 	const float GetRadius() const { return radius_; }
 	void SetBoss(Boss* boss) { boss_ = boss; }
 private:

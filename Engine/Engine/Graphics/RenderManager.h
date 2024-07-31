@@ -11,6 +11,7 @@
 #include "RadialBlur.h"
 #include "Dissolve.h"
 #include "HSVFilter.h"
+#include "Bloom.h"
 
 struct ViewProjection;
 class RenderManager {
@@ -30,6 +31,7 @@ public:
 	RadialBlur& GetRadialBlur() { return radialBlur_; }
 	Dissolve& GetDissolve() { return dissolve_; }
 	HSVFilter& GetHSVFilter() { return hsvFilter_; }
+	Bloom& GetBloom() { return bloom_; }
 
 	CommandContext& GetCommandContext() { return commandContext_; }
 
@@ -63,6 +65,7 @@ private:
 	RadialBlur radialBlur_;
 	Dissolve dissolve_;
 	HSVFilter hsvFilter_;
+	Bloom bloom_;
 
 	PipelineState pipelineState_;
 	RootSignature rootSignature_;

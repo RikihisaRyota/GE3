@@ -159,6 +159,7 @@
     <ClCompile Include="Engine\Engine\GPUParticleManager\GPUParticle\GPUParticle.cpp" />
     <ClCompile Include="Engine\Engine\GPUParticleManager\GPUParticle\GPUParticleEditor.cpp" />
     <ClCompile Include="Engine\Engine\GPUParticleManager\GPUParticle\GPUParticleShaderStructs.cpp" />
+    <ClCompile Include="Engine\Engine\Graphics\Bloom.cpp" />
     <ClCompile Include="Engine\Engine\Graphics\CommandAllocatorPool.cpp" />
     <ClCompile Include="Engine\Engine\Graphics\CommandSignature.cpp" />
     <ClCompile Include="Engine\Engine\Graphics\DefaultBuffer.cpp" />
@@ -251,6 +252,7 @@
     <ClInclude Include="Engine\Engine\GPUParticleManager\GPUParticle\GPUParticle.h" />
     <ClInclude Include="Engine\Engine\GPUParticleManager\GPUParticle\GPUParticleEditor.h" />
     <ClInclude Include="Engine\Engine\GPUParticleManager\GPUParticle\GPUParticleShaderStructs.h" />
+    <ClInclude Include="Engine\Engine\Graphics\Bloom.h" />
     <ClInclude Include="Engine\Engine\Graphics\CommandAllocatorPool.h" />
     <ClInclude Include="Engine\Engine\Graphics\CommandSignature.h" />
     <ClInclude Include="Engine\Engine\Graphics\DefaultBuffer.h" />
@@ -399,6 +401,14 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <FxCompile Include="Resources\Shaders\Bloom\Bloom.PS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Demo|x64'">Pixel</ShaderType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Demo|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </FxCompile>
     <FxCompile Include="Resources\Shaders\Dissolve\Dissolve.PS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>

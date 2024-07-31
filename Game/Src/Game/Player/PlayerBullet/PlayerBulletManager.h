@@ -39,4 +39,5 @@ private:
 	int32_t bulletCoolTime_;
 	Vector3 offset_;
 	PlayerBullet::BulletEmitter  emitter_;
+	ModelHandle modelHandle_;
 };

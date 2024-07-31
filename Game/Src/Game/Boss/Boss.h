@@ -52,6 +52,7 @@ private:
 	ModelHandle bossModelHandle_;
 	Animation::Animation animation_;
 
+	WorldTransform collisionTransform_;
 	WorldTransform animationTransform_;
 
 	GPUParticleShaderStructs::MeshEmitterForCPU meshEmitterDesc_;
@@ -70,6 +71,7 @@ private:
 
 #pragma region Properties
 	Vector3 offset_;
+	Vector3 collisionWorldTransformOffset_;
 	Vector3 animationWorldTransformOffset_;
 #pragma endregion
 

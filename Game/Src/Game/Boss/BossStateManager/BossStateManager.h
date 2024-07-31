@@ -78,6 +78,7 @@ public:
 	struct JsonData {
 		GPUParticleShaderStructs::VertexEmitterForCPU  trainEmitter;
 		GPUParticleShaderStructs::VertexEmitterForCPU  railEmitter;
+		GPUParticleShaderStructs::VertexEmitterForCPU  transformRailVertexEmitter;
 		GPUParticleShaderStructs::TransformModelEmitterForCPU  transformTrainEmitter;
 		GPUParticleShaderStructs::TransformAreaEmitterForCPU  transformRailEmitter;
 		OBB collider;
@@ -149,11 +150,13 @@ public:
 		"None",
 		"Root",
 		"RushAttack",
+		"SmashAttack",
 	};
 	enum State {
 		kNone,
 		kRoot,
 		kRushAttack,
+		kSmashAttack,
 		kCount,
 	};
 

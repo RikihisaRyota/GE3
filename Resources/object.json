@@ -3,94 +3,6 @@
     "objects": [
         {
             "type": "ARMATURE",
-            "name": "Armature.001",
-            "transform": {
-                "translation": [
-                    0.0,
-                    30.0,
-                    -10.0
-                ],
-                "rotation": [
-                    3.0908619663705394e-08,
-                    -0.7071067690849304,
-                    -0.7071067690849304,
-                    3.0908619663705394e-08
-                ],
-                "scaling": [
-                    1.0,
-                    1.0000001192092896,
-                    1.0000001192092896
-                ]
-            },
-            "children": [
-                {
-                    "type": "MESH",
-                    "name": "Sphere.001",
-                    "transform": {
-                        "translation": [
-                            0.0,
-                            3.576670906113577e-07,
-                            0.0
-                        ],
-                        "rotation": [
-                            1.7763568394002505e-15,
-                            3.552713678800501e-15,
-                            -2.524354896707238e-29,
-                            1.0
-                        ],
-                        "scaling": [
-                            1.0,
-                            1.0,
-                            1.0
-                        ]
-                    }
-                }
-            ]
-        },
-        {
-            "type": "MESH",
-            "name": "立方体",
-            "transform": {
-                "translation": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "rotation": [
-                    0.0,
-                    0.0,
-                    0.0,
-                    1.0
-                ],
-                "scaling": [
-                    1.0,
-                    1.0,
-                    1.0
-                ]
-            },
-            "file_name": "Resources\\Models\\Ground\\ground.gltf",
-            "collider": {
-                "type": "BOX",
-                "center": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "size": [
-                    30.0,
-                    30.0,
-                    12.0
-                ],
-                "rotate": [
-                    0.0,
-                    0.0,
-                    0.0,
-                    1.0
-                ]
-            }
-        },
-        {
-            "type": "ARMATURE",
             "name": "Armature",
             "transform": {
                 "translation": [
@@ -302,6 +214,71 @@
                     1.0
                 ]
             }
+        },
+        {
+            "type": "MESH",
+            "name": "立方体",
+            "transform": {
+                "translation": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.0
+                ],
+                "scaling": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "file_name": "Resources\\Models\\Ground\\ground.gltf",
+            "collider": {
+                "type": "BOX",
+                "center": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "size": [
+                    30.0,
+                    30.0,
+                    12.0
+                ],
+                "rotate": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "type": "MESH",
+            "name": "立方体.001",
+            "transform": {
+                "translation": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.0
+                ],
+                "scaling": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "file_name": "Resources\\Models\\Ground\\ground_2.gltf"
         }
     ]
 }

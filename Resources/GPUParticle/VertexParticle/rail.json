@@ -47,6 +47,11 @@
             0.0
         ]
     },
+    "EmitterTranslate": {
+        "attraction": 0.0,
+        "isEasing": 0,
+        "radius": 0.0
+    },
     "Parent": {
         "isParent": 0
     },

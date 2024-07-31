@@ -15,7 +15,7 @@
 #include "Src/Game/Boss/Boss.h"
 
 PlayerBulletManager::PlayerBulletManager() {
-	ModelManager::GetInstance()->Load("Resources/Models/Bullet/bullet.gltf");
+	modelHandle_=ModelManager::GetInstance()->Load("Resources/Models/Bullet/bullet.gltf");
 	JSON_OPEN("Resources/Data/Player/playerBullet.json");
 	JSON_OBJECT("bulletProperties");
 	JSON_LOAD(bulletLifeTime_);
@@ -27,6 +27,8 @@ PlayerBulletManager::PlayerBulletManager() {
 	JSON_CLOSE();
 	GPUParticleShaderStructs::Load("sharp", emitter_.sharp);
 	GPUParticleShaderStructs::Load("crescent", emitter_.crescent);
+	GPUParticleShaderStructs::Load("bullet", emitter_.bullet);
+	GPUParticleShaderStructs::Load("bullet", emitter_.field);
 }
 
 void PlayerBulletManager::Initialize() {
@@ -45,6 +47,7 @@ void PlayerBulletManager::Update() {
 
 		// 弾が生存していない場合は、リストから削除する
 		if (!(*iter)->GetIsAlive()) {
+			
 			iter = playerBullets_.erase(iter); // 削除して、次の要素を指す
 		}
 		else {
@@ -52,9 +55,9 @@ void PlayerBulletManager::Update() {
 			bullet.collisionInfo.mask = CollisionAttribute::Boss;
 			bullet.bullet.position = (*iter)->GetPosition();
 			bullet.bullet.radius = (*iter)->GetRadius() * 5.0f;
-			bullet.bullet.speed = bulletSpeed_ * 0.1f;
-			bullet.emitter.particleLifeSpan.range.min = 60;
-			bullet.emitter.particleLifeSpan.range.max = 360;
+			bullet.bullet.speed = bulletSpeed_ * 0.2f;
+			bullet.emitter.particleLifeSpan.range.min = 60 * 5;
+			bullet.emitter.particleLifeSpan.range.max = 60 * 5;
 			++iter; // 次の弾へ移動
 			gpuParticleManager_->SetBullet(bullet);
 		}
@@ -93,6 +96,8 @@ void PlayerBulletManager::DrawImGui() {
 	ImGui::End();
 	GPUParticleShaderStructs::Debug("sharp", emitter_.sharp);
 	GPUParticleShaderStructs::Debug("crescent", emitter_.crescent);
+	GPUParticleShaderStructs::Debug("bullet", emitter_.bullet);
+	GPUParticleShaderStructs::Debug("bullet", emitter_.field);
 #endif // _DEBUG
 }
 

@@ -15,6 +15,7 @@ public:
 
 	void Initialize(const ColorBuffer& target);
 	void Render(CommandContext& commandContext, ColorBuffer& texture);
+	ColorBuffer& GetTemporaryBuffer() { return temporaryBuffer_; }
 private:
 	RootSignature rootSignature_;
 	PipelineState pipelineState_;

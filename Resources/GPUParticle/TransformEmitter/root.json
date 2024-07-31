@@ -89,10 +89,11 @@
         "emitterLife": 0,
         "interval": 0,
         "isLoop": 0,
-        "isOnce": 0
+        "isOnce": 1
     },
     "EmitterTranslate": {
         "attraction": 0.03999999910593033,
+        "isEasing": 1,
         "radius": 5.0
     },
     "Parent": {

@@ -13,7 +13,7 @@
     "RushAttack": {
         "Animation": {
             "allFrame": 360.0,
-            "transitionFrame": 60.0
+            "transitionFrame": 120.0
         },
         "Collider": {
             "size": [
@@ -34,6 +34,23 @@
                 13.0,
                 0.0
             ]
+        }
+    },
+    "SmashAttack": {
+        "Animation": {
+            "allFrame": 360.0,
+            "transitionFrame": 120.0
+        },
+        "Collider": {
+            "size": [
+                0.0,
+                0.0,
+                0.0
+            ]
+        },
+        "Properties": {
+            "count": 1,
+            "height": 15.0
         }
     }
 }

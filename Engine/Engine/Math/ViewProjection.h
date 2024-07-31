@@ -36,7 +36,7 @@ struct ViewProjection
 	// 深度限界（手前側）
 	float nearZ_ = 1.0f;
 	// 深度限界（奥側）
-	float farZ_ = 100.0f;
+	float farZ_ = 300.0f;
 #pragma endregion
 
 	// ビュー行列

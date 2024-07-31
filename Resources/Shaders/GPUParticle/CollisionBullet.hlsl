@@ -67,14 +67,14 @@ void main( uint3 DTid : SV_DispatchThreadID )
                 b.position=bullets[i].bullet.position;
                 b.radius=bullets[i].bullet.radius;
                 if(Collision(a,b)){
-                    float32_t3 v =particle[index].translate.translate- bullets[i].bullet.position;
-                    particle[index].velocity = normalize(v)* bullets[i].bullet.speed;
-                    particle[index].particleLifeTime.isEmitterLife = false;
-                    particle[index].particleLifeTime.time=0;
-                    particle[index].particleLifeTime.maxTime= randomRange(bullets[i].emitter.particleLifeSpan.range.min, bullets[i].emitter.particleLifeSpan.range.max, seed);
-                    particle[index].translate.isEasing=false;
-
-                    particle[index].isHit=true;
+                    float32_t3 v =particle[index].translate.translate - bullets[i].bullet.position;
+                    particle[index].velocity = normalize(v) * bullets[i].bullet.speed;
+                    particle[index].translate.translate += normalize(v) * particle[index].translate.radius; //bullets[i].bullet.speed*5.0f;
+                    particle[index].particleLifeTime.time = 0;
+                    //particle[index].particleLifeTime.maxTime= randomRange(bullets[i].emitter.particleLifeSpan.range.min, bullets[i].emitter.particleLifeSpan.range.max, seed);
+                    //particle[index].particleLifeTime.isEmitterLife = false;
+                    //particle[index].translate.isEasing=false;
+                    //particle[index].isHit=true;
                 }
             }
         }

@@ -140,6 +140,15 @@ void CommandContext::CopyBuffer(GpuResource& dest, GpuResource& src) {
 	commandList_->CopyResource(dest, src);
 }
 
+void CommandContext::CopyBuffer(GpuResource& dest, size_t bufferSize, const void* bufferData) {
+	assert(bufferData);
+
+	auto allocation = currentDynamicBuffers_[LinearAllocatorType::kUpload].Allocate(bufferSize, 256);
+	memcpy(allocation.cpuAddress, bufferData, bufferSize);
+
+	CopyBufferRegion(dest,0,allocation.buffer,allocation.offset, bufferSize);
+}
+
 void CommandContext::CopyBufferRegion(GpuResource& dest, UINT64 destOffset, GpuResource& src, UINT64 srcOffset, UINT64 NumBytes) {
 	TransitionResource(dest, D3D12_RESOURCE_STATE_COPY_DEST);
 	TransitionResource(src, D3D12_RESOURCE_STATE_COPY_SOURCE);
@@ -238,6 +247,7 @@ void CommandContext::SetDynamicVertexBuffer(UINT slot, size_t numVertices, size_
 	size_t bufferSize = LinearAllocator().AlignUp(numVertices * vertexStride, 32);
 	auto allocation = currentDynamicBuffers_[LinearAllocatorType::kUpload].Allocate(bufferSize);
 	memcpy(allocation.cpuAddress, vertexData, bufferSize);
+	//TransitionResource(allocation.buffer, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
 	D3D12_VERTEX_BUFFER_VIEW vbv{
 		.BufferLocation = allocation.gpuAddress,
 		.SizeInBytes = UINT(bufferSize),
@@ -254,6 +264,7 @@ void CommandContext::SetDynamicIndexBuffer(size_t numIndices, DXGI_FORMAT indexF
 	size_t bufferSize = LinearAllocator().AlignUp(numIndices * stride, 16);
 	auto allocation = currentDynamicBuffers_[LinearAllocatorType::kUpload].Allocate(bufferSize);
 	memcpy(allocation.cpuAddress, indexData, bufferSize);
+	//TransitionResource(allocation.buffer, D3D12_RESOURCE_STATE_INDEX_BUFFER);
 	D3D12_INDEX_BUFFER_VIEW ibv{
 		.BufferLocation = allocation.gpuAddress,
 		.SizeInBytes = UINT(numIndices * stride),

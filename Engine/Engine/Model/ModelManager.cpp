@@ -213,7 +213,12 @@ void ModelManager::Draw(const Matrix4x4& worldMatrix, const ViewProjection& view
 		constBufferDataWorldTransform.matWorld = worldMatrix;
 		constBufferDataWorldTransform.inverseMatWorld = Transpose(Inverse(worldMatrix));
 		commandContext.SetGraphicsDynamicConstantBufferView(Parameter::RootParameter::WorldTransform, sizeof(ConstBufferDataWorldTransform), &constBufferDataWorldTransform);
-		commandContext.SetGraphicsConstantBuffer(Parameter::RootParameter::ViewProjection, viewProjection.constBuff_.GetGPUVirtualAddress());
+		ConstBufferDataViewProjection constBufferDataViewProjection{};
+		constBufferDataViewProjection.view = viewProjection.matView_;
+		constBufferDataViewProjection.projection = viewProjection.matProjection_;
+		constBufferDataViewProjection.inverseView = Inverse(viewProjection.matView_);
+		constBufferDataViewProjection.cameraPos = viewProjection.translation_;
+		commandContext.SetGraphicsDynamicConstantBufferView(Parameter::RootParameter::ViewProjection, sizeof(ConstBufferDataViewProjection),&constBufferDataViewProjection);
 		commandContext.SetGraphicsConstantBuffer(Parameter::RootParameter::DirectionLight, Lighting::GetInstance()->GetDirectionLightBuffer().GetGPUVirtualAddress());
 		commandContext.SetGraphicsConstantBuffer(Parameter::RootParameter::PointLight, Lighting::GetInstance()->GetPointLightBuffer().GetGPUVirtualAddress());
 		commandContext.SetGraphicsConstantBuffer(Parameter::RootParameter::Material, models_.at(modelHandle)->GetMaterialBuffer().GetGPUVirtualAddress());

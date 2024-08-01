@@ -46,14 +46,14 @@ void BossStateRoot::Update(CommandContext& commandContext) {
 	}
 	else {
 		time_ += 1.0f / data_.allFrame;
-		if (time_ >= 1.0f) {
+		/*if (time_ >= 1.0f) {
 			BossStateManager::State tmp = static_cast<BossStateManager::State>((rnd_.NextUIntLimit() % 1) + int(BossStateManager::State::kRushAttack));
 			switch (tmp) {
 			case BossStateManager::State::kRushAttack:
 				manager_.ChangeState<BossStateRushAttack >();
 				break;
 			}
-		}
+		}*/
 		time_ = std::fmod(time_, 1.0f);
 	}
 
@@ -305,6 +305,8 @@ void BossStateSmashAttack::Initialize(CommandContext& commandContext) {
 		desc.collider->SetName("Boss");
 		desc.collider->SetIsActive(false);
 		desc.transform.Initialize();
+		desc.transform.parent_ = &worldTransform_;
+		desc.transform.UpdateMatrix();
 		// カウント
 		uint32_t emitterCount = desc.emitter.emitterCount;
 		desc.emitter = data_.smashEmitter;
@@ -392,7 +394,6 @@ void BossStateSmashAttack::OnCollision(const ColliderDesc& collisionInfo) {}
 void BossStateSmashAttack::UpdateTransform() {
 	worldTransform_.UpdateMatrix();
 	for (auto& smash : smash_) {
-
 		smash.transform.UpdateMatrix();
 		smash.collider->SetCenter(smash.transform.translate);
 		smash.collider->SetOrientation(smash.transform.rotate);

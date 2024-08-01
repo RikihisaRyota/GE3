@@ -147,7 +147,7 @@ void Player::Update(CommandContext& commandContext) {
 }
 
 void Player::Draw(const ViewProjection& viewProjection, CommandContext& commandContext) {
-	ModelManager::GetInstance()->Draw(animationTransform_.matWorld, animation_, *viewProjection_, playerModelHandle_, commandContext);
+	//ModelManager::GetInstance()->Draw(animationTransform_.matWorld, animation_, *viewProjection_, playerModelHandle_, commandContext);
 
 	playerBulletManager_->Draw(viewProjection, commandContext);
 }
@@ -225,7 +225,7 @@ void Player::GPUParticleSpawn(CommandContext& commandContext) {
 	// 謎インバース
 	vertexEmitterDesc_.localTransform.rotate = Inverse(worldTransform_.rotate);
 	//vertexEmitterDesc_.localTransform.scale = {10.0f,10.0f,10.0f};
-	//gpuParticleManager_->SetVertexEmitter(playerModelHandle_, animation_, vertexEmitterDesc_, worldTransform_.matWorld);
+	gpuParticleManager_->SetVertexEmitter(playerModelHandle_, animation_, vertexEmitterDesc_, worldTransform_.matWorld);
 	footEmitter_.fugitiveDust.emitterArea.position = MakeTranslateMatrix(worldTransform_.matWorld);
 	footEmitter_.fugitiveDust.emitterArea.position = MakeTranslateMatrix(worldTransform_.matWorld);
 	gpuParticleManager_->SetEmitter(footEmitter_.fugitiveDust);

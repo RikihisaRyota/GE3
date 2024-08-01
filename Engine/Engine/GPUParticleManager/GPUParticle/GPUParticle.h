@@ -120,9 +120,9 @@ private:
 		void Spawn(CommandContext& commandContext);
 		void UpdateParticle(CommandContext& commandContext);
 		DefaultBuffer originalBuffer;
-		UploadBuffer uploadCopyBuffer;
+		//UploadBuffer uploadCopyBuffer;
 		DefaultBuffer defaultCopyBuffer;
-		UploadBuffer addCountBuffer;
+		DefaultBuffer  addCountBuffer;
 		DefaultBuffer createEmitterBuffer;
 		GPUParticleShaderStructs::EmitterType type;
 	};

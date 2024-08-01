@@ -802,6 +802,7 @@
     <None Include="Resources\Shaders\Skybox\Skybox.hlsli">
       <Filter>Shaders\Skybox</Filter>
     </None>
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Resources\Shaders\Model.VS.hlsl">

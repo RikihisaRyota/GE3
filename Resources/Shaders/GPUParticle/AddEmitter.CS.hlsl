@@ -15,11 +15,16 @@ RWStructuredBuffer<int32_t> createTransformModelEmitterCounter : register(u7);
 RWStructuredBuffer<TransformAreaEmitter> origalTransformAreaEmitter : register(u8);
 RWStructuredBuffer<int32_t> createTransformAreaEmitterCounter : register(u9);
 
-StructuredBuffer<Emitter> addEmitter : register(t0);
-StructuredBuffer<VertexEmitter> addVertexEmitter : register(t1);
-StructuredBuffer<MeshEmitter> addMeshEmitter : register(t2);
-StructuredBuffer<TransformModelEmitter> addTransformModelEmitter : register(t3);
-StructuredBuffer<TransformAreaEmitter> addTransformAreaEmitter : register(t4);
+RWStructuredBuffer<Emitter> addEmitter : register(u10);
+RWStructuredBuffer<VertexEmitter> addVertexEmitter : register(u11);
+RWStructuredBuffer<MeshEmitter> addMeshEmitter : register(u12);
+RWStructuredBuffer<TransformModelEmitter> addTransformModelEmitter : register(u13);
+RWStructuredBuffer<TransformAreaEmitter> addTransformAreaEmitter : register(u14);
+
+void ResetEmitter(inout int32_t emitterCount,inout uint32_t isAlive){
+    emitterCount = -1;
+    isAlive = false;
+}
 
 [numthreads(emitterSize, 1, 1)]
 void main(uint3 DTid : SV_DispatchThreadID)
@@ -37,6 +42,7 @@ void main(uint3 DTid : SV_DispatchThreadID)
 
         if (!currentEmitter.isAlive && newEmitter.isAlive) {
             origalEmitter[index] = newEmitter;
+            ResetEmitter(addEmitter[val].emitterCount,addEmitter[val].isAlive);
         }
     }
 
@@ -50,6 +56,7 @@ void main(uint3 DTid : SV_DispatchThreadID)
 
         if (!currentEmitter.isAlive && newEmitter.isAlive) {
             origalVertexEmitter[index] = newEmitter;
+            ResetEmitter(addVertexEmitter[val].emitterCount,addVertexEmitter[val].isAlive);
         }
     }
 
@@ -63,6 +70,7 @@ void main(uint3 DTid : SV_DispatchThreadID)
 
         if (!currentEmitter.isAlive && newEmitter.isAlive) {
             origalMeshEmitter[index] = newEmitter;
+            ResetEmitter(addMeshEmitter[val].emitterCount,addMeshEmitter[val].isAlive);
         }
     }
 
@@ -76,6 +84,7 @@ void main(uint3 DTid : SV_DispatchThreadID)
 
         if (!currentEmitter.isAlive && newEmitter.isAlive) {
             origalTransformModelEmitter[index] = newEmitter;
+            ResetEmitter(addTransformModelEmitter[val].emitterCount,addTransformModelEmitter[val].isAlive);
         }
     }
 
@@ -89,6 +98,7 @@ void main(uint3 DTid : SV_DispatchThreadID)
 
         if (!currentEmitter.isAlive && newEmitter.isAlive) {
             origalTransformAreaEmitter[index] = newEmitter;
+            ResetEmitter(addTransformAreaEmitter[val].emitterCount,addTransformAreaEmitter[val].isAlive);
         }
     }
 }

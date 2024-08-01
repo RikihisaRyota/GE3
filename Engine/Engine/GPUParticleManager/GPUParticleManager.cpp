@@ -503,11 +503,11 @@ void GPUParticleManager::CreateEmitter() {
 		rootParameters[AddEmitterRootParameter::kOriginalTransformAreaEmitter].InitAsUnorderedAccessView(8);
 		rootParameters[AddEmitterRootParameter::kAddTransfomrAreaEmitterCount].InitAsUnorderedAccessView(9);
 
-		rootParameters[AddEmitterRootParameter::kAddEmitter].InitAsShaderResourceView(0);
-		rootParameters[AddEmitterRootParameter::kAddVertexEmitter].InitAsShaderResourceView(1);
-		rootParameters[AddEmitterRootParameter::kAddMeshEmitter].InitAsShaderResourceView(2);
-		rootParameters[AddEmitterRootParameter::kAddTransformModelEmitter].InitAsShaderResourceView(3);
-		rootParameters[AddEmitterRootParameter::kAddTransformAreaEmitter].InitAsShaderResourceView(4);
+		rootParameters[AddEmitterRootParameter::kAddEmitter].InitAsUnorderedAccessView(10);
+		rootParameters[AddEmitterRootParameter::kAddVertexEmitter].InitAsUnorderedAccessView(11);
+		rootParameters[AddEmitterRootParameter::kAddMeshEmitter].InitAsUnorderedAccessView(12);
+		rootParameters[AddEmitterRootParameter::kAddTransformModelEmitter].InitAsUnorderedAccessView(13);
+		rootParameters[AddEmitterRootParameter::kAddTransformAreaEmitter].InitAsUnorderedAccessView(14);
 
 		D3D12_ROOT_SIGNATURE_DESC desc{};
 		desc.pParameters = rootParameters;

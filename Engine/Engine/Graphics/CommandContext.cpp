@@ -1,6 +1,8 @@
 #include "CommandContext.h"
 
-#include <assert.h>
+#include <cassert>
+
+#include <pix3.h>
 
 #include "Color.h"
 #include "GraphicsCore.h"
@@ -146,7 +148,7 @@ void CommandContext::CopyBuffer(GpuResource& dest, size_t bufferSize, const void
 	auto allocation = currentDynamicBuffers_[LinearAllocatorType::kUpload].Allocate(bufferSize, 256);
 	memcpy(allocation.cpuAddress, bufferData, bufferSize);
 
-	CopyBufferRegion(dest,0,allocation.buffer,allocation.offset, bufferSize);
+	CopyBufferRegion(dest, 0, allocation.buffer, allocation.offset, bufferSize);
 }
 
 void CommandContext::CopyBufferRegion(GpuResource& dest, UINT64 destOffset, GpuResource& src, UINT64 srcOffset, UINT64 NumBytes) {
@@ -247,7 +249,8 @@ void CommandContext::SetDynamicVertexBuffer(UINT slot, size_t numVertices, size_
 	size_t bufferSize = LinearAllocator().AlignUp(numVertices * vertexStride, 32);
 	auto allocation = currentDynamicBuffers_[LinearAllocatorType::kUpload].Allocate(bufferSize);
 	memcpy(allocation.cpuAddress, vertexData, bufferSize);
-	//TransitionResource(allocation.buffer, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
+	TransitionResource(allocation.buffer, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
+	FlushResourceBarriers();
 	D3D12_VERTEX_BUFFER_VIEW vbv{
 		.BufferLocation = allocation.gpuAddress,
 		.SizeInBytes = UINT(bufferSize),
@@ -264,7 +267,8 @@ void CommandContext::SetDynamicIndexBuffer(size_t numIndices, DXGI_FORMAT indexF
 	size_t bufferSize = LinearAllocator().AlignUp(numIndices * stride, 16);
 	auto allocation = currentDynamicBuffers_[LinearAllocatorType::kUpload].Allocate(bufferSize);
 	memcpy(allocation.cpuAddress, indexData, bufferSize);
-	//TransitionResource(allocation.buffer, D3D12_RESOURCE_STATE_INDEX_BUFFER);
+	TransitionResource(allocation.buffer, D3D12_RESOURCE_STATE_INDEX_BUFFER);
+	FlushResourceBarriers();
 	D3D12_INDEX_BUFFER_VIEW ibv{
 		.BufferLocation = allocation.gpuAddress,
 		.SizeInBytes = UINT(numIndices * stride),
@@ -382,4 +386,16 @@ void CommandContext::ExecuteIndirect(const CommandSignature& commandSignature, U
 void CommandContext::Dispatch(uint32_t x, uint32_t y, uint32_t z) {
 	FlushResourceBarriers();
 	commandList_->Dispatch(x, y, z);
+}
+
+void CommandContext::BeginEvent(const std::wstring& name) {
+	PIXBeginEvent(commandList_.Get(), 0, name.c_str());
+}
+
+void CommandContext::EndEvent() {
+	PIXEndEvent(commandList_.Get());
+}
+
+void CommandContext::SetMarker(const std::wstring& name) {
+	PIXSetMarker(commandList_.Get(), 0, name.c_str());
 }

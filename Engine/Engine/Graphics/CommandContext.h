@@ -4,6 +4,8 @@
 #include <d3d12.h>
 #include <wrl/client.h>
 
+#include <string>
+
 #include "ColorBuffer.h"
 #include "DepthBuffer.h"
 #include "GPUResource.h"
@@ -86,6 +88,11 @@ public:
 	void ExecuteIndirect(const CommandSignature& commandSignature, UINT maxCommandCount,ID3D12Resource* argumentBuffer,UINT64 argumentBufferOffset, ID3D12Resource* countBuffer, UINT64 countBufferOffset);
 
 	void Dispatch(uint32_t x, uint32_t y, uint32_t z);
+
+	void BeginEvent(const std::wstring& name);
+	void EndEvent();
+
+	void SetMarker(const std::wstring& name);
 
 	operator ID3D12GraphicsCommandList* () const { return commandList_.Get(); }
 private:

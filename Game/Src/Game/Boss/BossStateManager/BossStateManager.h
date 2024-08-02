@@ -140,6 +140,7 @@ private:
 	void OnCollision(const ColliderDesc& collisionInfo);
 	void UpdateTransform();
 	void SetLocation();
+	void CreateSmash();
 	std::vector<SmashDesc> smash_;
 	JsonData data_;
 };

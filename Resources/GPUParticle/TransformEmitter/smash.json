@@ -37,11 +37,11 @@
     "EmitterFrequency": {
         "emitterLife": 0,
         "interval": 0,
-        "isLoop": 1,
+        "isLoop": 0,
         "isOnce": 1
     },
     "EmitterTranslate": {
-        "attraction": 0.03999999910593033,
+        "attraction": 0.0010000000474974513,
         "isEasing": 1,
         "radius": 5.0
     },
@@ -49,9 +49,9 @@
         "isParent": 0
     },
     "ParticleLifeSpan": {
-        "Max": 0,
-        "Min": 0,
-        "isEmitterLife": 1
+        "Max": 120,
+        "Min": 120,
+        "isEmitterLife": 0
     },
     "RotateAnimation": {
         "initializeAngle": {
@@ -93,14 +93,14 @@
     },
     "Velocity3D": {
         "Max": [
-            0.0,
-            0.0,
-            0.0
+            0.10000000149011612,
+            0.10000000149011612,
+            0.10000000149011612
         ],
         "Min": [
-            0.0,
-            0.0,
-            0.0
+            -0.10000000149011612,
+            -0.10000000149011612,
+            -0.10000000149011612
         ]
     },
     "textureIndex": "Resources/Images/GPUParticle.png"

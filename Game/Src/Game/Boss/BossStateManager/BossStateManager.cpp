@@ -1,5 +1,7 @@
 #include "BossStateManager.h"
 
+#include <numbers>
+
 #include "../Boss.h"
 #include "Engine/Json/JsonUtils.h"
 #include "Engine/ImGui/ImGuiManager.h"
@@ -46,14 +48,14 @@ void BossStateRoot::Update(CommandContext& commandContext) {
 	}
 	else {
 		time_ += 1.0f / data_.allFrame;
-		if (time_ >= 1.0f) {
-			BossStateManager::State tmp = static_cast<BossStateManager::State>((rnd_.NextUIntLimit() % 1) + int(BossStateManager::State::kRushAttack));
-			switch (tmp) {
-			case BossStateManager::State::kRushAttack:
-				manager_.ChangeState<BossStateRushAttack >();
-				break;
-			}
-		}
+		//if (time_ >= 1.0f) {
+		//	BossStateManager::State tmp = static_cast<BossStateManager::State>((rnd_.NextUIntLimit() % 1) + int(BossStateManager::State::kRushAttack));
+		//	switch (tmp) {
+		//	case BossStateManager::State::kRushAttack:
+		//		manager_.ChangeState<BossStateRushAttack >();
+		//		break;
+		//	}
+		//}
 		time_ = std::fmod(time_, 1.0f);
 	}
 
@@ -294,27 +296,11 @@ void BossStateSmashAttack::Initialize(CommandContext& commandContext) {
 	SetDesc();
 	modelHandle_ = ModelManager::GetInstance()->Load("Resources/Models/Boss/hand.gltf");
 	worldTransform_.Initialize();
-	worldTransform_.translate.y = data_.y;
+	//worldTransform_.translate.y = data_.y;
 	worldTransform_.UpdateMatrix();
-	for (uint32_t i = 0; i < data_.smashCount; i++) {
-		SmashDesc desc{};
-		desc.collider = std::make_unique<OBBCollider>();
-		desc.collider->SetCallback([this](const ColliderDesc& collisionInfo) { OnCollision(collisionInfo); });
-		desc.collider->SetCollisionAttribute(CollisionAttribute::Boss);
-		desc.collider->SetCollisionMask(CollisionAttribute::Player | CollisionAttribute::PlayerBullet);
-		desc.collider->SetName("Boss");
-		desc.collider->SetIsActive(false);
-		desc.transform.Initialize();
-		desc.transform.parent_ = &worldTransform_;
-		desc.transform.UpdateMatrix();
-		// カウント
-		uint32_t emitterCount = desc.emitter.emitterCount;
-		desc.emitter = data_.smashEmitter;
-		desc.emitter.emitterCount = emitterCount;
-		desc.start = Vector3(0.0f, 10.0f, 0.0f);
-		desc.end = Vector3(0.0f, 0.0f, 0.0f);
-		smash_.emplace_back(std::move(desc));
-	}
+
+	SetLocation();
+
 	time_ = 0.0f;
 	auto boss = manager_.boss_;
 
@@ -323,11 +309,14 @@ void BossStateSmashAttack::Initialize(CommandContext& commandContext) {
 		smash.emitter.isAlive = false;
 	}
 	// TransformEmitter
-	data_.smashEmitter.color.range.start = boss->GetVertexEmitter().color.range.start;
 	if (manager_.GetPreState() == BossStateManager::State::kRoot) {
 		for (auto& smash : smash_) {
 			data_.transformEmitter.startModelWorldMatrix = boss->GetWorldMatrix();
 			data_.transformEmitter.endModelWorldMatrix = smash.transform.matWorld;
+			data_.transformEmitter.color.range.start = boss->GetVertexEmitter().color.range.start;
+			data_.transformEmitter.color.range.end = data_.smashEmitter.color.range.start;
+			data_.transformEmitter.scale.range.start = boss->GetVertexEmitter().scale.range.start;
+			data_.transformEmitter.scale.range.end = data_.smashEmitter.scale.range.start;
 			manager_.gpuParticleManager_->SetTransformModelEmitter(boss->GetModelHandle(), modelHandle_, data_.transformEmitter);
 		}
 	}
@@ -404,9 +393,57 @@ void BossStateSmashAttack::UpdateTransform() {
 }
 
 void BossStateSmashAttack::SetLocation() {
-	for (auto& smash : smash_) {
+	static const uint32_t kMaxCircleNum = 3;
+	static const float kCircleRadius = 5.0f;
+	static const float kObjectRadius = 6.0f;
+	// 円の数
+	for (uint32_t circleNum = 1; circleNum <= kMaxCircleNum; ++circleNum) {
+		// 現在の円の半径
+		float currentRadius = kCircleRadius * circleNum;
 
+		// 円周の長さを計算
+		float circumference = std::numbers::pi_v<float> * 2.0f * currentRadius;
+
+		// オブジェクトの数を計算
+		uint32_t divisionNum = static_cast<uint32_t>(circumference / kObjectRadius);
+
+		// 円周上に等間隔にポジションをセット
+		for (uint32_t i = 0; i < divisionNum; ++i) {
+			CreateSmash();
+			auto& smash = smash_.back();
+			smash.transform.translate.x = std::cosf(DegToRad(360.0f * i / divisionNum)) * currentRadius;
+			smash.transform.translate.y = data_.y;
+			smash.transform.translate.z = std::sinf(DegToRad(360.0f * i / divisionNum)) * currentRadius;
+			// 円の中心に(Quaternion)
+			Vector3 direction = Vector3(smash.transform.translate.x, 0.0f, smash.transform.translate.z).Normalize();
+			smash.transform.rotate = MakeLookRotation(direction);
+			smash.transform.UpdateMatrix();
+			smash.start = smash.transform.translate;
+			smash.end = { smash.start.x, 0.0f, smash.start.z };
+		}
 	}
+
+}
+
+void BossStateSmashAttack::CreateSmash() {
+	SmashDesc desc{};
+	desc.collider = std::make_unique<OBBCollider>();
+	desc.collider->SetCallback([this](const ColliderDesc& collisionInfo) { OnCollision(collisionInfo); });
+	desc.collider->SetCollisionAttribute(CollisionAttribute::Boss);
+	desc.collider->SetCollisionMask(CollisionAttribute::Player | CollisionAttribute::PlayerBullet);
+	desc.collider->SetName("Boss");
+	desc.collider->SetIsActive(false);
+	desc.transform.Initialize();
+	desc.transform.parent_ = &worldTransform_;
+	desc.transform.UpdateMatrix();
+	// カウント
+	uint32_t emitterCount = desc.emitter.emitterCount;
+	desc.emitter = data_.smashEmitter;
+	desc.emitter.emitterCount = emitterCount;
+	desc.start = Vector3(0.0f, data_.y, 0.0f);
+	desc.end = Vector3(0.0f, 0.0f, 0.0f);
+
+	smash_.emplace_back(std::move(desc));
 }
 
 void BossStateManager::Initialize() {

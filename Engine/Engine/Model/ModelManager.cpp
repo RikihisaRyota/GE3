@@ -214,14 +214,17 @@ void ModelManager::Draw(const Matrix4x4& worldMatrix, const ViewProjection& view
 		constBufferDataWorldTransform.inverseMatWorld = Transpose(Inverse(worldMatrix));
 		commandContext.SetGraphicsDynamicConstantBufferView(Parameter::RootParameter::WorldTransform, sizeof(ConstBufferDataWorldTransform), &constBufferDataWorldTransform);
 		ConstBufferDataViewProjection constBufferDataViewProjection{};
-		constBufferDataViewProjection.view = viewProjection.matView_;
-		constBufferDataViewProjection.projection = viewProjection.matProjection_;
-		constBufferDataViewProjection.inverseView = Inverse(viewProjection.matView_);
-		constBufferDataViewProjection.cameraPos = viewProjection.translation_;
-		commandContext.SetGraphicsDynamicConstantBufferView(Parameter::RootParameter::ViewProjection, sizeof(ConstBufferDataViewProjection),&constBufferDataViewProjection);
-		commandContext.SetGraphicsConstantBuffer(Parameter::RootParameter::DirectionLight, Lighting::GetInstance()->GetDirectionLightBuffer().GetGPUVirtualAddress());
-		commandContext.SetGraphicsConstantBuffer(Parameter::RootParameter::PointLight, Lighting::GetInstance()->GetPointLightBuffer().GetGPUVirtualAddress());
-		commandContext.SetGraphicsConstantBuffer(Parameter::RootParameter::Material, models_.at(modelHandle)->GetMaterialBuffer().GetGPUVirtualAddress());
+		constBufferDataViewProjection = *viewProjection.constMap_;
+		commandContext.SetGraphicsDynamicConstantBufferView(Parameter::RootParameter::ViewProjection, sizeof(ConstBufferDataViewProjection), &constBufferDataViewProjection);
+		Lighting::DirectionLight directionLight{};
+		directionLight = *Lighting::GetInstance()->GetDirectionLight();
+		commandContext.SetGraphicsDynamicConstantBufferView(Parameter::RootParameter::DirectionLight, sizeof(Lighting::DirectionLight), &directionLight);
+		Lighting::PointLight pointLight{};
+		pointLight = *Lighting::GetInstance()->GetPointLight();
+		commandContext.SetGraphicsDynamicConstantBufferView(Parameter::RootParameter::PointLight, sizeof(Lighting::PointLight), &pointLight);
+		Model::Material material{};
+		material = models_.at(modelHandle)->GetMaterialData();
+		commandContext.SetGraphicsDynamicConstantBufferView(Parameter::RootParameter::Material, sizeof(Model::Material), &material);
 		commandContext.SetGraphicsDescriptorTable(Parameter::RootParameter::Texture, TextureManager::GetInstance()->GetTexture(models_.at(modelHandle)->GetTextureHandle()).GetSRV());
 		/// いったん決め打ち
 		commandContext.SetGraphicsDescriptorTable(Parameter::RootParameter::EnvironmentalMap, TextureManager::GetInstance()->GetTexture(TextureManager::GetInstance()->Load("Resources/Images/Skybox/rostock_laage_airport_4k.dds")).GetSRV());
@@ -248,10 +251,18 @@ void ModelManager::Draw(const Matrix4x4& worldMatrix, Animation::Animation& skin
 		constBufferDataWorldTransform.matWorld = worldMatrix;
 		constBufferDataWorldTransform.inverseMatWorld = Transpose(Inverse(worldMatrix));
 		commandContext.SetGraphicsDynamicConstantBufferView(Parameter::RootParameter::WorldTransform, sizeof(ConstBufferDataWorldTransform), &constBufferDataWorldTransform);
-		commandContext.SetGraphicsConstantBuffer(Parameter::RootParameter::ViewProjection, viewProjection.constBuff_.GetGPUVirtualAddress());
-		commandContext.SetGraphicsConstantBuffer(Parameter::RootParameter::DirectionLight, Lighting::GetInstance()->GetDirectionLightBuffer().GetGPUVirtualAddress());
-		commandContext.SetGraphicsConstantBuffer(Parameter::RootParameter::PointLight, Lighting::GetInstance()->GetPointLightBuffer().GetGPUVirtualAddress());
-		commandContext.SetGraphicsConstantBuffer(Parameter::RootParameter::Material, models_.at(modelHandle)->GetMaterialBuffer().GetGPUVirtualAddress());
+		ConstBufferDataViewProjection constBufferDataViewProjection{};
+		constBufferDataViewProjection = *viewProjection.constMap_;
+		commandContext.SetGraphicsDynamicConstantBufferView(Parameter::RootParameter::ViewProjection, sizeof(ConstBufferDataViewProjection), &constBufferDataViewProjection);
+		Lighting::DirectionLight directionLight{};
+		directionLight = *Lighting::GetInstance()->GetDirectionLight();
+		commandContext.SetGraphicsDynamicConstantBufferView(Parameter::RootParameter::DirectionLight, sizeof(Lighting::DirectionLight), &directionLight);
+		Lighting::PointLight pointLight{};
+		pointLight = *Lighting::GetInstance()->GetPointLight();
+		commandContext.SetGraphicsDynamicConstantBufferView(Parameter::RootParameter::PointLight, sizeof(Lighting::PointLight), &pointLight);
+		Model::Material material{};
+		material = models_.at(modelHandle)->GetMaterialData();
+		commandContext.SetGraphicsDynamicConstantBufferView(Parameter::RootParameter::Material,sizeof(Model::Material), &material);
 		commandContext.SetGraphicsDescriptorTable(Parameter::RootParameter::Texture, TextureManager::GetInstance()->GetTexture(models_.at(modelHandle)->GetTextureHandle()).GetSRV());
 		/// いったん決め打ち
 		commandContext.SetGraphicsDescriptorTable(Parameter::RootParameter::EnvironmentalMap, TextureManager::GetInstance()->GetTexture(TextureManager::GetInstance()->Load("Resources/Images/Skybox/rostock_laage_airport_4k.dds")).GetSRV());

@@ -46,14 +46,14 @@ void BossStateRoot::Update(CommandContext& commandContext) {
 	}
 	else {
 		time_ += 1.0f / data_.allFrame;
-		/*if (time_ >= 1.0f) {
+		if (time_ >= 1.0f) {
 			BossStateManager::State tmp = static_cast<BossStateManager::State>((rnd_.NextUIntLimit() % 1) + int(BossStateManager::State::kRushAttack));
 			switch (tmp) {
 			case BossStateManager::State::kRushAttack:
 				manager_.ChangeState<BossStateRushAttack >();
 				break;
 			}
-		}*/
+		}
 		time_ = std::fmod(time_, 1.0f);
 	}
 
@@ -311,6 +311,8 @@ void BossStateSmashAttack::Initialize(CommandContext& commandContext) {
 		uint32_t emitterCount = desc.emitter.emitterCount;
 		desc.emitter = data_.smashEmitter;
 		desc.emitter.emitterCount = emitterCount;
+		desc.start = Vector3(0.0f, 10.0f, 0.0f);
+		desc.end = Vector3(0.0f, 0.0f, 0.0f);
 		smash_.emplace_back(std::move(desc));
 	}
 	time_ = 0.0f;
@@ -370,8 +372,8 @@ void BossStateSmashAttack::Update(CommandContext& commandContext) {
 			smash.transform.translate = Lerp(smash.start, smash.end, t);
 			UpdateTransform();
 
-			smash.emitter.localTransform.translate = MakeTranslateMatrix(worldTransform_.matWorld);
-			smash.emitter.localTransform.rotate = Inverse(MakeRotateMatrix(worldTransform_.matWorld));
+			smash.emitter.localTransform.translate = MakeTranslateMatrix(smash.transform.matWorld);
+			smash.emitter.localTransform.rotate = Inverse(MakeRotateMatrix(smash.transform.matWorld));
 		}
 	}
 

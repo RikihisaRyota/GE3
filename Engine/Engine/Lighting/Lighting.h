@@ -30,7 +30,9 @@ public:
 	void Update();
 
 	const UploadBuffer& GetDirectionLightBuffer() const { return directionLightBuffer_; }
+	DirectionLight* GetDirectionLight() const { return directionLightData_; }
 	const UploadBuffer& GetPointLightBuffer() const { return pointLightBuffer_; }
+	PointLight* GetPointLight() const { return pointLightData_; }
 private:
 	UploadBuffer directionLightBuffer_;
 	DirectionLight* directionLightData_;

@@ -256,8 +256,10 @@ void GPUParticle::UpdateEmitter(CommandContext& commandContext) {
 	commandContext.UAVBarrier(transformAreaEmitterForGPUDesc_.originalBuffer);
 	commandContext.UAVBarrier(createParticleCounterCopySrcBuffer_);
 	// x
+	// 合計何個のパーティクルを生成するのか
 	commandContext.CopyBufferRegion(spawnArgumentBuffer_, 0, createParticleCounterCopySrcBuffer_, 0, sizeof(UINT));
 	// y
+	// エミッターの数
 	commandContext.CopyBufferRegion(spawnArgumentBuffer_, sizeof(UINT), createParticleBuffer_, createParticleBuffer_.GetCounterOffset(), sizeof(UINT));
 	commandContext.EndEvent();
 }

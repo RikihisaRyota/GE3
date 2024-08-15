@@ -80,6 +80,10 @@ namespace GPUParticleShaderStructs {
 
 struct Particle
 {
+	struct TriangleInfo {
+		float3 vertex;
+		float3 weight;
+	} info;
 	struct Float3MinMax
 	{
 		float3 min;
@@ -161,7 +165,16 @@ struct Particle
 		uint32_t pad;
 	};
 
+	struct TriangleInfo {
+		Vector3 vertex;
+		//float pad;
+		Vector3 weight;
+		//float pad1;
+	};
+
 	struct Particle {
+		TriangleInfo triangleInfo;
+
 		Vector3MinMax scaleRange;
 		ParticleLifeTime particleLifeTime;
 
@@ -484,6 +497,8 @@ struct Particle
 			emitterCount = staticEmitterCount;
 			staticEmitterCount++;
 		}
+		Translate translate;
+
 		EmitterLocalTransform localTransform;
 
 		ScaleAnimation scale;
@@ -519,6 +534,8 @@ struct Particle
 	};
 
 	struct MeshEmitterForGPU {
+		Translate translate;
+
 		EmitterLocalTransform localTransform;
 
 		ScaleAnimation scale;
@@ -776,7 +793,9 @@ struct Particle
 	struct CreateParticle {
 		uint32_t emitterIndex;
 		int32_t createParticleNum;
+		uint32_t maxCreateParticleNum;
 		uint32_t emitterType;
+
 	};
 
 	// 弾

@@ -406,8 +406,17 @@ struct ParticleParent{
     uint32_t pad;
 };
 
+struct TriangleInfo {
+	float32_t3 vertex;
+    //float32_t pad;
+	float32_t3 weight;
+    //float32_t pad1;
+};
+
 struct Particle
 {
+    TriangleInfo triangleInfo;
+
     Float3MinMax scaleRange;
 
     ParticleLifeTime particleLifeTime;
@@ -612,6 +621,8 @@ struct TransformAreaEmitter {
 	};
 
 struct MeshEmitter {
+    Translate translate;
+
     EmitterLocalTransform localTransform;
 
 	ScaleAnimation scale;
@@ -712,6 +723,7 @@ struct CreateParticleNum
 {
     uint32_t emitterNum;
     int32_t createParticleNum;
+    uint32_t maxCreateParticleNum;
     uint32_t emitterType;
 };
 struct EmitterCounterBuffer
@@ -884,6 +896,11 @@ void ParticleTranslate(inout Particle particle,EmitterArea area ,Translate trans
     particle.translate.easing.min = particle.translate.translate;
 }
 
+void ParticleTriangleInfo(inout Particle particle,TriangleInfo triangleInfo){
+    particle.triangleInfo=triangleInfo;
+}
+
+
 void CreateParticle(inout Particle particle,Emitter emitter ,inout uint32_t seed,uint32_t emitterCount){
     particle.textureIndex = emitter.textureIndex;
     particle.collisionInfo = emitter.collisionInfo;
@@ -905,7 +922,7 @@ void CreateParticle(inout Particle particle,Emitter emitter ,inout uint32_t seed
     ParticleColor(particle, emitter.color,seed); 
 }
 
-void CreateParticle(inout Particle particle,VertexEmitter emitter ,float32_t3 translate,inout uint32_t seed,uint32_t emitterCount){
+void CreateParticle(inout Particle particle,VertexEmitter emitter,float32_t3 translate,TriangleInfo triangleInfo,inout uint32_t seed,uint32_t emitterCount){
     particle.textureIndex = emitter.textureIndex;
     particle.collisionInfo = emitter.collisionInfo;
     
@@ -918,6 +935,8 @@ void CreateParticle(inout Particle particle,VertexEmitter emitter ,float32_t3 tr
     ParticleScale(particle, emitter.scale,seed);
     
     ParticleRotate(particle, emitter.rotateAnimation,seed);
+
+    ParticleTriangleInfo(particle,triangleInfo);
 
     ParticleTranslate(particle,emitter.translate,seed);
     particle.translate.translate = translate;
@@ -927,11 +946,9 @@ void CreateParticle(inout Particle particle,VertexEmitter emitter ,float32_t3 tr
     ParticleColor(particle, emitter.color,seed); 
 }
 
-void CreateParticle(inout Particle particle,MeshEmitter emitter,float32_t3 translate, inout uint32_t seed,uint32_t emitterCount){
+void CreateParticle(inout Particle particle,MeshEmitter emitter,float32_t3 translate,TriangleInfo triangleInfo, inout uint32_t seed,uint32_t emitterCount){
     particle.textureIndex = emitter.textureIndex;
     particle.collisionInfo = emitter.collisionInfo;
-
-    particle.translate.translate = translate;
 
     ParticleReset(particle);
     
@@ -942,6 +959,11 @@ void CreateParticle(inout Particle particle,MeshEmitter emitter,float32_t3 trans
     ParticleScale(particle, emitter.scale,seed);
     
     ParticleRotate(particle, emitter.rotateAnimation,seed);
+
+    ParticleTriangleInfo(particle,triangleInfo);
+    
+    ParticleTranslate(particle,emitter.translate,seed);
+    particle.translate.translate = translate;
     
     ParticleVelocity(particle, emitter.velocity3D,seed);
     

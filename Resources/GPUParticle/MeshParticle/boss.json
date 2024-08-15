@@ -6,9 +6,9 @@
     "EmitterColor": {
         "End": {
             "Max": [
-                0.0,
-                0.0,
-                1.0,
+                0.08315496891736984,
+                0.1743772029876709,
+                0.11107349395751953,
                 1.0
             ],
             "Min": [
@@ -32,15 +32,34 @@
                 1.0
             ]
         },
-        "isStaticColor": 0
+        "isStaticColor": 1
     },
-    "EmitterFrequency": {},
-    "EmitterLocalTransform": {},
+    "EmitterFrequency": {
+        "emitterLife": 0,
+        "interval": 0,
+        "isLoop": 1,
+        "isOnce": 0
+    },
+    "EmitterLocalTransform": {
+        "translate": [
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    "EmitterTranslate": {
+        "attraction": 0.009999999776482582,
+        "isEasing": 1,
+        "radius": 1.0
+    },
     "NumCreate": 1,
-    "Parent": {},
+    "Parent": {
+        "isParent": 0
+    },
     "ParticleLifeSpan": {
         "Max": 1,
-        "Min": 1
+        "Min": 1,
+        "isEmitterLife": 0
     },
     "ParticleLifeTime": {
         "Max": 1,
@@ -60,14 +79,14 @@
     "ScaleAnimation": {
         "End": {
             "Max": [
-                0.009999999776482582,
-                0.009999999776482582,
-                0.009999999776482582
+                0.10000000149011612,
+                0.10000000149011612,
+                0.10000000149011612
             ],
             "Min": [
-                0.009999999776482582,
-                0.009999999776482582,
-                0.009999999776482582
+                0.10000000149011612,
+                0.10000000149011612,
+                0.10000000149011612
             ]
         },
         "Start": {
@@ -82,8 +101,8 @@
                 0.10000000149011612
             ]
         },
-        "isStaticSize": 0,
-        "isUniformScale": 0
+        "isStaticSize": 1,
+        "isUniformScale": 1
     },
     "Velocity3D": {
         "Max": [
@@ -97,6 +116,6 @@
             0.0
         ]
     },
-    "createParticleNum": 1,
+    "createParticleNum": 5,
     "textureIndex": "Resources/Images/GPUParticle.png"
 }

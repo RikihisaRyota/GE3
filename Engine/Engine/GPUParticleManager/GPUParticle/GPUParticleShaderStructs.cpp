@@ -854,6 +854,8 @@ void GPUParticleShaderStructs::EmitterEditor(const std::string name, std::tuple<
 
 	DrawLocalTranslate(desc->localTransform);
 
+	DrawTranslate(desc->translate);
+
 	DrawScale(desc->scale);
 
 	DrawRotate(desc->rotate);
@@ -1330,6 +1332,7 @@ void GPUParticleShaderStructs::Save(const std::string name, GPUParticleShaderStr
 void GPUParticleShaderStructs::Load(const std::string name, GPUParticleShaderStructs::MeshEmitterForCPU& desc) {
 	JSON_OPEN("Resources/GPUParticle/MeshParticle/" + name + ".json");
 	LoadLocalTransform(desc.localTransform);
+	LoadTranslate(desc.translate);
 	LoadScale(desc.scale);
 	LoadParticleLife(desc.particleLifeSpan);
 	LoadColor(desc.color);
@@ -1348,6 +1351,7 @@ void GPUParticleShaderStructs::Load(const std::string name, GPUParticleShaderStr
 void GPUParticleShaderStructs::Save(const std::string name, GPUParticleShaderStructs::MeshEmitterForCPU& desc) {
 	JSON_OPEN("Resources/GPUParticle/MeshParticle/" + name + ".json");
 	SaveLocalTransform(desc.localTransform);
+	SaveTranslate(desc.translate);
 	SaveScale(desc.scale);
 	SaveParticleLife(desc.particleLifeSpan);
 	SaveColor(desc.color);

@@ -20,6 +20,7 @@ void UpdateEmitterTime(inout Emitter emitter,uint32_t index) {
         particle.emitterNum = index;
         particle.emitterType = 0;
         particle.createParticleNum = emitter.createParticleNum;
+        particle.maxCreateParticleNum = emitter.createParticleNum;
 
         // インターロック処理
         InterlockedAdd(createParticleCounter[0], particle.createParticleNum);
@@ -44,7 +45,8 @@ void UpdateEmitterTime(inout VertexEmitter emitter,uint32_t index) {
         CreateParticleNum particle;
         particle.emitterNum = index;
         particle.emitterType = 1;
-        particle.createParticleNum = emitter.model.vertexCount;
+        particle.createParticleNum = emitter.model.indexCount;
+        particle.maxCreateParticleNum = particle.createParticleNum;
 
         // インターロック処理
         InterlockedAdd(createParticleCounter[0], particle.createParticleNum);
@@ -69,7 +71,8 @@ void UpdateEmitterTime(inout MeshEmitter emitter,uint32_t index) {
         CreateParticleNum particle;
         particle.emitterNum = index;
         particle.emitterType = 2;
-        particle.createParticleNum = (emitter.model.indexCount) / 3 * emitter.numCreate;
+        particle.createParticleNum = (emitter.model.indexCount) * emitter.numCreate;
+        particle.maxCreateParticleNum = particle.createParticleNum;
 
         // インターロック処理
         InterlockedAdd(createParticleCounter[0], particle.createParticleNum);
@@ -95,7 +98,7 @@ void UpdateEmitterTime(inout TransformModelEmitter emitter,uint32_t index) {
         particle.emitterNum = index;
         particle.emitterType = 3;
         particle.createParticleNum =  max(emitter.startModel.vertexCount,emitter.endModel.vertexCount);
-
+        particle.maxCreateParticleNum = particle.createParticleNum;
         // インターロック処理
         InterlockedAdd(createParticleCounter[0], particle.createParticleNum);
         createParticle.Append(particle);
@@ -120,6 +123,7 @@ void UpdateEmitterTime(inout TransformAreaEmitter emitter,uint32_t index) {
         particle.emitterNum = index;
         particle.emitterType = 4;
         particle.createParticleNum =  emitter.model.vertexCount;
+        particle.maxCreateParticleNum = particle.createParticleNum;
 
         // インターロック処理
         InterlockedAdd(createParticleCounter[0], particle.createParticleNum);

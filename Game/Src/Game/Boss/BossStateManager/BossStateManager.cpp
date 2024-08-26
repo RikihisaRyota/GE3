@@ -296,7 +296,7 @@ void BossStateSmashAttack::Initialize(CommandContext& commandContext) {
 	SetDesc();
 	modelHandle_ = ModelManager::GetInstance()->Load("Resources/Models/Boss/hand.gltf");
 	worldTransform_.Initialize();
-	//worldTransform_.translate.y = data_.y;
+	worldTransform_.translate.y = data_.y;
 	worldTransform_.UpdateMatrix();
 
 	SetLocation();
@@ -350,20 +350,30 @@ void BossStateSmashAttack::Update(CommandContext& commandContext) {
 
 	}
 	else {
-		for (auto& smash : smash_) {
-			float t = 0.0f;
-			if (time_ < 0.5f) {
-				t = 8.0f * time_ * time_ * time_ * time_;
-			}
-			else {
-				t = 1.0f - std::pow(-2.0f * time_ + 2.0f, 4.0f) / 2.0f;
-			}
-			smash.transform.translate = Lerp(smash.start, smash.end, t);
-			UpdateTransform();
-
-			smash.emitter.localTransform.translate = MakeTranslateMatrix(smash.transform.matWorld);
-			smash.emitter.localTransform.rotate = Inverse(MakeRotateMatrix(smash.transform.matWorld));
+		float t = 0.0f;
+		if (time_ < 0.5f) {
+			t = 8.0f * time_ * time_ * time_ * time_;
 		}
+		else {
+			t = 1.0f - std::pow(-2.0f * time_ + 2.0f, 4.0f) / 2.0f;
+		}
+		worldTransform_.translate.y = Lerp(data_.y, 0.0f, t);
+		//for (auto& smash : smash_) {
+		//	float t = 0.0f;
+		//	if (time_ < 0.5f) {
+		//		t = 8.0f * time_ * time_ * time_ * time_;
+		//	}
+		//	else {
+		//		t = 1.0f - std::pow(-2.0f * time_ + 2.0f, 4.0f) / 2.0f;
+		//	}
+		//	//smash.transform.translate = Lerp(smash.start, smash.end, t);
+
+		//	//smash.emitter.localTransform.translate = MakeTranslateMatrix(smash.transform.matWorld);
+		//	//smash.emitter.localTransform.rotate = Inverse(MakeRotateMatrix(smash.transform.matWorld));
+		//	//smash.emitter.parent.worldMatrix = smash.transform.matWorld;
+		//	//smash.emitter.parent.worldMatrix= Inverse(MakeRotateMatrix(smash.transform.matWorld));
+		//}
+		UpdateTransform();
 	}
 
 	if (time_ >= 1.0f && !inTransition_) {
@@ -374,7 +384,7 @@ void BossStateSmashAttack::Update(CommandContext& commandContext) {
 
 	}
 	for (auto& smash : smash_) {
-		manager_.gpuParticleManager_->SetVertexEmitter(modelHandle_, smash.emitter);
+		manager_.gpuParticleManager_->SetVertexEmitter(modelHandle_, smash.emitter, smash.transform.matWorld);
 	}
 }
 
@@ -386,7 +396,7 @@ void BossStateSmashAttack::UpdateTransform() {
 	worldTransform_.UpdateMatrix();
 	for (auto& smash : smash_) {
 		smash.transform.UpdateMatrix();
-		smash.collider->SetCenter(smash.transform.translate);
+		smash.collider->SetCenter(MakeTranslateMatrix(smash.transform.matWorld));
 		smash.collider->SetOrientation(smash.transform.rotate);
 		smash.collider->SetSize(smash.transform.scale);
 	}
@@ -402,7 +412,7 @@ void BossStateSmashAttack::SetLocation() {
 		float currentRadius = kCircleRadius * circleNum;
 
 		// 円周の長さを計算
-		float circumference = std::numbers::pi_v<float> * 2.0f * currentRadius;
+		float circumference = std::numbers::pi_v<float> *2.0f * currentRadius;
 
 		// オブジェクトの数を計算
 		uint32_t divisionNum = static_cast<uint32_t>(circumference / kObjectRadius);
@@ -412,7 +422,7 @@ void BossStateSmashAttack::SetLocation() {
 			CreateSmash();
 			auto& smash = smash_.back();
 			smash.transform.translate.x = std::cosf(DegToRad(360.0f * i / divisionNum)) * currentRadius;
-			smash.transform.translate.y = data_.y;
+			smash.transform.translate.y = 0.0f;//data_.y;
 			smash.transform.translate.z = std::sinf(DegToRad(360.0f * i / divisionNum)) * currentRadius;
 			// 円の中心に(Quaternion)
 			Vector3 direction = Vector3(smash.transform.translate.x, 0.0f, smash.transform.translate.z).Normalize();

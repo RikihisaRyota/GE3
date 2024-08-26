@@ -117,7 +117,7 @@ void main(uint3 DTid : SV_DispatchThreadID, uint3 GTid : SV_GroupThreadID, uint3
             { 
                 uint32_t seed = setSeed(createNum*gRandom.random);
                 uint32_t emitterIndex=createParticle[emitterNum].emitterNum;
-                VertexEmitter emitter = gVertexEmitter[emitterIndex];
+                MeshEmitter emitter = gMeshEmitter[emitterIndex];
                 float32_t4x4 worldMatrix;
                 float32_t3 translate;
                 float32_t4 vertexPosition;

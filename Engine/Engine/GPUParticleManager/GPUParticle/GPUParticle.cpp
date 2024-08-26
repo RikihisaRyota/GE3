@@ -897,6 +897,7 @@ void GPUParticle::SetEmitter(const GPUParticleShaderStructs::VertexEmitterForCPU
 void GPUParticle::SetEmitter(const GPUParticleShaderStructs::MeshEmitterForCPU& emitterForCPU, const Matrix4x4& parent) {
 	GPUParticleShaderStructs::MeshEmitterForGPU emitterForGPU{};
 	emitterForGPU.localTransform = emitterForCPU.localTransform;
+	emitterForGPU.translate = emitterForCPU.translate;
 	emitterForGPU.scale = emitterForCPU.scale;
 	emitterForGPU.rotate.initializeAngle.min = DegToRad(emitterForCPU.rotate.initializeAngle.min);
 	emitterForGPU.rotate.initializeAngle.max = DegToRad(emitterForCPU.rotate.initializeAngle.max);

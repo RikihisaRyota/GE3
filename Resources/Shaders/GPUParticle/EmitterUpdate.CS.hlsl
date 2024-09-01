@@ -45,7 +45,7 @@ void UpdateEmitterTime(inout VertexEmitter emitter,uint32_t index) {
         CreateParticleNum particle;
         particle.emitterNum = index;
         particle.emitterType = 1;
-        particle.createParticleNum = emitter.model.indexCount;
+        particle.createParticleNum = emitter.model.vertexCount;
         particle.maxCreateParticleNum = particle.createParticleNum;
 
         // インターロック処理

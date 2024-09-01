@@ -48,14 +48,18 @@ void BossStateRoot::Update(CommandContext& commandContext) {
 	}
 	else {
 		time_ += 1.0f / data_.allFrame;
-		//if (time_ >= 1.0f) {
-		//	BossStateManager::State tmp = static_cast<BossStateManager::State>((rnd_.NextUIntLimit() % 1) + int(BossStateManager::State::kRushAttack));
-		//	switch (tmp) {
-		//	case BossStateManager::State::kRushAttack:
-		//		manager_.ChangeState<BossStateRushAttack >();
-		//		break;
-		//	}
-		//}
+		if (time_ >= 1.0f) {
+			BossStateManager::State tmp = static_cast<BossStateManager::State>((rnd_.NextUIntLimit() % 2) + int(BossStateManager::State::kRushAttack));
+			switch (tmp) {
+			case BossStateManager::State::kRushAttack:
+				manager_.ChangeState<BossStateRushAttack >();
+				break;
+			case BossStateManager::State::kSmashAttack:
+				manager_.ChangeState<BossStateSmashAttack>();
+				break;
+
+			}
+		}
 		time_ = std::fmod(time_, 1.0f);
 	}
 

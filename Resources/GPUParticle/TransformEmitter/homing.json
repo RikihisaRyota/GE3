@@ -1,20 +1,107 @@
 {
-    "CollisionInfo": {},
-    "EmitterColor": {
-        "End": {},
-        "Start": {}
+    "CollisionInfo": {
+        "attribute": 0,
+        "mask": 0
     },
-    "EmitterFrequency": {},
-    "EmitterTranslate": {},
-    "Parent": {},
-    "ParticleLifeSpan": {},
+    "EmitterColor": {
+        "End": {
+            "Max": [
+                0.918149471282959,
+                0.6943126320838928,
+                0.1012904942035675,
+                1.0
+            ],
+            "Min": [
+                0.7117437720298767,
+                0.4088327884674072,
+                0.1165132075548172,
+                1.0
+            ]
+        },
+        "Start": {
+            "Max": [
+                0.918149471282959,
+                0.6943126320838928,
+                0.1012904942035675,
+                1.0
+            ],
+            "Min": [
+                0.7117437720298767,
+                0.4088327884674072,
+                0.1165132075548172,
+                1.0
+            ]
+        },
+        "isStaticColor": 1
+    },
+    "EmitterFrequency": {
+        "emitterLife": 0,
+        "interval": 0,
+        "isLoop": 1,
+        "isOnce": 1
+    },
+    "EmitterTranslate": {
+        "attraction": 0.0,
+        "isEasing": 0,
+        "radius": 0.0
+    },
+    "Parent": {
+        "isParent": 0
+    },
+    "ParticleLifeSpan": {
+        "Max": 0,
+        "Min": 0,
+        "isEmitterLife": 1
+    },
     "RotateAnimation": {
-        "initializeAngle": {},
-        "rotateSpeed": {}
+        "initializeAngle": {
+            "Max": 0.0,
+            "Min": 0.0
+        },
+        "rotateSpeed": {
+            "Max": 0.0,
+            "Min": 0.0
+        }
     },
     "ScaleAnimation": {
-        "End": {},
-        "Start": {}
+        "End": {
+            "Max": [
+                0.009999999776482582,
+                0.009999999776482582,
+                0.009999999776482582
+            ],
+            "Min": [
+                0.009999999776482582,
+                0.009999999776482582,
+                0.009999999776482582
+            ]
+        },
+        "Start": {
+            "Max": [
+                0.009999999776482582,
+                0.009999999776482582,
+                0.009999999776482582
+            ],
+            "Min": [
+                0.009999999776482582,
+                0.009999999776482582,
+                0.009999999776482582
+            ]
+        },
+        "isStaticSize": 1,
+        "isUniformScale": 1
     },
-    "Velocity3D": {}
+    "Velocity3D": {
+        "Max": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Min": [
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    "textureIndex": "Resources/Images/GPUParticle.png"
 }

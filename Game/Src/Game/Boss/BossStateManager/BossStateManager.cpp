@@ -445,8 +445,11 @@ void BossStateHomingAttack::Update(CommandContext& commandContext) {
 	else {
 		if (time_ >= 1.0f) {
 			manager_.ChangeState<BossStateRoot>();
+			data_.transformEmitter.isAlive = false;
 		}
 	}
+	auto boss = manager_.boss_;
+	manager_.gpuParticleManager_->SetTransformModelEmitter(boss->GetModelHandle(), modelHandle_, data_.transformEmitter);
 }
 
 void BossStateHomingAttack::DebugDraw() {
@@ -687,6 +690,7 @@ void BossStateManager::DrawImGui() {
 	GPUParticleShaderStructs::Debug("transformRailVertexEmitter", jsonData_.rushAttack.transformRailVertexEmitter);
 	GPUParticleShaderStructs::Debug("smash", jsonData_.smashAttack.smashEmitter);
 	GPUParticleShaderStructs::Debug("smash", jsonData_.smashAttack.transformEmitter);
+	GPUParticleShaderStructs::Debug("homing", jsonData_.homingAttack.transformEmitter);
 
 #endif // _DEBUG
 }

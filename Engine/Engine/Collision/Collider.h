@@ -33,6 +33,8 @@ public:
 	virtual bool IsCollision(SphereCollider* collider, ColliderDesc& desc) = 0;
 	virtual bool IsCollision(CapsuleCollider* collider, ColliderDesc& desc) = 0;
 	virtual void DrawCollision(const Vector4& color) = 0;
+	
+	virtual const Vector3& GetPosition() = 0;
 
 	void SetCallback(Callback callback) { callback_ = callback; }
 	void SetCollisionAttribute(uint32_t attribute) { collisionAttribute_ = attribute; }
@@ -66,6 +68,7 @@ public:
 	bool IsCollision(CapsuleCollider* other, ColliderDesc& desc) override;
 	void DrawCollision(const Vector4& color) override;
 
+	const Vector3& GetPosition() override;
 
 	void SetCenter(const Vector3& center) { sphere_.center = center; }
 	void SetRadius(float radius) { sphere_.radius = radius; }
@@ -88,6 +91,8 @@ public:
 	bool IsCollision(OBBCollider* other, ColliderDesc& desc) override;
 	bool IsCollision(CapsuleCollider* other, ColliderDesc& desc) override;
 	void DrawCollision(const Vector4& color) override;
+
+	const Vector3& GetPosition() override;
 
 	void SetCenter(const Vector3& center) { obb_.center = center; }
 	void SetOrientation(const Quaternion& orientation) {
@@ -112,9 +117,12 @@ public:
 	bool IsCollision(CapsuleCollider* other, ColliderDesc& desc) override;
 	void DrawCollision(const Vector4& color) override;
 
+	const Vector3& GetPosition() override;
+
 	void SetSegment(const Segment& segment) { capsule_.segment = segment; }
 	void SetRadius(float radius) { capsule_.radius = radius; }
 	void SetCapsule(const Capsule& capsule) { capsule_ = capsule; }
 private:
 	Capsule capsule_;
+	Vector3 center_;
 };

@@ -30,7 +30,7 @@ namespace GameCore {
 	DrawLine* drawLine = nullptr;
 	void Initialize() {
 		winApp = WinApp::GetInstance();
-		winApp->CreateGameWindow(L"LE3A_22_リキヒサ_リョウタ");
+		winApp->CreateGameWindow(L"シューティングバスター");
 
 		shaderCompiler->Initialize();
 

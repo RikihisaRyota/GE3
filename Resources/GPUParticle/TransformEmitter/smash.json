@@ -41,7 +41,7 @@
         "isOnce": 1
     },
     "EmitterTranslate": {
-        "attraction": 0.0010000000474974513,
+        "attraction": 0.009999999776482582,
         "isEasing": 1,
         "radius": 5.0
     },

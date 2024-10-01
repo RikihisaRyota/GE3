@@ -48,7 +48,7 @@ void BossStateRoot::Update(CommandContext& commandContext) {
 	}
 	else {
 		time_ += 1.0f / data_.allFrame;
-		if (time_ >= 1.0f) {
+		/*if (time_ >= 1.0f) {
 			BossStateManager::State tmp = static_cast<BossStateManager::State>((rnd_.NextUIntLimit() % 2) + int(BossStateManager::State::kRushAttack));
 			switch (tmp) {
 			case BossStateManager::State::kRushAttack:
@@ -59,7 +59,7 @@ void BossStateRoot::Update(CommandContext& commandContext) {
 				break;
 
 			}
-		}
+		}*/
 		time_ = std::fmod(time_, 1.0f);
 	}
 
@@ -73,52 +73,6 @@ void BossStateRoot::Update(CommandContext& commandContext) {
 	}
 }
 void BossStateRoot::DebugDraw() {}
-//
-//void BossStateTwoHandAttack::Initialize() {
-//	SetDesc();
-//	animationHandle_ = manager_.boss_->GetAnimation()->GetAnimationHandle("twoHandAttack");
-//	time_ = 0.0f;
-//	manager_.SetAttackColliderActive(BossStateManager::kTwoHandAttack, true);
-//	manager_.SetBodyColliderActive(BossStateManager::kTwoHandAttack, false);
-//	manager_.SetColliderColor(BossStateManager::kTwoHandAttack, manager_.boss_->GetAttackColor());
-//}
-//
-//void BossStateTwoHandAttack::SetDesc() {
-//	data_ = manager_.jsonData_.twoHand;
-//}
-//
-//void BossStateTwoHandAttack::Update(CommandContext& commandContext) {
-//	auto boss = manager_.boss_;
-//	auto animation = boss->GetAnimation();
-//
-//	if (inTransition_) {
-//		time_ += 1.0f / data_.transitionFrame;
-//		if (time_ >= 1.0f) {
-//			inTransition_ = false;
-//			time_ = 0.0f;
-//		}
-//	}
-//
-//	if (!inTransition_) {
-//		time_ += 1.0f / data_.allFrame;
-//	}
-//
-//	time_ = std::clamp(time_, 0.0f, 1.0f);
-//
-//	if (inTransition_) {
-//		animation->Update(manager_.GetAnimationHandle(), manager_.GetAnimationTime(), animationHandle_, 0.0f, time_, commandContext, boss->GetModelHandle());
-//	}
-//	else {
-//		animation->Update(animationHandle_, time_, commandContext, boss->GetModelHandle());
-//	}
-//
-//	if (time_ >= 1.0f && !inTransition_) {
-//		manager_.ChangeState<BossStateRoot>();
-//		manager_.SetAttackColliderActive(BossStateManager::kTwoHandAttack, false);
-//		manager_.SetBodyColliderActive(BossStateManager::kTwoHandAttack, true);
-//		manager_.SetColliderColor(BossStateManager::kTwoHandAttack, manager_.boss_->GetDefaultColor());
-//	}
-//}
 
 void BossStateRushAttack::Initialize(CommandContext& commandContext) {
 	SetDesc();
@@ -311,6 +265,11 @@ void BossStateSmashAttack::Initialize(CommandContext& commandContext) {
 	// VertexEmitter
 	for (auto& smash : smash_) {
 		smash.emitter.isAlive = false;
+		smash.collider = std::make_unique<OBBCollider>();
+		smash.collider->SetIsActive(false);
+		smash.collider->SetName("Boss");
+		smash.collider->SetCollisionAttribute(CollisionAttribute::Boss);
+		smash.collider->SetCollisionMask(CollisionAttribute::Player | CollisionAttribute::PlayerBullet);
 	}
 	// TransformEmitter
 	if (manager_.GetPreState() == BossStateManager::State::kRoot) {
@@ -338,6 +297,7 @@ void BossStateSmashAttack::Update(CommandContext& commandContext) {
 		if (time_ >= 1.0f) {
 			for (auto& smash : smash_) {
 				smash.emitter.isAlive = true;
+				smash.collider->SetIsActive(true);
 			}
 			inTransition_ = false;
 			time_ = 0.0f;
@@ -354,35 +314,20 @@ void BossStateSmashAttack::Update(CommandContext& commandContext) {
 
 	}
 	else {
-		float t = 0.0f;
-		if (time_ < 0.5f) {
-			t = 8.0f * time_ * time_ * time_ * time_;
+		// 最初の奴だけ別に
+		smash_.at(0).Update(data_.y, data_.allFrame);
+		for (uint32_t i = 1; i < smash_.size(); i++) {
+			if (smash_.at(i - 1).canNextMove) {
+				smash_.at(i).Update(data_.y, data_.allFrame);
+			}
 		}
-		else {
-			t = 1.0f - std::pow(-2.0f * time_ + 2.0f, 4.0f) / 2.0f;
-		}
-		worldTransform_.translate.y = Lerp(data_.y, 0.0f, t);
-		//for (auto& smash : smash_) {
-		//	float t = 0.0f;
-		//	if (time_ < 0.5f) {
-		//		t = 8.0f * time_ * time_ * time_ * time_;
-		//	}
-		//	else {
-		//		t = 1.0f - std::pow(-2.0f * time_ + 2.0f, 4.0f) / 2.0f;
-		//	}
-		//	//smash.transform.translate = Lerp(smash.start, smash.end, t);
-
-		//	//smash.emitter.localTransform.translate = MakeTranslateMatrix(smash.transform.matWorld);
-		//	//smash.emitter.localTransform.rotate = Inverse(MakeRotateMatrix(smash.transform.matWorld));
-		//	//smash.emitter.parent.worldMatrix = smash.transform.matWorld;
-		//	//smash.emitter.parent.worldMatrix= Inverse(MakeRotateMatrix(smash.transform.matWorld));
-		//}
 		UpdateTransform();
 	}
-
-	if (time_ >= 1.0f && !inTransition_) {
+	// 一番最後のsmashが終わったら
+	if (smash_.back().isFinish && !inTransition_) {
 		for (auto& smash : smash_) {
 			smash.emitter.isAlive = false;
+			smash.collider->SetIsActive(false);
 		}
 		manager_.ChangeState<BossStateRoot>();
 
@@ -392,7 +337,11 @@ void BossStateSmashAttack::Update(CommandContext& commandContext) {
 	}
 }
 
-void BossStateSmashAttack::DebugDraw() {}
+void BossStateSmashAttack::DebugDraw() {
+	for (auto& smash : smash_) {
+		smash.collider->DrawCollision({ 0.0f,1.0f,0.2f,1.0f });
+	}
+}
 
 void BossStateSmashAttack::OnCollision(const ColliderDesc& collisionInfo) {}
 
@@ -402,7 +351,8 @@ void BossStateSmashAttack::UpdateTransform() {
 		smash.transform.UpdateMatrix();
 		smash.collider->SetCenter(MakeTranslateMatrix(smash.transform.matWorld));
 		smash.collider->SetOrientation(smash.transform.rotate);
-		smash.collider->SetSize(smash.transform.scale);
+		smash.collider->SetSize(data_.collider.size);
+
 	}
 }
 
@@ -460,6 +410,50 @@ void BossStateSmashAttack::CreateSmash() {
 	smash_.emplace_back(std::move(desc));
 }
 
+void BossStateHomingAttack::Initialize(CommandContext& commandContext) {
+	SetDesc();
+	inTransition_ = true;
+	time_ = 0.0f;
+	//worldTransform_.Initialize();
+	auto boss = manager_.boss_;
+	modelHandle_ = ModelManager::GetInstance()->Load("Resources/Models/Boss/cannon.gltf");
+	manager_.gpuParticleManager_->SetTransformModelEmitter(boss->GetModelHandle(), modelHandle_, data_.transformEmitter);
+}
+
+void BossStateHomingAttack::SetDesc() {
+	data_ = manager_.jsonData_.homingAttack;
+}
+
+void BossStateHomingAttack::Update(CommandContext& commandContext) {
+	if (time_ >= 1.0f && inTransition_) {
+		inTransition_ = false;
+		time_ = 0.0f;
+	}
+
+	if (inTransition_) {
+		time_ += 1.0f / data_.transitionFrame;
+	}
+	else {
+		time_ += 1.0f / data_.allFrame;
+
+		time_ = std::clamp(time_, 0.0f, 1.0f);
+	}
+
+	if (inTransition_) {
+
+	}
+	else {
+		if (time_ >= 1.0f) {
+			manager_.ChangeState<BossStateRoot>();
+		}
+	}
+}
+
+void BossStateHomingAttack::DebugDraw() {
+
+
+}
+
 void BossStateManager::Initialize() {
 	JSON_OPEN("Resources/Data/Boss/bossState.json");
 	JSON_OBJECT("Root");
@@ -497,6 +491,12 @@ void BossStateManager::Initialize() {
 	JSON_PARENT();
 	JSON_ROOT();
 
+	JSON_OBJECT("HomingAttack");
+	JSON_OBJECT("Animation");
+	JSON_LOAD_BY_NAME("allFrame", jsonData_.homingAttack.allFrame);
+	JSON_LOAD_BY_NAME("transitionFrame", jsonData_.homingAttack.transitionFrame);
+	JSON_ROOT();
+
 	JSON_CLOSE();
 	GPUParticleShaderStructs::Load("root", jsonData_.root.transformEmitter);
 
@@ -507,6 +507,9 @@ void BossStateManager::Initialize() {
 	GPUParticleShaderStructs::Load("rail", jsonData_.rushAttack.transformRailEmitter);
 	GPUParticleShaderStructs::Load("smash", jsonData_.smashAttack.smashEmitter);
 	GPUParticleShaderStructs::Load("smash", jsonData_.smashAttack.transformEmitter);
+
+	GPUParticleShaderStructs::Load("homing", jsonData_.homingAttack.transformEmitter);
+
 	activeStateEnum_ = kRoot;
 	standbyStateEnum_ = kRoot;
 	ChangeState<BossStateRoot>();
@@ -557,6 +560,9 @@ void BossStateManager::DrawImGui() {
 				case kSmashAttack:
 					ChangeState<BossStateSmashAttack>();
 					break;
+				case kHomingAttack:
+					ChangeState<BossStateHomingAttack>();
+					break;
 				default:
 					break;
 				}
@@ -606,6 +612,14 @@ void BossStateManager::DrawImGui() {
 				}
 				ImGui::TreePop();
 			}
+			if (ImGui::TreeNode("HomingAttack")) {
+				if (ImGui::TreeNode("Animation")) {
+					ImGui::DragFloat("allFrame", &jsonData_.homingAttack.allFrame, 0.1f, 0.0f);
+					ImGui::DragFloat("transitionFrame", &jsonData_.homingAttack.transitionFrame, 0.1f, 0.0f);
+					ImGui::TreePop();
+				}
+				ImGui::TreePop();
+			}
 
 			if (ImGui::Button("Save")) {
 				JSON_OPEN("Resources/Data/Boss/bossState.json");
@@ -641,6 +655,13 @@ void BossStateManager::DrawImGui() {
 				JSON_OBJECT("Properties");
 				JSON_SAVE_BY_NAME("height", jsonData_.smashAttack.y);
 				JSON_SAVE_BY_NAME("count", jsonData_.smashAttack.smashCount);
+				JSON_PARENT();
+				JSON_ROOT();
+
+				JSON_OBJECT("HomingAttack");
+				JSON_OBJECT("Animation");
+				JSON_SAVE_BY_NAME("allFrame", jsonData_.homingAttack.allFrame);
+				JSON_SAVE_BY_NAME("transitionFrame", jsonData_.homingAttack.transitionFrame);
 				JSON_PARENT();
 				JSON_ROOT();
 
@@ -683,4 +704,26 @@ BossStateManager::State BossStateManager::GetStateEnum<BossStateRushAttack>() {
 template<>
 BossStateManager::State BossStateManager::GetStateEnum<BossStateSmashAttack>() {
 	return kSmashAttack;
+}
+
+template<>
+BossStateManager::State BossStateManager::GetStateEnum<BossStateHomingAttack>() {
+	return kHomingAttack;
+}
+
+void BossStateSmashAttack::SmashDesc::Update(float startPosY, float allFrame) {
+	time += 1.0f / allFrame;
+
+	float t = time * time * time * time;
+
+	transform.translate.y = std::lerp(0.0f, -startPosY, t);
+
+	time = std::clamp(time, 0.0f, 1.0f);
+
+	if (time >= 0.2f) {
+		canNextMove = true;
+	}
+	if (time >= 1.0f) {
+		isFinish = true;
+	}
 }

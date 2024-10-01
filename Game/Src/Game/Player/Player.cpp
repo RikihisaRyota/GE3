@@ -201,7 +201,10 @@ void Player::OnCollision(const ColliderDesc& desc) {
 			immediatelyTransition_ = true;
 			Vector3 vector = Vector3(desc.normal.x, 0.0f, desc.normal.z);
 			if (vector.Length() == 0.0f) {
-				vector.y = 1.0f;
+				Vector3 direction = MakeTranslateMatrix(worldTransform_.matWorld) - desc.collider->GetPosition();
+				direction.y = 0.0f;
+				vector = direction.Normalized();
+
 			}
 			vector = vector.Normalized();
 			knockBackStartPos_ = MakeTranslateMatrix(worldTransform_.matWorld);
@@ -219,7 +222,7 @@ void Player::GPUParticleSpawn(CommandContext& commandContext) {
 
 	//gpuParticleManager_->CreateMeshParticle(playerModelHandle_, animation_, worldTransform_, meshEmitterDesc_, commandContext);
 	//gpuParticleManager_->CreateEdgeParticle(playerModelHandle_, animation_, worldTransform_.matWorld, meshEmitterDesc_, commandContext);
-	
+
 	//meshEmitterDesc_.localTransform.translate = MakeTranslateMatrix(worldTransform_.matWorld);
 	//meshEmitterDesc_.localTransform.rotate = MakeRotateMatrix(worldTransform_.matWorld);
 	//gpuParticleManager_->SetMeshEmitter(playerModelHandle_, animation_, meshEmitterDesc_, worldTransform_.matWorld);
@@ -379,7 +382,7 @@ void Player::AnimationUpdate(CommandContext& commandContext) {
 		currentAnimationHandle_ = animationInfo_[name_.at(state_)].handle;
 		preAnimationHandle_ = animationInfo_[name_.at(preState_)].handle;
 	}
-	else if (state_ != preState_ ) {
+	else if (state_ != preState_) {
 		onTransition_ = true;
 		transitionTime_ = 0.0f;
 		currentAnimationHandle_ = animationInfo_[name_.at(state_)].handle;

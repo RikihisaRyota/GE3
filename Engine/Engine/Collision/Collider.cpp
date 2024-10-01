@@ -327,6 +327,10 @@ void OBBCollider::DrawCollision(const Vector4& color) {
 
 }
 
+const Vector3& OBBCollider::GetPosition() {
+	return obb_.center;
+}
+
 bool SphereCollider::IsCollision(Collider* collider, ColliderDesc& collisionInfo) {
 	if (CanCollision(collider)) {
 		return  collider->IsCollision(this, collisionInfo);
@@ -467,6 +471,10 @@ void SphereCollider::DrawCollision(const Vector4& color) {
 	}
 }
 
+const Vector3& SphereCollider::GetPosition() {
+	return sphere_.center;
+}
+
 bool CapsuleCollider::IsCollision(Collider* other, ColliderDesc& desc) {
 	if (CanCollision(other)) {
 		return  other->IsCollision(this, desc);
@@ -567,4 +575,9 @@ void CapsuleCollider::DrawCollision(const Vector4& color) {
 		drawLine->SetLine(xyBottomHalfSphereVertices[i], xyBottomHalfSphereVertices[(i + 1) % xyBottomHalfSphereVertices.size()], color);
 		drawLine->SetLine(xzBottomHalfSphereVertices[i], xzBottomHalfSphereVertices[(i + 1) % xzBottomHalfSphereVertices.size()], color);
 	}
+}
+
+const Vector3& CapsuleCollider::GetPosition() {
+	center_ = Lerp(capsule_.segment.start, capsule_.segment.end, 0.5f);
+	return center_;
 }

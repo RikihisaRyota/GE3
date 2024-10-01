@@ -193,6 +193,9 @@
     <Filter Include="Shaders\Bloom">
       <UniqueIdentifier>{e1783208-5467-46c1-be13-5d249f148cf1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Game\BackGround">
+      <UniqueIdentifier>{6fb27f3e-673d-4288-9bcc-4094169f3054}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine\Engine\Math\MyMath.cpp">
@@ -448,6 +451,9 @@
     <ClCompile Include="Engine\Engine\Graphics\CommandAllocatorPool.cpp" />
     <ClCompile Include="Engine\Engine\Graphics\HSVFilter.cpp" />
     <ClCompile Include="Engine\Engine\Graphics\Bloom.cpp" />
+    <ClCompile Include="Game\Src\Game\BackGround\BackGround.cpp">
+      <Filter>Game\BackGround</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\Engine\WinApp\WinApp.h">
@@ -764,6 +770,9 @@
     </ClInclude>
     <ClInclude Include="Engine\Engine\Graphics\Bloom.h">
       <Filter>Engine\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Src\Game\BackGround\BackGround.h">
+      <Filter>Game\BackGround</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -4,6 +4,12 @@
         "Collider": {},
         "Properties": {}
     },
+    "HomingAttack": {
+        "Animation": {
+            "allFrame": 60.0,
+            "transitionFrame": 120.0
+        }
+    },
     "Root": {
         "Animation": {
             "allFrame": 360.0,
@@ -38,14 +44,14 @@
     },
     "SmashAttack": {
         "Animation": {
-            "allFrame": 360.0,
+            "allFrame": 60.0,
             "transitionFrame": 120.0
         },
         "Collider": {
             "size": [
-                0.0,
-                0.0,
-                0.0
+                3.0,
+                5.0,
+                3.0
             ]
         },
         "Properties": {

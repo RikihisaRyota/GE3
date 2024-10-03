@@ -15,6 +15,7 @@
 #include "BossHP/BossHP.h"
 
 
+class Player;
 class GPUParticleManager;
 class CommandContext;
 class Boss {
@@ -24,9 +25,13 @@ public:
 	void Update(CommandContext& commandContext);
 	void Draw(const ViewProjection& viewProjection, CommandContext& commandContext);
 
-	void SetGPUParticleManager(GPUParticleManager* GPUParticleManager) { 
+	void SetGPUParticleManager(GPUParticleManager* GPUParticleManager) {
 		gpuParticleManager_ = GPUParticleManager;
 		bossStateManager_->SetGPUParticleManager(gpuParticleManager_);
+	}
+	void SetPlayer(Player* player) {
+		player_ = player;
+		bossStateManager_->SetPlayer(player_);
 	}
 
 	Animation::Animation* GetAnimation() { return &animation_; }
@@ -35,7 +40,7 @@ public:
 	void DrawDebug();
 	std::unique_ptr<SphereCollider>& GetCollider() { return collider_; }
 
-	Vector3 GetWorldTranslate();
+	Vector3 GetWorldTranslate()const;
 	const Matrix4x4& GetWorldMatrix()const { return worldTransform_.matWorld; }
 	const GPUParticleShaderStructs::VertexEmitterForCPU& GetVertexEmitter()const { return vertexEmitterDesc_; }
 private:
@@ -45,6 +50,7 @@ private:
 	void OnCollisionBody(const ColliderDesc& desc);
 	void OnCollisionAttack(const ColliderDesc& desc);
 
+	Player* player_;
 	GPUParticleManager* gpuParticleManager_;
 	TextureHandle gpuTexture_;
 

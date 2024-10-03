@@ -17,6 +17,7 @@ Boss::Boss() {
 	ModelManager::GetInstance()->Load("Resources/Models/Boss/train.gltf");
 	ModelManager::GetInstance()->Load("Resources/Models/Boss/rail.gltf");
 	ModelManager::GetInstance()->Load("Resources/Models/Boss/hand.gltf");
+	ModelManager::GetInstance()->Load("Resources/Models/Boss/cannon.gltf");
 	bossModelHandle_ = ModelManager::GetInstance()->Load("Resources/Models/Boss/boss.gltf");
 	//animation_.Initialize("Resources/Animation/Boss/animation.gltf", bossModelHandle_);
 	gpuTexture_ = TextureManager::GetInstance()->Load("Resources/Images/GPUParticle.png");
@@ -133,7 +134,7 @@ void Boss::DrawDebug() {
 	animation_.DrawLine(animationTransform_);
 }
 
-Vector3 Boss::GetWorldTranslate() {
+Vector3 Boss::GetWorldTranslate() const {
 	return MakeTranslateMatrix(worldTransform_.matWorld);
 }
 

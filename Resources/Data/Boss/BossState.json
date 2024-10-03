@@ -6,8 +6,23 @@
     },
     "HomingAttack": {
         "Animation": {
-            "allFrame": 60.0,
+            "allFrame": 600.0,
             "transitionFrame": 120.0
+        },
+        "Properties": {
+            "bulletOffset": [
+                0.0,
+                5.0,
+                0.0
+            ],
+            "bulletRadius": 1.5,
+            "bulletSpeed": 1.0,
+            "createBulletInterval": 60,
+            "start": [
+                0.0,
+                15.0,
+                20.0
+            ]
         }
     },
     "Root": {

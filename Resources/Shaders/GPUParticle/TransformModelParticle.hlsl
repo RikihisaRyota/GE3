@@ -53,10 +53,10 @@ void main( uint3 DTid : SV_DispatchThreadID )
     //    int32_t particleIndex = particleIndexCommands.Consume();
     //    uint32_t startModelIndex = index % startVerticeSize.index;
     //    uint32_t endModelIndex = index % endVerticeSize.index;
-    //    TransformEmitter emitter=transformEmitter;
+    //    TransformModelEmitter emitter=transformEmitter;
     //    emitter.translate.isEasing=true;
     //    emitter.translate.easing.min = mul(startVertices[startModelIndex].position, startWorldTransform.world).xyz;
     //    emitter.translate.easing.max = mul(endVertices[endModelIndex].position,endWorldTransform.world).xyz;
-    //    //CreateParticle(Output[particleIndex], emitter,seed,false);
+    //    CreateParticle(Output[particleIndex], emitter,seed,false);
     //}
 }

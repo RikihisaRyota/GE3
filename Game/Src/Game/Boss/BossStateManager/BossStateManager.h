@@ -14,6 +14,7 @@ struct ColliderDesc;
 class Boss;
 class CommandContext;
 class BossStateManager;
+class Player;
 class BossState {
 public:
 	BossState(BossStateManager& manager, bool inTransition) : manager_(manager), inTransition_(inTransition) {}
@@ -139,9 +140,16 @@ class BossStateHomingAttack :
 	public BossState {
 public:
 	struct JsonData {
+		GPUParticleShaderStructs::VertexEmitterForCPU  homingEmitter;
 		GPUParticleShaderStructs::TransformModelEmitterForCPU transformEmitter;
+		Vector3 start;
 		float allFrame;
 		float transitionFrame;
+
+		Vector3 bulletOffset;
+		int createBulletInterval;
+		float bulletSpeed;
+		float bulletRadius;
 	};
 	using BossState::BossState;
 	void Initialize(CommandContext& commandContext) override;
@@ -149,6 +157,26 @@ public:
 	void Update(CommandContext& commandContext) override;
 	void DebugDraw()override;
 private:
+	void InitializeBullet();
+	void UpdateBullet();
+	class Bullet {
+	public:
+		void Initialize(float radius);
+		void Create(const Vector3& position, const Vector3& vector, float speed);
+		void Update();
+		void DebugDraw();
+		bool GetIsAlive() const { return isAlive_; }
+	private:
+		void OnCollision(const ColliderDesc& desc);
+		std::unique_ptr<SphereCollider> collider;
+		bool isAlive_;
+		Vector3 velocity_;
+		ModelHandle bulletModel_;
+		WorldTransform worldTransform_;
+		GPUParticleShaderStructs::VertexEmitterForCPU  bulletEmitter_;
+	};
+	std::array<std::unique_ptr<Bullet>, 5> bullets_;
+	int createBulletTime_;
 	JsonData data_;
 };
 
@@ -179,6 +207,7 @@ public:
 	};
 
 	void SetBoss(Boss* boss) { boss_ = boss; }
+	void SetPlayer(Player* player) { player_ = player; }
 	void SetGPUParticleManager(GPUParticleManager* gpuParticleManager) { gpuParticleManager_ = gpuParticleManager; }
 
 	void Initialize();
@@ -231,6 +260,7 @@ public:
 	}
 	JsonData jsonData_;
 	Boss* boss_;
+	Player* player_;
 	GPUParticleManager* gpuParticleManager_;
 	void DrawImGui();
 	const State& GetPreState() { return preStateEnum_; }

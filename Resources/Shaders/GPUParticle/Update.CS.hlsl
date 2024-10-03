@@ -55,8 +55,13 @@ void main(uint3 DTid : SV_DispatchThreadID)
                 float32_t3  direction = input[index].translate.easing.max - input[index].translate.translate;
                 float32_t radius=input[index].translate.radius;
                 float32_t attraction=input[index].translate.attraction;
+                // 速度があるとき
                 if(length(direction)!=0.0f){
                     input[index].velocity += normalize(direction)*attraction;
+                    // 速度が半径を超えないように
+                    if(length(input[index].velocity) >= radius){
+                        input[index].velocity= normalize(input[index].velocity)*radius;
+                    }
                 }
 
                 if(length(input[index].translate.translate-input[index].translate.easing.max) <= radius /*|| input[index].particleLifeTime.time >= input[index].particleLifeTime.maxTime*/){

@@ -46,7 +46,7 @@ private:
 	int32_t playHandle_;
 
 	//ModelHandle testModel_;
-	//WorldTransform WorldTransform_;
+	//GPUParticleShaderStructs::VertexEmitterForCPU testVertexEmitter_;
 
 	GPUParticleShaderStructs::EmitterForCPU testEmitter_;
 	GPUParticleShaderStructs::EmitterForCPU test1Emitter_;

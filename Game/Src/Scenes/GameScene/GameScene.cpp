@@ -48,6 +48,7 @@ GameScene::GameScene() {
 	gpuParticleManager_->Initialize();
 
 	player_->SetBoss(boss_.get());
+	boss_->SetPlayer(player_.get());
 	player_->SetGPUParticleManager(gpuParticleManager_.get());
 	boss_->SetGPUParticleManager(gpuParticleManager_.get());
 
@@ -55,10 +56,10 @@ GameScene::GameScene() {
 	GPUParticleShaderStructs::Load("test1", test1Emitter_);
 	GPUParticleShaderStructs::Load("test2", test2Emitter_);
 	GPUParticleShaderStructs::Load("test", testField_);
+	//GPUParticleShaderStructs::Load("test", testVertexEmitter_);
 
-	//fieldWorldTransform_.Initialize();
-	//testModel_ = ModelManager::GetInstance()->Load("Resources/Models/Player/player.gltf");
-	testWorldTransform_.Initialize();
+	//testModel_ = ModelManager::GetInstance()->Load("Resources/Models/Boss/cannon.gltf");
+	//testWorldTransform_.Initialize();
 }
 
 GameScene::~GameScene() {
@@ -94,6 +95,8 @@ void GameScene::Initialize() {
 
 void GameScene::Update(CommandContext& commandContext) {
 
+	//gpuParticleManager_->SetVertexEmitter(testModel_, testVertexEmitter_);
+
 	skybox_->Update();
 
 	debugCamera_->Update(viewProjection_);
@@ -107,13 +110,7 @@ void GameScene::Update(CommandContext& commandContext) {
 		object->Update();
 	}
 
-
-	//gpuParticleManager_->SetEmitter(testEmitter_, testWorldTransform_.matWorld);
-	//gpuParticleManager_->SetEmitter(test1Emitter_, testWorldTransform_.matWorld);
-	//gpuParticleManager_->SetEmitter(test2Emitter_, testWorldTransform_.matWorld);
-	//gpuParticleManager_->SetField(testField_);
 	gpuParticleManager_->Update(*viewProjection_, RenderManager::GetInstance()->GetCommandContext());
-	//gpuParticleEditor_->Update(RenderManager::GetInstance()->GetCommandContext());
 
 	CollisionManager::GetInstance()->Collision();
 #ifdef _DEBUG
@@ -147,6 +144,7 @@ void GameScene::Update(CommandContext& commandContext) {
 	}
 	GPUParticleShaderStructs::Debug("test", testField_);
 	GPUParticleShaderStructs::Debug("test", testEmitter_);
+	//GPUParticleShaderStructs::Debug("test", testVertexEmitter_);
 	GPUParticleShaderStructs::Debug("test1", test1Emitter_);
 	GPUParticleShaderStructs::Debug("test2", test2Emitter_);
 	GPUParticleShaderStructs::Update();
@@ -164,7 +162,7 @@ void GameScene::Update(CommandContext& commandContext) {
 }
 
 void GameScene::Draw(CommandContext& commandContext) {
-	//ModelManager::GetInstance()->Draw(fieldWorldTransform_, *viewProjection_, field_, commandContext);
+	//ModelManager::GetInstance()->Draw(testWorldTransform_.matWorld, *viewProjection_, testModel_, commandContext);
 	player_->Draw(*viewProjection_, commandContext);
 	boss_->Draw(*viewProjection_, commandContext);
 	for (auto& object : gameObject_) {

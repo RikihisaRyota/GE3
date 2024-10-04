@@ -37,38 +37,35 @@ namespace {
 		const Vector3& p2 = seg2.start;
 		const Vector3& q2 = seg2.end;
 
-		Vector3 d1 = q1 - p1;  // Direction vector of segment S1
-		Vector3 d2 = q2 - p2;  // Direction vector of segment S2
+		Vector3 d1 = q1 - p1;
+		Vector3 d2 = q2 - p2;
 		Vector3 r = p1 - p2;
 
-		float a = Dot(d1, d1);  // Squared length of segment S1, always nonnegative
-		float e = Dot(d2, d2);  // Squared length of segment S2, always nonnegative
+		float a = Dot(d1, d1);
+		float e = Dot(d2, d2);
 		float f = Dot(d2, r);
 
 		float s, t;
 		float b = Dot(d1, d2);
 		float c = Dot(d1, r);
-		float denom = a * e - b * b;  // Always nonnegative
+		float denom = a * e - b * b;
 
-		// If segments are not parallel, compute the closest points
+		
 		if (denom != 0.0f) {
 			s = (b * f - c * e) / denom;
 			t = (a * f - b * c) / denom;
 
-			// Clamp s to [0, 1]
 			if (s < 0.0f) s = 0.0f;
 			else if (s > 1.0f) s = 1.0f;
 
-			// Clamp t to [0, 1]
 			if (t < 0.0f) t = 0.0f;
 			else if (t > 1.0f) t = 1.0f;
 		}
 		else {
-			// If segments are parallel, we can choose any t in [0, 1] and solve for s
-			s = 0.0f;  // Use the start of the first segment
+			
+			s = 0.0f;
 			t = f / e;
 
-			// Clamp t to [0, 1]
 			if (t < 0.0f) t = 0.0f;
 			else if (t > 1.0f) t = 1.0f;
 		}
@@ -84,7 +81,6 @@ namespace {
 		Vector3 closestPoint = obb.center;
 		Vector3 obbHalfSize = obb.size * 0.5f;
 
-		// Project point onto OBB axes and clamp to box extents
 		for (int i = 0; i < 3; ++i) {
 			float dist = Dot(d, obb.orientations[i]);
 			if (i == 0) {
@@ -120,7 +116,7 @@ namespace {
 
 	std::vector<Vector3> GenerateHalfSphereVertices(const Vector3& center, float radius, int rings, int sectors, const Vector3& axis1, const Vector3& axis2) {
 		std::vector<Vector3> vertices;
-		vertices.reserve((rings + 1) * (sectors + 1)); // Reserve space for the vertices, including the center
+		vertices.reserve((rings + 1) * (sectors + 1));
 
 		float ringStep = std::numbers::pi_v<float> / rings;
 		float sectorStep = 2.0f * std::numbers::pi_v<float> / sectors;
@@ -228,18 +224,15 @@ bool OBBCollider::IsCollision(OBBCollider* other, ColliderDesc& desc) {
 	Vector3 minOverlapAxis = {};
 
 	auto IsSeparateAxis = [&](const Vector3& axis) {
-		// Skip zero-length axis
 		if (axis.LengthSquared() < 1e-6) { return false; }
 
 		Vector2 minmax1 = Projection(vertices1, axis);
 		Vector2 minmax2 = Projection(vertices2, axis);
 
-		// Check for no overlap
 		if (minmax1.y < minmax2.x || minmax2.y < minmax1.x) {
-			return true; // Separating axis found
+			return true;
 		}
 
-		// Calculate overlap
 		float overlap = GetOverlap(minmax1, minmax2);
 		if (overlap < minOverlap) {
 			minOverlapAxis = axis;
@@ -249,14 +242,11 @@ bool OBBCollider::IsCollision(OBBCollider* other, ColliderDesc& desc) {
 		return false;
 		};
 
-	// Check all axes
 	for (auto& axis : axes) {
-		// Skip invalid axes
 		if (std::isnan(axis.x) || std::isnan(axis.y) || std::isnan(axis.z)) { continue; }
 		if (IsSeparateAxis(axis)) { return false; }
 	}
 
-	// No separating axis found, collision detected
 	desc.collider = this;
 	desc.normal = minOverlapAxis.Normalized();
 	if (Dot(other->obb_.center - this->obb_.center, desc.normal) < 0.0f) {
@@ -320,7 +310,6 @@ void OBBCollider::DrawCollision(const Vector4& color) {
 		{0, 4}, {1, 5}, {2, 6}, {3, 7}  // 前面と背面を結ぶ4つの辺
 	};
 
-	// Draw the edges
 	for (const auto& edge : edges) {
 		drawLine->SetLine(vertices[edge.first], vertices[edge.second], color);
 	}
@@ -359,19 +348,14 @@ bool SphereCollider::IsCollision(SphereCollider* collider, ColliderDesc& collisi
 	return true;
 }
 bool SphereCollider::IsCollision(OBBCollider* collider, ColliderDesc& collisionInfo) {
-	// Get the vertices of the OBB
 	auto vertices = GetVertices(collider->obb_);
 
-	// Find the closest point on the OBB to the sphere's center
 	Vector3 closestPoint = ClosestPointOnOBB(collider->obb_, sphere_.center);
 
-	// Calculate the vector from the sphere's center to the closest point on the OBB
 	Vector3 diff = closestPoint - sphere_.center;
 	float distSquared = diff.LengthSquared();
 
-	// Check if the closest point is inside the sphere
 	if (distSquared <= sphere_.radius * sphere_.radius) {
-		// Collision detected
 		float dist = sqrtf(distSquared);
 		collisionInfo.collider = this;
 		collisionInfo.normal = (dist > 0.0f) ? diff / dist : Vector3(0.0f, 0.0f, 0.0f);
@@ -379,24 +363,18 @@ bool SphereCollider::IsCollision(OBBCollider* collider, ColliderDesc& collisionI
 		return true;
 	}
 
-	// No collision
 	return false;
 }
 bool SphereCollider::IsCollision(CapsuleCollider* other, ColliderDesc& desc) {
-	// Calculate the closest point on the capsule segment to the sphere center
 	Vector3 closestPoint = ClosestPointOnSegment(other->capsule_.segment, sphere_.center);
 
-	// Calculate the vector from the sphere's center to the closest point on the segment
 	Vector3 diff = closestPoint - sphere_.center;
 	float distSquared = diff.LengthSquared();
 
-	// Calculate the sum of the sphere's radius and the capsule's radius
 	float combinedRadius = sphere_.radius + other->capsule_.radius;
 	float combinedRadiusSquared = combinedRadius * combinedRadius;
 
-	// Check if the closest point is within the combined radius
 	if (distSquared <= combinedRadiusSquared) {
-		// Collision detected
 		float dist = sqrtf(distSquared);
 		desc.collider = this;
 		desc.normal = (dist > 0.0f) ? diff / dist : Vector3(0.0f, 0.0f, 0.0f);
@@ -404,7 +382,6 @@ bool SphereCollider::IsCollision(CapsuleCollider* other, ColliderDesc& desc) {
 		return true;
 	}
 
-	// No collision
 	return false;
 }
 
@@ -486,10 +463,8 @@ bool CapsuleCollider::IsCollision(SphereCollider* collider, ColliderDesc& collis
 	const Sphere& sphere = collider->sphere_;
 	const Segment& segment = capsule_.segment;
 
-	// Calculate the closest point on the capsule's segment to the sphere's center
 	Vector3 closestPoint = ClosestPointOnSegment(segment, sphere.center);
 
-	// Calculate the distance from the closest point to the sphere's center
 	Vector3 diff = sphere.center - closestPoint;
 	float distanceSquared = diff.LengthSquared();
 	float radiusSum = capsule_.radius + sphere.radius;
@@ -498,7 +473,6 @@ bool CapsuleCollider::IsCollision(SphereCollider* collider, ColliderDesc& collis
 		return false;
 	}
 
-	// Fill collision info
 	float distance = sqrt(distanceSquared);
 	collisionInfo.collider = this;
 	collisionInfo.normal = (distance != 0.0f) ? diff / distance : Vector3(0.0f, 0.0f, 0.0f);
@@ -533,11 +507,9 @@ void CapsuleCollider::DrawCollision(const Vector4& color) {
 	float radius = capsule_.radius;
 	int segments = 24;
 
-	// Calculate the direction vector of the segment
 	Vector3 direction = p2 - p1;
 	direction.Normalize();
 
-	// Find two vectors that are perpendicular to the direction vector
 	Vector3 axis1, axis2;
 	if (fabs(direction.x) > fabs(direction.y)) {
 		axis1 = Vector3(direction.z, 0, -direction.x);
@@ -549,18 +521,15 @@ void CapsuleCollider::DrawCollision(const Vector4& color) {
 	axis2 = direction.Cross(axis1);
 	axis2.Normalize();
 
-	// Generate vertices for the cylindrical part (circles at both ends)
 	std::vector<Vector3> p1Vertices = GenerateCircleVertices(p1, radius, segments, axis1, axis2);
 	std::vector<Vector3> p2Vertices = GenerateCircleVertices(p2, radius, segments, axis1, axis2);
 
-	// Draw lines for the cylindrical part (circles and connecting lines)
 	for (int i = 0; i < segments; ++i) {
 		drawLine->SetLine(p1Vertices[i], p1Vertices[(i + 1) % segments], color);
 		drawLine->SetLine(p2Vertices[i], p2Vertices[(i + 1) % segments], color);
 		drawLine->SetLine(p1Vertices[i], p2Vertices[i], color);
 	}
 
-	// Generate vertices for the half-spheres at both ends in cross pattern
 	Vector3 axis3 = Cross(axis1, axis2).Normalized();
 
 	std::vector<Vector3> xyTopHalfSphereVertices = GenerateHalfSphereVertices(p1, radius, segments, axis1, -axis3);
@@ -568,7 +537,6 @@ void CapsuleCollider::DrawCollision(const Vector4& color) {
 	std::vector<Vector3> xyBottomHalfSphereVertices = GenerateHalfSphereVertices(p2, radius, segments, axis1, axis3);
 	std::vector<Vector3> xzBottomHalfSphereVertices = GenerateHalfSphereVertices(p2, radius, segments, axis2, axis3);
 
-	// Draw lines for the half-spheres in cross pattern
 	for (int i = 0; i < xyTopHalfSphereVertices.size(); i++) {
 		drawLine->SetLine(xyTopHalfSphereVertices[i], xyTopHalfSphereVertices[(i + 1) % xyTopHalfSphereVertices.size()], color);
 		drawLine->SetLine(zyTopHalfSphereVertices[i], zyTopHalfSphereVertices[(i + 1) % zyTopHalfSphereVertices.size()], color);

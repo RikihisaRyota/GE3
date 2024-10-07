@@ -31,6 +31,7 @@ namespace LevelDataLoader {
 		Transform transform;
 		std::optional<LevelDataLoader::Collider> collider;
 		std::string fileName;
+		std::optional<std::string> objectName;
 	};
 
 	struct ObjectData {

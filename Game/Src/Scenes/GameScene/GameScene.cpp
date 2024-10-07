@@ -52,6 +52,10 @@ GameScene::GameScene() {
 	player_->SetGPUParticleManager(gpuParticleManager_.get());
 	boss_->SetGPUParticleManager(gpuParticleManager_.get());
 
+	GPUParticleShaderStructs::Load("postEmitter", postEmitter_);
+	GPUParticleShaderStructs::Load("groundEmitter", groundEmitter_);
+
+#ifdef _DEBUG
 	GPUParticleShaderStructs::Load("test", testEmitter_);
 	GPUParticleShaderStructs::Load("test1", test1Emitter_);
 	GPUParticleShaderStructs::Load("test2", test2Emitter_);
@@ -60,6 +64,7 @@ GameScene::GameScene() {
 
 	//testModel_ = ModelManager::GetInstance()->Load("Resources/Models/Boss/cannon.gltf");
 	//testWorldTransform_.Initialize();
+#endif // _DEBUG
 }
 
 GameScene::~GameScene() {
@@ -108,6 +113,16 @@ void GameScene::Update(CommandContext& commandContext) {
 	boss_->Update(commandContext);
 	for (auto& object : gameObject_) {
 		object->Update();
+		if (object->GetObjectName() == "Post") {
+			GPUParticleShaderStructs::EmitterForCPU emitter{};
+			GPUParticleShaderStructs::NonSharedCopy(emitter, postEmitter_);
+			emitter.emitterArea.position = MakeTranslateMatrix(object->GetWorldTransform().matWorld);
+			gpuParticleManager_->SetEmitter(emitter);
+		}
+		if (object->GetObjectName() == "Ground") {
+			postEmitter_.emitterArea.position = MakeTranslateMatrix(object->GetWorldTransform().matWorld);
+			gpuParticleManager_->SetEmitter(groundEmitter_);
+		}
 	}
 
 	gpuParticleManager_->Update(*viewProjection_, RenderManager::GetInstance()->GetCommandContext());
@@ -142,12 +157,18 @@ void GameScene::Update(CommandContext& commandContext) {
 	for (auto& object : gameObject_) {
 		object->DrawImGui();
 	}
+
+	gpuParticleManager_->SetField(testField_);
+	//gpuParticleManager_->SetEmitter(testEmitter_);
 	GPUParticleShaderStructs::Debug("test", testField_);
 	GPUParticleShaderStructs::Debug("test", testEmitter_);
+	GPUParticleShaderStructs::Debug("postEmitter", postEmitter_);
+	GPUParticleShaderStructs::Debug("groundEmitter", groundEmitter_);
 	//GPUParticleShaderStructs::Debug("test", testVertexEmitter_);
 	GPUParticleShaderStructs::Debug("test1", test1Emitter_);
 	GPUParticleShaderStructs::Debug("test2", test2Emitter_);
 	GPUParticleShaderStructs::Update();
+
 	if (Input::GetInstance()->PushKey(DIK_R)) {
 		skybox_->Initialize();
 		followCamera_->Initialize();
@@ -165,9 +186,14 @@ void GameScene::Draw(CommandContext& commandContext) {
 	//ModelManager::GetInstance()->Draw(testWorldTransform_.matWorld, *viewProjection_, testModel_, commandContext);
 	player_->Draw(*viewProjection_, commandContext);
 	boss_->Draw(*viewProjection_, commandContext);
-	for (auto& object : gameObject_) {
-		object->Draw(*viewProjection_, commandContext);
-	}
+	//for (auto& object : gameObject_) {
+	//	if (object->GetObjectName() != "Post") {
+	//		object->Draw(*viewProjection_, commandContext);
+	//	}
+	//	if (object->GetObjectName() != "Ground") {
+	//		object->Draw(*viewProjection_, commandContext);
+	//	}
+	//}
 
 
 	gpuParticleManager_->Draw(*viewProjection_, commandContext);
@@ -191,6 +217,7 @@ void GameScene::Draw(CommandContext& commandContext) {
 	GPUParticleShaderStructs::DebugDraw(test1Emitter_);
 	GPUParticleShaderStructs::DebugDraw(test2Emitter_);
 	GPUParticleShaderStructs::DebugDraw(testField_);
+	GPUParticleShaderStructs::DebugDraw(groundEmitter_);
 #endif // _DEBUG
 
 }

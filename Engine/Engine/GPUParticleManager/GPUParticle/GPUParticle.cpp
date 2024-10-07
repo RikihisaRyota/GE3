@@ -835,141 +835,37 @@ void GPUParticle::CreateEdgeParticle(const ModelHandle& modelHandle, const Matri
 
 void GPUParticle::SetField(const GPUParticleShaderStructs::FieldForCPU& fieldForCPU) {
 	GPUParticleShaderStructs::FieldForGPU fieldForGPU{};
-	fieldForGPU.field = fieldForCPU.field;
-	fieldForGPU.fieldArea = fieldForCPU.fieldArea;
-	fieldForGPU.frequency = fieldForCPU.frequency;
-	fieldForGPU.collisionInfo = fieldForCPU.collisionInfo;
-	fieldForGPU.isAlive = fieldForCPU.isAlive;
-	fieldForGPU.fieldCount = fieldForCPU.fieldCount;
+	GPUParticleShaderStructs::Copy(fieldForGPU, fieldForCPU);
 	fields_.emplace_back(fieldForGPU);
 }
 
 void GPUParticle::SetEmitter(const GPUParticleShaderStructs::EmitterForCPU& emitterForCPU, const Matrix4x4& parent) {
 	GPUParticleShaderStructs::EmitterForGPU emitterForGPU{};
-	emitterForGPU.emitterArea = emitterForCPU.emitterArea;
-	emitterForGPU.scale = emitterForCPU.scale;
-	emitterForGPU.rotate.initializeAngle.min = DegToRad(emitterForCPU.rotate.initializeAngle.min);
-	emitterForGPU.rotate.initializeAngle.max = DegToRad(emitterForCPU.rotate.initializeAngle.max);
-	emitterForGPU.rotate.rotateSpeed.min = DegToRad(emitterForCPU.rotate.rotateSpeed.min);
-	emitterForGPU.rotate.rotateSpeed.max = DegToRad(emitterForCPU.rotate.rotateSpeed.max);
-	emitterForGPU.velocity = emitterForCPU.velocity;
-	emitterForGPU.color = emitterForCPU.color;
-	emitterForGPU.frequency = emitterForCPU.frequency;
-	emitterForGPU.time.particleTime = emitterForCPU.frequency.interval;
-	emitterForGPU.time.emitterTime = 0;
-	emitterForGPU.particleLifeSpan = emitterForCPU.particleLifeSpan;
-	emitterForGPU.textureIndex = emitterForCPU.textureIndex;
-	emitterForGPU.createParticleNum = emitterForCPU.createParticleNum;
-	emitterForGPU.isAlive = emitterForCPU.isAlive;
-	emitterForGPU.emitterCount = emitterForCPU.emitterCount;
-	emitterForGPU.collisionInfo = emitterForCPU.collisionInfo;
-	emitterForGPU.parent = emitterForCPU.parent;
-	emitterForGPU.parent.emitterType = GPUParticleShaderStructs::EmitterType::kEmitter;
-	emitterForGPU.parent.worldMatrix = parent;
+	GPUParticleShaderStructs::Copy(emitterForGPU, emitterForCPU,parent);
 	emitterForGPUs_.emplace_back(emitterForGPU);
 }
 
 void GPUParticle::SetEmitter(const GPUParticleShaderStructs::VertexEmitterForCPU& emitterForCPU, const Matrix4x4& parent) {
 	GPUParticleShaderStructs::VertexEmitterForGPU emitterForGPU{};
-	emitterForGPU.localTransform = emitterForCPU.localTransform;
-	emitterForGPU.translate = emitterForCPU.translate;
-	emitterForGPU.scale = emitterForCPU.scale;
-	emitterForGPU.rotate.initializeAngle.min = DegToRad(emitterForCPU.rotate.initializeAngle.min);
-	emitterForGPU.rotate.initializeAngle.max = DegToRad(emitterForCPU.rotate.initializeAngle.max);
-	emitterForGPU.rotate.rotateSpeed.min = DegToRad(emitterForCPU.rotate.rotateSpeed.min);
-	emitterForGPU.rotate.rotateSpeed.max = DegToRad(emitterForCPU.rotate.rotateSpeed.max);
-	emitterForGPU.velocity = emitterForCPU.velocity;
-	emitterForGPU.color = emitterForCPU.color;
-	emitterForGPU.frequency = emitterForCPU.frequency;
-	emitterForGPU.time = emitterForCPU.time;
-	emitterForGPU.particleLifeSpan = emitterForCPU.particleLifeSpan;
-	emitterForGPU.collisionInfo = emitterForCPU.collisionInfo;
-	emitterForGPU.parent = emitterForCPU.parent;
-	emitterForGPU.parent.emitterType = GPUParticleShaderStructs::EmitterType::kVertexEmitter;
-	emitterForGPU.parent.worldMatrix = parent;
-	emitterForGPU.model = emitterForCPU.model;
-	emitterForGPU.textureIndex = emitterForCPU.textureIndex;
-	emitterForGPU.isAlive = emitterForCPU.isAlive;
-	emitterForGPU.emitterCount = emitterForCPU.emitterCount;
+	GPUParticleShaderStructs::Copy(emitterForGPU, emitterForCPU,parent);
 	vertexEmitterForGPUs_.emplace_back(emitterForGPU);
 }
 
 void GPUParticle::SetEmitter(const GPUParticleShaderStructs::MeshEmitterForCPU& emitterForCPU, const Matrix4x4& parent) {
 	GPUParticleShaderStructs::MeshEmitterForGPU emitterForGPU{};
-	emitterForGPU.localTransform = emitterForCPU.localTransform;
-	emitterForGPU.translate = emitterForCPU.translate;
-	emitterForGPU.scale = emitterForCPU.scale;
-	emitterForGPU.rotate.initializeAngle.min = DegToRad(emitterForCPU.rotate.initializeAngle.min);
-	emitterForGPU.rotate.initializeAngle.max = DegToRad(emitterForCPU.rotate.initializeAngle.max);
-	emitterForGPU.rotate.rotateSpeed.min = DegToRad(emitterForCPU.rotate.rotateSpeed.min);
-	emitterForGPU.rotate.rotateSpeed.max = DegToRad(emitterForCPU.rotate.rotateSpeed.max);
-	emitterForGPU.velocity = emitterForCPU.velocity;
-	emitterForGPU.color = emitterForCPU.color;
-	emitterForGPU.frequency = emitterForCPU.frequency;
-	emitterForGPU.time = emitterForCPU.time;
-	emitterForGPU.particleLifeSpan = emitterForCPU.particleLifeSpan;
-	emitterForGPU.collisionInfo = emitterForCPU.collisionInfo;
-	emitterForGPU.parent = emitterForCPU.parent;
-	emitterForGPU.parent.emitterType = GPUParticleShaderStructs::EmitterType::kMeshEmitter;
-	emitterForGPU.parent.worldMatrix = parent;
-	emitterForGPU.model = emitterForCPU.model;
-	emitterForGPU.textureIndex = emitterForCPU.textureIndex;
-	emitterForGPU.numCreate = emitterForCPU.numCreate;
-	emitterForGPU.isAlive = emitterForCPU.isAlive;
-	emitterForGPU.emitterCount = emitterForCPU.emitterCount;
+	GPUParticleShaderStructs::Copy(emitterForGPU, emitterForCPU,parent);
 	meshEmitterForGPUs_.emplace_back(emitterForGPU);
 }
 
 void GPUParticle::SetEmitter(const GPUParticleShaderStructs::TransformModelEmitterForCPU& emitterForCPU, const Matrix4x4& parent) {
 	GPUParticleShaderStructs::TransformModelEmitterForGPU emitterForGPU{};
-	emitterForGPU.translate = emitterForCPU.translate;
-	emitterForGPU.scale = emitterForCPU.scale;
-	emitterForGPU.rotate.initializeAngle.min = DegToRad(emitterForCPU.rotate.initializeAngle.min);
-	emitterForGPU.rotate.initializeAngle.max = DegToRad(emitterForCPU.rotate.initializeAngle.max);
-	emitterForGPU.rotate.rotateSpeed.min = DegToRad(emitterForCPU.rotate.rotateSpeed.min);
-	emitterForGPU.rotate.rotateSpeed.max = DegToRad(emitterForCPU.rotate.rotateSpeed.max);
-	emitterForGPU.velocity = emitterForCPU.velocity;
-	emitterForGPU.color = emitterForCPU.color;
-	emitterForGPU.frequency = emitterForCPU.frequency;
-	emitterForGPU.time = emitterForCPU.time;
-	emitterForGPU.particleLifeSpan = emitterForCPU.particleLifeSpan;
-	emitterForGPU.collisionInfo = emitterForCPU.collisionInfo;
-	emitterForGPU.parent = emitterForCPU.parent;
-	emitterForGPU.parent.emitterType = GPUParticleShaderStructs::EmitterType::kTransformModelEmitter;
-	emitterForGPU.parent.worldMatrix = parent;
-	emitterForGPU.startModel = emitterForCPU.startModel;
-	emitterForGPU.startModelWorldMatrix = emitterForCPU.startModelWorldMatrix;
-	emitterForGPU.endModel = emitterForCPU.endModel;
-	emitterForGPU.endModelWorldMatrix = emitterForCPU.endModelWorldMatrix;
-	emitterForGPU.textureIndex = emitterForCPU.textureIndex;
-	emitterForGPU.isAlive = emitterForCPU.isAlive;
-	emitterForGPU.emitterCount = emitterForCPU.emitterCount;
+	GPUParticleShaderStructs::Copy(emitterForGPU, emitterForCPU,parent);
 	transformModelEmitterForGPUs_.emplace_back(emitterForGPU);
 }
 
 void GPUParticle::SetEmitter(const GPUParticleShaderStructs::TransformAreaEmitterForCPU& emitterForCPU, const Matrix4x4& parent) {
 	GPUParticleShaderStructs::TransformAreaEmitterForGPU emitterForGPU{};
-	emitterForGPU.emitterArea = emitterForCPU.emitterArea;
-	emitterForGPU.translate = emitterForCPU.translate;
-	emitterForGPU.scale = emitterForCPU.scale;
-	emitterForGPU.rotate.initializeAngle.min = DegToRad(emitterForCPU.rotate.initializeAngle.min);
-	emitterForGPU.rotate.initializeAngle.max = DegToRad(emitterForCPU.rotate.initializeAngle.max);
-	emitterForGPU.rotate.rotateSpeed.min = DegToRad(emitterForCPU.rotate.rotateSpeed.min);
-	emitterForGPU.rotate.rotateSpeed.max = DegToRad(emitterForCPU.rotate.rotateSpeed.max);
-	emitterForGPU.velocity = emitterForCPU.velocity;
-	emitterForGPU.color = emitterForCPU.color;
-	emitterForGPU.frequency = emitterForCPU.frequency;
-	emitterForGPU.time = emitterForCPU.time;
-	emitterForGPU.particleLifeSpan = emitterForCPU.particleLifeSpan;
-	emitterForGPU.collisionInfo = emitterForCPU.collisionInfo;
-	emitterForGPU.parent = emitterForCPU.parent;
-	emitterForGPU.parent.emitterType = GPUParticleShaderStructs::EmitterType::kTransformAreaEmitter;
-	emitterForGPU.parent.worldMatrix = parent;
-	emitterForGPU.model = emitterForCPU.model;
-	emitterForGPU.modelWorldMatrix = emitterForCPU.modelWorldMatrix;
-	emitterForGPU.textureIndex = emitterForCPU.textureIndex;
-	emitterForGPU.isAlive = emitterForCPU.isAlive;
-	emitterForGPU.emitterCount = emitterForCPU.emitterCount;
+	GPUParticleShaderStructs::Copy(emitterForGPU, emitterForCPU,parent);
 	transformAreaEmitterForGPUs_.emplace_back(emitterForGPU);
 }
 

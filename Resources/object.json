@@ -2,8 +2,51 @@
     "name": "scene",
     "objects": [
         {
+            "type": "MESH",
+            "name": "Ground",
+            "transform": {
+                "translation": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.0
+                ],
+                "scaling": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "file_name": "Resources\\Models\\Ground\\ground.gltf",
+            "objectName": "Ground",
+            "collider": {
+                "type": "BOX",
+                "center": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "size": [
+                    30.0,
+                    30.0,
+                    12.0
+                ],
+                "rotate": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.0
+                ]
+            }
+        },
+        {
             "type": "ARMATURE",
-            "name": "Armature",
+            "name": "Player",
             "transform": {
                 "translation": [
                     0.0,
@@ -48,10 +91,56 @@
             ]
         },
         {
+            "type": "Boss",
+            "name": "Boss",
+            "transform": {
+                "translation": [
+                    0.0,
+                    30.0,
+                    -4.0
+                ],
+                "rotation": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.0
+                ],
+                "scaling": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        },
+        {
             "type": "MESH",
             "name": "平面",
             "transform": {
                 "translation": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.0
+                ],
+                "scaling": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "file_name": "Resources\\Models\\Ground\\ground_2.gltf",
+            "objectName": "ground"
+        },
+        {
+            "type": "MESH",
+            "name": "Post.001",
+            "transform": {
+                "translation": [
                     -15.0,
                     -15.0,
                     10.0
@@ -69,6 +158,7 @@
                 ]
             },
             "file_name": "Resources\\Models\\Post\\Post.gltf",
+            "objectName": "Post",
             "collider": {
                 "type": "",
                 "center": [
@@ -91,7 +181,7 @@
         },
         {
             "type": "MESH",
-            "name": "平面.001",
+            "name": "Post.002",
             "transform": {
                 "translation": [
                     15.0,
@@ -111,6 +201,7 @@
                 ]
             },
             "file_name": "Resources\\Models\\Post\\Post.gltf",
+            "objectName": "Post",
             "collider": {
                 "type": "",
                 "center": [
@@ -133,7 +224,7 @@
         },
         {
             "type": "MESH",
-            "name": "平面.002",
+            "name": "Post.003",
             "transform": {
                 "translation": [
                     15.0,
@@ -153,6 +244,7 @@
                 ]
             },
             "file_name": "Resources\\Models\\Post\\Post.gltf",
+            "objectName": "Post",
             "collider": {
                 "type": "",
                 "center": [
@@ -175,7 +267,7 @@
         },
         {
             "type": "MESH",
-            "name": "平面.003",
+            "name": "Post",
             "transform": {
                 "translation": [
                     -15.0,
@@ -195,6 +287,7 @@
                 ]
             },
             "file_name": "Resources\\Models\\Post\\Post.gltf",
+            "objectName": "Post",
             "collider": {
                 "type": "",
                 "center": [
@@ -214,71 +307,6 @@
                     1.0
                 ]
             }
-        },
-        {
-            "type": "MESH",
-            "name": "立方体",
-            "transform": {
-                "translation": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "rotation": [
-                    0.0,
-                    0.0,
-                    0.0,
-                    1.0
-                ],
-                "scaling": [
-                    1.0,
-                    1.0,
-                    1.0
-                ]
-            },
-            "file_name": "Resources\\Models\\Ground\\ground.gltf",
-            "collider": {
-                "type": "BOX",
-                "center": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "size": [
-                    30.0,
-                    30.0,
-                    12.0
-                ],
-                "rotate": [
-                    0.0,
-                    0.0,
-                    0.0,
-                    1.0
-                ]
-            }
-        },
-        {
-            "type": "MESH",
-            "name": "立方体.001",
-            "transform": {
-                "translation": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "rotation": [
-                    0.0,
-                    0.0,
-                    0.0,
-                    1.0
-                ],
-                "scaling": [
-                    1.0,
-                    1.0,
-                    1.0
-                ]
-            },
-            "file_name": "Resources\\Models\\Ground\\ground_2.gltf"
         }
     ]
 }

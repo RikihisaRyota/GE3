@@ -1,0 +1,29 @@
+{
+    "CollisionInfo": {},
+    "EmitterArea": {
+        "EmitterAABB": {},
+        "EmitterCapsule": {
+            "EmitterSegment": {},
+            "distanceFactor": {}
+        },
+        "EmitterSphere": {
+            "distanceFactor": {}
+        }
+    },
+    "EmitterColor": {
+        "End": {},
+        "Start": {}
+    },
+    "EmitterFrequency": {},
+    "Parent": {},
+    "ParticleLifeSpan": {},
+    "RotateAnimation": {
+        "initializeAngle": {},
+        "rotateSpeed": {}
+    },
+    "ScaleAnimation": {
+        "End": {},
+        "Start": {}
+    },
+    "Velocity3D": {}
+}

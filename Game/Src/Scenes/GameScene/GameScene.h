@@ -45,6 +45,9 @@ private:
 	int32_t soundHandle_;
 	int32_t playHandle_;
 
+	GPUParticleShaderStructs::EmitterForCPU postEmitter_;
+	GPUParticleShaderStructs::EmitterForCPU groundEmitter_;
+#pragma region Debug
 	//ModelHandle testModel_;
 	//GPUParticleShaderStructs::VertexEmitterForCPU testVertexEmitter_;
 
@@ -53,4 +56,5 @@ private:
 	GPUParticleShaderStructs::EmitterForCPU test2Emitter_;
 	WorldTransform testWorldTransform_;
 	GPUParticleShaderStructs::FieldForCPU testField_;
+#pragma endregion
 };

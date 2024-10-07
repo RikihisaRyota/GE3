@@ -940,4 +940,20 @@ struct Particle
 
 	void LoadFieldFrequency(GPUParticleShaderStructs::FieldFrequency& fieldFrequency);
 	void SaveFieldFrequency(GPUParticleShaderStructs::FieldFrequency& fieldFrequency);
+
+	// エミッターカウントを共有しない
+	void NonSharedCopy(GPUParticleShaderStructs::EmitterForCPU& dst,const GPUParticleShaderStructs::EmitterForCPU& src);
+	void NonSharedCopy(GPUParticleShaderStructs::VertexEmitterForCPU& dst,const GPUParticleShaderStructs::VertexEmitterForCPU& src);
+	void NonSharedCopy(GPUParticleShaderStructs::MeshEmitterForCPU& dst,const GPUParticleShaderStructs::MeshEmitterForCPU& src);
+	void NonSharedCopy(GPUParticleShaderStructs::TransformAreaEmitterForCPU& dst,const GPUParticleShaderStructs::TransformAreaEmitterForCPU& src);
+	void NonSharedCopy(GPUParticleShaderStructs::TransformModelEmitterForCPU& dst,const GPUParticleShaderStructs::TransformModelEmitterForCPU& src);
+	void NonSharedCopy(GPUParticleShaderStructs::FieldForCPU& dst,const GPUParticleShaderStructs::FieldForCPU& src);
+	
+	// CPUからGPUへ
+	void Copy(GPUParticleShaderStructs::EmitterForGPU& dst, const GPUParticleShaderStructs::EmitterForCPU& src,const Matrix4x4& parent);
+	void Copy(GPUParticleShaderStructs::VertexEmitterForGPU& dst,const GPUParticleShaderStructs::VertexEmitterForCPU& src, const Matrix4x4& parent);
+	void Copy(GPUParticleShaderStructs::MeshEmitterForGPU& dst,const GPUParticleShaderStructs::MeshEmitterForCPU& src, const Matrix4x4& parent);
+	void Copy(GPUParticleShaderStructs::TransformAreaEmitterForGPU& dst,const GPUParticleShaderStructs::TransformAreaEmitterForCPU& src, const Matrix4x4& parent);
+	void Copy(GPUParticleShaderStructs::TransformModelEmitterForGPU& dst,const GPUParticleShaderStructs::TransformModelEmitterForCPU& src, const Matrix4x4& parent);
+	void Copy(GPUParticleShaderStructs::FieldForGPU& dst,const GPUParticleShaderStructs::FieldForCPU& src);
 }

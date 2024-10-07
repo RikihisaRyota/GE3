@@ -791,6 +791,219 @@ namespace GPUParticleShaderStructs {
 		JSON_SAVE_BY_NAME("lifeCount", fieldFrequency.lifeCount);
 		JSON_ROOT();
 	}
+	void NonSharedCopy(GPUParticleShaderStructs::EmitterForCPU& dst, const GPUParticleShaderStructs::EmitterForCPU& src) {
+		dst.emitterArea = src.emitterArea;
+		dst.scale = src.scale;
+		dst.rotate = src.rotate;
+		dst.velocity = src.velocity;
+		dst.color = src.color;
+		dst.frequency = src.frequency;
+		dst.time = src.time;
+		dst.particleLifeSpan = src.particleLifeSpan;
+		dst.textureIndex = src.textureIndex;
+		dst.createParticleNum = src.createParticleNum;
+		dst.isAlive = src.isAlive;
+		dst.collisionInfo = src.collisionInfo;
+		dst.parent = src.parent;
+
+	}
+	void NonSharedCopy(GPUParticleShaderStructs::VertexEmitterForCPU& dst, const GPUParticleShaderStructs::VertexEmitterForCPU& src) {
+		dst.translate = src.translate;
+		dst.localTransform = src.localTransform;
+		dst.scale = src.scale;
+		dst.rotate = src.rotate;
+		dst.velocity = src.velocity;
+		dst.color = src.color;
+		dst.frequency = src.frequency;
+		dst.time = src.time;
+		dst.particleLifeSpan = src.particleLifeSpan;
+		dst.collisionInfo = src.collisionInfo;
+		dst.parent = src.parent;
+		dst.model = src.model;
+		dst.textureIndex = src.textureIndex;
+		dst.isAlive = src.isAlive;
+	}
+	void NonSharedCopy(GPUParticleShaderStructs::MeshEmitterForCPU& dst, const GPUParticleShaderStructs::MeshEmitterForCPU& src) {
+		dst.translate = src.translate;
+		dst.localTransform = src.localTransform;
+		dst.scale = src.scale;
+		dst.rotate = src.rotate;
+		dst.velocity = src.velocity;
+		dst.color = src.color;
+		dst.frequency = src.frequency;
+		dst.time = src.time;
+		dst.particleLifeSpan = src.particleLifeSpan;
+		dst.collisionInfo = src.collisionInfo;
+		dst.parent = src.parent;
+		dst.model = src.model;
+		dst.textureIndex = src.textureIndex;
+		dst.numCreate = src.numCreate;
+		dst.isAlive = src.isAlive;
+	}
+	void NonSharedCopy(GPUParticleShaderStructs::TransformAreaEmitterForCPU& dst, const GPUParticleShaderStructs::TransformAreaEmitterForCPU& src) {
+		dst.emitterArea = src.emitterArea;
+		dst.translate = src.translate;
+		dst.scale = src.scale;
+		dst.rotate = src.rotate;
+		dst.velocity = src.velocity;
+		dst.color = src.color;
+		dst.frequency = src.frequency;
+		dst.time = src.time;
+		dst.particleLifeSpan = src.particleLifeSpan;
+		dst.collisionInfo = src.collisionInfo;
+		dst.parent = src.parent;
+		dst.model = src.model;
+		dst.modelWorldMatrix = src.modelWorldMatrix;
+		dst.textureIndex = src.textureIndex;
+		dst.isAlive = src.isAlive;
+	}
+	void NonSharedCopy(GPUParticleShaderStructs::TransformModelEmitterForCPU& dst, const GPUParticleShaderStructs::TransformModelEmitterForCPU& src) {
+		dst.translate = src.translate;
+		dst.scale = src.scale;
+		dst.rotate = src.rotate;
+		dst.velocity = src.velocity;
+		dst.color = src.color;
+		dst.frequency = src.frequency;
+		dst.time = src.time;
+		dst.particleLifeSpan = src.particleLifeSpan;
+		dst.collisionInfo = src.collisionInfo;
+		dst.parent = src.parent;
+		dst.startModel = src.startModel;
+		dst.startModelWorldMatrix = src.startModelWorldMatrix;
+		dst.endModel = src.endModel;
+		dst.endModelWorldMatrix = src.endModelWorldMatrix;
+		dst.textureIndex = src.textureIndex;
+		dst.isAlive = src.isAlive;
+	}
+	void NonSharedCopy(GPUParticleShaderStructs::FieldForCPU& dst, const GPUParticleShaderStructs::FieldForCPU& src) {
+		dst.field = src.field;
+		dst.fieldArea = src.fieldArea;
+		dst.frequency = src.frequency;
+		dst.collisionInfo = src.collisionInfo;
+		dst.isAlive = src.isAlive;
+	}
+	void Copy(GPUParticleShaderStructs::EmitterForGPU& dst, const GPUParticleShaderStructs::EmitterForCPU& src, const Matrix4x4& parent) {
+		dst.emitterArea = src.emitterArea;
+		dst.scale = src.scale;
+		dst.rotate.initializeAngle.min = DegToRad(src.rotate.initializeAngle.min);
+		dst.rotate.initializeAngle.max = DegToRad(src.rotate.initializeAngle.max);
+		dst.rotate.rotateSpeed.min = DegToRad(src.rotate.rotateSpeed.min);
+		dst.rotate.rotateSpeed.max = DegToRad(src.rotate.rotateSpeed.max);
+		dst.velocity = src.velocity;
+		dst.color = src.color;
+		dst.frequency = src.frequency;
+		dst.time.particleTime = src.frequency.interval;
+		dst.time.emitterTime = 0;
+		dst.particleLifeSpan = src.particleLifeSpan;
+		dst.textureIndex = src.textureIndex;
+		dst.createParticleNum = src.createParticleNum;
+		dst.isAlive = src.isAlive;
+		dst.emitterCount = src.emitterCount;
+		dst.collisionInfo = src.collisionInfo;
+		dst.parent = src.parent;
+		dst.parent.emitterType = GPUParticleShaderStructs::EmitterType::kEmitter;
+		dst.parent.worldMatrix = parent;
+	}
+	void Copy(GPUParticleShaderStructs::VertexEmitterForGPU& dst, const GPUParticleShaderStructs::VertexEmitterForCPU& src, const Matrix4x4& parent) {
+		dst.localTransform = src.localTransform;
+		dst.translate = src.translate;
+		dst.scale = src.scale;
+		dst.rotate.initializeAngle.min = DegToRad(src.rotate.initializeAngle.min);
+		dst.rotate.initializeAngle.max = DegToRad(src.rotate.initializeAngle.max);
+		dst.rotate.rotateSpeed.min = DegToRad(src.rotate.rotateSpeed.min);
+		dst.rotate.rotateSpeed.max = DegToRad(src.rotate.rotateSpeed.max);
+		dst.velocity = src.velocity;
+		dst.color = src.color;
+		dst.frequency = src.frequency;
+		dst.time = src.time;
+		dst.particleLifeSpan = src.particleLifeSpan;
+		dst.collisionInfo = src.collisionInfo;
+		dst.parent = src.parent;
+		dst.parent.emitterType = GPUParticleShaderStructs::EmitterType::kVertexEmitter;
+		dst.parent.worldMatrix = parent;
+		dst.model = src.model;
+		dst.textureIndex = src.textureIndex;
+		dst.isAlive = src.isAlive;
+		dst.emitterCount = src.emitterCount;
+	}
+	void Copy(GPUParticleShaderStructs::MeshEmitterForGPU& dst, const GPUParticleShaderStructs::MeshEmitterForCPU& src, const Matrix4x4& parent) {
+		dst.localTransform = src.localTransform;
+		dst.translate = src.translate;
+		dst.scale = src.scale;
+		dst.rotate.initializeAngle.min = DegToRad(src.rotate.initializeAngle.min);
+		dst.rotate.initializeAngle.max = DegToRad(src.rotate.initializeAngle.max);
+		dst.rotate.rotateSpeed.min = DegToRad(src.rotate.rotateSpeed.min);
+		dst.rotate.rotateSpeed.max = DegToRad(src.rotate.rotateSpeed.max);
+		dst.velocity = src.velocity;
+		dst.color = src.color;
+		dst.frequency = src.frequency;
+		dst.time = src.time;
+		dst.particleLifeSpan = src.particleLifeSpan;
+		dst.collisionInfo = src.collisionInfo;
+		dst.parent = src.parent;
+		dst.parent.emitterType = GPUParticleShaderStructs::EmitterType::kMeshEmitter;
+		dst.parent.worldMatrix = parent;
+		dst.model = src.model;
+		dst.textureIndex = src.textureIndex;
+		dst.numCreate = src.numCreate;
+		dst.isAlive = src.isAlive;
+		dst.emitterCount = src.emitterCount;
+	}
+	void Copy(GPUParticleShaderStructs::TransformAreaEmitterForGPU& dst, const GPUParticleShaderStructs::TransformAreaEmitterForCPU& src, const Matrix4x4& parent) {
+		dst.emitterArea = src.emitterArea;
+		dst.translate = src.translate;
+		dst.scale = src.scale;
+		dst.rotate.initializeAngle.min = DegToRad(src.rotate.initializeAngle.min);
+		dst.rotate.initializeAngle.max = DegToRad(src.rotate.initializeAngle.max);
+		dst.rotate.rotateSpeed.min = DegToRad(src.rotate.rotateSpeed.min);
+		dst.rotate.rotateSpeed.max = DegToRad(src.rotate.rotateSpeed.max);
+		dst.velocity = src.velocity;
+		dst.color = src.color;
+		dst.frequency = src.frequency;
+		dst.time = src.time;
+		dst.particleLifeSpan = src.particleLifeSpan;
+		dst.collisionInfo = src.collisionInfo;
+		dst.parent = src.parent;
+		dst.parent.emitterType = GPUParticleShaderStructs::EmitterType::kTransformAreaEmitter;
+		dst.parent.worldMatrix = parent;
+		dst.model = src.model;
+		dst.modelWorldMatrix = src.modelWorldMatrix;
+		dst.textureIndex = src.textureIndex;
+		dst.isAlive = src.isAlive;
+		dst.emitterCount = src.emitterCount;
+	}
+	void Copy(GPUParticleShaderStructs::TransformModelEmitterForGPU& dst, const GPUParticleShaderStructs::TransformModelEmitterForCPU& src, const Matrix4x4& parent) {
+		dst.translate = src.translate;
+		dst.scale = src.scale;
+		dst.rotate.initializeAngle.min = DegToRad(src.rotate.initializeAngle.min);
+		dst.rotate.initializeAngle.max = DegToRad(src.rotate.initializeAngle.max);
+		dst.rotate.rotateSpeed.min = DegToRad(src.rotate.rotateSpeed.min);
+		dst.rotate.rotateSpeed.max = DegToRad(src.rotate.rotateSpeed.max);
+		dst.velocity = src.velocity;
+		dst.color = src.color;
+		dst.frequency = src.frequency;
+		dst.time = src.time;
+		dst.particleLifeSpan = src.particleLifeSpan;
+		dst.collisionInfo = src.collisionInfo;
+		dst.parent = src.parent;
+		dst.parent.emitterType = GPUParticleShaderStructs::EmitterType::kTransformModelEmitter;
+		dst.parent.worldMatrix = parent;
+		dst.startModel = src.startModel;
+		dst.startModelWorldMatrix = src.startModelWorldMatrix;
+		dst.endModel = src.endModel;
+		dst.endModelWorldMatrix = src.endModelWorldMatrix;
+		dst.textureIndex = src.textureIndex;
+		dst.isAlive = src.isAlive;
+		dst.emitterCount = src.emitterCount;
+	}
+	void Copy(GPUParticleShaderStructs::FieldForGPU& dst, const GPUParticleShaderStructs::FieldForCPU& src) {
+		dst.field = src.field;
+		dst.fieldArea = src.fieldArea;
+		dst.frequency = src.frequency;
+		dst.collisionInfo = src.collisionInfo;
+		dst.isAlive = src.isAlive;
+		dst.fieldCount = src.fieldCount;
+	}
 	std::map<std::string, std::tuple<bool*, EmitterForCPU*, Matrix4x4>>debugEmitters_;
 	std::map<std::string, std::tuple<bool*, MeshEmitterForCPU*>>debugMeshEmitter_;
 	std::map<std::string, std::tuple<bool*, VertexEmitterForCPU*>>debugVertexEmitter_;

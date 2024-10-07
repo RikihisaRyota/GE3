@@ -62,13 +62,18 @@ class BossStateRushAttack :
 	public BossState {
 public:
 	struct JsonData {
+		GPUParticleShaderStructs::FieldForCPU headField;
 		GPUParticleShaderStructs::VertexEmitterForCPU  trainEmitter;
 		GPUParticleShaderStructs::VertexEmitterForCPU  railEmitter;
 		GPUParticleShaderStructs::VertexEmitterForCPU  transformRailVertexEmitter;
 		GPUParticleShaderStructs::TransformModelEmitterForCPU  transformTrainEmitter;
 		GPUParticleShaderStructs::TransformAreaEmitterForCPU  transformRailEmitter;
+		GPUParticleShaderStructs::EmitterForCPU smokeEmitter;
+		GPUParticleShaderStructs::EmitterForCPU headEmitter;
 		OBB collider;
 		float frontAndBackOffset;
+		Vector3 headOffset;
+		Vector3 smokeOffset;
 		Vector3 start;
 		Vector3 end;
 		float allFrame;

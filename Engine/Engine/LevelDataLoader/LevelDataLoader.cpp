@@ -90,6 +90,12 @@ namespace LevelDataLoader {
 			gameObject.collider->size.y = float(collider["size"][2]);
 			gameObject.collider->size.z = float(collider["size"][1]);
 		}
+
+		if (object.contains("objectName")) {
+			auto& objectName= object["objectName"];
+			gameObject.objectName = objectName;
+		}
+
 		if (object.contains("children")) {
 			for (auto& child : object["children"]) {
 				SetGameObject(child, gameObject.transform.index);

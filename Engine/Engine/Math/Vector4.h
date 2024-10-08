@@ -44,6 +44,15 @@ struct Vector4 {
         return !(*this == other);
     }
 
+    // *= 演算子のオーバーロード（スカラー倍）
+    Vector4& operator*=(float scalar) {
+        x *= scalar;
+        y *= scalar;
+        z *= scalar;
+        w *= scalar;
+        return *this;
+    }
+
     // ベクトルの長さを計算する関数
     float Length() const { return std::sqrt(x * x + y * y + z * z + w * w); }
 };

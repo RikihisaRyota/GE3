@@ -68,6 +68,7 @@ public:
 		GPUParticleShaderStructs::VertexEmitterForCPU  transformRailVertexEmitter;
 		GPUParticleShaderStructs::TransformModelEmitterForCPU  transformTrainEmitter;
 		GPUParticleShaderStructs::TransformAreaEmitterForCPU  transformRailEmitter;
+		GPUParticleShaderStructs::TransformAreaEmitterForCPU  areaTrainEmitter;
 		GPUParticleShaderStructs::EmitterForCPU smokeEmitter;
 		GPUParticleShaderStructs::EmitterForCPU headEmitter;
 		OBB collider;
@@ -108,8 +109,11 @@ class BossStateSmashAttack :
 public:
 	struct JsonData {
 		GPUParticleShaderStructs::VertexEmitterForCPU  smashEmitter;
+		GPUParticleShaderStructs::VertexEmitterForCPU  smashAfterimageEmitter;
+		GPUParticleShaderStructs::EmitterForCPU smashHeadEmitter;
 		GPUParticleShaderStructs::TransformModelEmitterForCPU  transformEmitter;
 		OBB collider;
+		Vector3 headOffset;
 		float y;
 		uint32_t smashCount;
 		float allFrame;
@@ -152,6 +156,7 @@ public:
 		float transitionFrame;
 
 		Vector3 bulletOffset;
+		Vector3 bulletHeightOffset;
 		int createBulletInterval;
 		float bulletSpeed;
 		float bulletRadius;
@@ -167,7 +172,7 @@ private:
 	class Bullet {
 	public:
 		void Initialize(float radius);
-		void Create(const Vector3& position, const Vector3& vector, float speed);
+		void Create(const Vector3& start, const Vector3& end, const Vector3& offset, float speed);
 		void Update();
 		void DebugDraw();
 		bool GetIsAlive() const { return isAlive_; }
@@ -175,12 +180,17 @@ private:
 		void OnCollision(const ColliderDesc& desc);
 		std::unique_ptr<SphereCollider> collider;
 		bool isAlive_;
-		Vector3 velocity_;
+		float time_;
+		float allFrame_;
+		Vector3 end_;
+		Vector3 start_;
+		Vector3 bulletHeightOffset_;
+
 		ModelHandle bulletModel_;
 		WorldTransform worldTransform_;
 		GPUParticleShaderStructs::VertexEmitterForCPU  bulletEmitter_;
 	};
-	std::array<std::unique_ptr<Bullet>, 5> bullets_;
+	std::array<std::pair<bool, std::unique_ptr<Bullet>>, 5> bullets_;
 	int createBulletTime_;
 	JsonData data_;
 };

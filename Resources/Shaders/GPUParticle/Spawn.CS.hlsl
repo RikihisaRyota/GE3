@@ -47,6 +47,10 @@ void main(uint3 DTid : SV_DispatchThreadID, uint3 GTid : SV_GroupThreadID, uint3
     // グループIDを使用(dispach数)
     uint32_t emitterNum  = GID.y;
 
+    // 作成できない場合早期リターン
+    if(particleIndexCounter[0].count <= 0) {
+        return;
+    }
     if(createParticle[emitterNum].emitterType == 0){
         if(createParticle[emitterNum].createParticleNum > 0){
             int32_t createNum=-1; 

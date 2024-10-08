@@ -10,13 +10,18 @@
             "transitionFrame": 120.0
         },
         "Properties": {
-            "bulletOffset": [
+            "bulletHeightOffset": [
                 0.0,
                 5.0,
                 0.0
             ],
+            "bulletOffset": [
+                0.0,
+                5.0,
+                -2.0
+            ],
             "bulletRadius": 1.5,
-            "bulletSpeed": 1.0,
+            "bulletSpeed": 90.0,
             "createBulletInterval": 60,
             "start": [
                 0.0,
@@ -81,6 +86,11 @@
         },
         "Properties": {
             "count": 1,
+            "headOffset": [
+                0.0,
+                -1.0,
+                0.0
+            ],
             "height": 15.0
         }
     }

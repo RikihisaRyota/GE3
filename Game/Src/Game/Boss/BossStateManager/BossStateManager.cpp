@@ -49,18 +49,18 @@ void BossStateRoot::Update(CommandContext& commandContext) {
 	}
 	else {
 		time_ += 1.0f / data_.allFrame;
-		/*if (time_ >= 1.0f) {
-			BossStateManager::State tmp = static_cast<BossStateManager::State>((rnd_.NextUIntLimit() % 2) + int(BossStateManager::State::kRushAttack));
-			switch (tmp) {
-			case BossStateManager::State::kRushAttack:
-				manager_.ChangeState<BossStateRushAttack >();
-				break;
-			case BossStateManager::State::kSmashAttack:
-				manager_.ChangeState<BossStateSmashAttack>();
-				break;
+		//if (time_ >= 1.0f) {
+		//	BossStateManager::State tmp = static_cast<BossStateManager::State>((rnd_.NextUIntLimit() % 2) + int(BossStateManager::State::kRushAttack));
+		//	switch (tmp) {
+		//	case BossStateManager::State::kRushAttack:
+		//		manager_.ChangeState<BossStateRushAttack>();
+		//		break;
+		//	case BossStateManager::State::kSmashAttack:
+		//		manager_.ChangeState<BossStateSmashAttack>();
+		//		break;
 
-			}
-		}*/
+		//	}
+		//}
 		time_ = std::fmod(time_, 1.0f);
 	}
 
@@ -90,7 +90,7 @@ void BossStateRushAttack::Initialize(CommandContext& commandContext) {
 	time_ = 0.0f;
 	SetLocation();
 	auto boss = manager_.boss_;
-
+	Vector3 worldPos = MakeTranslateMatrix(worldTransform_.matWorld);
 	// VertexEmitter
 	data_.trainEmitter.isAlive = false;
 	data_.railEmitter.isAlive = false;
@@ -99,12 +99,17 @@ void BossStateRushAttack::Initialize(CommandContext& commandContext) {
 	data_.transformTrainEmitter.color.range.end = data_.trainEmitter.color.range.start;
 	data_.transformRailEmitter.color.range.start = boss->GetVertexEmitter().color.range.start;
 	// Field
-	data_.headField.fieldArea.position = MakeTranslateMatrix(worldTransform_.matWorld) + RotateVector(data_.headOffset, worldTransform_.rotate);
+	data_.headField.fieldArea.position = worldPos + RotateVector(data_.headOffset, worldTransform_.rotate);
 	data_.headField.isAlive = false;
 	// Smoke
 	data_.smokeEmitter.isAlive = false;
+	// areaTrain
+	data_.areaTrainEmitter.isAlive = false;
+	data_.areaTrainEmitter.emitterArea.position = worldPos;
+	data_.areaTrainEmitter.modelWorldMatrix = worldTransform_.matWorld;
+	data_.areaTrainEmitter.color = data_.trainEmitter.color;
 	// 向きを変更
-	data_.smokeEmitter.emitterArea.position = MakeTranslateMatrix(worldTransform_.matWorld) + RotateVector(data_.smokeOffset, worldTransform_.rotate);
+	data_.smokeEmitter.emitterArea.position = worldPos + RotateVector(data_.smokeOffset, worldTransform_.rotate);
 	data_.smokeEmitter.emitterArea.aabb.area.min = RotateVector(data_.smokeEmitter.emitterArea.aabb.area.min, worldTransform_.rotate);
 	data_.smokeEmitter.emitterArea.aabb.area.max = RotateVector(data_.smokeEmitter.emitterArea.aabb.area.max, worldTransform_.rotate);
 	data_.smokeEmitter.velocity.range.min = RotateVector(data_.smokeEmitter.velocity.range.min, worldTransform_.rotate);
@@ -138,6 +143,7 @@ void BossStateRushAttack::Update(CommandContext& commandContext) {
 			data_.railEmitter.isAlive = true;
 			data_.headField.isAlive = true;
 			data_.smokeEmitter.isAlive = true;
+			data_.areaTrainEmitter.isAlive = true;
 			inTransition_ = false;
 			time_ = 0.0f;
 		}
@@ -168,6 +174,7 @@ void BossStateRushAttack::Update(CommandContext& commandContext) {
 		data_.railEmitter.localTransform.rotate = Inverse(MakeRotateMatrix(railWorldTransform_.matWorld));
 		data_.headField.fieldArea.position = MakeTranslateMatrix(worldTransform_.matWorld) + RotateVector(data_.headOffset, worldTransform_.rotate);;
 		data_.smokeEmitter.emitterArea.position = MakeTranslateMatrix(worldTransform_.matWorld) + RotateVector(data_.smokeOffset, worldTransform_.rotate);
+		data_.areaTrainEmitter.modelWorldMatrix = worldTransform_.matWorld;
 
 	}
 
@@ -177,7 +184,7 @@ void BossStateRushAttack::Update(CommandContext& commandContext) {
 		data_.railEmitter.isAlive = false;
 		data_.headField.isAlive = false;
 		data_.smokeEmitter.isAlive = false;
-
+		data_.areaTrainEmitter.isAlive = false;
 		data_.transformRailVertexEmitter.color = data_.railEmitter.color;
 		data_.transformRailVertexEmitter.scale.range.start = data_.railEmitter.scale.range.start;
 		data_.transformRailVertexEmitter.localTransform.translate = data_.railEmitter.localTransform.translate;
@@ -187,6 +194,7 @@ void BossStateRushAttack::Update(CommandContext& commandContext) {
 	}
 	manager_.gpuParticleManager_->SetVertexEmitter(modelHandle_, data_.trainEmitter);
 	manager_.gpuParticleManager_->SetVertexEmitter(railModelHandle_, data_.railEmitter);
+	//manager_.gpuParticleManager_->SetTransformAreaEmitter(modelHandle_,data_.areaTrainEmitter);
 	manager_.gpuParticleManager_->SetEmitter(data_.smokeEmitter);
 	manager_.gpuParticleManager_->SetField(data_.headField);
 }
@@ -298,6 +306,12 @@ void BossStateSmashAttack::Initialize(CommandContext& commandContext) {
 		smash.collider->SetCollisionAttribute(CollisionAttribute::Boss);
 		smash.collider->SetCollisionMask(CollisionAttribute::Player | CollisionAttribute::PlayerBullet);
 	}
+	//　頭
+	data_.smashHeadEmitter.color = data_.smashEmitter.color;
+
+	// smashAfterimageEmitter
+	data_.smashAfterimageEmitter.color = data_.smashEmitter.color;
+
 	// TransformEmitter
 	if (manager_.GetPreState() == BossStateManager::State::kRoot) {
 		for (auto& smash : smash_) {
@@ -307,6 +321,7 @@ void BossStateSmashAttack::Initialize(CommandContext& commandContext) {
 			data_.transformEmitter.color.range.end = data_.smashEmitter.color.range.start;
 			data_.transformEmitter.scale.range.start = boss->GetVertexEmitter().scale.range.start;
 			data_.transformEmitter.scale.range.end = data_.smashEmitter.scale.range.start;
+
 			manager_.gpuParticleManager_->SetTransformModelEmitter(boss->GetModelHandle(), modelHandle_, data_.transformEmitter);
 		}
 	}
@@ -342,12 +357,29 @@ void BossStateSmashAttack::Update(CommandContext& commandContext) {
 	}
 	else {
 		// 最初の奴だけ別に
-		smash_.at(0).Update(data_.y, data_.allFrame);
-		for (uint32_t i = 1; i < smash_.size(); i++) {
-			if (smash_.at(i - 1).canNextMove) {
+		for (uint32_t i = 0; i < smash_.size(); i++) {
+			bool canUpdate = (i == 0) || smash_.at(i - 1).canNextMove;
+			if (canUpdate) {
 				smash_.at(i).Update(data_.y, data_.allFrame);
+
+				GPUParticleShaderStructs::EmitterForCPU headEmitter{};
+				GPUParticleShaderStructs::NonSharedCopy(headEmitter, data_.smashHeadEmitter);
+				headEmitter.emitterArea.position = MakeTranslateMatrix(smash_.at(i).transform.matWorld) + data_.headOffset;
+
+
+				GPUParticleShaderStructs::VertexEmitterForCPU smashAfterimageEmitter{};
+				GPUParticleShaderStructs::NonSharedCopy(smashAfterimageEmitter, data_.smashAfterimageEmitter);
+				smashAfterimageEmitter.localTransform.translate = MakeTranslateMatrix(smash_.at(i).transform.matWorld);
+				smashAfterimageEmitter.localTransform.rotate = MakeRotateMatrix(smash_.at(i).transform.matWorld);
+
+				smashAfterimageEmitter.color.range.start.max *= 0.5f;
+				smashAfterimageEmitter.color.range.start.min *= 0.5f;
+				//smashAfterimageEmitter.color.range.end.max *= 0.1f;
+				//smashAfterimageEmitter.color.range.end.min *= 0.1f;
+				manager_.gpuParticleManager_->SetVertexEmitter(modelHandle_, smashAfterimageEmitter, Mul(worldTransform_.matWorld, smash_.at(i).transform.matWorld));
 			}
 		}
+
 		UpdateTransform();
 	}
 	// 一番最後のsmashが終わったら
@@ -471,9 +503,10 @@ void BossStateHomingAttack::SetDesc() {
 
 void BossStateHomingAttack::InitializeBullet() {
 	createBulletTime_ = 0;
-	for (auto& bullet : bullets_) {
+	for (auto& [fired, bullet] : bullets_) {
 		bullet = std::make_unique<Bullet>();
 		bullet->Initialize(data_.bulletRadius);
+		fired = false;
 	}
 }
 
@@ -497,20 +530,25 @@ void BossStateHomingAttack::Update(CommandContext& commandContext) {
 
 	}
 	else {
+		worldTransform_.rotate = MakeLookRotation((MakeTranslateMatrix(worldTransform_.matWorld) - manager_.player_->GetWorldTranslate()).Normalize());
+		worldTransform_.UpdateMatrix();
 
+
+		// 弾の更新
 		UpdateBullet();
 
-		// 全ての弾が死んでいるかを確認
-		bool isBulletAlive = std::all_of(bullets_.begin(), bullets_.end(), [](const auto& bullet) {
-			return !bullet->GetIsAlive();
+		// 全ての弾が発射されていて、かつ死んでいるかを確認
+		bool isBulletAlive = std::all_of(bullets_.begin(), bullets_.end(), [](const auto& bulletPair) {
+			const auto& [fired, bullet] = bulletPair;
+			return fired && !bullet->GetIsAlive();  // 発射済みかつ死んでいるかを確認
 			});
 
-		if (/*time_ >= 1.0f && */isBulletAlive) {
+		if (isBulletAlive) {
 			manager_.ChangeState<BossStateRoot>();
 			data_.transformEmitter.isAlive = false;
 			data_.homingEmitter.isAlive = false;
-
 		}
+
 	}
 	manager_.gpuParticleManager_->SetVertexEmitter(modelHandle_, data_.homingEmitter, worldTransform_.matWorld);
 }
@@ -519,29 +557,29 @@ void BossStateHomingAttack::UpdateBullet() {
 
 	// 生成
 	if (createBulletTime_ <= 0) {
-		for (auto& bullet : bullets_) {
-			if (!bullet->GetIsAlive()) {
+		for (auto& [fired, bullet] : bullets_) {
+			if (!fired && !bullet->GetIsAlive()) {
 				auto boss = manager_.boss_;
 				auto player = manager_.player_;
 				Vector3 bossPosition = MakeTranslateMatrix(worldTransform_.matWorld);
-				bullet->Create(bossPosition + data_.bulletOffset, (player->GetWorldTranslate() - (bossPosition + data_.bulletOffset)).Normalized(), data_.bulletSpeed);
+				bullet->Create(bossPosition + data_.bulletOffset, player->GetWorldTranslate(), data_.bulletHeightOffset, data_.bulletSpeed);
+				// 発射済みにする
+				fired = true;
 				break;
 			}
+			bullet->Update();
 		}
 		createBulletTime_ = data_.createBulletInterval;
 	}
 	createBulletTime_--;
-
-	// Update
-	for (auto& bullet : bullets_) {
-		bullet->Update();
-	}
 }
 
 
 void BossStateHomingAttack::DebugDraw() {
 	for (auto& bullet : bullets_) {
-		bullet->DebugDraw();
+		if (bullet.second->GetIsAlive()) {
+			bullet.second->DebugDraw();
+		}
 	}
 
 }
@@ -583,6 +621,7 @@ void BossStateManager::Initialize() {
 	JSON_OBJECT("Properties");
 	JSON_LOAD_BY_NAME("height", jsonData_.smashAttack.y);
 	JSON_LOAD_BY_NAME("count", jsonData_.smashAttack.smashCount);
+	JSON_LOAD_BY_NAME("headOffset", jsonData_.smashAttack.headOffset);
 	JSON_PARENT();
 	JSON_ROOT();
 
@@ -594,6 +633,7 @@ void BossStateManager::Initialize() {
 	JSON_OBJECT("Properties");
 	JSON_LOAD_BY_NAME("start", jsonData_.homingAttack.start);
 	JSON_LOAD_BY_NAME("bulletOffset", jsonData_.homingAttack.bulletOffset);
+	JSON_LOAD_BY_NAME("bulletHeightOffset", jsonData_.homingAttack.bulletHeightOffset);
 	JSON_LOAD_BY_NAME("createBulletInterval", jsonData_.homingAttack.createBulletInterval);
 	JSON_LOAD_BY_NAME("bulletSpeed", jsonData_.homingAttack.bulletSpeed);
 	JSON_LOAD_BY_NAME("bulletRadius", jsonData_.homingAttack.bulletRadius);
@@ -605,6 +645,7 @@ void BossStateManager::Initialize() {
 
 	GPUParticleShaderStructs::Load("train", jsonData_.rushAttack.trainEmitter);
 	GPUParticleShaderStructs::Load("train", jsonData_.rushAttack.transformTrainEmitter);
+	GPUParticleShaderStructs::Load("areaTrainEmitter", jsonData_.rushAttack.areaTrainEmitter);
 	GPUParticleShaderStructs::Load("rail", jsonData_.rushAttack.railEmitter);
 	GPUParticleShaderStructs::Load("transformRailVertexEmitter", jsonData_.rushAttack.transformRailVertexEmitter);
 	GPUParticleShaderStructs::Load("rail", jsonData_.rushAttack.transformRailEmitter);
@@ -614,7 +655,9 @@ void BossStateManager::Initialize() {
 
 
 	GPUParticleShaderStructs::Load("smash", jsonData_.smashAttack.smashEmitter);
+	GPUParticleShaderStructs::Load("smashAfterimageEmitter", jsonData_.smashAttack.smashAfterimageEmitter);
 	GPUParticleShaderStructs::Load("smash", jsonData_.smashAttack.transformEmitter);
+	GPUParticleShaderStructs::Load("smashHeadEmitter", jsonData_.smashAttack.smashHeadEmitter);
 
 	GPUParticleShaderStructs::Load("homing", jsonData_.homingAttack.transformEmitter);
 	GPUParticleShaderStructs::Load("homing", jsonData_.homingAttack.homingEmitter);
@@ -707,6 +750,7 @@ void BossStateManager::DrawImGui() {
 			if (ImGui::TreeNode("SmashAttack")) {
 				if (ImGui::TreeNode("Properties")) {
 					ImGui::DragFloat("height", &jsonData_.smashAttack.y, 0.1f, 0.0f);
+					ImGui::DragFloat3("headOffset", &jsonData_.smashAttack.headOffset.x, 0.1f, 0.0f);
 					int i = jsonData_.smashAttack.smashCount;
 					ImGui::DragInt("count", &i, 1, 0, 10);
 					jsonData_.smashAttack.smashCount = i;
@@ -727,6 +771,7 @@ void BossStateManager::DrawImGui() {
 				if (ImGui::TreeNode("Properties")) {
 					ImGui::DragFloat3("start", &jsonData_.homingAttack.start.x, 0.1f, 0.0f);
 					ImGui::DragFloat3("bulletOffset", &jsonData_.homingAttack.bulletOffset.x, 0.1f, 0.0f);
+					ImGui::DragFloat3("bulletHeightOffset", &jsonData_.homingAttack.bulletHeightOffset.x, 0.1f, 0.0f);
 					ImGui::DragInt("createBulletInterval", &jsonData_.homingAttack.createBulletInterval, 1, 0);
 					ImGui::DragFloat("bulletSpeed", &jsonData_.homingAttack.bulletSpeed, 0.1f, 0.0f);
 					ImGui::DragFloat("bulletRadius", &jsonData_.homingAttack.bulletRadius, 0.1f, 0.0f);
@@ -776,6 +821,7 @@ void BossStateManager::DrawImGui() {
 				JSON_OBJECT("Properties");
 				JSON_SAVE_BY_NAME("height", jsonData_.smashAttack.y);
 				JSON_SAVE_BY_NAME("count", jsonData_.smashAttack.smashCount);
+				JSON_SAVE_BY_NAME("headOffset", jsonData_.smashAttack.headOffset);
 				JSON_PARENT();
 				JSON_ROOT();
 
@@ -787,6 +833,7 @@ void BossStateManager::DrawImGui() {
 				JSON_OBJECT("Properties");
 				JSON_SAVE_BY_NAME("start", jsonData_.homingAttack.start);
 				JSON_SAVE_BY_NAME("bulletOffset", jsonData_.homingAttack.bulletOffset);
+				JSON_SAVE_BY_NAME("bulletHeightOffset", jsonData_.homingAttack.bulletHeightOffset);
 				JSON_SAVE_BY_NAME("createBulletInterval", jsonData_.homingAttack.createBulletInterval);
 				JSON_SAVE_BY_NAME("bulletSpeed", jsonData_.homingAttack.bulletSpeed);
 				JSON_SAVE_BY_NAME("bulletRadius", jsonData_.homingAttack.bulletRadius);
@@ -813,6 +860,7 @@ void BossStateManager::DrawImGui() {
 	GPUParticleShaderStructs::Debug("root", jsonData_.root.transformEmitter);
 	GPUParticleShaderStructs::Debug("train", jsonData_.rushAttack.trainEmitter);
 	GPUParticleShaderStructs::Debug("train", jsonData_.rushAttack.transformTrainEmitter);
+	GPUParticleShaderStructs::Debug("areaTrainEmitter", jsonData_.rushAttack.areaTrainEmitter);
 	GPUParticleShaderStructs::Debug("rail", jsonData_.rushAttack.railEmitter);
 	GPUParticleShaderStructs::Debug("rail", jsonData_.rushAttack.transformRailEmitter);
 	GPUParticleShaderStructs::Debug("transformRailVertexEmitter", jsonData_.rushAttack.transformRailVertexEmitter);
@@ -821,7 +869,9 @@ void BossStateManager::DrawImGui() {
 	GPUParticleShaderStructs::Debug("headEmitter", jsonData_.rushAttack.headEmitter);
 
 	GPUParticleShaderStructs::Debug("smash", jsonData_.smashAttack.smashEmitter);
+	GPUParticleShaderStructs::Debug("smashAfterimageEmitter", jsonData_.smashAttack.smashAfterimageEmitter);
 	GPUParticleShaderStructs::Debug("smash", jsonData_.smashAttack.transformEmitter);
+	GPUParticleShaderStructs::Debug("smashHeadEmitter", jsonData_.smashAttack.smashHeadEmitter);
 
 	GPUParticleShaderStructs::Debug("homing", jsonData_.homingAttack.transformEmitter);
 	GPUParticleShaderStructs::Debug("homing", jsonData_.homingAttack.homingEmitter);
@@ -880,20 +930,25 @@ void BossStateHomingAttack::Bullet::Initialize(float radius) {
 	collider->SetIsActive(isAlive_);
 }
 
-void BossStateHomingAttack::Bullet::Create(const Vector3& position, const Vector3& vector, float speed) {
+void BossStateHomingAttack::Bullet::Create(const Vector3& start, const Vector3& end, const Vector3& offset, float allFrame) {
 	worldTransform_.Initialize();
-	worldTransform_.translate = position;
-	velocity_ = vector * speed;
+	start_ = start;
+	end_ = end;
+	worldTransform_.translate = start_;
+	time_ = 0.0f;
+	allFrame_ = allFrame;
+	bulletHeightOffset_ = offset;
 	isAlive_ = true;
 	collider->SetIsActive(isAlive_);
 }
 
 void BossStateHomingAttack::Bullet::Update() {
-	worldTransform_.translate += velocity_;
+	time_ += 1.0f / allFrame_;
+	worldTransform_.translate = CubicBezier(start_, Lerp(start_, end_, 0.5f) + bulletHeightOffset_, end_, time_);
 	worldTransform_.UpdateMatrix();
 	collider->SetCenter(MakeTranslateMatrix(worldTransform_.matWorld));
 	// 死ぬ
-	if (worldTransform_.translate.y <= 0.0f) {
+	if (time_ >= 1.0f) {
 		isAlive_ = false;
 		collider->SetIsActive(isAlive_);
 	}

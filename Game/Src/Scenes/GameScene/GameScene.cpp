@@ -38,8 +38,11 @@ GameScene::GameScene() {
 
 
 	gpuTexture_ = TextureManager::GetInstance()->Load("Resources/Images/GPUParticle.png");
+	TextureManager::GetInstance()->Load("Resources/Images/GPUParticle_1.png");
 	TextureManager::GetInstance()->Load("Resources/Images/smoke.png");
 	TextureManager::GetInstance()->Load("Resources/Images/crescent.png");
+	TextureManager::GetInstance()->Load("Resources/Images/noise.png");
+
 
 	//soundHandle_ = Audio::GetInstance()->SoundLoad("Resources/Audios/walk.mp3");
 	//playHandle_ = Audio::GetInstance()->SoundPlayLoopStart(soundHandle_);
@@ -159,7 +162,7 @@ void GameScene::Update(CommandContext& commandContext) {
 	}
 
 	gpuParticleManager_->SetField(testField_);
-	//gpuParticleManager_->SetEmitter(testEmitter_);
+	gpuParticleManager_->SetEmitter(testEmitter_);
 	GPUParticleShaderStructs::Debug("test", testField_);
 	GPUParticleShaderStructs::Debug("test", testEmitter_);
 	GPUParticleShaderStructs::Debug("postEmitter", postEmitter_);

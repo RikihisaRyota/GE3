@@ -1,0 +1,55 @@
+{
+    "CollisionInfo": {
+        "attribute": 16,
+        "mask": 8
+    },
+    "Field": {
+        "Attraction": {
+            "attraction": 0.0
+        },
+        "ExternalForce": {
+            "Max": [
+                0.10000000149011612,
+                0.30000001192092896,
+                0.10000000149011612
+            ],
+            "Min": [
+                -0.10000000149011612,
+                0.10000000149011612,
+                -0.10000000149011612
+            ]
+        },
+        "type": 1
+    },
+    "FieldArea": {
+        "FieldAABB": {},
+        "FieldCapsule": {
+            "FieldSegment": {
+                "end": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "start": [
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            },
+            "radius": 0.0
+        },
+        "FieldSphere": {
+            "radius": 2.0
+        },
+        "position": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "type": 1
+    },
+    "FieldFrequency": {
+        "isLoop": 1,
+        "lifeCount": 0
+    }
+}

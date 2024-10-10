@@ -502,10 +502,14 @@ void BossStateHomingAttack::SetDesc() {
 }
 
 void BossStateHomingAttack::InitializeBullet() {
+	// BulletEmitter
+	data_.bulletEmitter.isAlive = false;
 	createBulletTime_ = 0;
 	for (auto& [fired, bullet] : bullets_) {
 		bullet = std::make_unique<Bullet>();
 		bullet->Initialize(data_.bulletRadius);
+		bullet->SetEmitter(data_.bulletEmitter,data_.homingExplosionEmitter);
+		bullet->SetField(data_.bulletField, data_.homingExplosionField);
 		fired = false;
 	}
 }
@@ -555,19 +559,31 @@ void BossStateHomingAttack::Update(CommandContext& commandContext) {
 
 void BossStateHomingAttack::UpdateBullet() {
 
+	for (auto& bullet : bullets_) {
+		if (bullet.second->GetIsAlive()) {
+			bullet.second->Update();
+			manager_.gpuParticleManager_->SetEmitter(bullet.second->GetBulletEmitter());
+			manager_.gpuParticleManager_->SetEmitter(bullet.second->GetExplosionEmitter());
+			manager_.gpuParticleManager_->SetField(bullet.second->GetBulletField());
+			manager_.gpuParticleManager_->SetField(bullet.second->GetExplosionFieldField());
+		}
+	}
+
 	// 生成
 	if (createBulletTime_ <= 0) {
 		for (auto& [fired, bullet] : bullets_) {
 			if (!fired && !bullet->GetIsAlive()) {
 				auto boss = manager_.boss_;
 				auto player = manager_.player_;
-				Vector3 bossPosition = MakeTranslateMatrix(worldTransform_.matWorld);
-				bullet->Create(bossPosition + data_.bulletOffset, player->GetWorldTranslate(), data_.bulletHeightOffset, data_.bulletSpeed);
+				Vector3 position = MakeTranslateMatrix(worldTransform_.matWorld) + data_.bulletOffset;
+				bullet->Create(position, player->GetWorldTranslate(), data_.bulletHeightOffset, data_.bulletSpeed);
 				// 発射済みにする
 				fired = true;
+				// Particleセット
+				data_.fireEmitter.emitterArea.position = position;
+				manager_.gpuParticleManager_->SetEmitter(data_.fireEmitter);
 				break;
 			}
-			bullet->Update();
 		}
 		createBulletTime_ = data_.createBulletInterval;
 	}
@@ -661,6 +677,11 @@ void BossStateManager::Initialize() {
 
 	GPUParticleShaderStructs::Load("homing", jsonData_.homingAttack.transformEmitter);
 	GPUParticleShaderStructs::Load("homing", jsonData_.homingAttack.homingEmitter);
+	GPUParticleShaderStructs::Load("bulletEmitter", jsonData_.homingAttack.bulletEmitter);
+	GPUParticleShaderStructs::Load("fireEmitter", jsonData_.homingAttack.fireEmitter);
+	GPUParticleShaderStructs::Load("bulletField", jsonData_.homingAttack.bulletField);
+	GPUParticleShaderStructs::Load("homingExplosionEmitter", jsonData_.homingAttack.homingExplosionEmitter);
+	GPUParticleShaderStructs::Load("homingExplosionField", jsonData_.homingAttack.homingExplosionField);
 
 	activeStateEnum_ = kRoot;
 	standbyStateEnum_ = kRoot;
@@ -875,6 +896,11 @@ void BossStateManager::DrawImGui() {
 
 	GPUParticleShaderStructs::Debug("homing", jsonData_.homingAttack.transformEmitter);
 	GPUParticleShaderStructs::Debug("homing", jsonData_.homingAttack.homingEmitter);
+	GPUParticleShaderStructs::Debug("bulletEmitter", jsonData_.homingAttack.bulletEmitter);
+	GPUParticleShaderStructs::Debug("bulletField", jsonData_.homingAttack.bulletField);
+	GPUParticleShaderStructs::Debug("fireEmitter", jsonData_.homingAttack.fireEmitter);
+	GPUParticleShaderStructs::Debug("homingExplosionEmitter", jsonData_.homingAttack.homingExplosionEmitter);
+	GPUParticleShaderStructs::Debug("homingExplosionField", jsonData_.homingAttack.homingExplosionField);
 
 #endif // _DEBUG
 }
@@ -939,6 +965,8 @@ void BossStateHomingAttack::Bullet::Create(const Vector3& start, const Vector3& 
 	allFrame_ = allFrame;
 	bulletHeightOffset_ = offset;
 	isAlive_ = true;
+	bulletEmitter_.isAlive = isAlive_;
+	bulletField_.isAlive = isAlive_;
 	collider->SetIsActive(isAlive_);
 }
 
@@ -946,10 +974,20 @@ void BossStateHomingAttack::Bullet::Update() {
 	time_ += 1.0f / allFrame_;
 	worldTransform_.translate = CubicBezier(start_, Lerp(start_, end_, 0.5f) + bulletHeightOffset_, end_, time_);
 	worldTransform_.UpdateMatrix();
-	collider->SetCenter(MakeTranslateMatrix(worldTransform_.matWorld));
+	Vector3 worldPos = MakeTranslateMatrix(worldTransform_.matWorld);
+	collider->SetCenter(worldPos);
+	// Particleセット
+	bulletEmitter_.emitterArea.position = worldPos;
+	bulletField_.fieldArea.position = worldPos;
+	explosionEmitter_.emitterArea.position = worldPos;
+	explosionField_.fieldArea.position = worldPos;
 	// 死ぬ
 	if (time_ >= 1.0f) {
 		isAlive_ = false;
+		bulletEmitter_.isAlive = isAlive_;
+		bulletField_.isAlive = isAlive_;
+		explosionEmitter_.isAlive = !isAlive_;
+		explosionField_.isAlive = !isAlive_;
 		collider->SetIsActive(isAlive_);
 	}
 }
@@ -957,6 +995,7 @@ void BossStateHomingAttack::Bullet::Update() {
 void BossStateHomingAttack::Bullet::DebugDraw() {
 	collider->DrawCollision({ 0.0f,1.0f,0.2f,1.0f });
 }
+
 
 void BossStateHomingAttack::Bullet::OnCollision(const ColliderDesc& desc) {
 	desc;

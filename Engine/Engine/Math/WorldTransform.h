@@ -31,7 +31,7 @@ struct WorldTransform {
 	/// 初期化
 	/// </summary>
 	void Initialize();
-	
+
 	/// <summary>
 	/// 行列を更新する
 	/// </summary>

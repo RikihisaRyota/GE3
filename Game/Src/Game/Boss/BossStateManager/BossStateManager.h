@@ -22,7 +22,7 @@ public:
 	virtual void Initialize(CommandContext& commandContext) = 0;
 	virtual	void SetDesc() = 0;
 	virtual void Update(CommandContext& commandContext) = 0;
-	virtual void DebugDraw()=0;
+	virtual void DebugDraw() = 0;
 	//virtual void OnCollision(const ColliderDesc& colliderDesc) = 0;
 	const Animation::AnimationHandle& GetAnimationHandle() const { return animationHandle_; }
 	const ModelHandle& GetModelHandle() const { return modelHandle_; }
@@ -151,6 +151,13 @@ public:
 	struct JsonData {
 		GPUParticleShaderStructs::VertexEmitterForCPU  homingEmitter;
 		GPUParticleShaderStructs::TransformModelEmitterForCPU transformEmitter;
+		GPUParticleShaderStructs::EmitterForCPU bulletEmitter;
+		GPUParticleShaderStructs::FieldForCPU bulletField;
+		GPUParticleShaderStructs::EmitterForCPU fireEmitter;
+
+		GPUParticleShaderStructs::EmitterForCPU homingExplosionEmitter;
+		GPUParticleShaderStructs::FieldForCPU homingExplosionField;
+
 		Vector3 start;
 		float allFrame;
 		float transitionFrame;
@@ -176,8 +183,30 @@ private:
 		void Update();
 		void DebugDraw();
 		bool GetIsAlive() const { return isAlive_; }
+		const WorldTransform& GetWorldTransform() const { return worldTransform_; }
+		void SetEmitter(
+			const GPUParticleShaderStructs::EmitterForCPU& bulletEmitter,
+			const GPUParticleShaderStructs::EmitterForCPU& explosionEmitter) {
+			GPUParticleShaderStructs::NonSharedCopy(bulletEmitter_, bulletEmitter);
+			explosionEmitter_.color = bulletEmitter_.color;
+			GPUParticleShaderStructs::NonSharedCopy(explosionEmitter_, explosionEmitter);
+		}
+		const GPUParticleShaderStructs::EmitterForCPU& GetBulletEmitter() const { return bulletEmitter_; }
+		const GPUParticleShaderStructs::EmitterForCPU& GetExplosionEmitter() const { return explosionEmitter_; }
+		void SetField(
+			const GPUParticleShaderStructs::FieldForCPU& field,
+			const GPUParticleShaderStructs::FieldForCPU& explosionField) {
+			GPUParticleShaderStructs::NonSharedCopy(bulletField_, field);
+			GPUParticleShaderStructs::NonSharedCopy(explosionField_, explosionField);
+		}
+		const GPUParticleShaderStructs::FieldForCPU& GetBulletField() const { return bulletField_; }
+		const GPUParticleShaderStructs::FieldForCPU& GetExplosionFieldField() const { return explosionField_; }
 	private:
 		void OnCollision(const ColliderDesc& desc);
+		GPUParticleShaderStructs::EmitterForCPU bulletEmitter_;
+		GPUParticleShaderStructs::FieldForCPU bulletField_;
+		GPUParticleShaderStructs::EmitterForCPU explosionEmitter_;
+		GPUParticleShaderStructs::FieldForCPU explosionField_;
 		std::unique_ptr<SphereCollider> collider;
 		bool isAlive_;
 		float time_;
@@ -188,7 +217,6 @@ private:
 
 		ModelHandle bulletModel_;
 		WorldTransform worldTransform_;
-		GPUParticleShaderStructs::VertexEmitterForCPU  bulletEmitter_;
 	};
 	std::array<std::pair<bool, std::unique_ptr<Bullet>>, 5> bullets_;
 	int createBulletTime_;

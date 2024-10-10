@@ -1,0 +1,149 @@
+{
+    "CollisionInfo": {
+        "attribute": 0,
+        "mask": 0
+    },
+    "EmitterArea": {
+        "EmitterAABB": {
+            "Max": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "Min": [
+                0.0,
+                0.0,
+                0.0
+            ]
+        },
+        "EmitterCapsule": {
+            "EmitterSegment": {
+                "end": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "start": [
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            },
+            "distanceFactor": {
+                "Max": 0.0,
+                "Min": 0.0
+            },
+            "radius": 0.0
+        },
+        "EmitterSphere": {
+            "distanceFactor": {
+                "Max": 1.0,
+                "Min": 0.0
+            },
+            "radius": 2.0
+        },
+        "position": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "type": 1
+    },
+    "EmitterColor": {
+        "End": {
+            "Max": [
+                0.3665480613708496,
+                0.3665480613708496,
+                0.3665480613708496,
+                0.501960813999176
+            ],
+            "Min": [
+                0.2666666805744171,
+                0.2666666805744171,
+                0.2666666805744171,
+                0.3960784375667572
+            ]
+        },
+        "Start": {
+            "Max": [
+                0.9450980424880981,
+                0.9450980424880981,
+                0.9450980424880981,
+                0.24313725531101227
+            ],
+            "Min": [
+                0.7607843279838562,
+                0.7058823704719543,
+                0.7058823704719543,
+                0.14509804546833038
+            ]
+        },
+        "isStaticColor": 0
+    },
+    "EmitterFrequency": {
+        "emitterLife": 0,
+        "interval": 0,
+        "isLoop": 0,
+        "isOnce": 1
+    },
+    "Parent": {
+        "isParent": 0
+    },
+    "ParticleLifeSpan": {
+        "Max": 120,
+        "Min": 60,
+        "isEmitterLife": 0
+    },
+    "RotateAnimation": {
+        "initializeAngle": {
+            "Max": 360.0,
+            "Min": 0.0
+        },
+        "rotateSpeed": {
+            "Max": 1.0,
+            "Min": -1.0
+        }
+    },
+    "ScaleAnimation": {
+        "End": {
+            "Max": [
+                0.30000001192092896,
+                0.30000001192092896,
+                0.30000001192092896
+            ],
+            "Min": [
+                0.0,
+                0.0,
+                0.0
+            ]
+        },
+        "Start": {
+            "Max": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "Min": [
+                0.5,
+                0.5,
+                0.5
+            ]
+        },
+        "isStaticSize": 0,
+        "isUniformScale": 1
+    },
+    "Velocity3D": {
+        "Max": [
+            0.10000000149011612,
+            0.10000000149011612,
+            0.10000000149011612
+        ],
+        "Min": [
+            -0.10000000149011612,
+            -0.10000000149011612,
+            -0.10000000149011612
+        ]
+    },
+    "createParticleNum": 1000,
+    "textureIndex": "Resources/Images/GPUParticle.png"
+}

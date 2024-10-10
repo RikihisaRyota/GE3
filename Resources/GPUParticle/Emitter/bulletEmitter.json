@@ -1,0 +1,149 @@
+{
+    "CollisionInfo": {
+        "attribute": 0,
+        "mask": 0
+    },
+    "EmitterArea": {
+        "EmitterAABB": {
+            "Max": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "Min": [
+                0.0,
+                0.0,
+                0.0
+            ]
+        },
+        "EmitterCapsule": {
+            "EmitterSegment": {
+                "end": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "start": [
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            },
+            "distanceFactor": {
+                "Max": 0.0,
+                "Min": 0.0
+            },
+            "radius": 0.0
+        },
+        "EmitterSphere": {
+            "distanceFactor": {
+                "Max": 1.0,
+                "Min": 1.0
+            },
+            "radius": 1.5
+        },
+        "position": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "type": 1
+    },
+    "EmitterColor": {
+        "End": {
+            "Max": [
+                0.239215686917305,
+                0.1411764770746231,
+                0.0313725508749485,
+                0.5686274766921997
+            ],
+            "Min": [
+                0.8941176533699036,
+                0.027450980618596077,
+                0.027450980618596077,
+                0.5921568870544434
+            ]
+        },
+        "Start": {
+            "Max": [
+                0.8666666746139526,
+                0.5137255191802979,
+                0.0784313753247261,
+                0.14901961386203766
+            ],
+            "Min": [
+                0.8470588326454163,
+                0.5411764979362488,
+                0.09019608050584793,
+                0.1411764770746231
+            ]
+        },
+        "isStaticColor": 0
+    },
+    "EmitterFrequency": {
+        "emitterLife": 0,
+        "interval": 0,
+        "isLoop": 0,
+        "isOnce": 1
+    },
+    "Parent": {
+        "isParent": 0
+    },
+    "ParticleLifeSpan": {
+        "Max": 60,
+        "Min": 30,
+        "isEmitterLife": 0
+    },
+    "RotateAnimation": {
+        "initializeAngle": {
+            "Max": 0.0,
+            "Min": 0.0
+        },
+        "rotateSpeed": {
+            "Max": 0.0,
+            "Min": 0.0
+        }
+    },
+    "ScaleAnimation": {
+        "End": {
+            "Max": [
+                0.30000001192092896,
+                0.30000001192092896,
+                0.30000001192092896
+            ],
+            "Min": [
+                0.0,
+                0.0,
+                0.0
+            ]
+        },
+        "Start": {
+            "Max": [
+                1.5,
+                1.5,
+                1.5
+            ],
+            "Min": [
+                0.8500000238418579,
+                0.8500000238418579,
+                0.8500000238418579
+            ]
+        },
+        "isStaticSize": 0,
+        "isUniformScale": 1
+    },
+    "Velocity3D": {
+        "Max": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Min": [
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    "createParticleNum": 500,
+    "textureIndex": "Resources/Images/smoke.png"
+}

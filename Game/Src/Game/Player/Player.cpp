@@ -319,10 +319,6 @@ void Player::Move() {
 	velocity_ = vector * speed;
 }
 
-Vector3 Player::GetWorldTranslate() const {
-	return MakeTranslateMatrix(worldTransform_.matWorld);
-}
-
 void Player::DrawImGui() {
 	ImGui::Begin("InGame");
 	if (ImGui::BeginMenu("Player")) {

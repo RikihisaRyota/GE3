@@ -102,7 +102,7 @@ void GPUParticle::UpdateField(CommandContext& commandContext) {
 	}
 }
 
-void GPUParticle::CollisionField(CommandContext& commandContext) {
+void GPUParticle::CollisionField(CommandContext& commandContext, const UploadBuffer& random) {
 	if (!fields_.empty()) {
 		commandContext.BeginEvent(L"CollisionField");
 		commandContext.TransitionResource(fieldOriginalBuffer_, D3D12_RESOURCE_STATE_GENERIC_READ);
@@ -112,6 +112,7 @@ void GPUParticle::CollisionField(CommandContext& commandContext) {
 		commandContext.SetComputeShaderResource(0, fieldOriginalBuffer_->GetGPUVirtualAddress());
 		commandContext.SetComputeShaderResource(1, fieldIndexBuffer_->GetGPUVirtualAddress());
 		commandContext.SetComputeUAV(2, particleBuffer_->GetGPUVirtualAddress());
+		commandContext.SetComputeConstantBuffer(3, random.GetGPUVirtualAddress());
 		commandContext.Dispatch(static_cast<UINT>(ceil((GPUParticleShaderStructs::MaxParticleNum / GPUParticleShaderStructs::MaxProcessNum) / GPUParticleShaderStructs::ComputeThreadBlockSize)), uint32_t(fields_.size()), 1);
 		commandContext.UAVBarrier(particleBuffer_);
 		fields_.clear();

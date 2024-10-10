@@ -6,7 +6,6 @@
 #include "AABB.h"
 #include "Matrix4x4.h"
 #include "OBB.h"
-#include "WorldTransform.h"
 #include "ViewProjection.h"
 #include "Vector4.h"
 #include "Vector2.h"
@@ -148,12 +147,6 @@ float RadToDeg(float radian);
 /// <param name="degree">degree</param>
 /// <returns>radian</returns>
 float DegToRad(float degree);
-/// <summary> 
-/// ワールドトランスフォームからワールド行列を生成
-/// </summary>
-/// /// <param name="worldtransform"></param>
-/// /// <returns></returns>
-Matrix4x4 MakeMatWolrd(const WorldTransform& worldtransform);
 
 std::vector<Vector3> GenerateCircleVertices(const Vector3& center, float radius, int segments, const Vector3& axis1, const Vector3& axis2);
 std::vector<Vector3> GenerateHalfSphereVertices(const Vector3& center, float radius, int segments, const Vector3& axis1, const Vector3& axis2);

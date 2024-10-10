@@ -7,7 +7,7 @@
     "HomingAttack": {
         "Animation": {
             "allFrame": 600.0,
-            "transitionFrame": 120.0
+            "transitionFrame": 60.0
         },
         "Properties": {
             "bulletHeightOffset": [
@@ -22,7 +22,7 @@
             ],
             "bulletRadius": 1.5,
             "bulletSpeed": 90.0,
-            "createBulletInterval": 60,
+            "createBulletInterval": 120,
             "start": [
                 0.0,
                 15.0,

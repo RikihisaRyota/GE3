@@ -739,8 +739,7 @@ struct Attraction {
 
 
 struct ExternalForce {
-	float32_t3 externalForce;
-	float pad;
+	Float3MinMax externalForce;
 };
 
 struct Field {

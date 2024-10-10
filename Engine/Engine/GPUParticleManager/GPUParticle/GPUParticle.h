@@ -40,7 +40,7 @@ public:
 	void CheckField(CommandContext& commandContext);
 	void AddField(CommandContext& commandContext);
 	void UpdateField(CommandContext& commandContext);
-	void CollisionField(CommandContext& commandContext);
+	void CollisionField(CommandContext& commandContext,const UploadBuffer& random);
 	void Spawn(CommandContext& commandContext, const UploadBuffer& random);
 	void UpdateEmitter(CommandContext& commandContext);
 	void CheckEmitter(CommandContext& commandContext);

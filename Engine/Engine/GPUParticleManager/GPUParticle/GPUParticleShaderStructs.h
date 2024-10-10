@@ -728,8 +728,7 @@ struct Particle
 
 
 	struct ExternalForce {
-		Vector3 externalForce;
-		float pad;
+		Vector3MinMax externalForce;
 	};
 
 	struct Field {

@@ -656,16 +656,6 @@ float RadToDeg(float radian) { return std::numbers::pi_v<float> / radian; }
 
 float DegToRad(float degree) { return degree * std::numbers::pi_v<float> / 180.0f; }
 
-Matrix4x4 MakeMatWolrd(const WorldTransform& worldtransform) {
-	Matrix4x4 result = MakeIdentity4x4();
-	result = MakeAffineMatrix(
-		worldtransform.scale,
-		worldtransform.rotate,
-		worldtransform.translate
-	);
-	return result;
-}
-
 std::vector<Vector3> GenerateCircleVertices(const Vector3& center, float radius, int segments, const Vector3& axis1, const Vector3& axis2) {
 	std::vector<Vector3> vertices;
 	vertices.resize(segments);

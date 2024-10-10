@@ -57,7 +57,7 @@ public:
 		playerBulletManager_->SetViewProjection(viewProjection);
 	}
 	const WorldTransform& GetWorldTransform() const { return worldTransform_; }
-	Vector3 GetWorldTranslate()const;
+	Vector3 GetWorldTranslate() { return MakeTranslateMatrix(worldTransform_.matWorld); }
 	void DrawImGui();
 
 	void SetBoss(Boss* boss) {

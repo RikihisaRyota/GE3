@@ -49,8 +49,8 @@
         "isParent": 0
     },
     "ParticleLifeSpan": {
-        "Max": 120,
-        "Min": 120,
+        "Max": 60,
+        "Min": 60,
         "isEmitterLife": 0
     },
     "RotateAnimation": {

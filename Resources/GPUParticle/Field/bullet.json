@@ -8,6 +8,8 @@
             "attraction": 0.0
         },
         "ExternalForce": {
+            "End": {},
+            "Start": {},
             "externalForce": [
                 0.0,
                 -0.009999999776482582,

@@ -114,7 +114,7 @@ void GPUParticleManager::Update(const ViewProjection& viewProjection, CommandCon
 
 	commandContext.SetComputeRootSignature(*collisionFieldRootSignature_);
 	commandContext.SetPipelineState(*collisionFieldPipelineState_);
-	gpuParticle_->CollisionField(commandContext);
+	gpuParticle_->CollisionField(commandContext,randomBuffer_);
 }
 
 void GPUParticleManager::Draw(const ViewProjection& viewProjection, CommandContext& commandContext) {
@@ -919,6 +919,7 @@ void GPUParticleManager::CreateMeshParticle() {
 }
 
 void GPUParticleManager::CreateField() {
+	// CheckField
 	{
 		checkFieldRootSignature_ = std::make_unique<RootSignature>();
 
@@ -932,7 +933,6 @@ void GPUParticleManager::CreateField() {
 
 		checkFieldRootSignature_->Create(L"checkFieldRootSignature", desc);
 	}
-	// アップデートパイプライン
 	{
 		checkFieldPipelineState_ = std::make_unique<PipelineState>();
 		D3D12_COMPUTE_PIPELINE_STATE_DESC desc{};
@@ -941,6 +941,7 @@ void GPUParticleManager::CreateField() {
 		desc.CS = CD3DX12_SHADER_BYTECODE(cs->GetBufferPointer(), cs->GetBufferSize());
 		checkFieldPipelineState_->Create(L"checkFieldPipelineState", desc);
 	}
+	// AddField
 	{
 		addFieldRootSignature_ = std::make_unique<RootSignature>();
 
@@ -959,7 +960,6 @@ void GPUParticleManager::CreateField() {
 
 		addFieldRootSignature_->Create(L"addFieldRootSignature", desc);
 	}
-	// アップデートパイプライン
 	{
 		addFieldPipelineState_ = std::make_unique<PipelineState>();
 		D3D12_COMPUTE_PIPELINE_STATE_DESC desc{};
@@ -968,6 +968,7 @@ void GPUParticleManager::CreateField() {
 		desc.CS = CD3DX12_SHADER_BYTECODE(cs->GetBufferPointer(), cs->GetBufferSize());
 		addFieldPipelineState_->Create(L"addFieldPipelineState", desc);
 	}
+	// UpdateField
 	{
 		updateFieldRootSignature_ = std::make_unique<RootSignature>();
 
@@ -987,7 +988,6 @@ void GPUParticleManager::CreateField() {
 
 		updateFieldRootSignature_->Create(L"UpdateFieldRootSignature", desc);
 	}
-	// アップデートパイプライン
 	{
 		updateFieldPipelineState_ = std::make_unique<PipelineState>();
 		D3D12_COMPUTE_PIPELINE_STATE_DESC desc{};
@@ -996,13 +996,15 @@ void GPUParticleManager::CreateField() {
 		desc.CS = CD3DX12_SHADER_BYTECODE(cs->GetBufferPointer(), cs->GetBufferSize());
 		updateFieldPipelineState_->Create(L"UpdateFieldPipelineState", desc);
 	}
+	// CollisionField
 	{
 		collisionFieldRootSignature_ = std::make_unique<RootSignature>();
 
-		CD3DX12_ROOT_PARAMETER rootParameters[3]{};
+		CD3DX12_ROOT_PARAMETER rootParameters[4]{};
 		rootParameters[0].InitAsShaderResourceView(0);
 		rootParameters[1].InitAsShaderResourceView(1);
 		rootParameters[2].InitAsUnorderedAccessView(0);
+		rootParameters[3].InitAsConstantBufferView(0);
 
 		D3D12_ROOT_SIGNATURE_DESC desc{};
 		desc.pParameters = rootParameters;

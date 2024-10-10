@@ -449,7 +449,7 @@ namespace GPUParticleShaderStructs {
 				break;
 			case GPUParticleShaderStructs::kExternalForce:
 				if (ImGui::TreeNode("ExternalForce")) {
-					ImGui::DragFloat3("ExternalForce", &field.externalForce.externalForce.x, 0.01f);
+					DrawMinMax(field.externalForce.externalForce,0.1f);
 					ImGui::TreePop();
 				}
 				break;
@@ -611,7 +611,7 @@ namespace GPUParticleShaderStructs {
 		JSON_LOAD_BY_NAME("attraction", field.attraction.attraction);
 		JSON_PARENT();
 		JSON_OBJECT("ExternalForce");
-		JSON_LOAD_BY_NAME("externalForce", field.externalForce.externalForce);
+		LoadMinMax(field.externalForce.externalForce);
 		JSON_PARENT();
 		JSON_LOAD_BY_NAME("type", field.type);
 		JSON_ROOT();
@@ -758,7 +758,7 @@ namespace GPUParticleShaderStructs {
 		JSON_SAVE_BY_NAME("attraction", field.attraction.attraction);
 		JSON_PARENT();
 		JSON_OBJECT("ExternalForce");
-		JSON_SAVE_BY_NAME("externalForce", field.externalForce.externalForce);
+		SaveMinMax(field.externalForce.externalForce);
 		JSON_PARENT();
 		JSON_SAVE_BY_NAME("type", field.type);
 		JSON_ROOT();

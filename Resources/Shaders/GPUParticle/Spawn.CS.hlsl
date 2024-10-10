@@ -180,10 +180,16 @@ void main(uint3 DTid : SV_DispatchThreadID, uint3 GTid : SV_GroupThreadID, uint3
                 int32_t counter=-1;
                 InterlockedAdd(particleIndexCounter[0].count, -1,counter);
                 if(counter>0){
-                    int32_t particleIndex = particleIndexCommands.Consume();
-                    uint32_t seed = setSeed(particleIndex * gRandom.random);
                     uint32_t emitterIndex=createParticle[emitterNum].emitterNum;
                     TransformModelEmitter emitter = gTransformModelEmitter[emitterIndex];
+                    // 重なり防止
+                    if(emitter.startModel.vertexCount >= emitter.endModel.vertexCount){
+                        if(createNum / emitter.endModel.vertexCount >= 1){
+                            return;
+                        }
+                    }
+                    int32_t particleIndex = particleIndexCommands.Consume();
+                    uint32_t seed = setSeed(particleIndex * gRandom.random);
                     uint32_t startModelIndex = createNum % emitter.startModel.vertexCount;
                     uint32_t endModelIndex = createNum % emitter.endModel.vertexCount;
                     float32_t4x4 startWorldMatrix,endWorldMatrix;

@@ -188,7 +188,6 @@ private:
 			const GPUParticleShaderStructs::EmitterForCPU& bulletEmitter,
 			const GPUParticleShaderStructs::EmitterForCPU& explosionEmitter) {
 			GPUParticleShaderStructs::NonSharedCopy(bulletEmitter_, bulletEmitter);
-			explosionEmitter_.color = bulletEmitter_.color;
 			GPUParticleShaderStructs::NonSharedCopy(explosionEmitter_, explosionEmitter);
 		}
 		const GPUParticleShaderStructs::EmitterForCPU& GetBulletEmitter() const { return bulletEmitter_; }

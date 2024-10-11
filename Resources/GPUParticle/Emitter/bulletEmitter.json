@@ -83,8 +83,8 @@
     "EmitterFrequency": {
         "emitterLife": 0,
         "interval": 0,
-        "isLoop": 0,
-        "isOnce": 1
+        "isLoop": 1,
+        "isOnce": 0
     },
     "Parent": {
         "isParent": 0

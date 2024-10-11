@@ -967,6 +967,9 @@ void BossStateHomingAttack::Bullet::Create(const Vector3& start, const Vector3& 
 	isAlive_ = true;
 	bulletEmitter_.isAlive = isAlive_;
 	bulletField_.isAlive = isAlive_;
+	explosionEmitter_.isAlive = !isAlive_;
+	explosionField_.isAlive = !isAlive_;
+	explosionEmitter_.color = bulletEmitter_.color;
 	collider->SetIsActive(isAlive_);
 }
 
@@ -993,6 +996,10 @@ void BossStateHomingAttack::Bullet::Update() {
 }
 
 void BossStateHomingAttack::Bullet::DebugDraw() {
+	GPUParticleShaderStructs::DebugDraw(explosionEmitter_);
+	GPUParticleShaderStructs::DebugDraw(explosionField_);
+	GPUParticleShaderStructs::DebugDraw(bulletEmitter_);
+	GPUParticleShaderStructs::DebugDraw(bulletField_);
 	collider->DrawCollision({ 0.0f,1.0f,0.2f,1.0f });
 }
 

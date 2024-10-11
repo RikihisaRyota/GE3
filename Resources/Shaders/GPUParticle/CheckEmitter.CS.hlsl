@@ -93,7 +93,7 @@ void main(uint3 DTid : SV_DispatchThreadID, uint3 GTid : SV_GroupThreadID, uint3
             origalTransformModelEmitter[origalIndex].time = time;
             addTransformModelEmitter[addIndex].isAlive = false;
         }
-    } else if (addIndex < addEmitterCount.index + addVertexEmitterCount.index + addMeshEmitterCount.index + addTransformModelEmitterCount.index+ addTransformAreaEmitterCount.index) {
+    } else if (addIndex < addEmitterCount.index + addVertexEmitterCount.index + addMeshEmitterCount.index + addTransformModelEmitterCount.index + addTransformAreaEmitterCount.index) {
         addIndex -= (addEmitterCount.index + addVertexEmitterCount.index + addMeshEmitterCount.index + addTransformModelEmitterCount.index);
         if (addTransformAreaEmitter[addIndex].emitterCount == origalTransformAreaEmitter[origalIndex].emitterCount &&
             addTransformAreaEmitter[addIndex].frequency.isLoop) {

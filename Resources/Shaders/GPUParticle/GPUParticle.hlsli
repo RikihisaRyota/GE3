@@ -45,21 +45,21 @@ float32_t3 randomRange(float32_t3 min, float32_t3 max, inout uint32_t seed) {
     return result;
 }
 
-float32_t3 randomRangeSame(float32_t3 min, float32_t3 max, inout uint32_t seed) {
-    float32_t3 result;
-    float32_t localSeed =randFloat(seed);
-    result.x=lerp(min.x, max.x, localSeed);
-    result.y=lerp(min.y, max.y, localSeed);
-    result.z=lerp(min.z, max.z, localSeed);
-    return result;
-}
-
 float32_t4 randomRange(float32_t4 min, float32_t4 max, inout uint32_t seed) {
     float32_t4 result;
     result.x=lerp(min.x, max.x, randFloat(seed));
     result.y=lerp(min.y, max.y, randFloat(seed));
     result.z=lerp(min.z, max.z, randFloat(seed));
     result.w=lerp(min.w, max.w, randFloat(seed));
+    return result;
+}
+
+float32_t3 randomRangeSame(float32_t3 min, float32_t3 max, inout uint32_t seed) {
+    float32_t3 result;
+    float32_t localSeed =randFloat(seed);
+    result.x=lerp(min.x, max.x, localSeed);
+    result.y=lerp(min.y, max.y, localSeed);
+    result.z=lerp(min.z, max.z, localSeed);
     return result;
 }
 

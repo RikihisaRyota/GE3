@@ -98,6 +98,7 @@ void PlayerBulletManager::DrawImGui() {
 	GPUParticleShaderStructs::Debug("crescent", emitter_.crescent);
 	GPUParticleShaderStructs::Debug("bullet", emitter_.bullet);
 	GPUParticleShaderStructs::Debug("bullet", emitter_.field);
+	GPUParticleShaderStructs::Debug("bulletShape", emitter_.bulletShape);
 #endif // _DEBUG
 }
 

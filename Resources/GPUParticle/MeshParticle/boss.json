@@ -116,6 +116,6 @@
             0.0
         ]
     },
-    "createParticleNum": 5,
+    "createParticleNum": 1,
     "textureIndex": "Resources/Images/GPUParticle.png"
 }

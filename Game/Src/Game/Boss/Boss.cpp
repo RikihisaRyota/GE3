@@ -156,14 +156,14 @@ void Boss::UpdateGPUParticle(CommandContext& commandContext) {
 		!bossStateManager_->GetInTransition()) {
 		vertexEmitterDesc_.isAlive = true;
 		meshEmitterDesc_.isAlive = true;
-		gpuParticleManager_->SetVertexEmitter(bossModelHandle_,vertexEmitterDesc_, worldTransform_.matWorld);
-		//gpuParticleManager_->SetMeshEmitter(bossModelHandle_,meshEmitterDesc_, worldTransform_.matWorld);
+		//gpuParticleManager_->SetVertexEmitter(bossModelHandle_,vertexEmitterDesc_, worldTransform_.matWorld);
+		gpuParticleManager_->SetMeshEmitter(bossModelHandle_,meshEmitterDesc_, worldTransform_.matWorld);
 	}
 	else {
 		vertexEmitterDesc_.isAlive = false;
 		meshEmitterDesc_.isAlive = false;
-		gpuParticleManager_->SetVertexEmitter(bossModelHandle_,vertexEmitterDesc_, worldTransform_.matWorld);
-		//gpuParticleManager_->SetMeshEmitter(bossModelHandle_,meshEmitterDesc_, worldTransform_.matWorld);
+		//gpuParticleManager_->SetVertexEmitter(bossModelHandle_,vertexEmitterDesc_, worldTransform_.matWorld);
+		gpuParticleManager_->SetMeshEmitter(bossModelHandle_,meshEmitterDesc_, worldTransform_.matWorld);
 	}
 	//gpuParticleManager_->CreateTransformModelParticle(bossModelHandle_, worldTransform_.matWorld, testModelHandle_, worldTransform_.matWorld, transformEmitter_, commandContext);
 }

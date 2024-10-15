@@ -21,6 +21,7 @@ public:
 		GPUParticleShaderStructs::EmitterForCPU sharp;
 		GPUParticleShaderStructs::EmitterForCPU crescent;
 		GPUParticleShaderStructs::EmitterForCPU bullet;
+		GPUParticleShaderStructs::EmitterForCPU bulletShape;
 		GPUParticleShaderStructs::FieldForCPU field;
 	};
 	void Create(GPUParticleManager* GPUParticleManager, const Vector3& position, const Vector3& velocity, uint32_t time,const BulletEmitter& emitter);

@@ -26,6 +26,87 @@ ConstantBuffer<Index> addMeshEmitterCount : register(b2);
 ConstantBuffer<Index> addTransformModelEmitterCount : register(b3);
 ConstantBuffer<Index> addTransformAreaEmitterCount : register(b4);
 
+void UpdateEmitterTime(inout EmitterTime time, bool isOnce, bool isAlive)
+{
+    if (isOnce)
+    {
+        if (isAlive)
+        {
+            time.particleTime = -1;
+        }
+        else
+        {
+            time.particleTime = 0;
+        }
+    }
+}
+
+void ReplaceEmitter(inout Emitter origEmitter, in Emitter addEmitter)
+{
+    EmitterTime time = origEmitter.time;
+    UpdateEmitterTime(time, origEmitter.frequency.isOnce, origEmitter.isAlive);
+    origEmitter = addEmitter;
+    origEmitter.time = time;
+}
+
+void ReplaceEmitter(inout VertexEmitter origEmitter, in VertexEmitter addEmitter)
+{
+    EmitterTime time = origEmitter.time;
+    UpdateEmitterTime(time, origEmitter.frequency.isOnce, origEmitter.isAlive);
+    origEmitter = addEmitter;
+    origEmitter.time = time;
+}
+
+void ReplaceEmitter(inout MeshEmitter origEmitter, in MeshEmitter addEmitter)
+{
+    EmitterTime time = origEmitter.time;
+    UpdateEmitterTime(time, origEmitter.frequency.isOnce, origEmitter.isAlive);
+    origEmitter = addEmitter;
+    origEmitter.time = time;
+}
+
+void ReplaceEmitter(inout TransformModelEmitter origEmitter, in TransformModelEmitter addEmitter)
+{
+    EmitterTime time = origEmitter.time;
+    UpdateEmitterTime(time, origEmitter.frequency.isOnce, origEmitter.isAlive);
+    origEmitter = addEmitter;
+    origEmitter.time = time;
+}
+
+void ReplaceEmitter(inout TransformAreaEmitter origEmitter, in TransformAreaEmitter addEmitter)
+{
+    EmitterTime time = origEmitter.time;
+    UpdateEmitterTime(time, origEmitter.frequency.isOnce, origEmitter.isAlive);
+    origEmitter = addEmitter;
+    origEmitter.time = time;
+}
+
+bool ShouldReplaceEmitter(Emitter origEmitter, Emitter addEmitter)
+{
+    return (addEmitter.emitterCount == origEmitter.emitterCount && addEmitter.frequency.isLoop);
+}
+
+bool ShouldReplaceEmitter(VertexEmitter origEmitter, VertexEmitter addEmitter)
+{
+    return (addEmitter.emitterCount == origEmitter.emitterCount && addEmitter.frequency.isLoop);
+}
+
+bool ShouldReplaceEmitter(MeshEmitter origEmitter, MeshEmitter addEmitter)
+{
+    return (addEmitter.emitterCount == origEmitter.emitterCount && addEmitter.frequency.isLoop);
+}
+
+bool ShouldReplaceEmitter(TransformModelEmitter origEmitter, TransformModelEmitter addEmitter)
+{
+    return (addEmitter.emitterCount == origEmitter.emitterCount && addEmitter.frequency.isLoop);
+}
+
+bool ShouldReplaceEmitter(TransformAreaEmitter origEmitter, TransformAreaEmitter addEmitter)
+{
+    return (addEmitter.emitterCount == origEmitter.emitterCount && addEmitter.frequency.isLoop);
+}
+
+
 [numthreads(emitterSize, 1, 1)]
 void main(uint3 DTid : SV_DispatchThreadID, uint3 GTid : SV_GroupThreadID, uint3 GID : SV_GroupID)
 {
@@ -35,75 +116,37 @@ void main(uint3 DTid : SV_DispatchThreadID, uint3 GTid : SV_GroupThreadID, uint3
     // グループIDを使用して、追加エミッターのインデックスを取得
     uint32_t addIndex = GID.x;
     if (addIndex < addEmitterCount.index) {
-        if (addEmitter[addIndex].emitterCount == origalEmitter[origalIndex].emitterCount &&
-            addEmitter[addIndex].frequency.isLoop) {
-            EmitterTime time = origalEmitter[origalIndex].time;
-            if(origalEmitter[origalIndex].frequency.isOnce &&
-                origalEmitter[origalIndex].isAlive){
-                time.particleTime = -1;
-            } 
-            if(origalEmitter[origalIndex].frequency.isOnce &&
-                !origalEmitter[origalIndex].isAlive){
-                time.particleTime = 0;
-            }
-            origalEmitter[origalIndex] = addEmitter[addIndex];
-            origalEmitter[origalIndex].time = time;
+        if (ShouldReplaceEmitter(origalEmitter[origalIndex], addEmitter[addIndex])) 
+        {
+            ReplaceEmitter(origalEmitter[origalIndex], addEmitter[addIndex]);
             addEmitter[addIndex].isAlive = false;
         }
     } else if (addIndex < addEmitterCount.index + addVertexEmitterCount.index) {
         addIndex -= addEmitterCount.index;
-        if (addVertexEmitter[addIndex].emitterCount == origalVertexEmitter[origalIndex].emitterCount &&
-            addVertexEmitter[addIndex].frequency.isLoop) {
-            EmitterTime time = origalVertexEmitter[origalIndex].time;  
-            if(origalVertexEmitter[origalIndex].frequency.isOnce &&
-                origalVertexEmitter[origalIndex].isAlive){
-                time.particleTime = -1;
-            }
-            if(origalVertexEmitter[origalIndex].frequency.isOnce &&
-                !origalVertexEmitter[origalIndex].isAlive){
-                time.particleTime = 0;
-            }
-            origalVertexEmitter[origalIndex] = addVertexEmitter[addIndex];
-            origalVertexEmitter[origalIndex].time = time;
+        if (ShouldReplaceEmitter(origalVertexEmitter[origalIndex], addVertexEmitter[addIndex])) 
+        {
+            ReplaceEmitter(origalVertexEmitter[origalIndex], addVertexEmitter[addIndex]);
             addVertexEmitter[addIndex].isAlive = false;
         }
     } else if (addIndex < addEmitterCount.index + addVertexEmitterCount.index + addMeshEmitterCount.index) {
         addIndex -= (addEmitterCount.index + addVertexEmitterCount.index);
-        if (addMeshEmitter[addIndex].emitterCount == origalMeshEmitter[origalIndex].emitterCount &&
-            addMeshEmitter[addIndex].frequency.isLoop) {
-            EmitterTime time = origalMeshEmitter[origalIndex].time;  
-            if(origalMeshEmitter[origalIndex].frequency.isOnce &&
-                origalMeshEmitter[origalIndex].isAlive){
-                time.particleTime = -1;
-            }
-            origalMeshEmitter[origalIndex] = addMeshEmitter[addIndex];
-            origalMeshEmitter[origalIndex].time = time;
+        if (ShouldReplaceEmitter(origalMeshEmitter[origalIndex], addMeshEmitter[addIndex])) 
+        {
+            ReplaceEmitter(origalMeshEmitter[origalIndex], addMeshEmitter[addIndex]);
             addMeshEmitter[addIndex].isAlive = false;
         }
     } else if (addIndex < addEmitterCount.index + addVertexEmitterCount.index + addMeshEmitterCount.index + addTransformModelEmitterCount.index) {
         addIndex -= (addEmitterCount.index + addVertexEmitterCount.index + addMeshEmitterCount.index);
-        if (addTransformModelEmitter[addIndex].emitterCount == origalTransformModelEmitter[origalIndex].emitterCount &&
-            addTransformModelEmitter[addIndex].frequency.isLoop) {
-            EmitterTime time = origalTransformModelEmitter[origalIndex].time;  
-            if(origalTransformModelEmitter[origalIndex].frequency.isOnce &&
-                origalTransformModelEmitter[origalIndex].isAlive){
-                time.particleTime = -1;
-            }
-            origalTransformModelEmitter[origalIndex] = addTransformModelEmitter[addIndex];
-            origalTransformModelEmitter[origalIndex].time = time;
+        if (ShouldReplaceEmitter(origalTransformModelEmitter[origalIndex], addTransformModelEmitter[addIndex])) 
+        {
+            ReplaceEmitter(origalTransformModelEmitter[origalIndex], addTransformModelEmitter[addIndex]);
             addTransformModelEmitter[addIndex].isAlive = false;
         }
     } else if (addIndex < addEmitterCount.index + addVertexEmitterCount.index + addMeshEmitterCount.index + addTransformModelEmitterCount.index + addTransformAreaEmitterCount.index) {
         addIndex -= (addEmitterCount.index + addVertexEmitterCount.index + addMeshEmitterCount.index + addTransformModelEmitterCount.index);
-        if (addTransformAreaEmitter[addIndex].emitterCount == origalTransformAreaEmitter[origalIndex].emitterCount &&
-            addTransformAreaEmitter[addIndex].frequency.isLoop) {
-            EmitterTime time = origalTransformAreaEmitter[origalIndex].time;  
-            if(origalTransformAreaEmitter[origalIndex].frequency.isOnce &&
-                origalTransformAreaEmitter[origalIndex].isAlive){
-                time.particleTime = -1;
-            }
-            origalTransformAreaEmitter[origalIndex] = addTransformAreaEmitter[addIndex];
-            origalTransformAreaEmitter[origalIndex].time = time;
+        if (ShouldReplaceEmitter(origalTransformAreaEmitter[origalIndex], addTransformAreaEmitter[addIndex])) 
+        {
+            ReplaceEmitter(origalTransformAreaEmitter[origalIndex], addTransformAreaEmitter[addIndex]);
             addTransformAreaEmitter[addIndex].isAlive = false;
         }
     }

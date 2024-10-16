@@ -22,12 +22,22 @@ public:
 		GPUParticleShaderStructs::EmitterForCPU crescent;
 		GPUParticleShaderStructs::EmitterForCPU bullet;
 		GPUParticleShaderStructs::EmitterForCPU bulletShape;
+		GPUParticleShaderStructs::EmitterForCPU bulletSatellite;
 		GPUParticleShaderStructs::FieldForCPU field;
 	};
-	void Create(GPUParticleManager* GPUParticleManager, const Vector3& position, const Vector3& velocity, uint32_t time,const BulletEmitter& emitter);
+	struct BulletDesc {
+		Vector3 position;
+		Vector3 velocity;
+		uint32_t time;
+		float rotateVelocity;
+		float rotateOffset;
+		BulletEmitter emitter;
+	};
+	void Create(GPUParticleManager* GPUParticleManager, const BulletDesc& desc);
 	void Update();
 	void Draw(const ViewProjection& viewProjection, CommandContext& commandContext);
 	void DrawDebug();
+	void GPUParticleUpdate();
 	bool GetIsAlive() { return isAlive_; }
 
 	const Vector3 GetPosition()const { return worldTransform_.translate; }
@@ -35,20 +45,29 @@ public:
 	const float GetRadius() const { return radius_; }
 	void SetBoss(Boss* boss) { boss_ = boss; }
 private:
+	static const uint32_t kMaxSatelliteNum = 3;
 	void OnCollision(const ColliderDesc& desc);
 	void UpdateTransform();
 
+	struct Satellite {
+		WorldTransform worldTransform;
+		GPUParticleShaderStructs::EmitterForCPU emitter;
+	};
+
 	Boss* boss_;
 	GPUParticleManager* gpuParticleManager_;
-	BulletEmitter emitter_;
+	BulletDesc desc_;
 	std::unique_ptr<SphereCollider> collider_;
+
+	BulletEmitter emitter_;
 
 	ModelHandle modelHandle_;
 	TextureHandle gpuTexture_;
 	WorldTransform worldTransform_;
+	Vector3 preEmitterPosition_;
 
-	Vector3 velocity_;
 	bool isAlive_;
-	uint32_t time_;
 	float radius_;
+
+	std::array<Satellite, kMaxSatelliteNum>satellite_;
 };

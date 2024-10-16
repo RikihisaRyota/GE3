@@ -38,6 +38,8 @@ private:
 	uint32_t bulletLifeTime_;
 	int32_t bulletCoolTime_;
 	Vector3 offset_;
+	float rotateVelocity_;
+	float rotateOffset_;
 	PlayerBullet::BulletEmitter  emitter_;
 	ModelHandle modelHandle_;
 };

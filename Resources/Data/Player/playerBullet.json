@@ -8,6 +8,8 @@
             0.5,
             1.0
         ],
-        "reticleDistance_": 30.0
+        "reticleDistance_": 30.0,
+        "rotateOffset_": 1.0,
+        "rotateVelocity_": 0.20000000298023224
     }
 }

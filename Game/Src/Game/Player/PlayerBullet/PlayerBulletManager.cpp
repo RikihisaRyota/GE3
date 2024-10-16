@@ -15,7 +15,7 @@
 #include "Src/Game/Boss/Boss.h"
 
 PlayerBulletManager::PlayerBulletManager() {
-	modelHandle_=ModelManager::GetInstance()->Load("Resources/Models/Bullet/bullet.gltf");
+	modelHandle_ = ModelManager::GetInstance()->Load("Resources/Models/Bullet/bullet.gltf");
 	JSON_OPEN("Resources/Data/Player/playerBullet.json");
 	JSON_OBJECT("bulletProperties");
 	JSON_LOAD(bulletLifeTime_);
@@ -23,12 +23,16 @@ PlayerBulletManager::PlayerBulletManager() {
 	JSON_LOAD(bulletSpeed_);
 	JSON_LOAD(offset_);
 	JSON_LOAD(reticleDistance_);
+	JSON_LOAD(rotateVelocity_);
+	JSON_LOAD(rotateOffset_);
 	JSON_ROOT();
 	JSON_CLOSE();
 	GPUParticleShaderStructs::Load("sharp", emitter_.sharp);
 	GPUParticleShaderStructs::Load("crescent", emitter_.crescent);
 	GPUParticleShaderStructs::Load("bullet", emitter_.bullet);
 	GPUParticleShaderStructs::Load("bullet", emitter_.field);
+	GPUParticleShaderStructs::Load("bulletShape", emitter_.bulletShape);
+	GPUParticleShaderStructs::Load("bulletSatellite", emitter_.bulletSatellite);
 }
 
 void PlayerBulletManager::Initialize() {
@@ -47,7 +51,7 @@ void PlayerBulletManager::Update() {
 
 		// 弾が生存していない場合は、リストから削除する
 		if (!(*iter)->GetIsAlive()) {
-			
+
 			iter = playerBullets_.erase(iter); // 削除して、次の要素を指す
 		}
 		else {
@@ -71,12 +75,14 @@ void PlayerBulletManager::DrawImGui() {
 		if (ImGui::TreeNode("PlayerBullet")) {
 			ImGui::DragFloat3("offset", &offset_.x, 0.1f, 0.0f);
 			ImGui::DragFloat("reticleDistance", &reticleDistance_, 0.1f, 0.0f);
-			ImGui::DragFloat("bulletSpeed_", &bulletSpeed_, 0.1f, 0.0f);
+			ImGui::DragFloat("bulletSpeed", &bulletSpeed_, 0.1f, 0.0f);
+			ImGui::DragFloat("rotateVelocity", &rotateVelocity_, 0.1f, 0.0f);
+			ImGui::DragFloat("rotateOffset", &rotateOffset_, 0.1f, 0.0f);
 			int time = bulletLifeTime_;
-			ImGui::DragInt("bulletLifeTime_", &time, 1, 0);
+			ImGui::DragInt("bulletLifeTime", &time, 1, 0);
 			bulletLifeTime_ = time;
 			time = bulletCoolTime_;
-			ImGui::DragInt("bulletCoolTime_", &time, 1, 0);
+			ImGui::DragInt("bulletCoolTime", &time, 1, 0);
 			bulletCoolTime_ = time;
 			if (ImGui::Button("Save")) {
 				JSON_OPEN("Resources/Data/Player/playerBullet.json");
@@ -86,6 +92,8 @@ void PlayerBulletManager::DrawImGui() {
 				JSON_SAVE(bulletCoolTime_);
 				JSON_SAVE(bulletSpeed_);
 				JSON_SAVE(offset_);
+				JSON_SAVE(rotateVelocity_);
+				JSON_SAVE(rotateOffset_);
 				JSON_ROOT();
 				JSON_CLOSE();
 			}
@@ -99,6 +107,7 @@ void PlayerBulletManager::DrawImGui() {
 	GPUParticleShaderStructs::Debug("bullet", emitter_.bullet);
 	GPUParticleShaderStructs::Debug("bullet", emitter_.field);
 	GPUParticleShaderStructs::Debug("bulletShape", emitter_.bulletShape);
+	GPUParticleShaderStructs::Debug("bulletSatellite", emitter_.bulletSatellite);
 #endif // _DEBUG
 }
 
@@ -150,9 +159,17 @@ void PlayerBulletManager::Create(const WorldTransform& worldTransform) {
 			bulletVelocity = Normalize(GetZAxis(MakeRotate(worldTransform.rotate))) * bulletSpeed_;
 		}
 		// 弾を作成
+		PlayerBullet::BulletDesc desc{};
+		desc.position = playerPosition;
+		desc.velocity = bulletVelocity;
+		desc.time = bulletLifeTime_;
+		desc.rotateVelocity = rotateVelocity_;
+		desc.rotateOffset = rotateOffset_;
+		desc.emitter = emitter_;
+
 		playerBullets_.emplace_back(std::make_unique<PlayerBullet>());
 		playerBullets_.back()->SetBoss(boss_);
-		playerBullets_.back()->Create(gpuParticleManager_, playerPosition, bulletVelocity, bulletLifeTime_, emitter_);
+		playerBullets_.back()->Create(gpuParticleManager_,desc);
 	}
 
 }

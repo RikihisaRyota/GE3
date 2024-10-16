@@ -66,7 +66,6 @@ struct Quaternion {
         return Quaternion{ x * scalar, y * scalar, z * scalar, w * scalar };
     }
 
-    // Inverse of the quaternion
     Quaternion Inverse() const {
         float norm = x * x + y * y + z * z + w * w;
         return Quaternion{ -x / norm, -y / norm, -z / norm, w / norm };

@@ -793,7 +793,7 @@ void ParticleArea(inout Particle particle,EmitterArea area ,inout uint32_t seed)
         direction = normalize(normal);
         float32_t distanceFactor = randomRange(area.capsule.distanceFactor.min, area.capsule.distanceFactor.max, seed);
         direction *=  area.capsule.radius * distanceFactor;
-        particle.translate.translate =  pointOnCapsule(p + direction, area.capsule.segment.origin +area.position,area.capsule.segment.diff +area.position,area.capsule.radius ,randomRange(area.capsule.distanceFactor.min,area.capsule.distanceFactor.max,seed));
+        particle.translate.translate =  pointOnCapsule(p + direction, area.capsule.segment.origin + area.position,area.capsule.segment.diff + area.position,area.capsule.radius ,randomRange(area.capsule.distanceFactor.min,area.capsule.distanceFactor.max,seed));
     }
 }
 

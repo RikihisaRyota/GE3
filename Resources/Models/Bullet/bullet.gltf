@@ -64,7 +64,7 @@
 		{
 			"bufferView":0,
 			"componentType":5126,
-			"count":1984,
+			"count":2010,
 			"max":[
 				0.2364484667778015,
 				0.25838449597358704,
@@ -80,13 +80,13 @@
 		{
 			"bufferView":1,
 			"componentType":5126,
-			"count":1984,
+			"count":2010,
 			"type":"VEC2"
 		},
 		{
 			"bufferView":2,
 			"componentType":5126,
-			"count":1984,
+			"count":2010,
 			"type":"VEC3"
 		},
 		{
@@ -99,26 +99,26 @@
 	"bufferViews":[
 		{
 			"buffer":0,
-			"byteLength":23808,
+			"byteLength":24120,
 			"byteOffset":0,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":15872,
-			"byteOffset":23808,
+			"byteLength":16080,
+			"byteOffset":24120,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":23808,
-			"byteOffset":39680,
+			"byteLength":24120,
+			"byteOffset":40200,
 			"target":34962
 		},
 		{
 			"buffer":0,
 			"byteLength":5760,
-			"byteOffset":63488,
+			"byteOffset":64320,
 			"target":34963
 		}
 	],
@@ -130,7 +130,7 @@
 	],
 	"buffers":[
 		{
-			"byteLength":69248,
+			"byteLength":70080,
 			"uri":"bullet.bin"
 		}
 	]

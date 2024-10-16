@@ -12,24 +12,36 @@
 
 #include "Src/Game/Boss/Boss.h"
 
-void PlayerBullet::Create(GPUParticleManager* GPUParticleManager, const Vector3& position, const Vector3& velocity, uint32_t time, const BulletEmitter& emitter) {
+void PlayerBullet::Create(GPUParticleManager* GPUParticleManager, const BulletDesc& desc) {
 	modelHandle_ = ModelManager::GetInstance()->Load("Resources/Models/Bullet/bullet.gltf");
 	gpuTexture_ = TextureManager::GetInstance()->Load("Resources/Images/GPUParticle.png");
 	gpuParticleManager_ = GPUParticleManager;
-	velocity_ = velocity;
-	time_ = time;
-	GPUParticleShaderStructs::NonSharedCopy(emitter_.sharp, emitter.sharp);
-	GPUParticleShaderStructs::NonSharedCopy(emitter_.crescent, emitter.crescent);
-	GPUParticleShaderStructs::NonSharedCopy(emitter_.field, emitter.field);
-	GPUParticleShaderStructs::NonSharedCopy(emitter_.bullet, emitter.bullet);
-	GPUParticleShaderStructs::NonSharedCopy(emitter_.bulletShape, emitter.bulletShape);
+	desc_ = desc;
+	GPUParticleShaderStructs::NonSharedCopy(emitter_.sharp, desc_.emitter.sharp);
+	GPUParticleShaderStructs::NonSharedCopy(emitter_.crescent, desc_.emitter.crescent);
+	GPUParticleShaderStructs::NonSharedCopy(emitter_.field, desc_.emitter.field);
+	GPUParticleShaderStructs::NonSharedCopy(emitter_.bullet, desc_.emitter.bullet);
+	GPUParticleShaderStructs::NonSharedCopy(emitter_.bulletShape, desc_.emitter.bulletShape);
+	for (auto& satellite : satellite_) {
+		GPUParticleShaderStructs::NonSharedCopy(satellite.emitter, desc_.emitter.bulletSatellite);
+	}
 
 	isAlive_ = true;
 
 	worldTransform_.Initialize();
-	worldTransform_.translate = position;
-	worldTransform_.rotate = MakeLookRotation(Normalize(velocity));
+	worldTransform_.translate = desc_.position;
+	worldTransform_.rotate = MakeLookRotation(Normalize(desc_.velocity));
 	worldTransform_.UpdateMatrix();
+	preEmitterPosition_ = worldTransform_.translate;
+
+	for (uint32_t i = 0; i < kMaxSatelliteNum; i++) {
+		satellite_.at(i).worldTransform.Initialize();
+		satellite_.at(i).worldTransform.parent_ = &worldTransform_;
+
+		float angle = (2.0f * std::numbers::pi_v<float> / kMaxSatelliteNum) * i;
+
+		satellite_.at(i).worldTransform.translate = { std::cosf(angle) * desc_.rotateOffset, std::sinf(angle) * desc_.rotateOffset, 0.0f };
+	}
 #pragma region コライダー
 	collider_ = std::make_unique<SphereCollider>();
 	collider_->SetName("PlayerBullet");
@@ -46,15 +58,20 @@ void PlayerBullet::Create(GPUParticleManager* GPUParticleManager, const Vector3&
 }
 
 void PlayerBullet::Update() {
-	time_--;
-	if (time_ <= 0) {
+	desc_.time--;
+	if (desc_.time <= 0) {
 		isAlive_ = false;
 		emitter_.bulletShape.isAlive = isAlive_;
+		for (auto& satellite : satellite_) {
+			satellite.emitter.isAlive = isAlive_;
+		}
 	}
-	worldTransform_.translate += velocity_;
+	worldTransform_.translate += desc_.velocity;
+	worldTransform_.rotate = worldTransform_.rotate * MakeRotateZAngleQuaternion(desc_.rotateVelocity);
 	UpdateTransform();
-	emitter_.bulletShape.emitterArea.position = MakeTranslateMatrix(worldTransform_.matWorld);
-	gpuParticleManager_->SetEmitter(emitter_.bulletShape);
+
+	GPUParticleUpdate();
+
 }
 
 void PlayerBullet::Draw(const ViewProjection& viewProjection, CommandContext& commandContext) {
@@ -65,10 +82,32 @@ void PlayerBullet::DrawDebug() {
 	collider_->DrawCollision({ 0.0f, 1.0f, 0.0f, 1.0f });
 }
 
+void PlayerBullet::GPUParticleUpdate() {
+	Vector3 currentBulletPosition = MakeTranslateMatrix(worldTransform_.matWorld);
+	Vector3 particleCenter = Lerp(currentBulletPosition, preEmitterPosition_, 0.5f);
+	emitter_.bulletShape.emitterArea.position = particleCenter;
+	emitter_.bulletShape.emitterArea.capsule.segment.origin = particleCenter - currentBulletPosition;
+	emitter_.bulletShape.emitterArea.capsule.segment.diff = particleCenter - preEmitterPosition_;
+
+	for (auto& satellite : satellite_) {
+		satellite.worldTransform.UpdateMatrix();
+		satellite.emitter.emitterArea.position = MakeTranslateMatrix(satellite.worldTransform.matWorld);
+		gpuParticleManager_->SetEmitter(satellite.emitter);
+	}
+
+	gpuParticleManager_->SetEmitter(emitter_.bulletShape);
+
+	preEmitterPosition_ = worldTransform_.translate;
+}
+
 void PlayerBullet::OnCollision(const ColliderDesc& desc) {
 	if (desc.collider->GetName() == "GameObject") {
 		isAlive_ = false;
 		emitter_.bulletShape.isAlive = isAlive_;
+		for (auto& satellite : satellite_) {
+			satellite.emitter.isAlive = isAlive_;
+			gpuParticleManager_->SetEmitter(satellite.emitter);
+		}
 		gpuParticleManager_->SetEmitter(emitter_.bulletShape);
 	}
 	if (desc.collider->GetName().find("Boss") != std::string::npos) {
@@ -84,6 +123,10 @@ void PlayerBullet::OnCollision(const ColliderDesc& desc) {
 		gpuParticleManager_->SetField(emitter_.field);
 
 		emitter_.bulletShape.isAlive = isAlive_;
+		for (auto& satellite : satellite_) {
+			satellite.emitter.isAlive = isAlive_;
+			gpuParticleManager_->SetEmitter(satellite.emitter);
+		}
 		gpuParticleManager_->SetEmitter(emitter_.bulletShape);
 	}
 }

@@ -36,7 +36,6 @@ void GaussianFilter::Initialize(const ColorBuffer& target) {
 
 		rootSignature_.Create(L"GaussianFilterRootSigunature", desc);
 	}
-
 	{
 		D3D12_GRAPHICS_PIPELINE_STATE_DESC desc{};
 
@@ -48,7 +47,7 @@ void GaussianFilter::Initialize(const ColorBuffer& target) {
 		desc.InputLayout = inputLayoutDesc;
 
 		auto vs = ShaderCompiler::Compile(L"Resources/Shaders/Fullscreen.VS.hlsl", L"vs_6_0");
-		auto ps = ShaderCompiler::Compile(L"Resources/Shaders/GaussianFilter/GaussianFilter.PS.hlsl", L"ps_6_0");
+		auto ps = ShaderCompiler::Compile(L"Resources/Shaders/GaussianFilter/HorizontalGaussianFilter.PS.hlsl", L"ps_6_0");
 		desc.VS = CD3DX12_SHADER_BYTECODE(vs->GetBufferPointer(), vs->GetBufferSize());
 		desc.PS = CD3DX12_SHADER_BYTECODE(ps->GetBufferPointer(), ps->GetBufferSize());
 		desc.BlendState = Helper::BlendAlpha;
@@ -59,51 +58,44 @@ void GaussianFilter::Initialize(const ColorBuffer& target) {
 		desc.SampleMask = D3D12_DEFAULT_SAMPLE_MASK;
 		desc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 		desc.SampleDesc.Count = 1;
-		depthPipelineState_.Create(L"GaussianFilterDepthPipeLine", desc);
-	}
-	{
-		D3D12_GRAPHICS_PIPELINE_STATE_DESC desc{};
+		horizontalPipelineState_.Create(L"HorizontalPipelineState", desc);
 
-		desc.pRootSignature = rootSignature_;
-
-		D3D12_INPUT_LAYOUT_DESC inputLayoutDesc{};
-		inputLayoutDesc.pInputElementDescs = nullptr;
-		inputLayoutDesc.NumElements = 0;
-		desc.InputLayout = inputLayoutDesc;
-
-		auto vs = ShaderCompiler::Compile(L"Resources/Shaders/Fullscreen.VS.hlsl", L"vs_6_0");
-		auto ps = ShaderCompiler::Compile(L"Resources/Shaders/GaussianFilter/GaussianFilter.PS.hlsl", L"ps_6_0");
-		desc.VS = CD3DX12_SHADER_BYTECODE(vs->GetBufferPointer(), vs->GetBufferSize());
+		ps = ShaderCompiler::Compile(L"Resources/Shaders/GaussianFilter/VerticalGaussianFilter.PS.hlsl", L"ps_6_0");
 		desc.PS = CD3DX12_SHADER_BYTECODE(ps->GetBufferPointer(), ps->GetBufferSize());
-		desc.BlendState = Helper::BlendAlpha;
-		desc.DepthStencilState = Helper::DepthStateDisabled;
-		desc.RasterizerState = Helper::RasterizerNoCull;
-		desc.NumRenderTargets = 1;
-		desc.RTVFormats[0] = target.GetFormat();
-		desc.SampleMask = D3D12_DEFAULT_SAMPLE_MASK;
-		desc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-		desc.SampleDesc.Count = 1;
-		pipelineState_.Create(L"GaussianFilterPipeLine", desc);
+
+		verticalPipelineState_.Create(L"VerticalPipelineState", desc);
 	}
 	{
-		temporaryBuffer_.Create(L"GaussianFilterTempBuffer", target.GetWidth(), target.GetHeight(), target.GetFormat());
+		originalTexture_.Create(L"OriginalGaussianFilter", target.GetWidth(), target.GetHeight(), target.GetFormat());
+		horizontalBuffer_.Create(L"HorizontalBuffer", uint32_t(target.GetWidth() * 0.5f), target.GetHeight(), target.GetFormat());
+		verticalBuffer_.Create(L"VerticalBuffer", uint32_t(target.GetWidth() * 0.5f), uint32_t(target.GetHeight() * 0.5f), target.GetFormat());
 	}
 }
 
-void GaussianFilter::Render(CommandContext& commandContext, ColorBuffer& texture) {
-	commandContext.TransitionResource(temporaryBuffer_, D3D12_RESOURCE_STATE_RENDER_TARGET);
-	commandContext.SetRenderTarget(temporaryBuffer_.GetRTV());
-	commandContext.ClearColor(temporaryBuffer_);
-	commandContext.SetViewportAndScissorRect(0, 0, temporaryBuffer_.GetWidth(), temporaryBuffer_.GetHeight());
+void GaussianFilter::Render(CommandContext& commandContext,ColorBuffer& target) {
+	// 水平方向
+	commandContext.CopyBuffer(originalTexture_,target);
+	commandContext.TransitionResource(originalTexture_, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+	commandContext.TransitionResource(horizontalBuffer_, D3D12_RESOURCE_STATE_RENDER_TARGET);
+	commandContext.SetRenderTarget(horizontalBuffer_.GetRTV());
+	commandContext.ClearColor(horizontalBuffer_);
+	commandContext.SetViewportAndScissorRect(0, 0, horizontalBuffer_.GetWidth(), horizontalBuffer_.GetHeight());
 
 	commandContext.SetGraphicsRootSignature(rootSignature_);
-	commandContext.SetPipelineState(pipelineState_);
-
-	commandContext.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-	commandContext.TransitionResource(texture, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-	commandContext.SetGraphicsDescriptorTable(RootParameter::kTexture, texture.GetSRV());
+	commandContext.SetPipelineState(horizontalPipelineState_);
+	commandContext.SetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	commandContext.SetGraphicsDescriptorTable(0, originalTexture_.GetSRV());
 	commandContext.Draw(3);
 
-	commandContext.CopyBuffer(texture, temporaryBuffer_);
+	commandContext.TransitionResource(horizontalBuffer_, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+	commandContext.TransitionResource(verticalBuffer_, D3D12_RESOURCE_STATE_RENDER_TARGET);
+	commandContext.ClearColor(verticalBuffer_);
+	commandContext.SetRenderTarget(verticalBuffer_.GetRTV());
+	commandContext.SetViewportAndScissorRect(0, 0, verticalBuffer_.GetWidth(), verticalBuffer_.GetHeight());
+
+	commandContext.SetGraphicsRootSignature(rootSignature_);
+	commandContext.SetPipelineState(verticalPipelineState_);
+	commandContext.SetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	commandContext.SetGraphicsDescriptorTable(0, horizontalBuffer_.GetSRV());
+	commandContext.Draw(3);
 }

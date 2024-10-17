@@ -21,6 +21,29 @@ struct ViewProjection
 };
 ConstantBuffer<ViewProjection> gViewProjection : register(b0);
 
+float CheckParticleLifeSpan(inout Particle particle, ParticleLifeSpan particleLifeSpan, bool emitterIsAlive) {
+    // エミッター寿命を使わない場合
+    if (!particle.particleLifeTime.isEmitterLife) {
+        return particle.particleLifeTime.time / particle.particleLifeTime.maxTime;
+    }
+
+    // エミッターが死んでいる場合の処理
+    if (!emitterIsAlive) {
+        // エミッターが死んでいてカウントダウンではない場合
+        if (!particleLifeSpan.isCountDown) {
+            return 1.0f; 
+        } 
+        // カウントダウン時、パーティクルの寿命に移行
+        else {
+            particle.particleLifeTime.isEmitterLife = false;
+            return 0.0f;
+        }
+    }
+    // エミッターが生きている場合
+    return 0.0f; 
+}
+
+
 [numthreads(threadBlockSize, 1, 1)]
 void main(uint3 DTid : SV_DispatchThreadID)
 {
@@ -32,20 +55,39 @@ void main(uint3 DTid : SV_DispatchThreadID)
         if(input[index].isAlive)
         {
             float t = 0.0f; 
-            if(!input[index].particleLifeTime.isEmitterLife){
-                t = float(input[index].particleLifeTime.time) / float(input[index].particleLifeTime.maxTime);
-            }else{
-                if(input[index].parent.emitterType==0 && !emitter[input[index].parent.emitterCount].isAlive){
-                    t=1.0f;
-                } else if(input[index].parent.emitterType==1 && !vertexEmitter[input[index].parent.emitterCount].isAlive){
-                    t=1.0f;
-                } else if(input[index].parent.emitterType==2 && !meshEmitter[input[index].parent.emitterCount].isAlive){
-                    t=1.0f;
-                }else if(input[index].parent.emitterType==3 && !transformModelEmitter[input[index].parent.emitterCount].isAlive) {
-                    t=1.0f;
-                }else if(input[index].parent.emitterType==4 && !transformAreaEmitter[input[index].parent.emitterCount].isAlive){
-                    t=1.0f;
+            switch (input[index].parent.emitterType) {
+                case 0:
+                {
+                    Emitter e = emitter[input[index].parent.emitterCount];
+                    t = CheckParticleLifeSpan(input[index],e.particleLifeSpan,e.isAlive);
                 }
+                break;
+                case 1:
+                {
+                    VertexEmitter e = vertexEmitter[input[index].parent.emitterCount];
+                    t = CheckParticleLifeSpan(input[index],e.particleLifeSpan,e.isAlive);
+                }
+                break;
+                case 2:
+                {
+                    MeshEmitter e = meshEmitter[input[index].parent.emitterCount];
+                    t = CheckParticleLifeSpan(input[index],e.particleLifeSpan,e.isAlive);
+                }
+                break;
+                case 3:
+                {
+                    TransformModelEmitter e = transformModelEmitter[input[index].parent.emitterCount];
+                    t = CheckParticleLifeSpan(input[index],e.particleLifeSpan,e.isAlive);
+                }
+                break;
+                case 4:
+                {
+                    TransformAreaEmitter e = transformAreaEmitter[input[index].parent.emitterCount];
+                    t = CheckParticleLifeSpan(input[index],e.particleLifeSpan,e.isAlive);
+                }
+                break;
+                default:
+                break;
             }
 
             // 移動
@@ -149,7 +191,9 @@ void main(uint3 DTid : SV_DispatchThreadID)
                 }
                 outputDrawIndexCommands.Append(index);
             }
-            input[index].particleLifeTime.time++;
+            if(!input[index].particleLifeTime.isEmitterLife){
+                input[index].particleLifeTime.time++;
+            }
         }
     }
 }

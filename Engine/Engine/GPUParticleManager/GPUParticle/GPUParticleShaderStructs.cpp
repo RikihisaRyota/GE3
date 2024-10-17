@@ -348,6 +348,7 @@ namespace GPUParticleShaderStructs {
 			if (!frequency.isLoop) {
 				ImGui::DragInt("EmitterLifeTime", reinterpret_cast<int*>(&frequency.emitterLife), 1, 0);
 			}
+
 			ImGui::Checkbox("IsLoop", reinterpret_cast<bool*>(&frequency.isLoop));
 			ImGui::Checkbox("IsOnce", reinterpret_cast<bool*>(&frequency.isOnce));
 			ImGui::TreePop();
@@ -360,6 +361,13 @@ namespace GPUParticleShaderStructs {
 		if (ImGui::TreeNode("ParticleLife")) {
 			if (!particleLifeSpan.isEmitterLife) {
 				DrawMinMax(particleLifeSpan.range);
+				particleLifeSpan.isCountDown = false;
+			}
+			else {
+				if (particleLifeSpan.isCountDown) {
+					DrawMinMax(particleLifeSpan.range);
+				}
+				ImGui::Checkbox("isCountDown", reinterpret_cast<bool*>(&particleLifeSpan.isCountDown));
 			}
 			ImGui::Checkbox("IsEmitterLife", reinterpret_cast<bool*>(&particleLifeSpan.isEmitterLife));
 			ImGui::TreePop();
@@ -449,7 +457,7 @@ namespace GPUParticleShaderStructs {
 				break;
 			case GPUParticleShaderStructs::kExternalForce:
 				if (ImGui::TreeNode("ExternalForce")) {
-					DrawMinMax(field.externalForce.externalForce,0.1f);
+					DrawMinMax(field.externalForce.externalForce, 0.1f);
 					ImGui::TreePop();
 				}
 				break;
@@ -583,6 +591,7 @@ namespace GPUParticleShaderStructs {
 		JSON_OBJECT("ParticleLifeSpan");
 		LoadMinMax(particleLifeSpan.range);
 		JSON_LOAD_BY_NAME("isEmitterLife", particleLifeSpan.isEmitterLife);
+		JSON_LOAD_BY_NAME("isCountDown", particleLifeSpan.isCountDown);
 		JSON_ROOT();
 	}
 
@@ -719,6 +728,7 @@ namespace GPUParticleShaderStructs {
 		JSON_OBJECT("ParticleLifeSpan");
 		SaveMinMax(particleLifeSpan.range);
 		JSON_SAVE_BY_NAME("isEmitterLife", particleLifeSpan.isEmitterLife);
+		JSON_SAVE_BY_NAME("isCountDown", particleLifeSpan.isCountDown);
 		JSON_ROOT();
 	}
 

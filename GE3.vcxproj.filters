@@ -454,9 +454,6 @@
     <ClCompile Include="Engine\Engine\Graphics\CommandSignature.cpp">
       <Filter>Engine\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Engine\Engine\Graphics\GpuResource.cpp">
-      <Filter>Shaders\RadialBlur</Filter>
-    </ClCompile>
     <ClCompile Include="Engine\Engine\Graphics\Bloom.cpp">
       <Filter>Engine\Graphics</Filter>
     </ClCompile>
@@ -464,6 +461,9 @@
       <Filter>Engine\Graphics</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Engine\Graphics\StructuredBuffer.cpp">
+      <Filter>Engine\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Engine\Graphics\GpuResource.cpp">
       <Filter>Engine\Graphics</Filter>
     </ClCompile>
   </ItemGroup>
@@ -954,6 +954,15 @@
     </FxCompile>
     <FxCompile Include="Resources\Shaders\Bloom\Bloom.PS.hlsl">
       <Filter>Shaders\Bloom</Filter>
+    </FxCompile>
+    <FxCompile Include="Resources\Shaders\Bloom\Luminance.PS.hlsl">
+      <Filter>Shaders\Bloom</Filter>
+    </FxCompile>
+    <FxCompile Include="Resources\Shaders\GaussianFilter\HorizontalGaussianFilter.PS.hlsl">
+      <Filter>Shaders\GaussianFilter</Filter>
+    </FxCompile>
+    <FxCompile Include="Resources\Shaders\GaussianFilter\VerticalGaussianFilter.PS.hlsl">
+      <Filter>Shaders\GaussianFilter</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

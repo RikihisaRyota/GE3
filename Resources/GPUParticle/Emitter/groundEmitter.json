@@ -92,6 +92,7 @@
     "ParticleLifeSpan": {
         "Max": 360,
         "Min": 120,
+        "isCountDown": 0,
         "isEmitterLife": 0
     },
     "RotateAnimation": {

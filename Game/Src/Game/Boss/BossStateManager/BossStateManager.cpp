@@ -101,19 +101,22 @@ void BossStateRushAttack::Initialize(CommandContext& commandContext) {
 	// Field
 	data_.headField.fieldArea.position = worldPos + RotateVector(data_.headOffset, worldTransform_.rotate);
 	data_.headField.isAlive = false;
+	// trainSmokeEmitter
+	data_.trainSmokeEmitter.isAlive = false;
 	// Smoke
-	data_.smokeEmitter.isAlive = false;
+	data_.smokeEmitter.isAlive = true;
+	manager_.gpuParticleManager_->SetEmitter(data_.smokeEmitter);
 	// areaTrain
 	data_.areaTrainEmitter.isAlive = false;
 	data_.areaTrainEmitter.emitterArea.position = worldPos;
 	data_.areaTrainEmitter.modelWorldMatrix = worldTransform_.matWorld;
 	data_.areaTrainEmitter.color = data_.trainEmitter.color;
 	// 向きを変更
-	data_.smokeEmitter.emitterArea.position = worldPos + RotateVector(data_.smokeOffset, worldTransform_.rotate);
-	data_.smokeEmitter.emitterArea.aabb.area.min = RotateVector(data_.smokeEmitter.emitterArea.aabb.area.min, worldTransform_.rotate);
-	data_.smokeEmitter.emitterArea.aabb.area.max = RotateVector(data_.smokeEmitter.emitterArea.aabb.area.max, worldTransform_.rotate);
-	data_.smokeEmitter.velocity.range.min = RotateVector(data_.smokeEmitter.velocity.range.min, worldTransform_.rotate);
-	data_.smokeEmitter.velocity.range.max = RotateVector(data_.smokeEmitter.velocity.range.max, worldTransform_.rotate);
+	data_.trainSmokeEmitter.emitterArea.position = worldPos + RotateVector(data_.smokeOffset, worldTransform_.rotate);
+	data_.trainSmokeEmitter.emitterArea.aabb.area.min = RotateVector(data_.trainSmokeEmitter.emitterArea.aabb.area.min, worldTransform_.rotate);
+	data_.trainSmokeEmitter.emitterArea.aabb.area.max = RotateVector(data_.trainSmokeEmitter.emitterArea.aabb.area.max, worldTransform_.rotate);
+	data_.trainSmokeEmitter.velocity.range.min = RotateVector(data_.trainSmokeEmitter.velocity.range.min, worldTransform_.rotate);
+	data_.trainSmokeEmitter.velocity.range.max = RotateVector(data_.trainSmokeEmitter.velocity.range.max, worldTransform_.rotate);
 
 	if (manager_.GetPreState() == BossStateManager::State::kRoot) {
 		data_.transformTrainEmitter.startModelWorldMatrix = boss->GetWorldMatrix();
@@ -142,8 +145,9 @@ void BossStateRushAttack::Update(CommandContext& commandContext) {
 			data_.trainEmitter.isAlive = true;
 			data_.railEmitter.isAlive = true;
 			data_.headField.isAlive = true;
-			data_.smokeEmitter.isAlive = true;
+			data_.trainSmokeEmitter.isAlive = true;
 			data_.areaTrainEmitter.isAlive = true;
+			data_.smokeEmitter.isAlive = false;
 			inTransition_ = false;
 			time_ = 0.0f;
 		}
@@ -173,7 +177,7 @@ void BossStateRushAttack::Update(CommandContext& commandContext) {
 		data_.railEmitter.localTransform.translate = MakeTranslateMatrix(railWorldTransform_.matWorld);
 		data_.railEmitter.localTransform.rotate = Inverse(MakeRotateMatrix(railWorldTransform_.matWorld));
 		data_.headField.fieldArea.position = MakeTranslateMatrix(worldTransform_.matWorld) + RotateVector(data_.headOffset, worldTransform_.rotate);;
-		data_.smokeEmitter.emitterArea.position = MakeTranslateMatrix(worldTransform_.matWorld) + RotateVector(data_.smokeOffset, worldTransform_.rotate);
+		data_.trainSmokeEmitter.emitterArea.position = MakeTranslateMatrix(worldTransform_.matWorld) + RotateVector(data_.smokeOffset, worldTransform_.rotate);
 		data_.areaTrainEmitter.modelWorldMatrix = worldTransform_.matWorld;
 
 	}
@@ -183,7 +187,7 @@ void BossStateRushAttack::Update(CommandContext& commandContext) {
 		data_.trainEmitter.isAlive = false;
 		data_.railEmitter.isAlive = false;
 		data_.headField.isAlive = false;
-		data_.smokeEmitter.isAlive = false;
+		data_.trainSmokeEmitter.isAlive = false;
 		data_.areaTrainEmitter.isAlive = false;
 		data_.transformRailVertexEmitter.color = data_.railEmitter.color;
 		data_.transformRailVertexEmitter.scale.range.start = data_.railEmitter.scale.range.start;
@@ -196,6 +200,7 @@ void BossStateRushAttack::Update(CommandContext& commandContext) {
 	manager_.gpuParticleManager_->SetVertexEmitter(railModelHandle_, data_.railEmitter);
 	//manager_.gpuParticleManager_->SetTransformAreaEmitter(modelHandle_,data_.areaTrainEmitter);
 	manager_.gpuParticleManager_->SetEmitter(data_.smokeEmitter);
+	manager_.gpuParticleManager_->SetEmitter(data_.trainSmokeEmitter);
 	manager_.gpuParticleManager_->SetField(data_.headField);
 }
 
@@ -667,6 +672,7 @@ void BossStateManager::Initialize() {
 	GPUParticleShaderStructs::Load("rail", jsonData_.rushAttack.transformRailEmitter);
 	GPUParticleShaderStructs::Load("headField", jsonData_.rushAttack.headField);
 	GPUParticleShaderStructs::Load("smokeEmitter", jsonData_.rushAttack.smokeEmitter);
+	GPUParticleShaderStructs::Load("trainSmokeEmitter", jsonData_.rushAttack.trainSmokeEmitter);
 	GPUParticleShaderStructs::Load("headEmitter", jsonData_.rushAttack.headEmitter);
 
 
@@ -887,6 +893,7 @@ void BossStateManager::DrawImGui() {
 	GPUParticleShaderStructs::Debug("transformRailVertexEmitter", jsonData_.rushAttack.transformRailVertexEmitter);
 	GPUParticleShaderStructs::Debug("headField", jsonData_.rushAttack.headField);
 	GPUParticleShaderStructs::Debug("smokeEmitter", jsonData_.rushAttack.smokeEmitter);
+	GPUParticleShaderStructs::Debug("trainSmokeEmitter", jsonData_.rushAttack.trainSmokeEmitter);
 	GPUParticleShaderStructs::Debug("headEmitter", jsonData_.rushAttack.headEmitter);
 
 	GPUParticleShaderStructs::Debug("smash", jsonData_.smashAttack.smashEmitter);

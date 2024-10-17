@@ -14,11 +14,13 @@ public:
 	};
 
 	void Initialize(const ColorBuffer& target);
-	void Render(CommandContext& commandContext, ColorBuffer& texture);
-	ColorBuffer& GetTemporaryBuffer() { return temporaryBuffer_; }
+	void Render(CommandContext& commandContext, ColorBuffer& target);
+	ColorBuffer& GetColorBuffer() { return verticalBuffer_; }
 private:
 	RootSignature rootSignature_;
-	PipelineState pipelineState_;
-	PipelineState depthPipelineState_;
-	ColorBuffer temporaryBuffer_;
+	PipelineState horizontalPipelineState_;
+	PipelineState verticalPipelineState_;
+	ColorBuffer horizontalBuffer_;
+	ColorBuffer verticalBuffer_;
+	ColorBuffer originalTexture_;
 };

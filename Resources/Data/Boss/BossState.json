@@ -57,7 +57,7 @@
             "frontAndBackOffset": 8.0,
             "headOffset": [
                 0.0,
-                -10.0,
+                0.0,
                 15.0
             ],
             "smokeOffset": [

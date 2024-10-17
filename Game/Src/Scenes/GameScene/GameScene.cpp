@@ -124,7 +124,7 @@ void GameScene::Update(CommandContext& commandContext) {
 		}
 		if (object->GetObjectName() == "Ground") {
 			postEmitter_.emitterArea.position = MakeTranslateMatrix(object->GetWorldTransform().matWorld);
-			gpuParticleManager_->SetEmitter(groundEmitter_);
+			//gpuParticleManager_->SetEmitter(groundEmitter_);
 		}
 	}
 
@@ -189,14 +189,14 @@ void GameScene::Draw(CommandContext& commandContext) {
 	//ModelManager::GetInstance()->Draw(testWorldTransform_.matWorld, *viewProjection_, testModel_, commandContext);
 	player_->Draw(*viewProjection_, commandContext);
 	boss_->Draw(*viewProjection_, commandContext);
-	//for (auto& object : gameObject_) {
-	//	if (object->GetObjectName() != "Post") {
-	//		object->Draw(*viewProjection_, commandContext);
-	//	}
-	//	if (object->GetObjectName() != "Ground") {
-	//		object->Draw(*viewProjection_, commandContext);
-	//	}
-	//}
+	for (auto& object : gameObject_) {
+	/*	if (object->GetObjectName() != "Post") {
+			object->Draw(*viewProjection_, commandContext);
+		}*/
+		if (object->GetObjectName() == "Ground") {
+			object->Draw(*viewProjection_, commandContext);
+		}
+	}
 
 
 	gpuParticleManager_->Draw(*viewProjection_, commandContext);

@@ -73,7 +73,8 @@ namespace GPUParticleShaderStructs {
 		uint32_t time;
 		uint32_t maxTime;
 		uint32_t isEmitterLife;
-		uint32_t pad;
+		// エミッターが死んでからカウントダウンを開始するか
+		uint32_t isCountDown;
 	};
 	/*
 	*
@@ -272,9 +273,13 @@ struct Particle
 
 	// エミッターの生成間隔
 	struct EmitterFrequency {
+		// インターバル
 		int32_t interval;
+		// ループするか
 		int32_t isLoop;
+		// エミッターが生きている間パーティクルも生きる
 		int32_t emitterLife;
+		// 一度しか出さないか
 		int32_t isOnce;
 	};
 
@@ -288,7 +293,9 @@ struct Particle
 	struct ParticleLifeSpan {
 		UintMinMax range;
 		uint32_t isEmitterLife;
-		Vector3 pad;
+		// エミッターが死んでからカウントダウンを開始するか
+		uint32_t isCountDown;
+		Vector2 pad;
 	};
 
 	enum EmitterType {

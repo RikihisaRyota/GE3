@@ -22,6 +22,7 @@ void PlayerBullet::Create(GPUParticleManager* GPUParticleManager, const BulletDe
 	GPUParticleShaderStructs::NonSharedCopy(emitter_.field, desc_.emitter.field);
 	GPUParticleShaderStructs::NonSharedCopy(emitter_.bullet, desc_.emitter.bullet);
 	GPUParticleShaderStructs::NonSharedCopy(emitter_.bulletShape, desc_.emitter.bulletShape);
+	emitter_.bullet.color = emitter_.bulletShape.color;
 	for (auto& satellite : satellite_) {
 		GPUParticleShaderStructs::NonSharedCopy(satellite.emitter, desc_.emitter.bulletSatellite);
 	}

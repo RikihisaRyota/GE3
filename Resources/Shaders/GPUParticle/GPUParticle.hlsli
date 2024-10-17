@@ -381,7 +381,7 @@ struct ParticleLifeTime
     uint32_t time;
     uint32_t maxTime;
     uint32_t isEmitterLife;
-    uint32_t pad;
+	uint32_t isCountDown;
 };
 
 struct ParticleAttributes {
@@ -520,7 +520,8 @@ struct ParticleLifeSpan
 {
     UintMinMax range;
     uint32_t isEmitterLife;
-    float32_t3 pad;
+    uint32_t isCountDown;
+    float32_t2 pad;
 };
 
 struct EmitterParent {
@@ -844,6 +845,7 @@ void ParticleColor(inout Particle particle,EmitterColor color ,inout uint32_t se
 
 void ParticleLifeTime(inout Particle particle,ParticleLifeSpan particleLifeSpan,inout uint32_t seed){
     particle.particleLifeTime.isEmitterLife = particleLifeSpan.isEmitterLife;
+    particle.particleLifeTime.isCountDown = particleLifeSpan.isCountDown;
     particle.particleLifeTime.maxTime = randomRange(particleLifeSpan.range.min, particleLifeSpan.range.max, seed);
     particle.particleLifeTime.time = 0;
 }

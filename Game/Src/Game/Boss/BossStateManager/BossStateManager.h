@@ -69,6 +69,7 @@ public:
 		GPUParticleShaderStructs::TransformModelEmitterForCPU  transformTrainEmitter;
 		GPUParticleShaderStructs::TransformAreaEmitterForCPU  transformRailEmitter;
 		GPUParticleShaderStructs::TransformAreaEmitterForCPU  areaTrainEmitter;
+		GPUParticleShaderStructs::EmitterForCPU trainSmokeEmitter;
 		GPUParticleShaderStructs::EmitterForCPU smokeEmitter;
 		GPUParticleShaderStructs::EmitterForCPU headEmitter;
 		OBB collider;

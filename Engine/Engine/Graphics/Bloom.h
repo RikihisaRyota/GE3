@@ -10,14 +10,6 @@ class CommandContext;
 class ColorBuffer;
 class Bloom {
 public:
-	enum RootParameter {
-		kTexture0,
-		kTexture1,
-		kOriginal,
-		kDesc,
-		kCount
-	};
-
 	struct Desc {
 		float intensity = 1.0f;
 	};
@@ -27,11 +19,14 @@ public:
 	void Debug();
 private:
 	static const uint32_t kMaxLevel = 2;
-	RootSignature rootSignature_;
-	PipelineState pipelineState_;
-	ColorBuffer temporaryRenderBuffer_;
-	ColorBuffer temporaryBuffer_;
-	UploadBuffer descBuffer_;
+	RootSignature luminanceRootSignature_;
+	PipelineState luminancePipelineState_;
+
+	RootSignature bloomRootSignature_;
+	PipelineState bloomPipelineState_;
+
+	ColorBuffer originalBuffer_;
+	ColorBuffer luminanceBuffer_;
 	GaussianFilter gaussianFilter_[kMaxLevel];
 	Desc desc_;
 };

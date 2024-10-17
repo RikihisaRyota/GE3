@@ -13,7 +13,7 @@ class GraphicsCore {
 public: 
 	static GraphicsCore* GetInstance();
 
-	static const uint32_t kNumRTVs = 16;
+	static const uint32_t kNumRTVs = 32;
 	static const uint32_t kNumDSVs = 2;
 	static const uint32_t kNumSRVs = 256;
 	static const uint32_t kNumSamplers = 16;

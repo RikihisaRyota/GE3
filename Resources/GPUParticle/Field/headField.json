@@ -5,9 +5,19 @@
     },
     "Field": {
         "Attraction": {
-            "attraction": -0.029999999329447746
+            "attraction": -0.05000000074505806
         },
         "ExternalForce": {
+            "Max": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "Min": [
+                0.0,
+                0.0,
+                0.0
+            ],
             "externalForce": [
                 0.0,
                 0.20000000298023224,

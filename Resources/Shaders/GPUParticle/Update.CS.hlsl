@@ -21,10 +21,10 @@ struct ViewProjection
 };
 ConstantBuffer<ViewProjection> gViewProjection : register(b0);
 
-float CheckParticleLifeSpan(inout Particle particle, ParticleLifeSpan particleLifeSpan, bool emitterIsAlive) {
+float32_t CheckParticleLifeSpan(inout Particle particle, ParticleLifeSpan particleLifeSpan, bool emitterIsAlive) {
     // エミッター寿命を使わない場合
     if (!particle.particleLifeTime.isEmitterLife) {
-        return particle.particleLifeTime.time / particle.particleLifeTime.maxTime;
+        return float32_t(particle.particleLifeTime.time) / float32_t(particle.particleLifeTime.maxTime);
     }
 
     // エミッターが死んでいる場合の処理
@@ -150,7 +150,7 @@ void main(uint3 DTid : SV_DispatchThreadID)
             float32_t3 cameraDir = normalize(finalPosition - cameraPos);
     
             // カメラの方向を基にビルボードの回転行列を計算する
-            float32_t3 upVector = normalize(float32_t3(gViewProjection.inverseView[1].xyz));
+            float32_t3 upVector = float32_t3(0.0f, 1.0f, 0.0f);
             float32_t3 sideVector = normalize(cross(upVector, cameraDir)); // カメラの方向と上方向の外積を取る
             float32_t3 newUpVector =normalize(cross(cameraDir, sideVector)) ; // カメラの方向と側方向の外積を取る
     
@@ -166,13 +166,14 @@ void main(uint3 DTid : SV_DispatchThreadID)
             if(input[index].parent.isParent){
                 // 親の回転行列（移動を含まない）
                 float32_t4x4 parentRotateMatrix = float32_t4x4(
-                    parentWorldMatrix[0], parentWorldMatrix[1], parentWorldMatrix[2], float32_t4(0, 0, 0, 1)
+                    parentWorldMatrix[0], parentWorldMatrix[1], parentWorldMatrix[2], float32_t4(0.0f, 0.0f, 0.0f, 1.0f)
                 );
                 finalRotateMatrix = mul(particleRotate, parentRotateMatrix);
             } else {
                 finalRotateMatrix = particleRotate;
             }
-            float32_t4x4 rotateMatrix = mul(billboardMatrix,finalRotateMatrix); // パーティクルの回転を適用
+            // パーティクルの回転を適用
+            float32_t4x4 rotateMatrix = mul(finalRotateMatrix,billboardMatrix); 
     
             input[index].color = lerp(input[index].colorRange.min, input[index].colorRange.max, t);
     

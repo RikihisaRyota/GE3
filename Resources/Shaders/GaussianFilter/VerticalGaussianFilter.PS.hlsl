@@ -26,17 +26,18 @@ float32_t3 SmoothingVertical(float32_t2 originalTexcoord, Texture2D<float32_t4> 
     float32_t uvStepSizeY = rcp(height);
     float32_t3 result = {0.0f, 0.0f, 0.0f};
 
-    float32_t wight = 0.0f;
+    float32_t totalWeight = 0.0f;
     for(uint32_t y = 0; y < kTexelSize; ++y){
-        wight += Gauss(0.0f, float32_t(int32_t(y) - int32_t(kTexelCenter)), 1.2f);
+        float32_t weight = Gauss(0.0f, float32_t(int32_t(y) - int32_t(kTexelCenter)), 1.2f);
         float32_t2 texcoord = originalTexcoord + float32_t2(0, int32_t(y) - int32_t(kTexelCenter)) * float32_t2(0.0f, uvStepSizeY);
         if(texcoord.y < 0.0f || texcoord.y > 1.0f){
             continue;
         }
         float32_t3 fetchColor = tex.Sample(smp, texcoord).rgb;
-        result += fetchColor;
+        result += fetchColor * weight;
+        totalWeight += weight;
     }
-    return result * rcp(wight);
+    return result * rcp(totalWeight);
 }
 
 PixelShaderOutPut main(VertexShaderOutPut input)

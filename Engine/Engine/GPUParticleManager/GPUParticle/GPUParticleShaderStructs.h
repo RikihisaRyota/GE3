@@ -97,7 +97,7 @@ struct Particle
 		uint time;
 		uint maxTime;
 		uint isEmitterLife;
-		uint pad;
+		uint isCountDown;
 	} particleLifeTime;
 	struct Float4MinMax
 	{
@@ -294,7 +294,7 @@ struct Particle
 		UintMinMax range;
 		uint32_t isEmitterLife;
 		// エミッターが死んでからカウントダウンを開始するか
-		uint32_t isCountDown;
+		uint32_t isCountDown = false;
 		Vector2 pad;
 	};
 

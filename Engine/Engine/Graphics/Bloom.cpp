@@ -12,15 +12,16 @@ void Bloom::Initialize(const ColorBuffer& target) {
 	auto graphics = GraphicsCore::GetInstance();
 	auto device = graphics->GetDevice();
 	{
-		CD3DX12_DESCRIPTOR_RANGE ranges[kMaxLevel]{};
-		for (uint32_t i = 0; i < kMaxLevel; ++i) {
+		CD3DX12_DESCRIPTOR_RANGE ranges[kMaxLevel + 1]{};
+		for (uint32_t i = 0; i < kMaxLevel + 1; ++i) {
 			ranges[i].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, i);
 		}
 
-		CD3DX12_ROOT_PARAMETER rootParameters[kMaxLevel]{};
-		for (uint32_t i = 0; i < kMaxLevel; ++i) {
+		CD3DX12_ROOT_PARAMETER rootParameters[kMaxLevel + 1]{};
+		for (uint32_t i = 0; i < kMaxLevel + 1; ++i) {
 			rootParameters[i].InitAsDescriptorTable(1, &ranges[i]);
 		}
+		rootParameters[kMaxLevel].InitAsDescriptorTable(1, &ranges[kMaxLevel]);
 
 		CD3DX12_STATIC_SAMPLER_DESC staticSampler(
 			0,
@@ -157,9 +158,10 @@ void Bloom::Render(CommandContext& commandContext, ColorBuffer& texture) {
 
 	commandContext.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	for (uint32_t i = 0; i < kMaxLevel; i++) {
-		commandContext.TransitionResource(gaussianFilter_[i].GetColorBuffer(),D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+		commandContext.TransitionResource(gaussianFilter_[i].GetColorBuffer(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 		commandContext.SetGraphicsDescriptorTable(i, gaussianFilter_[i].GetColorBuffer().GetSRV());
 	}
+	commandContext.SetGraphicsDescriptorTable(kMaxLevel, texture.GetSRV());
 	commandContext.Draw(3);
 
 	commandContext.CopyBuffer(texture, originalBuffer_);

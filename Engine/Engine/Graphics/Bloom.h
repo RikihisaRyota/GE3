@@ -11,14 +11,14 @@ class ColorBuffer;
 class Bloom {
 public:
 	struct Desc {
-		float intensity = 1.0f;
+		float intensity = 0.5f;
 	};
 
 	void Initialize(const ColorBuffer& target);
 	void Render(CommandContext& commandContext, ColorBuffer& texture);
 	void Debug();
 private:
-	static const uint32_t kMaxLevel = 2;
+	static const uint32_t kMaxLevel = 4;
 	RootSignature luminanceRootSignature_;
 	PipelineState luminancePipelineState_;
 

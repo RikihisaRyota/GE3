@@ -75,11 +75,11 @@ void main(uint3 DTid : SV_DispatchThreadID, uint3 GTid : SV_GroupThreadID, uint3
                 float32_t4x4 worldMatrix;
                 float32_t3 translate=float32_t3(0.0f,0.0f,0.0f);
                 float32_t4 vertexPosition=float32_t4(0.0f,0.0f,0.0f,0.0f);
-                TriangleInfo info;
                 int32_t createNum=-1; 
                 InterlockedAdd(createParticle[emitterNum].createParticleNum, -1,createNum);
                 if (createNum > 0)
                 { 
+                    TriangleInfo info;
                     uint32_t seed = setSeed(createNum*gRandom.random);
                     worldMatrix = MakeAffine(emitter.localTransform.scale,emitter.localTransform.rotate,emitter.localTransform.translate);
                     vertexPosition = vertexBuffers[emitter.model.vertexBufferIndex][createNum].position;
@@ -137,7 +137,6 @@ void main(uint3 DTid : SV_DispatchThreadID, uint3 GTid : SV_GroupThreadID, uint3
                 float32_t4x4 worldMatrix;
                 float32_t3 translate;
                 float32_t4 vertexPosition;
-                TriangleInfo info;
                 // 0からに
                 createNum = createParticle[emitterNum].maxCreateParticleNum - createNum;
                 // 三角形の頂点インデックスを取得
@@ -149,6 +148,7 @@ void main(uint3 DTid : SV_DispatchThreadID, uint3 GTid : SV_GroupThreadID, uint3
                 int32_t counter=-1;
                 InterlockedAdd(particleIndexCounter[0].count, -1,counter);
                 if(counter>0){
+                    TriangleInfo info;
                     int32_t index = particleIndexCommands.Consume();
                     info.vertex = triIndices;
                     // ランダムなバリセンター座標を生成

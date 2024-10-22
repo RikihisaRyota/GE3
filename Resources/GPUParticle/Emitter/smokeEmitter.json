@@ -90,8 +90,8 @@
         "isParent": 0
     },
     "ParticleLifeSpan": {
-        "Max": 400,
-        "Min": 360,
+        "Max": 720,
+        "Min": 480,
         "isCountDown": 1,
         "isEmitterLife": 1
     },
@@ -120,9 +120,9 @@
         },
         "Start": {
             "Max": [
-                2.0,
-                2.0,
-                2.0
+                5.0,
+                5.0,
+                5.0
             ],
             "Min": [
                 2.5,
@@ -145,6 +145,6 @@
             0.0
         ]
     },
-    "createParticleNum": 200,
+    "createParticleNum": 100,
     "textureIndex": "Resources/Images/smoke.png"
 }

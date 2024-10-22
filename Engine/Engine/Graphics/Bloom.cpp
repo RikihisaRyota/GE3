@@ -128,7 +128,9 @@ void Bloom::Initialize(const ColorBuffer& target) {
 }
 
 void Bloom::Render(CommandContext& commandContext, ColorBuffer& texture) {
-
+	if (!isUsed_) {
+		return;
+	}
 	// 輝度摘出
 	commandContext.CopyBuffer(originalBuffer_, texture);
 	commandContext.TransitionResource(originalBuffer_, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
@@ -171,7 +173,10 @@ void Bloom::Debug() {
 #ifdef _DEBUG
 	ImGui::Begin("Effect");
 	if (ImGui::TreeNode("Bloom")) {
-		ImGui::DragFloat("Intensity", &desc_.intensity, 0.01f, 0.0f, 1.0f);
+		if (isUsed_) {
+			ImGui::DragFloat("Intensity", &desc_.intensity, 0.01f, 0.0f, 1.0f);
+		}
+		ImGui::Checkbox("isUsed", &isUsed_);
 		ImGui::TreePop();
 	}
 

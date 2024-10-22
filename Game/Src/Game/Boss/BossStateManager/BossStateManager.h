@@ -46,6 +46,7 @@ class BossStateRoot :
 public:
 	struct JsonData {
 		GPUParticleShaderStructs::TransformModelEmitterForCPU transformEmitter;
+		GPUParticleShaderStructs::EmitterForCPU disguisingEmitter;
 		float allFrame;
 		float transitionFrame;
 	};

@@ -37,7 +37,7 @@
     "EmitterFrequency": {
         "emitterLife": 0,
         "interval": 0,
-        "isLoop": 0,
+        "isLoop": 1,
         "isOnce": 1
     },
     "EmitterTranslate": {
@@ -46,11 +46,12 @@
         "radius": 5.0
     },
     "Parent": {
-        "isParent": 0
+        "isParent": 1
     },
     "ParticleLifeSpan": {
         "Max": 60,
         "Min": 60,
+        "isCountDown": 0,
         "isEmitterLife": 0
     },
     "RotateAnimation": {

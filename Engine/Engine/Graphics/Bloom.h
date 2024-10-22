@@ -29,4 +29,5 @@ private:
 	ColorBuffer luminanceBuffer_;
 	GaussianFilter gaussianFilter_[kMaxLevel];
 	Desc desc_;
+	bool isUsed_;
 };

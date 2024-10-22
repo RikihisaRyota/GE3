@@ -146,7 +146,7 @@ void RenderManager::EndRender(const ViewProjection& viewProjection) {
 	//radialBlur_.Render(commandContext, mainColorBuffer_);
 	//dissolve_.Render(commandContext, mainColorBuffer_);
 	//hsvFilter_.Render(commandContext, mainColorBuffer_);
-	//bloom_.Render(commandContext,mainColorBuffer_);
+	bloom_.Render(commandContext,mainColorBuffer_);
 
 	commandContext.TransitionResource(swapChainColorBuffer, D3D12_RESOURCE_STATE_RENDER_TARGET);
 	commandContext.SetRenderTarget(swapChainColorBuffer.GetRTV());

@@ -461,12 +461,20 @@ namespace GPUParticleShaderStructs {
 					ImGui::TreePop();
 				}
 				break;
+			case GPUParticleShaderStructs::kRotateForce:
+				if (ImGui::TreeNode("RotateForce")) {
+					ImGui::DragFloat3("Direction", &field.rotateForce.direction.x, 0.1f);
+					field.rotateForce.direction.Normalized();
+					ImGui::DragFloat("Speed", &field.rotateForce.rotateSpeed, 0.1f);
+					ImGui::TreePop();
+				}
+				break;
 			case GPUParticleShaderStructs::kFieldCount:
 				break;
 			default:
 				break;
 			}
-			std::vector<const char*> typeCStr{ "Attraction","ExternalForce" };
+			std::vector<const char*> typeCStr{ "Attraction","ExternalForce","RotateForce"};
 			int currentType = static_cast<int>(field.type);
 
 			// ステートを変更するImGui::Comboの作成
@@ -622,6 +630,10 @@ namespace GPUParticleShaderStructs {
 		JSON_OBJECT("ExternalForce");
 		LoadMinMax(field.externalForce.externalForce);
 		JSON_PARENT();
+		JSON_OBJECT("RotateForce");
+		JSON_LOAD_BY_NAME("direction",field.rotateForce.direction);
+		JSON_LOAD_BY_NAME("rotateSpeed",field.rotateForce.rotateSpeed);
+		JSON_PARENT();
 		JSON_LOAD_BY_NAME("type", field.type);
 		JSON_ROOT();
 	}
@@ -769,6 +781,10 @@ namespace GPUParticleShaderStructs {
 		JSON_PARENT();
 		JSON_OBJECT("ExternalForce");
 		SaveMinMax(field.externalForce.externalForce);
+		JSON_PARENT();
+		JSON_OBJECT("RotateForce");
+		JSON_SAVE_BY_NAME("direction", field.rotateForce.direction);
+		JSON_SAVE_BY_NAME("rotateSpeed", field.rotateForce.rotateSpeed);
 		JSON_PARENT();
 		JSON_SAVE_BY_NAME("type", field.type);
 		JSON_ROOT();

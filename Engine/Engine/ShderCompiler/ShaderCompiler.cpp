@@ -42,7 +42,7 @@ IDxcBlob* ShaderCompiler::Compile(const std::wstring& filePath, const wchar_t* p
 		L"-E",L"main",//エントリーポイントの指定。基本的にmain以外はしない
 		L"-T",profile,//ShaderProfileの設定
 		L"-Zi",L"-Qembed_debug",//デバック用の情報を埋め込む
-		L"-Od",//最適化を外しておく
+		//L"-Od",//最適化を外しておく
 		L"-Zpr",//メモリレイアウトは行優先
 	};
 	//実際にShaderをコンパイルする

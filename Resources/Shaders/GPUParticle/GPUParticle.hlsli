@@ -743,9 +743,15 @@ struct ExternalForce {
 	Float3MinMax externalForce;
 };
 
+struct RotateForce {
+	float32_t3 direction;
+	float rotateSpeed;
+};
+
 struct Field {
 	Attraction attraction;
 	ExternalForce externalForce;
+    RotateForce rotateForce;
 	uint32_t type;
 	float32_t3 pad;
 };
@@ -901,7 +907,6 @@ void ParticleTriangleInfo(inout Particle particle,TriangleInfo triangleInfo){
     particle.triangleInfo=triangleInfo;
 }
 
-
 void CreateParticle(inout Particle particle,Emitter emitter ,inout uint32_t seed,uint32_t emitterCount){
     particle.textureIndex = emitter.textureIndex;
     particle.collisionInfo = emitter.collisionInfo;
@@ -990,6 +995,8 @@ void CreateParticle(inout Particle particle,TransformModelEmitter emitter ,inout
     ParticleVelocity(particle, emitter.velocity,seed);
     
     ParticleColor(particle, emitter.color,seed); 
+
+
 }
 
 void CreateParticle(inout Particle particle,TransformAreaEmitter emitter ,inout uint32_t seed,uint32_t emitterCount){

@@ -33,11 +33,19 @@ void ExternalForceField(FieldForGPU field,inout Particle particle,inout uint32_t
     particle.velocity += randomRange(field.field.externalForce.externalForce.min,field.field.externalForce.externalForce.max,seed);
 }
 
+void RotateForceField(FieldForGPU field,inout Particle particle,inout uint32_t seed){
+    float32_t4x4 rotateMatrix;
+    rotateMatrix = MakeRotationMatrix(field.field.rotateForce.direction * field.field.rotateForce.rotateSpeed);
+    particle.velocity = mul(rotateMatrix,float32_t4(particle.velocity,0.0f)).xyz;
+}
+
 void UpdateField(FieldForGPU field,inout Particle particle,inout uint32_t seed){
     if(field.field.type==0){
         AttractionField(field,particle);
     }else if(field.field.type==1){
         ExternalForceField(field,particle,seed);
+    }else if(field.field.type==2){
+        RotateForceField(field,particle,seed);
     }
 }
 

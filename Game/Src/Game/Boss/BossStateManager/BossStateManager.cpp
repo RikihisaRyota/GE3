@@ -499,8 +499,8 @@ void BossStateHomingAttack::Initialize(CommandContext& commandContext) {
 	worldTransform_.translate = boss->GetWorldTranslate();
 	worldTransform_.translate += data_.start;
 	worldTransform_.UpdateMatrix();
-	worldTransform_.rotate = MakeLookRotation((MakeTranslateMatrix(worldTransform_.matWorld) - manager_.player_->GetWorldTranslate()).Normalize());
-	worldTransform_.UpdateMatrix();
+	//worldTransform_.rotate = MakeLookRotation((MakeTranslateMatrix(worldTransform_.matWorld) - manager_.player_->GetWorldTranslate()).Normalize());
+	//worldTransform_.UpdateMatrix();
 
 	modelHandle_ = ModelManager::GetInstance()->Load("Resources/Models/Boss/cannon.gltf");
 
@@ -543,20 +543,14 @@ void BossStateHomingAttack::Update(CommandContext& commandContext) {
 
 	if (inTransition_) {
 		time_ += 1.0f / data_.transitionFrame;
-		data_.transformEmitter.endModelWorldMatrix = worldTransform_.matWorld;
-		worldTransform_.rotate = MakeLookRotation((MakeTranslateMatrix(worldTransform_.matWorld) - manager_.player_->GetWorldTranslate()).Normalize());
-		worldTransform_.UpdateMatrix();
+		//worldTransform_.rotate = MakeLookRotation((MakeTranslateMatrix(worldTransform_.matWorld) - manager_.player_->GetWorldTranslate()).Normalize());
+		//worldTransform_.UpdateMatrix();
+		//data_.transformEmitter.endModelWorldMatrix = worldTransform_.matWorld;
 	}
 	else {
 		time_ += 1.0f / data_.allFrame;
-
 		time_ = std::clamp(time_, 0.0f, 1.0f);
-	}
 
-	if (inTransition_) {
-
-	}
-	else {
 		worldTransform_.rotate = MakeLookRotation((MakeTranslateMatrix(worldTransform_.matWorld) - manager_.player_->GetWorldTranslate()).Normalize());
 		worldTransform_.UpdateMatrix();
 
@@ -575,7 +569,6 @@ void BossStateHomingAttack::Update(CommandContext& commandContext) {
 			data_.transformEmitter.isAlive = false;
 			data_.homingEmitter.isAlive = false;
 		}
-
 	}
 	manager_.gpuParticleManager_->SetVertexEmitter(modelHandle_, data_.homingEmitter, worldTransform_.matWorld);
 	manager_.gpuParticleManager_->SetTransformModelEmitter(manager_.boss_->GetModelHandle(), modelHandle_, data_.transformEmitter);

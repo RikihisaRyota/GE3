@@ -8,13 +8,31 @@
             "attraction": 1.0
         },
         "ExternalForce": {
+            "Max": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "Min": [
+                0.0,
+                0.0,
+                0.0
+            ],
             "externalForce": [
                 0.0,
                 0.0,
                 10.0
             ]
         },
-        "type": 1
+        "RotateForce": {
+            "direction": [
+                0.0,
+                1.0,
+                0.0
+            ],
+            "rotateSpeed": -4.0
+        },
+        "type": 2
     },
     "FieldArea": {
         "FieldAABB": {
@@ -59,9 +77,10 @@
         },
         "position": [
             0.0,
-            0.0,
-            -71.19999694824219
-        ]
+            27.5,
+            0.0
+        ],
+        "type": 0
     },
     "FieldFrequency": {
         "isLoop": 1,

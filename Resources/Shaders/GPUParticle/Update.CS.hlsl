@@ -55,8 +55,40 @@ void main(uint3 DTid : SV_DispatchThreadID)
         if(input[index].isAlive)
         {
             float t = 0.0f; 
-            VertexEmitter e = vertexEmitter[input[index].parent.emitterCount];
-            t = CheckParticleLifeSpan(input[index],e.particleLifeSpan,e.isAlive);
+            switch (input[index].parent.emitterType) {
+                case 0:
+                {
+                    Emitter e = emitter[input[index].parent.emitterCount];
+                    t = CheckParticleLifeSpan(input[index],e.particleLifeSpan,e.isAlive);
+                }
+                break;
+                case 1:
+                {
+                    VertexEmitter e = vertexEmitter[input[index].parent.emitterCount];
+                    t = CheckParticleLifeSpan(input[index],e.particleLifeSpan,e.isAlive);
+                }
+                break;
+                case 2:
+                {
+                    MeshEmitter e = meshEmitter[input[index].parent.emitterCount];
+                    t = CheckParticleLifeSpan(input[index],e.particleLifeSpan,e.isAlive);
+                }
+                break;
+                case 3:
+                {
+                    TransformModelEmitter e = transformModelEmitter[input[index].parent.emitterCount];
+                    t = CheckParticleLifeSpan(input[index],e.particleLifeSpan,e.isAlive);
+                }
+                break;
+                case 4:
+                {
+                    TransformAreaEmitter e = transformAreaEmitter[input[index].parent.emitterCount];
+                    t = CheckParticleLifeSpan(input[index],e.particleLifeSpan,e.isAlive);
+                }
+                break;
+                default:
+                break;
+            }
 
             // 移動
             if(!input[index].translate.isEasing){
@@ -153,6 +185,7 @@ void main(uint3 DTid : SV_DispatchThreadID)
             else
             {
                 if(input[index].parent.isParent){
+                    
                     input[index].worldMatrix = mul(mul(mul(scaleMatrix, rotateMatrix), translateMatrix), parentWorldMatrix);
                 }
                 else{

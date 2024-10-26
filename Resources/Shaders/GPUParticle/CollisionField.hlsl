@@ -33,11 +33,35 @@ void ExternalForceField(FieldForGPU field,inout Particle particle,inout uint32_t
     particle.velocity += randomRange(field.field.externalForce.externalForce.min,field.field.externalForce.externalForce.max,seed);
 }
 
-void RotateForceField(FieldForGPU field,inout Particle particle,inout uint32_t seed){
-    float32_t4x4 rotateMatrix;
-    rotateMatrix = MakeRotationMatrix(field.field.rotateForce.direction * field.field.rotateForce.rotateSpeed);
-    particle.velocity = mul(rotateMatrix,float32_t4(particle.velocity,0.0f)).xyz;
+void RotateForceField(FieldForGPU field, inout Particle particle, inout uint32_t seed) {
+    float32_t3 rotationAxis = normalize(field.field.rotateForce.direction); 
+    float32_t angleRadians = field.field.rotateForce.rotateSpeed; 
+    float32_t cosTheta = cos(angleRadians);
+    float32_t sinTheta = sin(angleRadians);
+    
+    float32_t ux = rotationAxis.x, uy = rotationAxis.y, uz = rotationAxis.z;
+
+    float32_t3x3 rotationMatrix;
+    rotationMatrix[0][0] = cosTheta + ux * ux * (1 - cosTheta);
+    rotationMatrix[0][1] = ux * uy * (1 - cosTheta) - uz * sinTheta;
+    rotationMatrix[0][2] = ux * uz * (1 - cosTheta) + uy * sinTheta;
+
+    rotationMatrix[1][0] = uy * ux * (1 - cosTheta) + uz * sinTheta;
+    rotationMatrix[1][1] = cosTheta + uy * uy * (1 - cosTheta);
+    rotationMatrix[1][2] = uy * uz * (1 - cosTheta) - ux * sinTheta;
+
+    rotationMatrix[2][0] = uz * ux * (1 - cosTheta) - uy * sinTheta;
+    rotationMatrix[2][1] = uz * uy * (1 - cosTheta) + ux * sinTheta;
+    rotationMatrix[2][2] = cosTheta + uz * uz * (1 - cosTheta);
+
+    float32_t3 rotatedVelocity;
+    rotatedVelocity.x = dot(rotationMatrix[0], particle.velocity);
+    rotatedVelocity.y = dot(rotationMatrix[1], particle.velocity);
+    rotatedVelocity.z = dot(rotationMatrix[2], particle.velocity);
+
+    particle.velocity = rotatedVelocity;
 }
+
 
 void UpdateField(FieldForGPU field,inout Particle particle,inout uint32_t seed){
     if(field.field.type==0){

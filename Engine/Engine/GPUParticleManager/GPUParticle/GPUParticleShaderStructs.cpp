@@ -464,7 +464,7 @@ namespace GPUParticleShaderStructs {
 			case GPUParticleShaderStructs::kRotateForce:
 				if (ImGui::TreeNode("RotateForce")) {
 					ImGui::DragFloat3("Direction", &field.rotateForce.direction.x, 0.1f);
-					field.rotateForce.direction.Normalized();
+					field.rotateForce.direction.Normalize();
 					ImGui::DragFloat("Speed", &field.rotateForce.rotateSpeed, 0.1f);
 					ImGui::TreePop();
 				}
@@ -795,7 +795,7 @@ namespace GPUParticleShaderStructs {
 		JSON_SAVE_BY_NAME("type", area.type);
 		JSON_SAVE_BY_NAME("position", area.position);
 		JSON_OBJECT("FieldAABB");
-		LoadMinMax(area.aabb.area);
+		SaveMinMax(area.aabb.area);
 		JSON_PARENT();
 
 		JSON_OBJECT("FieldSphere");
@@ -1024,6 +1024,7 @@ namespace GPUParticleShaderStructs {
 	}
 	void Copy(GPUParticleShaderStructs::FieldForGPU& dst, const GPUParticleShaderStructs::FieldForCPU& src) {
 		dst.field = src.field;
+		dst.field.rotateForce.rotateSpeed = DegToRad(dst.field.rotateForce.rotateSpeed);
 		dst.fieldArea = src.fieldArea;
 		dst.frequency = src.frequency;
 		dst.collisionInfo = src.collisionInfo;

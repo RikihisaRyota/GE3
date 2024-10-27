@@ -1,7 +1,7 @@
 {
     "CollisionInfo": {
         "attribute": 16,
-        "mask": 8
+        "mask": 4
     },
     "Field": {
         "Attraction": {
@@ -9,23 +9,41 @@
         },
         "ExternalForce": {
             "Max": [
-                0.10000000149011612,
-                0.30000001192092896,
-                0.10000000149011612
+                0.0,
+                0.0,
+                0.0
             ],
             "Min": [
-                -0.10000000149011612,
-                0.10000000149011612,
-                -0.10000000149011612
+                0.0,
+                0.0,
+                0.0
             ]
         },
         "PositionRotateForce": {},
-        "RotateForce": {},
+        "RotateForce": {
+            "direction": [
+                0.0,
+                1.0,
+                0.0
+            ],
+            "rotateSpeed": 30.0
+        },
         "VelocityRotateForce": {},
-        "type": 1
+        "type": 2
     },
     "FieldArea": {
-        "FieldAABB": {},
+        "FieldAABB": {
+            "Max": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "Min": [
+                0.0,
+                0.0,
+                0.0
+            ]
+        },
         "FieldCapsule": {
             "FieldSegment": {
                 "end": [
@@ -35,21 +53,21 @@
                 ],
                 "start": [
                     0.0,
-                    0.0,
+                    15.0,
                     0.0
                 ]
             },
-            "radius": 0.0
+            "radius": 20.0
         },
         "FieldSphere": {
-            "radius": 2.0
+            "radius": 20.0
         },
         "position": [
             0.0,
             0.0,
             0.0
         ],
-        "type": 1
+        "type": 2
     },
     "FieldFrequency": {
         "isLoop": 1,

@@ -461,11 +461,23 @@ namespace GPUParticleShaderStructs {
 					ImGui::TreePop();
 				}
 				break;
-			case GPUParticleShaderStructs::kRotateForce:
-				if (ImGui::TreeNode("RotateForce")) {
-					ImGui::DragFloat3("Direction", &field.rotateForce.direction.x, 0.1f);
-					field.rotateForce.direction.Normalize();
-					ImGui::DragFloat("Speed", &field.rotateForce.rotateSpeed, 0.1f);
+			case GPUParticleShaderStructs::kVelocityRotateForce:
+				if (ImGui::TreeNode("VelocityRotateForce")) {
+					ImGui::DragFloat3("Direction", &field.velocityRotateForce.direction.x, 0.1f);
+					if (field.velocityRotateForce.direction.Length() != 0.0f) {
+						field.velocityRotateForce.direction.Normalize();
+					}
+					ImGui::DragFloat("Speed", &field.velocityRotateForce.rotateSpeed, 0.1f);
+					ImGui::TreePop();
+				}
+				break;
+			case GPUParticleShaderStructs::kPositionRotateForce:
+				if (ImGui::TreeNode("PositionRotateForce")) {
+					ImGui::DragFloat3("Direction", &field.positionRotateForce.direction.x, 0.1f);
+					if (field.positionRotateForce.direction.Length() != 0.0f) {
+						field.positionRotateForce.direction.Normalize();
+					}
+					ImGui::DragFloat("Speed", &field.positionRotateForce.rotateSpeed, 0.1f);
 					ImGui::TreePop();
 				}
 				break;
@@ -474,7 +486,7 @@ namespace GPUParticleShaderStructs {
 			default:
 				break;
 			}
-			std::vector<const char*> typeCStr{ "Attraction","ExternalForce","RotateForce"};
+			std::vector<const char*> typeCStr{ "Attraction","ExternalForce","VelocityRotateForce","PositionRotateForce"};
 			int currentType = static_cast<int>(field.type);
 
 			// ステートを変更するImGui::Comboの作成
@@ -630,9 +642,13 @@ namespace GPUParticleShaderStructs {
 		JSON_OBJECT("ExternalForce");
 		LoadMinMax(field.externalForce.externalForce);
 		JSON_PARENT();
-		JSON_OBJECT("RotateForce");
-		JSON_LOAD_BY_NAME("direction",field.rotateForce.direction);
-		JSON_LOAD_BY_NAME("rotateSpeed",field.rotateForce.rotateSpeed);
+		JSON_OBJECT("VelocityRotateForce");
+		JSON_LOAD_BY_NAME("direction", field.velocityRotateForce.direction);
+		JSON_LOAD_BY_NAME("rotateSpeed", field.velocityRotateForce.rotateSpeed);
+		JSON_PARENT();
+		JSON_OBJECT("PositionRotateForce");
+		JSON_LOAD_BY_NAME("direction", field.positionRotateForce.direction);
+		JSON_LOAD_BY_NAME("rotateSpeed", field.positionRotateForce.rotateSpeed);
 		JSON_PARENT();
 		JSON_LOAD_BY_NAME("type", field.type);
 		JSON_ROOT();
@@ -782,9 +798,13 @@ namespace GPUParticleShaderStructs {
 		JSON_OBJECT("ExternalForce");
 		SaveMinMax(field.externalForce.externalForce);
 		JSON_PARENT();
-		JSON_OBJECT("RotateForce");
-		JSON_SAVE_BY_NAME("direction", field.rotateForce.direction);
-		JSON_SAVE_BY_NAME("rotateSpeed", field.rotateForce.rotateSpeed);
+		JSON_OBJECT("VelocityRotateForce");
+		JSON_SAVE_BY_NAME("direction", field.velocityRotateForce.direction);
+		JSON_SAVE_BY_NAME("rotateSpeed", field.velocityRotateForce.rotateSpeed);
+		JSON_PARENT();
+		JSON_OBJECT("PositionRotateForce");
+		JSON_SAVE_BY_NAME("direction", field.positionRotateForce.direction);
+		JSON_SAVE_BY_NAME("rotateSpeed", field.positionRotateForce.rotateSpeed);
 		JSON_PARENT();
 		JSON_SAVE_BY_NAME("type", field.type);
 		JSON_ROOT();
@@ -1024,7 +1044,8 @@ namespace GPUParticleShaderStructs {
 	}
 	void Copy(GPUParticleShaderStructs::FieldForGPU& dst, const GPUParticleShaderStructs::FieldForCPU& src) {
 		dst.field = src.field;
-		dst.field.rotateForce.rotateSpeed = DegToRad(dst.field.rotateForce.rotateSpeed);
+		dst.field.velocityRotateForce.rotateSpeed = DegToRad(dst.field.velocityRotateForce.rotateSpeed);
+		dst.field.positionRotateForce.rotateSpeed = DegToRad(dst.field.positionRotateForce.rotateSpeed);
 		dst.fieldArea = src.fieldArea;
 		dst.frequency = src.frequency;
 		dst.collisionInfo = src.collisionInfo;

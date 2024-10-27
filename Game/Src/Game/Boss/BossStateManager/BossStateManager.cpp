@@ -19,6 +19,9 @@ void BossStateRoot::Initialize(CommandContext& commandContext) {
 	data_.disguisingEmitter.emitterArea.position = boss->GetWorldTranslate();
 	data_.disguisingEmitter.isAlive = true;
 
+	data_.disguisingField.fieldArea.position  = data_.disguisingEmitter.emitterArea.position;
+	data_.disguisingField.isAlive = true;
+
 	time_ = 0.0f;
 	if (manager_.GetPreState() != BossStateManager::State::kRoot) {
 		data_.transformEmitter.startModelWorldMatrix = manager_.GetWorldTransform().matWorld;
@@ -57,6 +60,7 @@ void BossStateRoot::SetDesc() {
 void BossStateRoot::Update(CommandContext& commandContext) {
 	if (time_ >= 1.0f && inTransition_) {
 		data_.disguisingEmitter.isAlive = false;
+		data_.disguisingField.isAlive = false;
 		inTransition_ = false;
 		time_ = 0.0f;
 	}
@@ -66,6 +70,7 @@ void BossStateRoot::Update(CommandContext& commandContext) {
 	}
 	else {
 		data_.disguisingEmitter.isAlive = false;
+		data_.disguisingField.isAlive = false;
 		time_ += 1.0f / data_.allFrame;
 		/*if (time_ >= 1.0f) {
 			BossStateManager::State tmp = static_cast<BossStateManager::State>((rnd_.NextUIntLimit() % 2) + int(BossStateManager::State::kRushAttack));
@@ -83,8 +88,12 @@ void BossStateRoot::Update(CommandContext& commandContext) {
 	}
 
 	manager_.gpuParticleManager_->SetEmitter(data_.disguisingEmitter);
+	manager_.gpuParticleManager_->SetField(data_.disguisingField);
 }
-void BossStateRoot::DebugDraw() {}
+void BossStateRoot::DebugDraw() {
+	GPUParticleShaderStructs::DebugDraw(data_.disguisingEmitter);
+	GPUParticleShaderStructs::DebugDraw(data_.disguisingField);
+}
 
 void BossStateRushAttack::Initialize(CommandContext& commandContext) {
 	SetDesc();
@@ -676,6 +685,7 @@ void BossStateManager::Initialize() {
 	JSON_CLOSE();
 	GPUParticleShaderStructs::Load("root", jsonData_.root.transformEmitter);
 	GPUParticleShaderStructs::Load("disguisingEmitter", jsonData_.root.disguisingEmitter);
+	GPUParticleShaderStructs::Load("disguisingField", jsonData_.root.disguisingField);
 
 	GPUParticleShaderStructs::Load("train", jsonData_.rushAttack.trainEmitter);
 	GPUParticleShaderStructs::Load("train", jsonData_.rushAttack.transformTrainEmitter);
@@ -899,6 +909,7 @@ void BossStateManager::DrawImGui() {
 	ImGui::End();
 	GPUParticleShaderStructs::Debug("root", jsonData_.root.transformEmitter);
 	GPUParticleShaderStructs::Debug("disguisingEmitter", jsonData_.root.disguisingEmitter);
+	GPUParticleShaderStructs::Debug("disguisingField", jsonData_.root.disguisingField);
 
 
 	GPUParticleShaderStructs::Debug("train", jsonData_.rushAttack.trainEmitter);

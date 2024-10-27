@@ -743,7 +743,12 @@ struct ExternalForce {
 	Float3MinMax externalForce;
 };
 
-struct RotateForce {
+struct VelocityRotateForce {
+	float32_t3 direction;
+	float rotateSpeed;
+};
+
+struct PositionRotateForce {
 	float32_t3 direction;
 	float rotateSpeed;
 };
@@ -751,7 +756,8 @@ struct RotateForce {
 struct Field {
 	Attraction attraction;
 	ExternalForce externalForce;
-    RotateForce rotateForce;
+    VelocityRotateForce velocityRotateForce ;
+    PositionRotateForce  positionRotateForce  ;
 	uint32_t type;
 	float32_t3 pad;
 };

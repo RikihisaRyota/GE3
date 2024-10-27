@@ -725,7 +725,8 @@ struct Particle
 	enum FieldType {
 		kAttraction,
 		kExternalForce,
-		kRotateForce,
+		kVelocityRotateForce,
+		kPositionRotateForce,
 		kFieldCount,
 	};
 
@@ -739,7 +740,12 @@ struct Particle
 		Vector3MinMax externalForce;
 	};
 
-	struct RotateForce {
+	struct VelocityRotateForce {
+		Vector3 direction;
+		float rotateSpeed;
+	};
+
+	struct PositionRotateForce {
 		Vector3 direction;
 		float rotateSpeed;
 	};
@@ -747,7 +753,8 @@ struct Particle
 	struct Field {
 		Attraction attraction;
 		ExternalForce externalForce;
-		RotateForce rotateForce;
+		VelocityRotateForce velocityRotateForce;
+		PositionRotateForce positionRotateForce;
 		uint32_t type;
 		Vector3 pad;
 	};

@@ -47,6 +47,7 @@ public:
 	struct JsonData {
 		GPUParticleShaderStructs::TransformModelEmitterForCPU transformEmitter;
 		GPUParticleShaderStructs::EmitterForCPU disguisingEmitter;
+		GPUParticleShaderStructs::FieldForCPU disguisingField;
 		float allFrame;
 		float transitionFrame;
 	};

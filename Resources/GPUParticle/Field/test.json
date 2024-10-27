@@ -24,6 +24,14 @@
                 10.0
             ]
         },
+        "PositionRotateForce": {
+            "direction": [
+                0.0,
+                1.0,
+                0.0
+            ],
+            "rotateSpeed": 10.0
+        },
         "RotateForce": {
             "direction": [
                 0.0,
@@ -32,7 +40,15 @@
             ],
             "rotateSpeed": 10.0
         },
-        "type": 2
+        "VelocityRotateForce": {
+            "direction": [
+                0.0,
+                1.0,
+                0.0
+            ],
+            "rotateSpeed": 10.0
+        },
+        "type": 3
     },
     "FieldArea": {
         "FieldAABB": {

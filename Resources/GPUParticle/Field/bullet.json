@@ -16,7 +16,9 @@
                 0.0
             ]
         },
+        "PositionRotateForce": {},
         "RotateForce": {},
+        "VelocityRotateForce": {},
         "type": 1
     },
     "FieldArea": {

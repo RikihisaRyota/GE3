@@ -76,13 +76,13 @@ void Player::Initialize() {
 	worldTransform_.translate.y = 6.0f;
 	animationTransform_.Reset();
 	animationTransform_.parent_ = &worldTransform_;
-	velocity_ = { 0.05f,0.0f,0.0f };
+	velocity_ = { 0.0f,0.0f,0.0f };
 	acceleration_ = { 0.0f,0.0f,0.0f };
 	UpdateTransform();
 }
 
 void Player::Update(CommandContext& commandContext) {
-	//velocity_ = { 0.0f,0.0f,0.0f };
+	velocity_ = { 0.0f,0.0f,0.0f };
 	colliderColor_ = { 0.0f,0.0f,1.0f,1.0f };
 	preState_ = state_;
 	if (tmpState_.has_value()) {
@@ -316,23 +316,7 @@ void Player::Move() {
 	default:
 		break;
 	}
-	//velocity_ = vector * speed;
-	auto RotateVectorAroundY = [](Vector3 vec, float angleDegrees) {
-		float angleRadians = DegToRad(angleDegrees);
-		float cosTheta = std::cos(angleRadians);
-		float sinTheta = std::sin(angleRadians);
-
-		Vector3 rotatedVec;
-		rotatedVec.x = vec.x * cosTheta - vec.z * sinTheta;
-		rotatedVec.y = vec.y;
-		rotatedVec.z = vec.x * sinTheta + vec.z * cosTheta;
-
-		return rotatedVec;
-		};
-
-	// Use the lambda to rotate the velocity
-	velocity_ = RotateVectorAroundY(velocity_, 1.0f);
-
+	velocity_ = vector * speed;
 }
 
 void Player::DrawImGui() {

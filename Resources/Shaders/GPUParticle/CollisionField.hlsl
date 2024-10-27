@@ -33,9 +33,9 @@ void ExternalForceField(FieldForGPU field,inout Particle particle,inout uint32_t
     particle.velocity += randomRange(field.field.externalForce.externalForce.min,field.field.externalForce.externalForce.max,seed);
 }
 
-void RotateForceField(FieldForGPU field, inout Particle particle, inout uint32_t seed) {
-    float32_t3 rotationAxis = normalize(field.field.rotateForce.direction); 
-    float32_t angleRadians = field.field.rotateForce.rotateSpeed; 
+void VelocityRotateForce(FieldForGPU field, inout Particle particle, inout uint32_t seed) {
+    float32_t3 rotationAxis = normalize(field.field.velocityRotateForce.direction); 
+    float32_t angleRadians = field.field.velocityRotateForce.rotateSpeed; 
     float32_t cosTheta = cos(angleRadians);
     float32_t sinTheta = sin(angleRadians);
     
@@ -55,13 +55,53 @@ void RotateForceField(FieldForGPU field, inout Particle particle, inout uint32_t
     rotationMatrix[2][2] = cosTheta + uz * uz * (1 - cosTheta);
 
     float32_t3 rotatedVelocity;
-    rotatedVelocity.x = dot(rotationMatrix[0], particle.velocity);
-    rotatedVelocity.y = dot(rotationMatrix[1], particle.velocity);
-    rotatedVelocity.z = dot(rotationMatrix[2], particle.velocity);
+    float32_t3 velocity=particle.velocity;
+    rotatedVelocity.x = dot(rotationMatrix[0], velocity);
+    rotatedVelocity.y = dot(rotationMatrix[1], velocity);
+    rotatedVelocity.z = dot(rotationMatrix[2], velocity);
 
     particle.velocity = rotatedVelocity;
 }
+void PositionRotateForce(FieldForGPU field, inout Particle particle, inout uint32_t seed) {
+    float32_t3 rotationAxis = normalize(field.field.positionRotateForce.direction); 
+    float32_t angleRadians = field.field.positionRotateForce.rotateSpeed; 
+    float32_t cosTheta = cos(angleRadians);
+    float32_t sinTheta = sin(angleRadians);
+    
+    float32_t ux = rotationAxis.x, uy = rotationAxis.y, uz = rotationAxis.z;
+    float32_t3x3 rotationMatrix;
+    rotationMatrix[0][0] = cosTheta + ux * ux * (1 - cosTheta);
+    rotationMatrix[0][1] = ux * uy * (1 - cosTheta) - uz * sinTheta;
+    rotationMatrix[0][2] = ux * uz * (1 - cosTheta) + uy * sinTheta;
 
+    rotationMatrix[1][0] = uy * ux * (1 - cosTheta) + uz * sinTheta;
+    rotationMatrix[1][1] = cosTheta + uy * uy * (1 - cosTheta);
+    rotationMatrix[1][2] = uy * uz * (1 - cosTheta) - ux * sinTheta;
+
+    rotationMatrix[2][0] = uz * ux * (1 - cosTheta) - uy * sinTheta;
+    rotationMatrix[2][1] = uz * uy * (1 - cosTheta) + ux * sinTheta;
+    rotationMatrix[2][2] = cosTheta + uz * uz * (1 - cosTheta);
+
+    float32_t3 emitterPosition = field.fieldArea.position;
+    float32_t3 relativePosition = particle.translate.translate - emitterPosition;
+
+    float32_t3 parallelComponent = dot(relativePosition, rotationAxis) * rotationAxis; 
+    float32_t3 perpendicularComponent = relativePosition - parallelComponent; 
+
+    float32_t3 rotatedPerpendicular;
+    rotatedPerpendicular.x = dot(rotationMatrix[0], perpendicularComponent);
+    rotatedPerpendicular.y = dot(rotationMatrix[1], perpendicularComponent);
+    rotatedPerpendicular.z = dot(rotationMatrix[2], perpendicularComponent);
+
+    float32_t3 newRelativePosition = parallelComponent + rotatedPerpendicular;
+
+    float32_t3 newPosition = emitterPosition + newRelativePosition;
+
+    float32_t3 velocityChange = newPosition - particle.translate.translate;
+    
+    float32_t3 originalParallelVelocity = dot(particle.velocity, rotationAxis) * rotationAxis;
+    particle.velocity = originalParallelVelocity + velocityChange;
+}
 
 void UpdateField(FieldForGPU field,inout Particle particle,inout uint32_t seed){
     if(field.field.type==0){
@@ -69,7 +109,10 @@ void UpdateField(FieldForGPU field,inout Particle particle,inout uint32_t seed){
     }else if(field.field.type==1){
         ExternalForceField(field,particle,seed);
     }else if(field.field.type==2){
-        RotateForceField(field,particle,seed);
+        VelocityRotateForce(field,particle,seed);
+    }
+    else if(field.field.type==3){
+        PositionRotateForce(field,particle,seed);
     }
 }
 

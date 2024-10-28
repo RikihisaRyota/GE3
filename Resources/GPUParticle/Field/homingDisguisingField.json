@@ -25,15 +25,7 @@
                 1.0,
                 0.0
             ],
-            "rotateSpeed": 1.0
-        },
-        "RotateForce": {
-            "direction": [
-                0.0,
-                1.0,
-                0.0
-            ],
-            "rotateSpeed": 30.0
+            "rotateSpeed": 5.0
         },
         "VelocityRotateForce": {
             "direction": [
@@ -67,21 +59,21 @@
                 ],
                 "start": [
                     0.0,
-                    15.0,
+                    0.0,
                     0.0
                 ]
             },
-            "radius": 20.0
+            "radius": 0.0
         },
         "FieldSphere": {
-            "radius": 20.0
+            "radius": 15.0
         },
         "position": [
             0.0,
             0.0,
             0.0
         ],
-        "type": 2
+        "type": 1
     },
     "FieldFrequency": {
         "isLoop": 1,

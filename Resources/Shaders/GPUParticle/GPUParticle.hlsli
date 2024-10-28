@@ -427,10 +427,6 @@ struct Particle
     float32_t3 scale;
     uint32_t textureIndex;
 
-    float32_t rotateVelocity;
-    float32_t rotate;
-    uint32_t isAlive;
-    uint32_t isHit;
     
     Translate translate;
 
@@ -441,8 +437,14 @@ struct Particle
     ParticleParent parent;
 
     float32_t3 velocity;
+    uint32_t isAlive;
+
+    float32_t3 acceleration;
+    uint32_t isHit;
     
-    float32_t pad;
+    float32_t rotateVelocity;
+    float32_t rotate;
+    float32_t2 pad;
 };
 
 struct EmitterAABB
@@ -491,6 +493,11 @@ struct RotateAnimation
 };
 
 struct Velocity3D
+{
+    Float3MinMax range;
+};
+
+struct Acceleration3D
 {
     Float3MinMax range;
 };
@@ -555,6 +562,8 @@ struct TransformModelEmitter {
 
 	Velocity3D velocity;
 
+    Acceleration3D acceleration;
+
 	EmitterColor color;
 
     EmitterFrequency frequency;
@@ -596,6 +605,8 @@ struct TransformAreaEmitter {
 
 		Velocity3D velocity;
 
+        Acceleration3D acceleration;
+
 		EmitterColor color;
 
 		EmitterFrequency frequency;
@@ -632,6 +643,8 @@ struct MeshEmitter {
 
 	Velocity3D velocity3D;
 
+    Acceleration3D acceleration;
+
 	EmitterColor color;
 
     EmitterFrequency frequency;
@@ -666,6 +679,8 @@ struct VertexEmitter {
 
 	Velocity3D velocity3D;
 
+    Acceleration3D acceleration;
+
 	EmitterColor color;
 
     EmitterFrequency frequency;
@@ -698,6 +713,8 @@ struct Emitter
     RotateAnimation rotateAnimation;
 
     Velocity3D velocity3D;
+
+    Acceleration3D acceleration;
 
     EmitterColor color;
 	
@@ -799,14 +816,14 @@ void ParticleArea(inout Particle particle,EmitterArea area ,inout uint32_t seed)
         particle.translate.translate +=  direction * (area.sphere.radius * distanceFactor);
     } else if(area.type==2){
         float32_t3 normal,direction,p;
-        p = randomRangeSame(area.capsule.segment.origin+area.position, area.capsule.segment.diff+area.position,seed);
+        p = randomRangeSame(area.capsule.segment.origin, area.capsule.segment.diff,seed);
         normal.x = randomRange(-1.0f, 1.0f,seed);
         normal.y = randomRange(-1.0f, 1.0f,seed);
         normal.z = randomRange(-1.0f, 1.0f,seed);
         direction = normalize(normal);
         float32_t distanceFactor = randomRange(area.capsule.distanceFactor.min, area.capsule.distanceFactor.max, seed);
         direction *=  area.capsule.radius * distanceFactor;
-        particle.translate.translate =  pointOnCapsule(p + direction, area.capsule.segment.origin + area.position,area.capsule.segment.diff + area.position,area.capsule.radius ,randomRange(area.capsule.distanceFactor.min,area.capsule.distanceFactor.max,seed));
+        particle.translate.translate =  pointOnCapsule(p + direction, area.capsule.segment.origin ,area.capsule.segment.diff ,area.capsule.radius ,randomRange(area.capsule.distanceFactor.min,area.capsule.distanceFactor.max,seed));
     }
 }
 
@@ -840,7 +857,8 @@ void ParticleRotate(inout Particle particle,RotateAnimation rotateAnimation ,ino
     particle.rotate =  randomRange(rotateAnimation.initializeAngle.min,rotateAnimation.initializeAngle.max,seed);
 }
 
-void ParticleVelocity(inout Particle particle,Velocity3D velocity3D,inout uint32_t seed){
+void ParticleVelocity(inout Particle particle,Velocity3D velocity3D, Acceleration3D acceleration,inout uint32_t seed){
+    particle.acceleration = randomRange(acceleration.range.min, acceleration.range.max, seed);
     particle.velocity = randomRange(velocity3D.range.min, velocity3D.range.max, seed);
 }
 
@@ -929,7 +947,7 @@ void CreateParticle(inout Particle particle,Emitter emitter ,inout uint32_t seed
     
     ParticleArea(particle, emitter.area,seed);
 
-    ParticleVelocity(particle, emitter.velocity3D,seed);
+    ParticleVelocity(particle, emitter.velocity3D, emitter.acceleration,seed);
     
     ParticleColor(particle, emitter.color,seed); 
 }
@@ -953,7 +971,7 @@ void CreateParticle(inout Particle particle,VertexEmitter emitter,float32_t3 tra
     ParticleTranslate(particle,emitter.translate,seed);
     particle.translate.translate = translate;
     
-    ParticleVelocity(particle, emitter.velocity3D,seed);
+    ParticleVelocity(particle, emitter.velocity3D, emitter.acceleration,seed);
     
     ParticleColor(particle, emitter.color,seed); 
 }
@@ -977,7 +995,7 @@ void CreateParticle(inout Particle particle,MeshEmitter emitter,float32_t3 trans
     ParticleTranslate(particle,emitter.translate,seed);
     particle.translate.translate = translate;
     
-    ParticleVelocity(particle, emitter.velocity3D,seed);
+    ParticleVelocity(particle, emitter.velocity3D, emitter.acceleration,seed);
     
     ParticleColor(particle, emitter.color,seed); 
 }
@@ -998,7 +1016,7 @@ void CreateParticle(inout Particle particle,TransformModelEmitter emitter ,inout
     
     ParticleTranslate(particle,emitter.translate,seed);
     
-    ParticleVelocity(particle, emitter.velocity,seed);
+    ParticleVelocity(particle, emitter.velocity, emitter.acceleration,seed);
     
     ParticleColor(particle, emitter.color,seed); 
 
@@ -1021,7 +1039,7 @@ void CreateParticle(inout Particle particle,TransformAreaEmitter emitter ,inout 
     
     ParticleTranslate(particle,emitter.area,emitter.translate,seed);
     
-    ParticleVelocity(particle, emitter.velocity,seed);
+    ParticleVelocity(particle, emitter.velocity, emitter.acceleration,seed);
     
     ParticleColor(particle, emitter.color,seed); 
 }

@@ -86,9 +86,8 @@ void PlayerBullet::DrawDebug() {
 void PlayerBullet::GPUParticleUpdate() {
 	Vector3 currentBulletPosition = MakeTranslateMatrix(worldTransform_.matWorld);
 	Vector3 particleCenter = Lerp(currentBulletPosition, preEmitterPosition_, 0.5f);
-	emitter_.bulletShape.emitterArea.position = particleCenter;
-	emitter_.bulletShape.emitterArea.capsule.segment.origin = particleCenter - currentBulletPosition;
-	emitter_.bulletShape.emitterArea.capsule.segment.diff = particleCenter - preEmitterPosition_;
+	emitter_.bulletShape.emitterArea.capsule.segment.origin = currentBulletPosition;
+	emitter_.bulletShape.emitterArea.capsule.segment.diff = preEmitterPosition_;
 
 	for (auto& satellite : satellite_) {
 		satellite.worldTransform.UpdateMatrix();

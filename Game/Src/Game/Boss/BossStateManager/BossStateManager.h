@@ -48,8 +48,10 @@ public:
 		GPUParticleShaderStructs::TransformModelEmitterForCPU transformEmitter;
 		GPUParticleShaderStructs::EmitterForCPU disguisingEmitter;
 		GPUParticleShaderStructs::FieldForCPU disguisingField;
+		GPUParticleShaderStructs::FieldForCPU transformField;
 		float allFrame;
 		float transitionFrame;
+		Vector3 headOffset;
 	};
 	using BossState::BossState;
 	void Initialize(CommandContext& commandContext) override;
@@ -157,6 +159,8 @@ public:
 		GPUParticleShaderStructs::EmitterForCPU bulletEmitter;
 		GPUParticleShaderStructs::FieldForCPU bulletField;
 		GPUParticleShaderStructs::EmitterForCPU fireEmitter;
+		GPUParticleShaderStructs::EmitterForCPU homingDisguisingEmitter;
+		GPUParticleShaderStructs::FieldForCPU homingDisguisingField;
 
 		GPUParticleShaderStructs::EmitterForCPU homingExplosionEmitter;
 		GPUParticleShaderStructs::FieldForCPU homingExplosionField;

@@ -185,11 +185,6 @@ struct Particle
 		Vector3 scale;
 		uint32_t textureInidex;
 
-		float rotateVelocity;
-		float rotate;
-		uint32_t isAlive;
-		uint32_t isHit;
-
 		Translate translate;
 
 		Matrix4x4 matWorld;
@@ -199,7 +194,14 @@ struct Particle
 		ParticleParent parent;
 
 		Vector3 velocity;
-		float pad;
+		uint32_t isHit;
+
+		Vector3 acceleration;
+		uint32_t isAlive;
+
+		float rotateVelocity;
+		float rotate;
+		float pad[2];
 	};
 
 	// hlsli側も変更すること
@@ -261,6 +263,11 @@ struct Particle
 
 	// パーティクルの移動
 	struct Velocity3D {
+		Vector3MinMax range;
+	};
+
+	// パーティクルの移動
+	struct Acceleration3D {
 		Vector3MinMax range;
 	};
 
@@ -344,6 +351,8 @@ struct Particle
 
 		Velocity3D velocity;
 
+		Acceleration3D acceleration;
+
 		EmitterColor color;
 
 		EmitterFrequency frequency;
@@ -382,6 +391,8 @@ struct Particle
 		RotateAnimation rotate;
 
 		Velocity3D velocity;
+
+		Acceleration3D acceleration;
 
 		EmitterColor color;
 
@@ -431,6 +442,8 @@ struct Particle
 
 		Velocity3D velocity;
 
+		Acceleration3D acceleration;
+
 		EmitterColor color;
 
 		EmitterFrequency frequency;
@@ -470,6 +483,8 @@ struct Particle
 		RotateAnimation rotate;
 
 		Velocity3D velocity;
+
+		Acceleration3D acceleration;
 
 		EmitterColor color;
 
@@ -514,6 +529,8 @@ struct Particle
 
 		Velocity3D velocity;
 
+		Acceleration3D acceleration;
+
 		EmitterColor color;
 
 		EmitterFrequency frequency;
@@ -550,6 +567,8 @@ struct Particle
 		RotateAnimation rotate;
 
 		Velocity3D velocity;
+
+		Acceleration3D acceleration;
 
 		EmitterColor color;
 
@@ -592,6 +611,8 @@ struct Particle
 
 		Velocity3D velocity;
 
+		Acceleration3D acceleration;
+
 		EmitterColor color;
 
 		EmitterFrequency frequency;
@@ -626,6 +647,8 @@ struct Particle
 		RotateAnimation rotate;
 
 		Velocity3D velocity;
+
+		Acceleration3D acceleration;
 
 		EmitterColor color;
 
@@ -666,6 +689,8 @@ struct Particle
 
 		Velocity3D velocity;
 
+		Acceleration3D acceleration;
+
 		EmitterColor color;
 
 		EmitterFrequency frequency;
@@ -700,6 +725,8 @@ struct Particle
 		RotateAnimation rotate;
 
 		Velocity3D velocity;
+
+		Acceleration3D acceleration;
 
 		EmitterColor color;
 
@@ -903,6 +930,7 @@ struct Particle
 	void DrawScale(GPUParticleShaderStructs::ScaleAnimation& scale);
 	void DrawRotate(GPUParticleShaderStructs::RotateAnimation& rotate);
 	void DrawVelocity(GPUParticleShaderStructs::Velocity3D& velocity);
+	void DrawAcceleration(GPUParticleShaderStructs::Acceleration3D& acceleration);
 	void DrawColor(GPUParticleShaderStructs::EmitterColor& color);
 	void DrawFrequency(GPUParticleShaderStructs::EmitterFrequency& frequency);
 	void DrawParticleLife(GPUParticleShaderStructs::ParticleLifeSpan& particleLifeSpan);
@@ -930,6 +958,9 @@ struct Particle
 
 	void LoadVelocity(GPUParticleShaderStructs::Velocity3D& velocity);
 	void SaveVelocity(GPUParticleShaderStructs::Velocity3D& velocity);
+
+	void LoadAcceleration(GPUParticleShaderStructs::Acceleration3D& acceleration);
+	void SaveAcceleration(GPUParticleShaderStructs::Acceleration3D& acceleration);
 
 	void LoadColor(GPUParticleShaderStructs::EmitterColor& color);
 	void SaveColor(GPUParticleShaderStructs::EmitterColor& color);

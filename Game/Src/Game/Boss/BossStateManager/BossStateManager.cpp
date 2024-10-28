@@ -19,13 +19,22 @@ void BossStateRoot::Initialize(CommandContext& commandContext) {
 	data_.disguisingEmitter.emitterArea.position = boss->GetWorldTranslate();
 	data_.disguisingEmitter.isAlive = true;
 
-	data_.disguisingField.fieldArea.position  = data_.disguisingEmitter.emitterArea.position;
+	data_.disguisingField.fieldArea.capsule.segment.origin = data_.disguisingEmitter.emitterArea.position + data_.disguisingField.fieldArea.capsule.segment.origin;
+	data_.disguisingField.fieldArea.capsule.segment.diff = data_.disguisingEmitter.emitterArea.position + data_.disguisingField.fieldArea.capsule.segment.diff;
 	data_.disguisingField.isAlive = true;
+
+
 
 	time_ = 0.0f;
 	if (manager_.GetPreState() != BossStateManager::State::kRoot) {
 		data_.transformEmitter.startModelWorldMatrix = manager_.GetWorldTransform().matWorld;
 		data_.transformEmitter.endModelWorldMatrix = boss->GetWorldMatrix();
+
+		data_.transformField.fieldArea.capsule.segment.origin = MakeTranslateMatrix(data_.transformEmitter.startModelWorldMatrix);
+		data_.transformField.fieldArea.capsule.segment.diff = MakeTranslateMatrix(data_.transformEmitter.endModelWorldMatrix) + data_.headOffset;
+		data_.transformField.field.positionRotateForce.direction = (data_.transformField.fieldArea.capsule.segment.origin - data_.transformField.fieldArea.capsule.segment.diff).Normalized();
+		data_.transformField.field.velocityRotateForce.direction = (data_.transformField.fieldArea.capsule.segment.origin - data_.transformField.fieldArea.capsule.segment.diff).Normalized();
+		data_.disguisingField.isAlive = true;
 
 		switch (manager_.GetPreState()) {
 		case  BossStateManager::State::kRushAttack:
@@ -58,9 +67,11 @@ void BossStateRoot::SetDesc() {
 }
 
 void BossStateRoot::Update(CommandContext& commandContext) {
+	//ModelHandle preModelHandle = manager_.GetModelHandle();
 	if (time_ >= 1.0f && inTransition_) {
 		data_.disguisingEmitter.isAlive = false;
 		data_.disguisingField.isAlive = false;
+		data_.transformField.isAlive = false;
 		inTransition_ = false;
 		time_ = 0.0f;
 	}
@@ -71,6 +82,7 @@ void BossStateRoot::Update(CommandContext& commandContext) {
 	else {
 		data_.disguisingEmitter.isAlive = false;
 		data_.disguisingField.isAlive = false;
+		data_.transformField.isAlive = false;
 		time_ += 1.0f / data_.allFrame;
 		/*if (time_ >= 1.0f) {
 			BossStateManager::State tmp = static_cast<BossStateManager::State>((rnd_.NextUIntLimit() % 2) + int(BossStateManager::State::kRushAttack));
@@ -83,16 +95,22 @@ void BossStateRoot::Update(CommandContext& commandContext) {
 				break;
 
 			}
+			data_.transformEmitter.isAlive = false;
 		}*/
 		time_ = std::fmod(time_, 1.0f);
 	}
 
 	manager_.gpuParticleManager_->SetEmitter(data_.disguisingEmitter);
 	manager_.gpuParticleManager_->SetField(data_.disguisingField);
+	manager_.gpuParticleManager_->SetField(data_.transformField);
+	/*if (preModelHandle != ModelHandle()) {
+		manager_.gpuParticleManager_->SetTransformModelEmitter(preModelHandle, manager_.boss_->GetModelHandle(), data_.transformEmitter);
+	}*/
 }
 void BossStateRoot::DebugDraw() {
 	GPUParticleShaderStructs::DebugDraw(data_.disguisingEmitter);
 	GPUParticleShaderStructs::DebugDraw(data_.disguisingField);
+	GPUParticleShaderStructs::DebugDraw(data_.transformField);
 }
 
 void BossStateRushAttack::Initialize(CommandContext& commandContext) {
@@ -523,6 +541,13 @@ void BossStateHomingAttack::Initialize(CommandContext& commandContext) {
 	data_.transformEmitter.color.range.end = data_.homingEmitter.color.range.start;
 	data_.transformEmitter.scale.range.start = boss->GetVertexEmitter().scale.range.start;
 	data_.transformEmitter.scale.range.end = data_.homingEmitter.scale.range.start;
+
+	data_.homingDisguisingEmitter.emitterArea.position = MakeTranslateMatrix(worldTransform_.matWorld);
+	data_.homingDisguisingEmitter.isAlive = true;
+	data_.homingDisguisingField.fieldArea.position = data_.homingDisguisingEmitter.emitterArea.position;
+	data_.homingDisguisingField.isAlive = true;
+
+
 	//manager_.gpuParticleManager_->SetTransformModelEmitter(boss->GetModelHandle(), modelHandle_, data_.transformEmitter);
 }
 
@@ -545,6 +570,8 @@ void BossStateHomingAttack::InitializeBullet() {
 
 void BossStateHomingAttack::Update(CommandContext& commandContext) {
 	if (time_ >= 1.0f && inTransition_) {
+		data_.homingDisguisingEmitter.isAlive = false;
+		data_.homingDisguisingField.isAlive = false;
 		data_.homingEmitter.isAlive = true;
 		inTransition_ = false;
 		time_ = 0.0f;
@@ -581,6 +608,8 @@ void BossStateHomingAttack::Update(CommandContext& commandContext) {
 	}
 	manager_.gpuParticleManager_->SetVertexEmitter(modelHandle_, data_.homingEmitter, worldTransform_.matWorld);
 	manager_.gpuParticleManager_->SetTransformModelEmitter(manager_.boss_->GetModelHandle(), modelHandle_, data_.transformEmitter);
+	manager_.gpuParticleManager_->SetEmitter(data_.homingDisguisingEmitter);
+	manager_.gpuParticleManager_->SetField(data_.homingDisguisingField);
 }
 
 void BossStateHomingAttack::UpdateBullet() {
@@ -630,6 +659,9 @@ void BossStateHomingAttack::DebugDraw() {
 void BossStateManager::Initialize() {
 	JSON_OPEN("Resources/Data/Boss/bossState.json");
 	JSON_OBJECT("Root");
+	JSON_OBJECT("Properties");
+	JSON_LOAD_BY_NAME("headOffset", jsonData_.root.headOffset);
+	JSON_PARENT();
 	JSON_OBJECT("Animation");
 	JSON_LOAD_BY_NAME("allFrame", jsonData_.root.allFrame);
 	JSON_LOAD_BY_NAME("transitionFrame", jsonData_.root.transitionFrame);
@@ -686,6 +718,7 @@ void BossStateManager::Initialize() {
 	GPUParticleShaderStructs::Load("root", jsonData_.root.transformEmitter);
 	GPUParticleShaderStructs::Load("disguisingEmitter", jsonData_.root.disguisingEmitter);
 	GPUParticleShaderStructs::Load("disguisingField", jsonData_.root.disguisingField);
+	GPUParticleShaderStructs::Load("transformField", jsonData_.root.transformField);
 
 	GPUParticleShaderStructs::Load("train", jsonData_.rushAttack.trainEmitter);
 	GPUParticleShaderStructs::Load("train", jsonData_.rushAttack.transformTrainEmitter);
@@ -711,6 +744,8 @@ void BossStateManager::Initialize() {
 	GPUParticleShaderStructs::Load("bulletField", jsonData_.homingAttack.bulletField);
 	GPUParticleShaderStructs::Load("homingExplosionEmitter", jsonData_.homingAttack.homingExplosionEmitter);
 	GPUParticleShaderStructs::Load("homingExplosionField", jsonData_.homingAttack.homingExplosionField);
+	GPUParticleShaderStructs::Load("homingDisguisingEmitter", jsonData_.homingAttack.homingDisguisingEmitter);
+	GPUParticleShaderStructs::Load("homingDisguisingField", jsonData_.homingAttack.homingDisguisingField);
 
 	activeStateEnum_ = kRoot;
 	standbyStateEnum_ = kRoot;
@@ -770,6 +805,10 @@ void BossStateManager::DrawImGui() {
 				}
 			}
 			if (ImGui::TreeNode("Root")) {
+				if (ImGui::TreeNode("Properties")) {
+					ImGui::DragFloat3("headOffset", &jsonData_.root.headOffset.x, 0.1f, 0.0f);
+					ImGui::TreePop();
+				}
 				if (ImGui::TreeNode("Animation")) {
 					ImGui::DragFloat("allFrame", &jsonData_.root.allFrame, 0.1f);
 					ImGui::DragFloat("transitionFrame", &jsonData_.root.transitionFrame, 0.1f);
@@ -837,7 +876,11 @@ void BossStateManager::DrawImGui() {
 
 			if (ImGui::Button("Save")) {
 				JSON_OPEN("Resources/Data/Boss/bossState.json");
+
 				JSON_OBJECT("Root");
+				JSON_OBJECT("Properties");
+				JSON_SAVE_BY_NAME("headOffset", jsonData_.root.headOffset);
+				JSON_PARENT();
 				JSON_OBJECT("Animation");
 				JSON_SAVE_BY_NAME("allFrame", jsonData_.root.allFrame);
 				JSON_SAVE_BY_NAME("transitionFrame", jsonData_.root.transitionFrame);
@@ -910,6 +953,7 @@ void BossStateManager::DrawImGui() {
 	GPUParticleShaderStructs::Debug("root", jsonData_.root.transformEmitter);
 	GPUParticleShaderStructs::Debug("disguisingEmitter", jsonData_.root.disguisingEmitter);
 	GPUParticleShaderStructs::Debug("disguisingField", jsonData_.root.disguisingField);
+	GPUParticleShaderStructs::Debug("transformField", jsonData_.root.transformField);
 
 
 	GPUParticleShaderStructs::Debug("train", jsonData_.rushAttack.trainEmitter);
@@ -935,6 +979,8 @@ void BossStateManager::DrawImGui() {
 	GPUParticleShaderStructs::Debug("fireEmitter", jsonData_.homingAttack.fireEmitter);
 	GPUParticleShaderStructs::Debug("homingExplosionEmitter", jsonData_.homingAttack.homingExplosionEmitter);
 	GPUParticleShaderStructs::Debug("homingExplosionField", jsonData_.homingAttack.homingExplosionField);
+	GPUParticleShaderStructs::Debug("homingDisguisingEmitter", jsonData_.homingAttack.homingDisguisingEmitter);
+	GPUParticleShaderStructs::Debug("homingDisguisingField", jsonData_.homingAttack.homingDisguisingField);
 
 #endif // _DEBUG
 }

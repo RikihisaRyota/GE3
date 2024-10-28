@@ -119,7 +119,8 @@ void GameScene::Update(CommandContext& commandContext) {
 		if (object->GetObjectName() == "Post") {
 			GPUParticleShaderStructs::EmitterForCPU emitter{};
 			GPUParticleShaderStructs::NonSharedCopy(emitter, postEmitter_);
-			emitter.emitterArea.position = MakeTranslateMatrix(object->GetWorldTransform().matWorld);
+			emitter.emitterArea.capsule.segment.origin = MakeTranslateMatrix(object->GetWorldTransform().matWorld) + postEmitter_.emitterArea.capsule.segment.origin;
+			emitter.emitterArea.capsule.segment.diff = MakeTranslateMatrix(object->GetWorldTransform().matWorld) + postEmitter_.emitterArea.capsule.segment.diff;
 			gpuParticleManager_->SetEmitter(emitter);
 		}
 		if (object->GetObjectName() == "Ground") {

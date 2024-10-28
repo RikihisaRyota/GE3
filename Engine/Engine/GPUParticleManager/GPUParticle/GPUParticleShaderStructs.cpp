@@ -323,6 +323,15 @@ namespace GPUParticleShaderStructs {
 #endif // _DEBUG
 	}
 
+	void DrawAcceleration(GPUParticleShaderStructs::Acceleration3D& acceleration) {
+#ifdef _DEBUG
+		if (ImGui::TreeNode("Acceleration3D")) {
+			DrawMinMax(acceleration.range, 0.1f);
+			ImGui::TreePop();
+		}
+#endif // _DEBUG
+	}
+
 	void DrawColor(GPUParticleShaderStructs::EmitterColor& color) {
 #ifdef _DEBUG
 		if (ImGui::TreeNode("Color")) {
@@ -736,6 +745,18 @@ namespace GPUParticleShaderStructs {
 
 	}
 
+	void LoadAcceleration(GPUParticleShaderStructs::Acceleration3D& acceleration) {
+		JSON_OBJECT("Acceleration3D");
+		LoadMinMax(acceleration.range);
+		JSON_ROOT();
+	}
+
+	void SaveAcceleration(GPUParticleShaderStructs::Acceleration3D& acceleration) {
+		JSON_OBJECT("Acceleration3D");
+		SaveMinMax(acceleration.range);
+		JSON_ROOT();
+	}
+
 	void SaveColor(GPUParticleShaderStructs::EmitterColor& color) {
 		JSON_OBJECT("EmitterColor");
 		SaveStartEnd(color.range);
@@ -842,6 +863,7 @@ namespace GPUParticleShaderStructs {
 		dst.scale = src.scale;
 		dst.rotate = src.rotate;
 		dst.velocity = src.velocity;
+		dst.acceleration = src.acceleration;
 		dst.color = src.color;
 		dst.frequency = src.frequency;
 		dst.time = src.time;
@@ -859,6 +881,7 @@ namespace GPUParticleShaderStructs {
 		dst.scale = src.scale;
 		dst.rotate = src.rotate;
 		dst.velocity = src.velocity;
+		dst.acceleration = src.acceleration;
 		dst.color = src.color;
 		dst.frequency = src.frequency;
 		dst.time = src.time;
@@ -875,6 +898,7 @@ namespace GPUParticleShaderStructs {
 		dst.scale = src.scale;
 		dst.rotate = src.rotate;
 		dst.velocity = src.velocity;
+		dst.acceleration = src.acceleration;
 		dst.color = src.color;
 		dst.frequency = src.frequency;
 		dst.time = src.time;
@@ -892,6 +916,7 @@ namespace GPUParticleShaderStructs {
 		dst.scale = src.scale;
 		dst.rotate = src.rotate;
 		dst.velocity = src.velocity;
+		dst.acceleration = src.acceleration;
 		dst.color = src.color;
 		dst.frequency = src.frequency;
 		dst.time = src.time;
@@ -908,6 +933,7 @@ namespace GPUParticleShaderStructs {
 		dst.scale = src.scale;
 		dst.rotate = src.rotate;
 		dst.velocity = src.velocity;
+		dst.acceleration = src.acceleration;
 		dst.color = src.color;
 		dst.frequency = src.frequency;
 		dst.time = src.time;
@@ -936,6 +962,7 @@ namespace GPUParticleShaderStructs {
 		dst.rotate.rotateSpeed.min = DegToRad(src.rotate.rotateSpeed.min);
 		dst.rotate.rotateSpeed.max = DegToRad(src.rotate.rotateSpeed.max);
 		dst.velocity = src.velocity;
+		dst.acceleration = src.acceleration;
 		dst.color = src.color;
 		dst.frequency = src.frequency;
 		dst.time.particleTime = src.frequency.interval;
@@ -959,6 +986,7 @@ namespace GPUParticleShaderStructs {
 		dst.rotate.rotateSpeed.min = DegToRad(src.rotate.rotateSpeed.min);
 		dst.rotate.rotateSpeed.max = DegToRad(src.rotate.rotateSpeed.max);
 		dst.velocity = src.velocity;
+		dst.acceleration = src.acceleration;
 		dst.color = src.color;
 		dst.frequency = src.frequency;
 		dst.time = src.time;
@@ -981,6 +1009,7 @@ namespace GPUParticleShaderStructs {
 		dst.rotate.rotateSpeed.min = DegToRad(src.rotate.rotateSpeed.min);
 		dst.rotate.rotateSpeed.max = DegToRad(src.rotate.rotateSpeed.max);
 		dst.velocity = src.velocity;
+		dst.acceleration = src.acceleration;
 		dst.color = src.color;
 		dst.frequency = src.frequency;
 		dst.time = src.time;
@@ -1004,6 +1033,7 @@ namespace GPUParticleShaderStructs {
 		dst.rotate.rotateSpeed.min = DegToRad(src.rotate.rotateSpeed.min);
 		dst.rotate.rotateSpeed.max = DegToRad(src.rotate.rotateSpeed.max);
 		dst.velocity = src.velocity;
+		dst.acceleration = src.acceleration;
 		dst.color = src.color;
 		dst.frequency = src.frequency;
 		dst.time = src.time;
@@ -1026,6 +1056,7 @@ namespace GPUParticleShaderStructs {
 		dst.rotate.rotateSpeed.min = DegToRad(src.rotate.rotateSpeed.min);
 		dst.rotate.rotateSpeed.max = DegToRad(src.rotate.rotateSpeed.max);
 		dst.velocity = src.velocity;
+		dst.acceleration = src.acceleration;
 		dst.color = src.color;
 		dst.frequency = src.frequency;
 		dst.time = src.time;
@@ -1080,6 +1111,8 @@ void GPUParticleShaderStructs::EmitterEditor(const std::string name, std::tuple<
 
 	DrawVelocity(emitter->velocity);
 
+	DrawAcceleration(emitter->acceleration);
+
 	DrawColor(emitter->color);
 
 	DrawFrequency(emitter->frequency);
@@ -1122,6 +1155,8 @@ void GPUParticleShaderStructs::EmitterEditor(const std::string name, std::tuple<
 	DrawRotate(desc->rotate);
 
 	DrawVelocity(desc->velocity);
+
+	DrawAcceleration(desc->acceleration);
 
 	DrawColor(desc->color);
 
@@ -1167,6 +1202,8 @@ void GPUParticleShaderStructs::EmitterEditor(const std::string name, std::tuple<
 
 	DrawVelocity(desc->velocity);
 
+	DrawAcceleration(desc->acceleration);
+
 	DrawColor(desc->color);
 
 	DrawFrequency(desc->frequency);
@@ -1205,6 +1242,8 @@ void GPUParticleShaderStructs::EmitterEditor(const std::string name, std::tuple<
 	DrawRotate(emitter->rotate);
 
 	DrawVelocity(emitter->velocity);
+
+	DrawAcceleration(emitter->acceleration);
 
 	DrawColor(emitter->color);
 
@@ -1245,6 +1284,8 @@ void GPUParticleShaderStructs::EmitterEditor(const std::string name, std::tuple<
 	DrawRotate(emitter->rotate);
 
 	DrawVelocity(emitter->velocity);
+
+	DrawAcceleration(emitter->acceleration);
 
 	DrawColor(emitter->color);
 
@@ -1390,8 +1431,8 @@ void GPUParticleShaderStructs::DebugDraw(const FieldForCPU& emitter) {
 	case GPUParticleShaderStructs::Type::kCapsule:
 	{
 		Capsule capsule{};
-		capsule.segment.start = emitter.fieldArea.capsule.segment.origin + emitter.fieldArea.position;
-		capsule.segment.end = emitter.fieldArea.capsule.segment.diff + emitter.fieldArea.position;
+		capsule.segment.start = emitter.fieldArea.capsule.segment.origin;
+		capsule.segment.end = emitter.fieldArea.capsule.segment.diff;
 		capsule.radius = emitter.fieldArea.capsule.radius;
 		DrawLine(capsule, emitterColor);
 	}

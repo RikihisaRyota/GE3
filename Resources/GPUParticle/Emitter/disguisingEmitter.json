@@ -1,6 +1,6 @@
 {
     "CollisionInfo": {
-        "attribute": 4,
+        "attribute": 8,
         "mask": 16
     },
     "EmitterArea": {
@@ -145,6 +145,6 @@
             -0.10000000149011612
         ]
     },
-    "createParticleNum": 200,
+    "createParticleNum": 100,
     "textureIndex": "Resources/Images/GPUParticle.png"
 }

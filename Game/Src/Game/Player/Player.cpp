@@ -227,7 +227,7 @@ void Player::GPUParticleSpawn(CommandContext& commandContext) {
 	//meshEmitterDesc_.localTransform.rotate = MakeRotateMatrix(worldTransform_.matWorld);
 	//gpuParticleManager_->SetMeshEmitter(playerModelHandle_, animation_, meshEmitterDesc_, worldTransform_.matWorld);
 	vertexEmitterDesc_.localTransform.translate = MakeTranslateMatrix(worldTransform_.matWorld);
-	// 謎インバース
+	// インバース
 	vertexEmitterDesc_.localTransform.rotate = Inverse(worldTransform_.rotate);
 	//vertexEmitterDesc_.localTransform.scale = {10.0f,10.0f,10.0f};
 	//gpuParticleManager_->SetVertexEmitter(playerModelHandle_, animation_, vertexEmitterDesc_, worldTransform_.matWorld);
@@ -322,6 +322,7 @@ void Player::Move() {
 void Player::DrawImGui() {
 	ImGui::Begin("InGame");
 	if (ImGui::BeginMenu("Player")) {
+		bool flg = false;
 		ImGui::DragFloat3("position", &worldTransform_.translate.x, 0.1f);
 		ImGui::DragFloat3("velocity", &velocity_.x, 0.1f);
 		ImGui::DragFloat3("acceleration", &acceleration_.x, 0.1f);
@@ -378,7 +379,7 @@ void Player::DrawImGui() {
 void Player::AnimationUpdate(CommandContext& commandContext) {
 	if (immediatelyTransition_) {
 		immediatelyTransition_ = false;
-		animationTime_ = 0.0f;
+		animationTime_ = 0.1f;
 		currentAnimationHandle_ = animationInfo_[name_.at(state_)].handle;
 		preAnimationHandle_ = animationInfo_[name_.at(preState_)].handle;
 	}

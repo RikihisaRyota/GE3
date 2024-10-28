@@ -91,6 +91,7 @@ void main(uint3 DTid : SV_DispatchThreadID)
             }
 
             // 移動
+            input[index].velocity+=input[index].acceleration;
             if(!input[index].translate.isEasing){
                 input[index].translate.translate += input[index].velocity;
             }else{

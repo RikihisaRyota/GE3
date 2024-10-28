@@ -82,7 +82,12 @@ void PositionRotateForce(FieldForGPU field, inout Particle particle, inout uint3
     rotationMatrix[2][1] = uz * uy * (1 - cosTheta) + ux * sinTheta;
     rotationMatrix[2][2] = cosTheta + uz * uz * (1 - cosTheta);
 
-    float32_t3 emitterPosition = field.fieldArea.position;
+    float32_t3 emitterPosition;
+    if(field.fieldArea.type != 2){
+        emitterPosition = field.fieldArea.position;
+    }else{
+        emitterPosition = lerp(field.fieldArea.capsule.segment.origin,field.fieldArea.capsule.segment.diff,0.5f);
+    }
     float32_t3 relativePosition = particle.translate.translate - emitterPosition;
 
     float32_t3 parallelComponent = dot(relativePosition, rotationAxis) * rotationAxis; 
@@ -148,8 +153,8 @@ void main( uint3 DTid : SV_DispatchThreadID , uint3 GTid : SV_GroupThreadID)
             else if(origalField[fieldIndex].fieldArea.type==2){
                 if(sdCapsule(
                     particle[particleIndex].translate.translate,
-                origalField[fieldIndex].fieldArea.capsule.segment.origin+origalField[fieldIndex].fieldArea.position,
-                origalField[fieldIndex].fieldArea.capsule.segment.diff+origalField[fieldIndex].fieldArea.position,
+                origalField[fieldIndex].fieldArea.capsule.segment.origin,
+                origalField[fieldIndex].fieldArea.capsule.segment.diff,
                 origalField[fieldIndex].fieldArea.capsule.radius) <= 0){
                     UpdateField(origalField[fieldIndex],particle[particleIndex],seed);
                 }

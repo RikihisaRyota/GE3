@@ -42,18 +42,23 @@
     },
     "EmitterLocalTransform": {
         "translate": [
-            2.5283613204956055,
+            -0.5878962278366089,
             5.982889175415039,
-            3.05245041847229
+            -0.11012019217014313
         ]
     },
-    "EmitterTranslate": {},
+    "EmitterTranslate": {
+        "attraction": 0.05000000074505806,
+        "isEasing": 1,
+        "radius": 0.10000000149011612
+    },
     "Parent": {
         "isParent": 0
     },
     "ParticleLifeSpan": {
         "Max": 1,
         "Min": 1,
+        "isCountDown": 0,
         "isEmitterLife": 0
     },
     "ParticleLifeTime": {
@@ -102,14 +107,14 @@
     },
     "Velocity3D": {
         "Max": [
-            0.0,
-            0.0,
-            0.0
+            0.10000000149011612,
+            0.10000000149011612,
+            0.10000000149011612
         ],
         "Min": [
-            0.0,
-            0.0,
-            0.0
+            8.100000381469727,
+            -1.899999976158142,
+            -0.10000000149011612
         ]
     },
     "textureIndex": "Resources/Images/GPUParticle.png"

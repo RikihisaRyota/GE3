@@ -384,6 +384,42 @@ namespace GPUParticleShaderStructs {
 #endif // _DEBUG
 	}
 
+	void DrawTrails(GPUParticleShaderStructs::EmitterTrails& emitterTrails) {
+#ifdef _DEBUG
+		if (ImGui::TreeNode("Trails")) {
+			if (emitterTrails.isTrails) {
+				int interval = emitterTrails.interval;
+				ImGui::DragInt("Interval", &interval, 1);
+				emitterTrails.interval = interval;
+				ImGui::DragFloat("Width", &emitterTrails.width, 0.1f);
+				ImGui::DragFloat("LifeLimit", &emitterTrails.lifeLimit, 0.1f, 0.0f, 1.0f);
+				if (ImGui::TreeNode("TextureHandle")) {
+					std::list<std::string> stageList;
+					for (int i = 0; i < TextureManager::GetInstance()->GetTextureSize(); i++) {
+						stageList.emplace_back(TextureManager::GetInstance()->GetTexture(i).GetName().string());
+
+					}
+					// std::vector に変換する
+					std::vector<const char*> stageArray;
+					for (const auto& stage : stageList) {
+						stageArray.push_back(stage.c_str());
+					}
+
+					int currentTexture = TextureManager::GetInstance()->GetTextureLocation(emitterTrails.textureIndex);
+					// Combo を使用する
+					if (ImGui::Combo("Texture", &currentTexture, stageArray.data(), static_cast<int>(stageArray.size()))) {
+						emitterTrails.textureIndex = TextureManager::GetInstance()->GetTexture(currentTexture).GetDescriptorIndex();
+					}
+
+					ImGui::TreePop();
+				}
+			}
+			ImGui::Checkbox("IsTrails", reinterpret_cast<bool*>(&emitterTrails.isTrails));
+			ImGui::TreePop();
+		}
+#endif // _DEBUG
+	}
+
 	void DrawTextureHandle(uint32_t& texture) {
 #ifdef _DEBUG
 		if (ImGui::TreeNode("TextureHandle")) {
@@ -495,7 +531,7 @@ namespace GPUParticleShaderStructs {
 			default:
 				break;
 			}
-			std::vector<const char*> typeCStr{ "Attraction","ExternalForce","VelocityRotateForce","PositionRotateForce"};
+			std::vector<const char*> typeCStr{ "Attraction","ExternalForce","VelocityRotateForce","PositionRotateForce" };
 			int currentType = static_cast<int>(field.type);
 
 			// ステートを変更するImGui::Comboの作成

@@ -149,7 +149,7 @@ void Player::Update(CommandContext& commandContext) {
 }
 
 void Player::Draw(const ViewProjection& viewProjection, CommandContext& commandContext) {
-	ModelManager::GetInstance()->Draw(animationTransform_.matWorld, animation_, *viewProjection_, playerModelHandle_, commandContext);
+	//ModelManager::GetInstance()->Draw(animationTransform_.matWorld, animation_, *viewProjection_, playerModelHandle_, commandContext);
 
 	playerBulletManager_->Draw(viewProjection, commandContext);
 }
@@ -219,10 +219,6 @@ void Player::OnCollision(const ColliderDesc& desc) {
 
 
 void Player::GPUParticleSpawn(CommandContext& commandContext) {
-
-	//gpuParticleManager_->CreateMeshParticle(playerModelHandle_, animation_, worldTransform_, meshEmitterDesc_, commandContext);
-	//gpuParticleManager_->CreateEdgeParticle(playerModelHandle_, animation_, worldTransform_.matWorld, meshEmitterDesc_, commandContext);
-
 	//meshEmitterDesc_.localTransform.translate = MakeTranslateMatrix(worldTransform_.matWorld);
 	//meshEmitterDesc_.localTransform.rotate = MakeRotateMatrix(worldTransform_.matWorld);
 	//gpuParticleManager_->SetMeshEmitter(playerModelHandle_, animation_, meshEmitterDesc_, worldTransform_.matWorld);
@@ -230,7 +226,7 @@ void Player::GPUParticleSpawn(CommandContext& commandContext) {
 	// インバース
 	vertexEmitterDesc_.localTransform.rotate = Inverse(worldTransform_.rotate);
 	//vertexEmitterDesc_.localTransform.scale = {10.0f,10.0f,10.0f};
-	//gpuParticleManager_->SetVertexEmitter(playerModelHandle_, animation_, vertexEmitterDesc_, worldTransform_.matWorld);
+	gpuParticleManager_->SetVertexEmitter(playerModelHandle_, animation_, vertexEmitterDesc_, worldTransform_.matWorld);
 	footEmitter_.fugitiveDust.emitterArea.position = MakeTranslateMatrix(worldTransform_.matWorld);
 	footEmitter_.fugitiveDust.emitterArea.position = MakeTranslateMatrix(worldTransform_.matWorld);
 	gpuParticleManager_->SetEmitter(footEmitter_.fugitiveDust);

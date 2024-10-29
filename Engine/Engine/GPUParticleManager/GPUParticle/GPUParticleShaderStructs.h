@@ -166,6 +166,16 @@ struct Particle
 		uint32_t pad;
 	};
 
+	struct ParticleTrails {
+		uint32_t isTrails;
+		uint32_t textureIndex;
+		uint32_t interval;
+		uint32_t width;
+		
+		Vector3 position[1024];
+		float lifeLimit;
+	};
+
 	struct TriangleInfo {
 		Vector3 vertex;
 		//float pad;
@@ -174,6 +184,8 @@ struct Particle
 	};
 
 	struct Particle {
+		ParticleTrails trails;
+
 		TriangleInfo triangleInfo;
 
 		Vector3MinMax scaleRange;
@@ -335,6 +347,16 @@ struct Particle
 		Quaternion rotate = { 0.0f,0.0f,0.0f,1.0f };
 	};
 
+	struct EmitterTrails {
+		uint32_t isTrails;
+		uint32_t textureIndex;
+		uint32_t interval;
+		float width;
+
+		float lifeLimit;
+		float pad[3];
+	};
+
 	struct TransformModelEmitterForCPU {
 		TransformModelEmitterForCPU() {
 			if (staticEmitterCount == (std::numeric_limits<int32_t>::max)()) {
@@ -360,6 +382,8 @@ struct Particle
 		EmitterTime time;
 
 		ParticleLifeSpan particleLifeSpan;
+
+		EmitterTrails emitterTrails;
 
 		ParticleAttributes collisionInfo;
 
@@ -401,6 +425,8 @@ struct Particle
 		EmitterTime time;
 
 		ParticleLifeSpan particleLifeSpan;
+
+		EmitterTrails emitterTrails;
 
 		ParticleAttributes collisionInfo;
 
@@ -452,6 +478,8 @@ struct Particle
 
 		ParticleLifeSpan particleLifeSpan;
 
+		EmitterTrails emitterTrails;
+
 		ParticleAttributes collisionInfo;
 
 		EmitterParent parent;
@@ -493,6 +521,8 @@ struct Particle
 		EmitterTime time;
 
 		ParticleLifeSpan particleLifeSpan;
+
+		EmitterTrails emitterTrails;
 
 		ParticleAttributes collisionInfo;
 
@@ -539,6 +569,8 @@ struct Particle
 
 		ParticleLifeSpan particleLifeSpan;
 
+		EmitterTrails emitterTrails;
+
 		ParticleAttributes collisionInfo;
 
 		EmitterParent parent;
@@ -577,6 +609,8 @@ struct Particle
 		EmitterTime time;
 
 		ParticleLifeSpan particleLifeSpan;
+
+		EmitterTrails emitterTrails;
 
 		ParticleAttributes collisionInfo;
 
@@ -621,6 +655,8 @@ struct Particle
 
 		ParticleLifeSpan particleLifeSpan;
 
+		EmitterTrails emitterTrails;
+
 		ParticleAttributes collisionInfo;
 
 		EmitterParent parent;
@@ -657,6 +693,8 @@ struct Particle
 		EmitterTime time;
 
 		ParticleLifeSpan particleLifeSpan;
+
+		EmitterTrails emitterTrails;
 
 		ParticleAttributes collisionInfo;
 
@@ -699,6 +737,8 @@ struct Particle
 
 		ParticleLifeSpan particleLifeSpan;
 
+		EmitterTrails emitterTrails;
+
 		uint32_t textureIndex;
 
 		uint32_t createParticleNum;
@@ -735,6 +775,8 @@ struct Particle
 		EmitterTime time;
 
 		ParticleLifeSpan particleLifeSpan;
+
+		EmitterTrails emitterTrails;
 
 		uint32_t textureIndex;
 
@@ -934,6 +976,7 @@ struct Particle
 	void DrawColor(GPUParticleShaderStructs::EmitterColor& color);
 	void DrawFrequency(GPUParticleShaderStructs::EmitterFrequency& frequency);
 	void DrawParticleLife(GPUParticleShaderStructs::ParticleLifeSpan& particleLifeSpan);
+	void DrawTrails(GPUParticleShaderStructs::EmitterTrails& emitterTrails);
 	void DrawTextureHandle(uint32_t& texture);
 	void DrawCreateParticleNum(uint32_t& createParticleNum);
 	void DrawParent(uint32_t& parent);

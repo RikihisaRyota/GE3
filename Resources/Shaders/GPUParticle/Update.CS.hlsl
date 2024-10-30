@@ -5,6 +5,8 @@ RWStructuredBuffer<Particle> input : register(u0);
 AppendStructuredBuffer<uint> particleIndexCommands : register(u1);
 AppendStructuredBuffer<uint> outputDrawIndexCommands : register(u2);
 
+RWStructuredBuffer<TrailsData> trails  : register(u3);
+
 StructuredBuffer<Emitter> emitter : register(t0);
 StructuredBuffer<VertexEmitter> vertexEmitter : register(t1);
 StructuredBuffer<MeshEmitter> meshEmitter : register(t2);
@@ -196,6 +198,29 @@ void main(uint3 DTid : SV_DispatchThreadID)
             }
             if(!input[index].particleLifeTime.isEmitterLife){
                 input[index].particleLifeTime.time++;
+            }
+            // Trails
+            if(input[index].particleTrails.isTrails){
+                if(input[index].particleTrails.time >= input[index].particleTrails.interval){
+
+                    // 特定の粒子インデックスを取得
+                    //uint32_t particleIndex = input[index].particleTrails.endIndex;
+
+                    // trailsの中の特定のTrailsPositionインスタンスにアクセス
+                    //trails[index].position[particleIndex] = input[index].worldMatrix[3].xyz;
+
+                    
+                    if((input[index].particleTrails.endIndex-input[index].particleTrails.startIndex) <= trailsRange){
+                        input[index].particleTrails.endIndex++;
+                    }else{
+                        input[index].particleTrails.endIndex = input[index].particleTrails.startIndex;
+                    }
+                    input[index].particleTrails.time=0;
+                }else{
+                    input[index].particleTrails.time++;
+                }
+            }else if(!input[index].isAlive) {
+                //trails[index].isTrails = false;
             }
         }
     }

@@ -31,6 +31,7 @@ GPUParticle::GPUParticle() {
 	InitializeBullets();
 	InitializeField();
 	InitializeBuffer();
+	InitializeTrails();
 }
 
 GPUParticle::~GPUParticle() {}
@@ -330,16 +331,20 @@ void GPUParticle::ParticleUpdate(const ViewProjection& viewProjection, CommandCo
 
 
 	commandContext.SetComputeUAV(0, particleBuffer_->GetGPUVirtualAddress());
+
 	commandContext.SetComputeDescriptorTable(1, originalCommandBuffer_.GetUAVHandle());
 	commandContext.SetComputeDescriptorTable(2, drawIndexCommandBuffers_.GetUAVHandle());
 
-	commandContext.SetComputeShaderResource(3, emitterForGPUDesc_.originalBuffer->GetGPUVirtualAddress());
-	commandContext.SetComputeShaderResource(4, vertexEmitterForGPUDesc_.originalBuffer->GetGPUVirtualAddress());
-	commandContext.SetComputeShaderResource(5, meshEmitterForGPUDesc_.originalBuffer->GetGPUVirtualAddress());
-	commandContext.SetComputeShaderResource(6, transformModelEmitterForGPUDesc_.originalBuffer->GetGPUVirtualAddress());
-	commandContext.SetComputeShaderResource(7, transformAreaEmitterForGPUDesc_.originalBuffer->GetGPUVirtualAddress());
+	commandContext.SetComputeUAV(3, trailsBuffers_.GetGPUVirtualAddress());
+	
+	commandContext.SetComputeShaderResource(4, emitterForGPUDesc_.originalBuffer->GetGPUVirtualAddress());
+	commandContext.SetComputeShaderResource(5, vertexEmitterForGPUDesc_.originalBuffer->GetGPUVirtualAddress());
+	commandContext.SetComputeShaderResource(6, meshEmitterForGPUDesc_.originalBuffer->GetGPUVirtualAddress());
+	commandContext.SetComputeShaderResource(7, transformModelEmitterForGPUDesc_.originalBuffer->GetGPUVirtualAddress());
+	commandContext.SetComputeShaderResource(8, transformAreaEmitterForGPUDesc_.originalBuffer->GetGPUVirtualAddress());
 
-	commandContext.SetComputeConstantBuffer(8, viewProjection.constBuff_.GetGPUVirtualAddress());
+
+	commandContext.SetComputeConstantBuffer(9, viewProjection.constBuff_.GetGPUVirtualAddress());
 
 	commandContext.Dispatch(static_cast<UINT>(ceil((GPUParticleShaderStructs::MaxParticleNum / GPUParticleShaderStructs::MaxProcessNum) / GPUParticleShaderStructs::ComputeThreadBlockSize)), 1, 1);
 	commandContext.UAVBarrier(particleBuffer_);
@@ -842,31 +847,31 @@ void GPUParticle::SetField(const GPUParticleShaderStructs::FieldForCPU& fieldFor
 
 void GPUParticle::SetEmitter(const GPUParticleShaderStructs::EmitterForCPU& emitterForCPU, const Matrix4x4& parent) {
 	GPUParticleShaderStructs::EmitterForGPU emitterForGPU{};
-	GPUParticleShaderStructs::Copy(emitterForGPU, emitterForCPU,parent);
+	GPUParticleShaderStructs::Copy(emitterForGPU, emitterForCPU, parent);
 	emitterForGPUs_.emplace_back(emitterForGPU);
 }
 
 void GPUParticle::SetEmitter(const GPUParticleShaderStructs::VertexEmitterForCPU& emitterForCPU, const Matrix4x4& parent) {
 	GPUParticleShaderStructs::VertexEmitterForGPU emitterForGPU{};
-	GPUParticleShaderStructs::Copy(emitterForGPU, emitterForCPU,parent);
+	GPUParticleShaderStructs::Copy(emitterForGPU, emitterForCPU, parent);
 	vertexEmitterForGPUs_.emplace_back(emitterForGPU);
 }
 
 void GPUParticle::SetEmitter(const GPUParticleShaderStructs::MeshEmitterForCPU& emitterForCPU, const Matrix4x4& parent) {
 	GPUParticleShaderStructs::MeshEmitterForGPU emitterForGPU{};
-	GPUParticleShaderStructs::Copy(emitterForGPU, emitterForCPU,parent);
+	GPUParticleShaderStructs::Copy(emitterForGPU, emitterForCPU, parent);
 	meshEmitterForGPUs_.emplace_back(emitterForGPU);
 }
 
 void GPUParticle::SetEmitter(const GPUParticleShaderStructs::TransformModelEmitterForCPU& emitterForCPU, const Matrix4x4& parent) {
 	GPUParticleShaderStructs::TransformModelEmitterForGPU emitterForGPU{};
-	GPUParticleShaderStructs::Copy(emitterForGPU, emitterForCPU,parent);
+	GPUParticleShaderStructs::Copy(emitterForGPU, emitterForCPU, parent);
 	transformModelEmitterForGPUs_.emplace_back(emitterForGPU);
 }
 
 void GPUParticle::SetEmitter(const GPUParticleShaderStructs::TransformAreaEmitterForCPU& emitterForCPU, const Matrix4x4& parent) {
 	GPUParticleShaderStructs::TransformAreaEmitterForGPU emitterForGPU{};
-	GPUParticleShaderStructs::Copy(emitterForGPU, emitterForCPU,parent);
+	GPUParticleShaderStructs::Copy(emitterForGPU, emitterForCPU, parent);
 	transformAreaEmitterForGPUs_.emplace_back(emitterForGPU);
 }
 
@@ -1110,6 +1115,14 @@ void GPUParticle::InitializeField() {
 		uavDesc.Buffer.Flags = D3D12_BUFFER_UAV_FLAG_NONE;
 		fieldIndexStockBuffer_.CreateUAV(uavDesc);
 		fieldIndexBuffer_.CreateUAV(uavDesc);
+	}
+}
+
+void GPUParticle::InitializeTrails() {
+ 	auto device = GraphicsCore::GetInstance()->GetDevice();
+	auto graphics = GraphicsCore::GetInstance();
+	{
+		trailsBuffers_.Create(L"trailsBuffers", sizeof(GPUParticleShaderStructs::TrailsData), D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
 	}
 }
 

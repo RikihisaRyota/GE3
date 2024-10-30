@@ -104,6 +104,10 @@ private:
 	std::unique_ptr<PipelineState> translateModelParticlePipelineState_;
 	std::unique_ptr<RootSignature> translateModelAreaParticleRootSignature_;
 	std::unique_ptr<PipelineState> translateModelAreaParticlePipelineState_;
+
+	std::unique_ptr<RootSignature> tailsRootSignature_;
+	std::unique_ptr<PipelineState> tailsPipelineState_;
+
 	UploadBuffer vertexBuffer_;
 	D3D12_VERTEX_BUFFER_VIEW vbView_{};
 	

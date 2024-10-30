@@ -1,6 +1,5 @@
 #pragma once
 
-
 #include <string>
 #include <limits>
 #include <tuple>
@@ -16,6 +15,13 @@
 #include "Engine/Math/Quaternion.h"
 
 namespace GPUParticleShaderStructs {
+#ifdef __HLSL__
+	#define Vector3 float32_t3
+	#define Vector4 float32_t4
+	#define Matrix4x4 float32_t4x4
+	#define Quaternion float32_t4
+#endif
+
 	// hlsli側も変更するように
 	static const UINT ComputeThreadBlockSize = 1024;
 	static const UINT MeshComputeThreadBlockSize = 1024;
@@ -25,6 +31,8 @@ namespace GPUParticleShaderStructs {
 	static const UINT MaxFieldNum = 1024;
 	static const UINT MaxBulletNum = 10;
 	static const UINT MaxProcessNum = 1;
+	static const UINT TrailsRange = 1024;
+	static const UINT MaxTrailsNum = 1 << 15;
 
 
 #pragma region Utility
@@ -166,16 +174,6 @@ struct Particle
 		uint32_t pad;
 	};
 
-	struct ParticleTrails {
-		uint32_t isTrails;
-		uint32_t textureIndex;
-		uint32_t interval;
-		uint32_t width;
-		
-		Vector3 position[1024];
-		float lifeLimit;
-	};
-
 	struct TriangleInfo {
 		Vector3 vertex;
 		//float pad;
@@ -183,9 +181,24 @@ struct Particle
 		//float pad1;
 	};
 
-	struct Particle {
-		ParticleTrails trails;
+	struct ParticleTrails {
+		uint32_t isTrails;
+		uint32_t textureIndex;
+		uint32_t interval;
+		uint32_t time;
 
+		float lifeLimit;
+		uint32_t width;
+		uint32_t startIndex;
+		uint32_t endIndex;
+	};
+
+	struct TrailsData {
+		uint32_t startIndex;
+	};
+
+	struct Particle {
+		ParticleTrails particleTrails;
 		TriangleInfo triangleInfo;
 
 		Vector3MinMax scaleRange;
@@ -303,8 +316,12 @@ struct Particle
 	};
 
 	struct EmitterTime {
-		int32_t particleTime = 0;
-		int32_t emitterTime = 0;
+		EmitterTime() {
+			particleTime = 0;
+			emitterTime = 0;
+		};
+		uint32_t particleTime = 0;
+		uint32_t emitterTime = 0;
 		Vector2 pad;
 	};
 

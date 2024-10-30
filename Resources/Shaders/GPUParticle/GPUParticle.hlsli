@@ -1,11 +1,3 @@
-
-#define threadBlockSize 1024
-#define meshThreadBlockSize  1024
-#define emitterSize 1024
-#define fieldSize 1024
-#define processNum 1
-#define maxParticleNum 2<<22
-
 #define PI 3.14159265359f
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -413,8 +405,25 @@ struct TriangleInfo {
     //float32_t pad1;
 };
 
+struct ParticleTrails {
+	uint32_t isTrails;
+	uint32_t textureIndex;
+	uint32_t interval;
+	uint32_t time;
+
+	float lifeLimit;
+	uint32_t width;
+    uint32_t startIndex;
+	uint32_t endIndex;
+};
+
+struct TrailsData {
+	uint32_t startIndex;
+};
+
 struct Particle
 {
+	ParticleTrails particleTrails;
     TriangleInfo triangleInfo;
 
     Float3MinMax scaleRange;
@@ -553,6 +562,16 @@ struct EmitterLocalTransform {
     float32_t4 rotate;
 };
 
+struct EmitterTrails {
+	uint32_t isTrails;
+	uint32_t textureIndex;
+	uint32_t interval;
+	float width;
+
+	float lifeLimit;
+	float pad[3];
+};
+
 struct TransformModelEmitter {
 	Translate translate;
 
@@ -571,6 +590,8 @@ struct TransformModelEmitter {
     EmitterTime time;
 
 	ParticleLifeSpan particleLifeSpan;
+
+    EmitterTrails emitterTrails;
 
 	ParticleAttributes collisionInfo;
 
@@ -615,6 +636,8 @@ struct TransformAreaEmitter {
 
 		ParticleLifeSpan particleLifeSpan;
 
+        EmitterTrails emitterTrails;
+
 		ParticleAttributes collisionInfo;
 
 		EmitterParent parent;
@@ -653,6 +676,8 @@ struct MeshEmitter {
 
 	ParticleLifeSpan particleLifeSpan;
 
+    EmitterTrails emitterTrails;
+
     ParticleAttributes collisionInfo;
 
     EmitterParent parent;
@@ -689,6 +714,8 @@ struct VertexEmitter {
 
 	ParticleLifeSpan particleLifeSpan;
 
+    EmitterTrails emitterTrails;
+
     ParticleAttributes collisionInfo;
 
     EmitterParent parent;
@@ -723,6 +750,8 @@ struct Emitter
     EmitterTime time;
     
     ParticleLifeSpan particleLifeSpan;
+
+    EmitterTrails emitterTrails;
     
     uint32_t textureIndex;
 
@@ -892,6 +921,7 @@ void ParticleReset(inout Particle particle){
     particle.translate.isEasing = false;
     particle.parent.isParent = false;
     particle.particleLifeTime.isEmitterLife = false;
+    particle.particleTrails.isTrails = false;
 };
 
 void ParticleTranslate(inout Particle particle,Translate translate,inout uint32_t seed){
@@ -931,7 +961,19 @@ void ParticleTriangleInfo(inout Particle particle,TriangleInfo triangleInfo){
     particle.triangleInfo=triangleInfo;
 }
 
-void CreateParticle(inout Particle particle,Emitter emitter ,inout uint32_t seed,uint32_t emitterCount){
+//void ParticleTrail(inout Particle particle,ParticleTrails particleTrails,TrailsPosition trailsPosition) {
+//    if(particle.particleTrails.isTrails){
+//        uint32_t startIndex=trailsPosition.startIndex;
+//        if(trailsPosition.startIndex <= maxTrailNum){
+//            trailsPosition.startIndex+=trailsRange;
+//        }else{
+//            trailsPosition.startIndex = 0;
+//        }
+//        particle.particleTrails.startIndex = startIndex;
+//    }
+//}
+
+void CreateParticle(inout Particle particle,Emitter emitter,inout uint32_t seed,uint32_t emitterCount){
     particle.textureIndex = emitter.textureIndex;
     particle.collisionInfo = emitter.collisionInfo;
     

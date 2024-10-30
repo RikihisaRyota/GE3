@@ -83,6 +83,7 @@ private:
 	void InitializeAddEmitter();
 	void InitializeBullets();
 	void InitializeField();
+	void InitializeTrails();
 
 	std::unique_ptr<RootSignature> initializeBufferRootSignature_;
 	std::unique_ptr<PipelineState> initializeBufferPipelineState_;
@@ -110,6 +111,8 @@ private:
 	CommandSignature* spawnCommandSignature_;
 	// 何個生成するか数える用
 	DefaultBuffer createParticleCounterCopySrcBuffer_;
+	// 軌跡用
+	DefaultBuffer trailsBuffers_;
 
 	struct EmitterDesc {
 		void Initialize(CommandContext& commandContext);

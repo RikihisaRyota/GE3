@@ -3,6 +3,7 @@
 #include <assert.h>
 
 #include "../ConvertString/ConvertString.h"
+#include "../Engine/Engine/GPUParticleManager/GPUParticle/GPUParticleShaderStructs.h"
 
 using namespace Microsoft::WRL;
 
@@ -44,6 +45,7 @@ IDxcBlob* ShaderCompiler::Compile(const std::wstring& filePath, const wchar_t* p
 		L"-Zi",L"-Qembed_debug",//デバック用の情報を埋め込む
 		//L"-Od",//最適化を外しておく
 		L"-Zpr",//メモリレイアウトは行優先
+		//L"-I../../../Engine/Engine/GPUParticleManager/GPUParticle/"
 	};
 	//実際にShaderをコンパイルする
 	IDxcResult* shaderResult = nullptr;

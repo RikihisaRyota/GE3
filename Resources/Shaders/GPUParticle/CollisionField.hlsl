@@ -1,4 +1,5 @@
 #include "GPUParticle.hlsli"
+#include "GPUParticleShaderStructs.h"
 
 StructuredBuffer<FieldForGPU> origalField : register(t0);
 StructuredBuffer<uint> fieldIndexBuffer : register(t1);
@@ -121,7 +122,7 @@ void UpdateField(FieldForGPU field,inout Particle particle,inout uint32_t seed){
     }
 }
 
-[numthreads(threadBlockSize, 1, 1)]
+[numthreads(GPUParticleShaderStructs::ComputeThreadBlockSize, 1, 1)]
 void main( uint3 DTid : SV_DispatchThreadID , uint3 GTid : SV_GroupThreadID)
 {
     uint32_t particleIndex = DTid.x;

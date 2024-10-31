@@ -1,4 +1,5 @@
 #include "GPUParticle.hlsli"
+#include "GPUParticleShaderStructs.h"
 
 StructuredBuffer<FieldForGPU> addField : register(t0);
 RWStructuredBuffer<FieldForGPU> origalField : register(u0);
@@ -6,7 +7,7 @@ RWStructuredBuffer<int32_t> createFieldCounter : register(u1);
 ConsumeStructuredBuffer<uint> fieldIndexStockBuffer : register(u2);
 
 
-[numthreads(fieldSize, 1, 1)]
+[numthreads(GPUParticleShaderStructs::MaxFieldNum, 1, 1)]
 void main( uint3 DTid : SV_DispatchThreadID )
 {
     // Countが一致する場合の処理

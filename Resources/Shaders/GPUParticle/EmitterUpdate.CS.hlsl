@@ -1,11 +1,12 @@
 #include "GPUParticle.hlsli"
+#include "GPUParticleShaderStructs.h"
 
 // バッファの宣言
-RWStructuredBuffer<Emitter> inputEmitter : register(u0);
-RWStructuredBuffer<VertexEmitter> inputVertexEmitter : register(u1);
-RWStructuredBuffer<MeshEmitter> inputMeshEmitter : register(u2);
-RWStructuredBuffer<TransformModelEmitter> inputTransformModelEmitter : register(u3);
-RWStructuredBuffer<TransformAreaEmitter> inputTransformAreaEmitter : register(u4);
+RWStructuredBuffer<EmitterForGPU> inputEmitter : register(u0);
+RWStructuredBuffer<VertexEmitterForGPU> inputVertexEmitter : register(u1);
+RWStructuredBuffer<MeshEmitterForGPU> inputMeshEmitter : register(u2);
+RWStructuredBuffer<TransformModelEmitterForGPU> inputTransformModelEmitter : register(u3);
+RWStructuredBuffer<TransformAreaEmitterForGPU> inputTransformAreaEmitter : register(u4);
 // エミッターごとの生成パーティクル数
 
 AppendStructuredBuffer<CreateParticleNum> createParticle : register(u5);
@@ -209,32 +210,32 @@ void UpdateEmitterState(inout TransformAreaEmitter emitter) {
     }
 }
 
-[numthreads(emitterSize, 1, 1)]
+[numthreads(GPUParticleShaderStructs::MaxEmitterNum, 1, 1)]
 void main(uint3 DTid : SV_DispatchThreadID)
 {
     uint index = DTid.x;
 
-    if (index < emitterSize && inputEmitter[index].isAlive)
+    if (index < GPUParticleShaderStructs::MaxEmitterNum && inputEmitter[index].isAlive)
     {
         UpdateEmitterTime(inputEmitter[index],index);
         UpdateEmitterState(inputEmitter[index]);
     }
-    if (index < emitterSize && inputVertexEmitter[index].isAlive)
+    if (index < GPUParticleShaderStructs::MaxEmitterNum && inputVertexEmitter[index].isAlive)
     {
         UpdateEmitterTime(inputVertexEmitter[index],index);
         UpdateEmitterState(inputVertexEmitter[index]);
     }
-    if (index < emitterSize && inputMeshEmitter[index].isAlive)
+    if (index < GPUParticleShaderStructs::MaxEmitterNum && inputMeshEmitter[index].isAlive)
     {
         UpdateEmitterTime(inputMeshEmitter[index],index);
         UpdateEmitterState(inputMeshEmitter[index]);
     }
-    if (index < emitterSize && inputTransformModelEmitter[index].isAlive)
+    if (index < GPUParticleShaderStructs::MaxEmitterNum && inputTransformModelEmitter[index].isAlive)
     {
         UpdateEmitterTime(inputTransformModelEmitter[index],index);
         UpdateEmitterState(inputTransformModelEmitter[index]);
     }
-    if (index < emitterSize && inputTransformAreaEmitter[index].isAlive)
+    if (index < GPUParticleShaderStructs::MaxEmitterNum && inputTransformAreaEmitter[index].isAlive)
     {
         UpdateEmitterTime(inputTransformAreaEmitter[index],index);
         UpdateEmitterState(inputTransformAreaEmitter[index]);

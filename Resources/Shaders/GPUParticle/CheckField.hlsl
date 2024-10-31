@@ -1,9 +1,10 @@
 #include "GPUParticle.hlsli"
+#include "GPUParticleShaderStructs.h"
 
 RWStructuredBuffer<FieldForGPU> addField : register(u0);
 RWStructuredBuffer<FieldForGPU> origalField : register(u1);
 
-[numthreads(fieldSize, 1, 1)]
+[numthreads(GPUParticleShaderStructs::MaxFieldNum, 1, 1)]
 void main(uint3 DTid : SV_DispatchThreadID, uint3 GTid : SV_GroupThreadID, uint3 GID : SV_GroupID)
 {
     // グループスレッドIDを使用して、オリジナルエミッターのインデックスを取得

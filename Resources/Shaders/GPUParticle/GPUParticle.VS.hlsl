@@ -1,4 +1,5 @@
 #include "GPUParticle.hlsli"
+#include "GPUParticleShaderStructs.h"
 
 StructuredBuffer<Particle> gParticle : register(t0);
 

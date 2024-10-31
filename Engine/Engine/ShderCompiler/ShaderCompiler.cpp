@@ -45,7 +45,8 @@ IDxcBlob* ShaderCompiler::Compile(const std::wstring& filePath, const wchar_t* p
 		L"-Zi",L"-Qembed_debug",//デバック用の情報を埋め込む
 		//L"-Od",//最適化を外しておく
 		L"-Zpr",//メモリレイアウトは行優先
-		//L"-I../../../Engine/Engine/GPUParticleManager/GPUParticle/"
+		L"-I",L"/Engine/Engine/GPUParticleManager/GPUParticle",
+		L"-I",L"/Resources/Shaders",
 	};
 	//実際にShaderをコンパイルする
 	IDxcResult* shaderResult = nullptr;

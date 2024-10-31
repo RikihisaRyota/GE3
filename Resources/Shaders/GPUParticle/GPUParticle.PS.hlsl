@@ -1,4 +1,5 @@
 #include "GPUParticle.hlsli"
+#include "GPUParticleShaderStructs.h"
 
 #define myTex2DSpace space1
 

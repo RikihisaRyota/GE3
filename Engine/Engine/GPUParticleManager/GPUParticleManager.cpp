@@ -707,141 +707,141 @@ void GPUParticleManager::CreateBullet() {
 	}
 }
 void GPUParticleManager::CreateMeshParticle() {
-	{
-		enum {
-			kParticle,
-			kParticleIndex,
-			kParticleIndexCounter,
-			kVertices,
-			kIndices,
-			kRandom,
-			kWorldTransform,
-			kIndexCount,
-			kMeshEmitter,
-			kCount,
-		};
+	//{
+	//	enum {
+	//		kParticle,
+	//		kParticleIndex,
+	//		kParticleIndexCounter,
+	//		kVertices,
+	//		kIndices,
+	//		kRandom,
+	//		kWorldTransform,
+	//		kIndexCount,
+	//		kMeshEmitter,
+	//		kCount,
+	//	};
 
-		meshParticleRootSignature_ = std::make_unique<RootSignature>();
+	//	meshParticleRootSignature_ = std::make_unique<RootSignature>();
 
-		CD3DX12_DESCRIPTOR_RANGE particleIndexCommandsRange[1]{};
-		particleIndexCommandsRange[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 1, 0);
+	//	CD3DX12_DESCRIPTOR_RANGE particleIndexCommandsRange[1]{};
+	//	particleIndexCommandsRange[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 1, 0);
 
-		CD3DX12_ROOT_PARAMETER rootParameters[kCount]{};
+	//	CD3DX12_ROOT_PARAMETER rootParameters[kCount]{};
 
-		rootParameters[kParticle].InitAsUnorderedAccessView(0);
-		rootParameters[kParticleIndex].InitAsDescriptorTable(_countof(particleIndexCommandsRange), particleIndexCommandsRange);
-		rootParameters[kParticleIndexCounter].InitAsUnorderedAccessView(2);
-		rootParameters[kVertices].InitAsShaderResourceView(0);
-		rootParameters[kIndices].InitAsShaderResourceView(1);
-		rootParameters[kRandom].InitAsConstantBufferView(0);
-		rootParameters[kWorldTransform].InitAsConstantBufferView(1);
-		rootParameters[kIndexCount].InitAsConstantBufferView(2);
-		rootParameters[kMeshEmitter].InitAsConstantBufferView(3);
+	//	rootParameters[kParticle].InitAsUnorderedAccessView(0);
+	//	rootParameters[kParticleIndex].InitAsDescriptorTable(_countof(particleIndexCommandsRange), particleIndexCommandsRange);
+	//	rootParameters[kParticleIndexCounter].InitAsUnorderedAccessView(2);
+	//	rootParameters[kVertices].InitAsShaderResourceView(0);
+	//	rootParameters[kIndices].InitAsShaderResourceView(1);
+	//	rootParameters[kRandom].InitAsConstantBufferView(0);
+	//	rootParameters[kWorldTransform].InitAsConstantBufferView(1);
+	//	rootParameters[kIndexCount].InitAsConstantBufferView(2);
+	//	rootParameters[kMeshEmitter].InitAsConstantBufferView(3);
 
-		D3D12_ROOT_SIGNATURE_DESC desc{};
-		desc.pParameters = rootParameters;
-		desc.NumParameters = _countof(rootParameters);
+	//	D3D12_ROOT_SIGNATURE_DESC desc{};
+	//	desc.pParameters = rootParameters;
+	//	desc.NumParameters = _countof(rootParameters);
 
-		meshParticleRootSignature_->Create(L"MeshParticleRootSignature", desc);
-	}
-	{
-		meshParticlePipelineState_ = std::make_unique<PipelineState>();
-		D3D12_COMPUTE_PIPELINE_STATE_DESC desc{};
-		desc.pRootSignature = *meshParticleRootSignature_;
-		auto cs = ShaderCompiler::Compile(L"Resources/Shaders/GPUParticle/MeshParticle.hlsl", L"cs_6_0");
-		desc.CS = CD3DX12_SHADER_BYTECODE(cs->GetBufferPointer(), cs->GetBufferSize());
-		meshParticlePipelineState_->Create(L"MeshParticle CPSO", desc);
-	}
+	//	meshParticleRootSignature_->Create(L"MeshParticleRootSignature", desc);
+	//}
+	//{
+	//	meshParticlePipelineState_ = std::make_unique<PipelineState>();
+	//	D3D12_COMPUTE_PIPELINE_STATE_DESC desc{};
+	//	desc.pRootSignature = *meshParticleRootSignature_;
+	//	auto cs = ShaderCompiler::Compile(L"Resources/Shaders/GPUParticle/MeshParticle.hlsl", L"cs_6_0");
+	//	desc.CS = CD3DX12_SHADER_BYTECODE(cs->GetBufferPointer(), cs->GetBufferSize());
+	//	meshParticlePipelineState_->Create(L"MeshParticle CPSO", desc);
+	//}
 
-	{
-		enum {
-			kParticle,
-			kParticleIndex,
-			kParticleIndexCounter,
-			kVertices,
-			kRandom,
-			kWorldTransform,
-			kVertexCount,
-			kMeshEmitter,
-			kCount,
-		};
+	//{
+	//	enum {
+	//		kParticle,
+	//		kParticleIndex,
+	//		kParticleIndexCounter,
+	//		kVertices,
+	//		kRandom,
+	//		kWorldTransform,
+	//		kVertexCount,
+	//		kMeshEmitter,
+	//		kCount,
+	//	};
 
-		vertexParticleRootSignature_ = std::make_unique<RootSignature>();
+	//	vertexParticleRootSignature_ = std::make_unique<RootSignature>();
 
-		CD3DX12_DESCRIPTOR_RANGE particleIndexCommandsRange[1]{};
-		particleIndexCommandsRange[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 1, 0);
+	//	CD3DX12_DESCRIPTOR_RANGE particleIndexCommandsRange[1]{};
+	//	particleIndexCommandsRange[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 1, 0);
 
-		CD3DX12_ROOT_PARAMETER rootParameters[kCount]{};
+	//	CD3DX12_ROOT_PARAMETER rootParameters[kCount]{};
 
-		rootParameters[kParticle].InitAsUnorderedAccessView(0);
-		rootParameters[kParticleIndex].InitAsDescriptorTable(_countof(particleIndexCommandsRange), particleIndexCommandsRange);
-		rootParameters[kParticleIndexCounter].InitAsUnorderedAccessView(2);
-		rootParameters[kVertices].InitAsShaderResourceView(0);
-		rootParameters[kRandom].InitAsConstantBufferView(0);
-		rootParameters[kWorldTransform].InitAsConstantBufferView(1);
-		rootParameters[kVertexCount].InitAsConstantBufferView(2);
-		rootParameters[kMeshEmitter].InitAsConstantBufferView(3);
+	//	rootParameters[kParticle].InitAsUnorderedAccessView(0);
+	//	rootParameters[kParticleIndex].InitAsDescriptorTable(_countof(particleIndexCommandsRange), particleIndexCommandsRange);
+	//	rootParameters[kParticleIndexCounter].InitAsUnorderedAccessView(2);
+	//	rootParameters[kVertices].InitAsShaderResourceView(0);
+	//	rootParameters[kRandom].InitAsConstantBufferView(0);
+	//	rootParameters[kWorldTransform].InitAsConstantBufferView(1);
+	//	rootParameters[kVertexCount].InitAsConstantBufferView(2);
+	//	rootParameters[kMeshEmitter].InitAsConstantBufferView(3);
 
-		D3D12_ROOT_SIGNATURE_DESC desc{};
-		desc.pParameters = rootParameters;
-		desc.NumParameters = _countof(rootParameters);
+	//	D3D12_ROOT_SIGNATURE_DESC desc{};
+	//	desc.pParameters = rootParameters;
+	//	desc.NumParameters = _countof(rootParameters);
 
-		vertexParticleRootSignature_->Create(L"VertexParticleRootSignature", desc);
-	}
-	{
-		vertexParticlePipelineState_ = std::make_unique<PipelineState>();
-		D3D12_COMPUTE_PIPELINE_STATE_DESC desc{};
-		desc.pRootSignature = *vertexParticleRootSignature_;
-		auto cs = ShaderCompiler::Compile(L"Resources/Shaders/GPUParticle/VertexParticle.hlsl", L"cs_6_0");
-		desc.CS = CD3DX12_SHADER_BYTECODE(cs->GetBufferPointer(), cs->GetBufferSize());
-		vertexParticlePipelineState_->Create(L"VertexParticle CPSO", desc);
-	}
+	//	vertexParticleRootSignature_->Create(L"VertexParticleRootSignature", desc);
+	//}
+	//{
+	//	vertexParticlePipelineState_ = std::make_unique<PipelineState>();
+	//	D3D12_COMPUTE_PIPELINE_STATE_DESC desc{};
+	//	desc.pRootSignature = *vertexParticleRootSignature_;
+	//	auto cs = ShaderCompiler::Compile(L"Resources/Shaders/GPUParticle/VertexParticle.hlsl", L"cs_6_0");
+	//	desc.CS = CD3DX12_SHADER_BYTECODE(cs->GetBufferPointer(), cs->GetBufferSize());
+	//	vertexParticlePipelineState_->Create(L"VertexParticle CPSO", desc);
+	//}
 
-	{
-		enum {
-			kParticle,
-			kParticleIndex,
-			kParticleIndexCounter,
-			kVertices,
-			kIndices,
-			kRandom,
-			kWorldTransform,
-			kIndexCount,
-			kMeshEmitter,
-			kCount,
-		};
+	//{
+	//	enum {
+	//		kParticle,
+	//		kParticleIndex,
+	//		kParticleIndexCounter,
+	//		kVertices,
+	//		kIndices,
+	//		kRandom,
+	//		kWorldTransform,
+	//		kIndexCount,
+	//		kMeshEmitter,
+	//		kCount,
+	//	};
 
-		edgeParticleRootSignature_ = std::make_unique<RootSignature>();
+	//	edgeParticleRootSignature_ = std::make_unique<RootSignature>();
 
-		CD3DX12_DESCRIPTOR_RANGE particleIndexCommandsRange[1]{};
-		particleIndexCommandsRange[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 1, 0);
+	//	CD3DX12_DESCRIPTOR_RANGE particleIndexCommandsRange[1]{};
+	//	particleIndexCommandsRange[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 1, 0);
 
-		CD3DX12_ROOT_PARAMETER rootParameters[kCount]{};
+	//	CD3DX12_ROOT_PARAMETER rootParameters[kCount]{};
 
-		rootParameters[kParticle].InitAsUnorderedAccessView(0);
-		rootParameters[kParticleIndex].InitAsDescriptorTable(_countof(particleIndexCommandsRange), particleIndexCommandsRange);
-		rootParameters[kParticleIndexCounter].InitAsUnorderedAccessView(2);
-		rootParameters[kVertices].InitAsShaderResourceView(0);
-		rootParameters[kIndices].InitAsShaderResourceView(1);
-		rootParameters[kRandom].InitAsConstantBufferView(0);
-		rootParameters[kWorldTransform].InitAsConstantBufferView(1);
-		rootParameters[kIndexCount].InitAsConstantBufferView(2);
-		rootParameters[kMeshEmitter].InitAsConstantBufferView(3);
+	//	rootParameters[kParticle].InitAsUnorderedAccessView(0);
+	//	rootParameters[kParticleIndex].InitAsDescriptorTable(_countof(particleIndexCommandsRange), particleIndexCommandsRange);
+	//	rootParameters[kParticleIndexCounter].InitAsUnorderedAccessView(2);
+	//	rootParameters[kVertices].InitAsShaderResourceView(0);
+	//	rootParameters[kIndices].InitAsShaderResourceView(1);
+	//	rootParameters[kRandom].InitAsConstantBufferView(0);
+	//	rootParameters[kWorldTransform].InitAsConstantBufferView(1);
+	//	rootParameters[kIndexCount].InitAsConstantBufferView(2);
+	//	rootParameters[kMeshEmitter].InitAsConstantBufferView(3);
 
-		D3D12_ROOT_SIGNATURE_DESC desc{};
-		desc.pParameters = rootParameters;
-		desc.NumParameters = _countof(rootParameters);
+	//	D3D12_ROOT_SIGNATURE_DESC desc{};
+	//	desc.pParameters = rootParameters;
+	//	desc.NumParameters = _countof(rootParameters);
 
-		edgeParticleRootSignature_->Create(L"EdgeParticleRootSignature", desc);
-	}
-	{
-		edgeParticlePipelineState_ = std::make_unique<PipelineState>();
-		D3D12_COMPUTE_PIPELINE_STATE_DESC desc{};
-		desc.pRootSignature = *edgeParticleRootSignature_;
-		auto cs = ShaderCompiler::Compile(L"Resources/Shaders/GPUParticle/EdgeParticle.hlsl", L"cs_6_0");
-		desc.CS = CD3DX12_SHADER_BYTECODE(cs->GetBufferPointer(), cs->GetBufferSize());
-		edgeParticlePipelineState_->Create(L"EdgeParticle CPSO", desc);
-	}
+	//	edgeParticleRootSignature_->Create(L"EdgeParticleRootSignature", desc);
+	//}
+	//{
+	//	edgeParticlePipelineState_ = std::make_unique<PipelineState>();
+	//	D3D12_COMPUTE_PIPELINE_STATE_DESC desc{};
+	//	desc.pRootSignature = *edgeParticleRootSignature_;
+	//	auto cs = ShaderCompiler::Compile(L"Resources/Shaders/GPUParticle/EdgeParticle.hlsl", L"cs_6_0");
+	//	desc.CS = CD3DX12_SHADER_BYTECODE(cs->GetBufferPointer(), cs->GetBufferSize());
+	//	edgeParticlePipelineState_->Create(L"EdgeParticle CPSO", desc);
+	//}
 
 }
 
@@ -952,95 +952,95 @@ void GPUParticleManager::CreateField() {
 }
 
 void GPUParticleManager::CreateTranslateModelParticle() {
-	{
-		enum {
-			kParticle,
-			kParticleConsumeBuffer,
-			kParticleCounter,
-			kStartVertices,
-			kEndVertices,
-			kStartVerticesSize,
-			kEndVerticesSize,
-			kStartWorldTransform,
-			kEndWorldTransform,
-			kEmitter,
-			kRandom,
-			kCount,
-		};
-		translateModelParticleRootSignature_ = std::make_unique<RootSignature>();
+	//{
+	//	enum {
+	//		kParticle,
+	//		kParticleConsumeBuffer,
+	//		kParticleCounter,
+	//		kStartVertices,
+	//		kEndVertices,
+	//		kStartVerticesSize,
+	//		kEndVerticesSize,
+	//		kStartWorldTransform,
+	//		kEndWorldTransform,
+	//		kEmitter,
+	//		kRandom,
+	//		kCount,
+	//	};
+	//	translateModelParticleRootSignature_ = std::make_unique<RootSignature>();
 
-		CD3DX12_DESCRIPTOR_RANGE particleConsumeBuffer[1]{};
-		particleConsumeBuffer[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 1, 0);
+	//	CD3DX12_DESCRIPTOR_RANGE particleConsumeBuffer[1]{};
+	//	particleConsumeBuffer[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 1, 0);
 
-		CD3DX12_ROOT_PARAMETER rootParameters[kCount]{};
-		rootParameters[kParticle].InitAsUnorderedAccessView(0);
-		rootParameters[kParticleConsumeBuffer].InitAsDescriptorTable(_countof(particleConsumeBuffer), particleConsumeBuffer);
-		rootParameters[kParticleCounter].InitAsUnorderedAccessView(2);
-		rootParameters[kStartVertices].InitAsShaderResourceView(0);
-		rootParameters[kEndVertices].InitAsShaderResourceView(1);
-		rootParameters[kStartVerticesSize].InitAsConstantBufferView(0);
-		rootParameters[kEndVerticesSize].InitAsConstantBufferView(1);
-		rootParameters[kStartWorldTransform].InitAsConstantBufferView(2);
-		rootParameters[kEndWorldTransform].InitAsConstantBufferView(3);
-		rootParameters[kEmitter].InitAsConstantBufferView(4);
-		rootParameters[kRandom].InitAsConstantBufferView(5);
+	//	CD3DX12_ROOT_PARAMETER rootParameters[kCount]{};
+	//	rootParameters[kParticle].InitAsUnorderedAccessView(0);
+	//	rootParameters[kParticleConsumeBuffer].InitAsDescriptorTable(_countof(particleConsumeBuffer), particleConsumeBuffer);
+	//	rootParameters[kParticleCounter].InitAsUnorderedAccessView(2);
+	//	rootParameters[kStartVertices].InitAsShaderResourceView(0);
+	//	rootParameters[kEndVertices].InitAsShaderResourceView(1);
+	//	rootParameters[kStartVerticesSize].InitAsConstantBufferView(0);
+	//	rootParameters[kEndVerticesSize].InitAsConstantBufferView(1);
+	//	rootParameters[kStartWorldTransform].InitAsConstantBufferView(2);
+	//	rootParameters[kEndWorldTransform].InitAsConstantBufferView(3);
+	//	rootParameters[kEmitter].InitAsConstantBufferView(4);
+	//	rootParameters[kRandom].InitAsConstantBufferView(5);
 
-		D3D12_ROOT_SIGNATURE_DESC desc{};
-		desc.pParameters = rootParameters;
-		desc.NumParameters = _countof(rootParameters);
+	//	D3D12_ROOT_SIGNATURE_DESC desc{};
+	//	desc.pParameters = rootParameters;
+	//	desc.NumParameters = _countof(rootParameters);
 
-		translateModelParticleRootSignature_->Create(L"TranslateModelParticleRootSignature", desc);
-	}
-	// アップデートパイプライン
-	{
-		translateModelParticlePipelineState_ = std::make_unique<PipelineState>();
-		D3D12_COMPUTE_PIPELINE_STATE_DESC desc{};
-		desc.pRootSignature = *translateModelParticleRootSignature_;
-		auto cs = ShaderCompiler::Compile(L"Resources/Shaders/GPUParticle/TransformModelParticle.hlsl", L"cs_6_0");
-		desc.CS = CD3DX12_SHADER_BYTECODE(cs->GetBufferPointer(), cs->GetBufferSize());
-		translateModelParticlePipelineState_->Create(L"TranslateModelParticlePipelineState", desc);
-	}
+	//	translateModelParticleRootSignature_->Create(L"TranslateModelParticleRootSignature", desc);
+	//}
+	//// アップデートパイプライン
+	//{
+	//	translateModelParticlePipelineState_ = std::make_unique<PipelineState>();
+	//	D3D12_COMPUTE_PIPELINE_STATE_DESC desc{};
+	//	desc.pRootSignature = *translateModelParticleRootSignature_;
+	//	auto cs = ShaderCompiler::Compile(L"Resources/Shaders/GPUParticle/TransformModelParticle.hlsl", L"cs_6_0");
+	//	desc.CS = CD3DX12_SHADER_BYTECODE(cs->GetBufferPointer(), cs->GetBufferSize());
+	//	translateModelParticlePipelineState_->Create(L"TranslateModelParticlePipelineState", desc);
+	//}
 
-	{
-		enum {
-			kParticle,
-			kParticleConsumeBuffer,
-			kParticleCounter,
-			kVertices,
-			kVerticesSize,
-			kWorldTransform,
-			kEmitter,
-			kRandom,
-			kCount,
-		};
-		translateModelAreaParticleRootSignature_ = std::make_unique<RootSignature>();
+	//{
+	//	enum {
+	//		kParticle,
+	//		kParticleConsumeBuffer,
+	//		kParticleCounter,
+	//		kVertices,
+	//		kVerticesSize,
+	//		kWorldTransform,
+	//		kEmitter,
+	//		kRandom,
+	//		kCount,
+	//	};
+	//	translateModelAreaParticleRootSignature_ = std::make_unique<RootSignature>();
 
-		CD3DX12_DESCRIPTOR_RANGE particleConsumeBuffer[1]{};
-		particleConsumeBuffer[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 1, 0);
+	//	CD3DX12_DESCRIPTOR_RANGE particleConsumeBuffer[1]{};
+	//	particleConsumeBuffer[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 1, 0);
 
-		CD3DX12_ROOT_PARAMETER rootParameters[kCount]{};
-		rootParameters[kParticle].InitAsUnorderedAccessView(0);
-		rootParameters[kParticleConsumeBuffer].InitAsDescriptorTable(_countof(particleConsumeBuffer), particleConsumeBuffer);
-		rootParameters[kParticleCounter].InitAsUnorderedAccessView(2);
-		rootParameters[kVertices].InitAsShaderResourceView(0);
-		rootParameters[kVerticesSize].InitAsConstantBufferView(0);
-		rootParameters[kWorldTransform].InitAsConstantBufferView(1);
-		rootParameters[kEmitter].InitAsConstantBufferView(2);
-		rootParameters[kRandom].InitAsConstantBufferView(3);
+	//	CD3DX12_ROOT_PARAMETER rootParameters[kCount]{};
+	//	rootParameters[kParticle].InitAsUnorderedAccessView(0);
+	//	rootParameters[kParticleConsumeBuffer].InitAsDescriptorTable(_countof(particleConsumeBuffer), particleConsumeBuffer);
+	//	rootParameters[kParticleCounter].InitAsUnorderedAccessView(2);
+	//	rootParameters[kVertices].InitAsShaderResourceView(0);
+	//	rootParameters[kVerticesSize].InitAsConstantBufferView(0);
+	//	rootParameters[kWorldTransform].InitAsConstantBufferView(1);
+	//	rootParameters[kEmitter].InitAsConstantBufferView(2);
+	//	rootParameters[kRandom].InitAsConstantBufferView(3);
 
-		D3D12_ROOT_SIGNATURE_DESC desc{};
-		desc.pParameters = rootParameters;
-		desc.NumParameters = _countof(rootParameters);
+	//	D3D12_ROOT_SIGNATURE_DESC desc{};
+	//	desc.pParameters = rootParameters;
+	//	desc.NumParameters = _countof(rootParameters);
 
-		translateModelAreaParticleRootSignature_->Create(L"TranslateModelAreaParticleRootSignature", desc);
-	}
-	// アップデートパイプライン
-	{
-		translateModelAreaParticlePipelineState_ = std::make_unique<PipelineState>();
-		D3D12_COMPUTE_PIPELINE_STATE_DESC desc{};
-		desc.pRootSignature = *translateModelAreaParticleRootSignature_;
-		auto cs = ShaderCompiler::Compile(L"Resources/Shaders/GPUParticle/TransformModelAreaParticle.hlsl", L"cs_6_0");
-		desc.CS = CD3DX12_SHADER_BYTECODE(cs->GetBufferPointer(), cs->GetBufferSize());
-		translateModelAreaParticlePipelineState_->Create(L"translateModelAreaParticlePipelineState_", desc);
-	}
+	//	translateModelAreaParticleRootSignature_->Create(L"TranslateModelAreaParticleRootSignature", desc);
+	//}
+	//// アップデートパイプライン
+	//{
+	//	translateModelAreaParticlePipelineState_ = std::make_unique<PipelineState>();
+	//	D3D12_COMPUTE_PIPELINE_STATE_DESC desc{};
+	//	desc.pRootSignature = *translateModelAreaParticleRootSignature_;
+	//	auto cs = ShaderCompiler::Compile(L"Resources/Shaders/GPUParticle/TransformModelAreaParticle.hlsl", L"cs_6_0");
+	//	desc.CS = CD3DX12_SHADER_BYTECODE(cs->GetBufferPointer(), cs->GetBufferSize());
+	//	translateModelAreaParticlePipelineState_->Create(L"translateModelAreaParticlePipelineState_", desc);
+	//}
 }

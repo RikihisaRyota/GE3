@@ -1,4 +1,5 @@
 #include "GPUParticle.hlsli"
+#include "GPUParticleShaderStructs.h"
 
 RWStructuredBuffer<Particle> Output : register(u0);
 
@@ -46,7 +47,7 @@ ConstantBuffer<Count> indexCount : register(b2);
 
 ConstantBuffer<MeshEmitter> meshEmitter : register(b3);
 
-[numthreads(meshThreadBlockSize, 1, 1)]
+[numthreads(GPUParticleShaderStructs::MeshComputeThreadBlockSize, 1, 1)]
 void main(uint3 DTid : SV_DispatchThreadID)
 {
     uint triIndex = DTid.x;

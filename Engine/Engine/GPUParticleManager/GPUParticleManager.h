@@ -84,12 +84,12 @@ private:
 	std::unique_ptr<CommandSignature> spawnCommandSignature_;
 	std::unique_ptr<PipelineState> bulletPipelineState_;
 	std::unique_ptr<RootSignature> bulletRootSignature_;
-	std::unique_ptr<PipelineState> meshParticlePipelineState_;
-	std::unique_ptr<RootSignature> meshParticleRootSignature_;
-	std::unique_ptr<PipelineState> vertexParticlePipelineState_;
-	std::unique_ptr<RootSignature> vertexParticleRootSignature_;
-	std::unique_ptr<PipelineState> edgeParticlePipelineState_;
-	std::unique_ptr<RootSignature> edgeParticleRootSignature_;
+	//std::unique_ptr<PipelineState> meshParticlePipelineState_;
+	//std::unique_ptr<RootSignature> meshParticleRootSignature_;
+	//std::unique_ptr<PipelineState> vertexParticlePipelineState_;
+	//std::unique_ptr<RootSignature> vertexParticleRootSignature_;
+	//std::unique_ptr<PipelineState> edgeParticlePipelineState_;
+	//std::unique_ptr<RootSignature> edgeParticleRootSignature_;
 
 	std::unique_ptr<RootSignature> checkFieldRootSignature_;
 	std::unique_ptr<PipelineState> checkFieldPipelineState_;
@@ -100,10 +100,10 @@ private:
 	std::unique_ptr<RootSignature> collisionFieldRootSignature_;
 	std::unique_ptr<PipelineState> collisionFieldPipelineState_;
 
-	std::unique_ptr<RootSignature> translateModelParticleRootSignature_;
-	std::unique_ptr<PipelineState> translateModelParticlePipelineState_;
-	std::unique_ptr<RootSignature> translateModelAreaParticleRootSignature_;
-	std::unique_ptr<PipelineState> translateModelAreaParticlePipelineState_;
+	//std::unique_ptr<RootSignature> translateModelParticleRootSignature_;
+	//std::unique_ptr<PipelineState> translateModelParticlePipelineState_;
+	//std::unique_ptr<RootSignature> translateModelAreaParticleRootSignature_;
+	//std::unique_ptr<PipelineState> translateModelAreaParticlePipelineState_;
 
 	std::unique_ptr<RootSignature> tailsRootSignature_;
 	std::unique_ptr<PipelineState> tailsPipelineState_;

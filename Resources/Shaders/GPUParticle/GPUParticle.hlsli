@@ -1,3 +1,5 @@
+#include "GPUParticleShaderStructs.h"
+
 #define PI 3.14159265359f
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -318,523 +320,10 @@ float32_t3 pointOnCapsule(float32_t3 p, float32_t3 a, float32_t3 b, float32_t r,
     return pointOnSurface;
 }
 /////////////////////////////////////////////////////////////////////////////////////////
-// Utility
-struct UintMinMax
-{
-    uint32_t min;
-    uint32_t max;
-    uint32_t2 pad;
-};
-
-struct FloatMinMax
-{
-    float32_t min;
-    float32_t max;
-    float32_t2 pad;
-};
-
-
-struct Float3MinMax
-{
-    float32_t3 min;
-    uint32_t pad1;
-    float32_t3 max;
-    uint32_t pad2;
-};
-
-struct Float4MinMax
-{
-    float32_t4 min;
-    float32_t4 max;
-};
-
-struct Float3StartEnd
-{
-    Float3MinMax start;
-    Float3MinMax end;
-};
-
-struct Float4StartEnd
-{
-    Float4MinMax start;
-    Float4MinMax end;
-};
-//
-struct VertexShaderOutput
-{
-    float32_t4 position : SV_POSITION;
-    float32_t2 texcoord : TEXCOORD0;
-    float32_t4 color : COLOR;
-    uint32_t instanceId : SV_InstanceID;
-};
-
-struct ParticleLifeTime
-{
-    uint32_t time;
-    uint32_t maxTime;
-    uint32_t isEmitterLife;
-	uint32_t isCountDown;
-};
-
-struct ParticleAttributes {
-	uint32_t attribute;
-	uint32_t mask;
-	float32_t2 pad;
-};
-struct Translate {
-	Float3MinMax easing;
-	float32_t3 translate;
-	uint32_t isEasing;
-
-    float32_t radius;
-	float32_t attraction;
-	float32_t2 pad;
-};
-
-struct ParticleParent{
-    uint32_t isParent;
-    uint32_t emitterType;
-    uint32_t emitterCount;
-    uint32_t pad;
-};
-
-struct TriangleInfo {
-	float32_t3 vertex;
-    //float32_t pad;
-	float32_t3 weight;
-    //float32_t pad1;
-};
-
-struct ParticleTrails {
-	uint32_t isTrails;
-	uint32_t textureIndex;
-	uint32_t interval;
-	uint32_t time;
-
-	float lifeLimit;
-	uint32_t width;
-    uint32_t startIndex;
-	uint32_t endIndex;
-};
-
-struct TrailsData {
-	uint32_t startIndex;
-};
-
-struct Particle
-{
-	ParticleTrails particleTrails;
-    TriangleInfo triangleInfo;
-
-    Float3MinMax scaleRange;
-
-    ParticleLifeTime particleLifeTime;
-
-    Float4MinMax colorRange;
-    float32_t4 color;
-    
-    float32_t3 scale;
-    uint32_t textureIndex;
-
-    
-    Translate translate;
-
-    float32_t4x4 worldMatrix;
-
-    ParticleAttributes collisionInfo;
-
-    ParticleParent parent;
-
-    float32_t3 velocity;
-    uint32_t isAlive;
-
-    float32_t3 acceleration;
-    uint32_t isHit;
-    
-    float32_t rotateVelocity;
-    float32_t rotate;
-    float32_t2 pad;
-};
-
-struct EmitterAABB
-{
-    Float3MinMax range;
-};
-
-struct EmitterSphere
-{
-    float32_t radius;
-    float32_t3 pad;
-    FloatMinMax distanceFactor;
-};
-struct EmitterSegment {
-		float32_t3 origin;
-		float32_t pad;
-		float32_t3 diff;
-		float32_t pad1;
-};
-struct EmitterCapsule {
-	EmitterSegment segment;
-	FloatMinMax distanceFactor;
-	float32_t radius;
-    float32_t3 pad;
-};
-struct EmitterArea{
-    EmitterAABB aabb;
-    EmitterSphere sphere;
-    EmitterCapsule capsule;
-    float32_t3 position;
-    uint32_t type;
-};
-
-struct ScaleAnimation
-{
-    Float3StartEnd range;
-    uint32_t isUniformScale;
-    uint32_t isStaticSize;
-    float32_t2 pad;
-};
-
-struct RotateAnimation
-{
-    FloatMinMax initializeAngle;
-    FloatMinMax rotateSpeed;
-};
-
-struct Velocity3D
-{
-    Float3MinMax range;
-};
-
-struct Acceleration3D
-{
-    Float3MinMax range;
-};
-
-struct EmitterColor
-{
-    Float4StartEnd range;
-    uint32_t isStaticColor;
-    float32_t3 pad;
-};
-
-struct EmitterFrequency
-{
-	int32_t interval;
-	int32_t isLoop;
-	int32_t emitterLife;
-	int32_t isOnce;
-};
-
-struct EmitterTime {
-	int32_t particleTime;
-	int32_t emitterTime;
-	uint32_t2 pad;
-};
-
-struct ParticleLifeSpan
-{
-    UintMinMax range;
-    uint32_t isEmitterLife;
-    uint32_t isCountDown;
-    float32_t2 pad;
-};
-
-struct EmitterParent {
-	float32_t4x4 worldMatrix;
-	uint32_t isParent;
-	uint32_t emitterType;
-	float32_t2 pad;
-};
-
-struct EmitterModel {
-	uint32_t vertexBufferIndex;
-	uint32_t indexBufferIndex;
-    uint32_t vertexCount;
-    uint32_t indexCount;
-};
-
-struct EmitterLocalTransform {
-	float32_t3 scale;
-	float32_t pad;
-	float32_t3 translate;
-	float32_t pad1;
-    float32_t4 rotate;
-};
-
-struct EmitterTrails {
-	uint32_t isTrails;
-	uint32_t textureIndex;
-	uint32_t interval;
-	float width;
-
-	float lifeLimit;
-	float pad[3];
-};
-
-struct TransformModelEmitter {
-	Translate translate;
-
-	ScaleAnimation scale;
-
-	RotateAnimation rotate;
-
-	Velocity3D velocity;
-
-    Acceleration3D acceleration;
-
-	EmitterColor color;
-
-    EmitterFrequency frequency;
-
-    EmitterTime time;
-
-	ParticleLifeSpan particleLifeSpan;
-
-    EmitterTrails emitterTrails;
-
-	ParticleAttributes collisionInfo;
-
-    EmitterParent parent;
-
-    EmitterModel startModel;
-
-    float32_t4x4 startModelWorldMatrix;
-
-	EmitterModel endModel;
-
-    float32_t4x4 endModelWorldMatrix;
-
-	uint32_t textureIndex;
-
-    int32_t emitterCount;
-
-    uint32_t isAlive;
-
-	float32_t pad;
-};
-
-struct TransformAreaEmitter {
-
-		EmitterArea area;
-
-		Translate translate;
-
-		ScaleAnimation scale;
-
-		RotateAnimation rotate;
-
-		Velocity3D velocity;
-
-        Acceleration3D acceleration;
-
-		EmitterColor color;
-
-		EmitterFrequency frequency;
-
-		EmitterTime time;
-
-		ParticleLifeSpan particleLifeSpan;
-
-        EmitterTrails emitterTrails;
-
-		ParticleAttributes collisionInfo;
-
-		EmitterParent parent;
-
-		EmitterModel model;
-
-        float32_t4x4 modelWorldMatrix;
-
-		uint32_t textureIndex;
-
-		int32_t emitterCount;
-
-		uint32_t isAlive;
-
-		float32_t pad;
-	};
-
-struct MeshEmitter {
-    Translate translate;
-
-    EmitterLocalTransform localTransform;
-
-	ScaleAnimation scale;
-
-	RotateAnimation rotateAnimation;
-
-	Velocity3D velocity3D;
-
-    Acceleration3D acceleration;
-
-	EmitterColor color;
-
-    EmitterFrequency frequency;
-    
-    EmitterTime time;
-
-	ParticleLifeSpan particleLifeSpan;
-
-    EmitterTrails emitterTrails;
-
-    ParticleAttributes collisionInfo;
-
-    EmitterParent parent;
-
-    EmitterModel model;
-
-	uint32_t textureIndex;
-
-    uint32_t numCreate;
-
-    uint32_t isAlive;
-
-    int32_t emitterCount;
-};
-
-struct VertexEmitter {
-    Translate translate;
-
-	EmitterLocalTransform localTransform;
-
-	ScaleAnimation scale;
-
-	RotateAnimation rotateAnimation;
-
-	Velocity3D velocity3D;
-
-    Acceleration3D acceleration;
-
-	EmitterColor color;
-
-    EmitterFrequency frequency;
-
-    EmitterTime time;
-
-	ParticleLifeSpan particleLifeSpan;
-
-    EmitterTrails emitterTrails;
-
-    ParticleAttributes collisionInfo;
-
-    EmitterParent parent;
-
-    EmitterModel model;
-
-	uint32_t textureIndex;
-
-    uint32_t isAlive;
-
-    int32_t emitterCount;
-
-    float32_t pad;
-};
-
-struct Emitter
-{
-    EmitterArea area;
-
-    ScaleAnimation scale;
-
-    RotateAnimation rotateAnimation;
-
-    Velocity3D velocity3D;
-
-    Acceleration3D acceleration;
-
-    EmitterColor color;
-	
-    EmitterFrequency frequency;
-
-    EmitterTime time;
-    
-    ParticleLifeSpan particleLifeSpan;
-
-    EmitterTrails emitterTrails;
-    
-    uint32_t textureIndex;
-
-    uint32_t createParticleNum;
-	
-    uint32_t isAlive;
-
-    int32_t emitterCount;
-
-    ParticleAttributes collisionInfo;
-
-    EmitterParent parent;
-};
-
-struct CreateParticleNum
-{
-    uint32_t emitterNum;
-    int32_t createParticleNum;
-    uint32_t maxCreateParticleNum;
-    uint32_t emitterType;
-};
-struct EmitterCounterBuffer
-{
-    uint32_t emitterCounter;
-    uint32_t3 pad;
-};
-
-struct Attraction {
-	float attraction;
-	float32_t3 pad;
-};
-
-
-struct ExternalForce {
-	Float3MinMax externalForce;
-};
-
-struct VelocityRotateForce {
-	float32_t3 direction;
-	float rotateSpeed;
-};
-
-struct PositionRotateForce {
-	float32_t3 direction;
-	float rotateSpeed;
-};
-
-struct Field {
-	Attraction attraction;
-	ExternalForce externalForce;
-    VelocityRotateForce velocityRotateForce ;
-    PositionRotateForce  positionRotateForce  ;
-	uint32_t type;
-	float32_t3 pad;
-};
-
-struct FieldFrequency {
-	uint32_t isLoop;
-	uint32_t lifeTime;
-	float32_t2 pad;
-};
-
-struct FieldForGPU {
-
-    Field field;
-	
-    EmitterArea fieldArea;
-
-	FieldFrequency frequency;
-
-	ParticleAttributes collisionInfo;
-
-	uint32_t isAlive;
-
-	int32_t fieldCount;
-
-    float32_t2 pad;
-};
-
-void ParticleArea(inout Particle particle,EmitterArea area ,inout uint32_t seed){
+void ParticleArea(inout GPUParticleShaderStructs::Particle particle,GPUParticleShaderStructs::EmitterArea area ,inout uint32_t seed){
     particle.translate.translate = area.position;
     if(area.type==0){
-        particle.translate.translate += randomRange(area.aabb.range.min, area.aabb.range.max, seed);
+        particle.translate.translate += randomRange(area.aabb.area.min, area.aabb.area.max, seed);
     }else if(area.type==1){
         float32_t3 normal,direction;
         normal.x = randomRange(-1.0f, 1.0f,seed);
@@ -856,7 +345,7 @@ void ParticleArea(inout Particle particle,EmitterArea area ,inout uint32_t seed)
     }
 }
 
-void ParticleScale(inout Particle particle,ScaleAnimation scale ,inout uint32_t seed){
+void ParticleScale(inout GPUParticleShaderStructs::Particle particle,GPUParticleShaderStructs::ScaleAnimation scale ,inout uint32_t seed){
     if(!scale.isUniformScale && !scale.isStaticSize){
         particle.scaleRange.min.x = randomRange(scale.range.start.min.x, scale.range.start.max.x,seed);
         particle.scaleRange.min.y = randomRange(scale.range.start.min.y, scale.range.start.max.y,seed);
@@ -881,17 +370,17 @@ void ParticleScale(inout Particle particle,ScaleAnimation scale ,inout uint32_t 
     particle.scale = particle.scaleRange.min;
 }
 
-void ParticleRotate(inout Particle particle,RotateAnimation rotateAnimation ,inout uint32_t seed){
+void ParticleRotate(inout GPUParticleShaderStructs::Particle particle,GPUParticleShaderStructs::RotateAnimation rotateAnimation ,inout uint32_t seed){
     particle.rotateVelocity =  randomRange(rotateAnimation.rotateSpeed.min,rotateAnimation.rotateSpeed.max,seed);
     particle.rotate =  randomRange(rotateAnimation.initializeAngle.min,rotateAnimation.initializeAngle.max,seed);
 }
 
-void ParticleVelocity(inout Particle particle,Velocity3D velocity3D, Acceleration3D acceleration,inout uint32_t seed){
+void ParticleVelocity(inout GPUParticleShaderStructs::Particle particle,GPUParticleShaderStructs::Velocity3D velocity3D, GPUParticleShaderStructs::Acceleration3D acceleration,inout uint32_t seed){
     particle.acceleration = randomRange(acceleration.range.min, acceleration.range.max, seed);
     particle.velocity = randomRange(velocity3D.range.min, velocity3D.range.max, seed);
 }
 
-void ParticleColor(inout Particle particle,EmitterColor color ,inout uint32_t seed){
+void ParticleColor(inout GPUParticleShaderStructs::Particle particle,GPUParticleShaderStructs::EmitterColor color ,inout uint32_t seed){
    if(!color.isStaticColor){
         particle.colorRange.min=randomRange(color.range.start.min, color.range.start.max, seed);
         particle.colorRange.max=randomRange(color.range.end.min, color.range.end.max, seed);
@@ -902,20 +391,20 @@ void ParticleColor(inout Particle particle,EmitterColor color ,inout uint32_t se
     particle.color = particle.colorRange.min;
 }
 
-void ParticleLifeTime(inout Particle particle,ParticleLifeSpan particleLifeSpan,inout uint32_t seed){
+void ParticleLifeTime(inout GPUParticleShaderStructs::Particle particle,GPUParticleShaderStructs::ParticleLifeSpan particleLifeSpan,inout uint32_t seed){
     particle.particleLifeTime.isEmitterLife = particleLifeSpan.isEmitterLife;
     particle.particleLifeTime.isCountDown = particleLifeSpan.isCountDown;
     particle.particleLifeTime.maxTime = randomRange(particleLifeSpan.range.min, particleLifeSpan.range.max, seed);
     particle.particleLifeTime.time = 0;
 }
 
-void SetParent(inout Particle particle,EmitterParent parent,uint32_t emitterCount){
+void SetParent(inout GPUParticleShaderStructs::Particle particle,GPUParticleShaderStructs::EmitterParent parent,uint32_t emitterCount){
    particle.parent.isParent=parent.isParent;
    particle.parent.emitterType=parent.emitterType;
    particle.parent.emitterCount=emitterCount;
 };
 
-void ParticleReset(inout Particle particle){
+void ParticleReset(inout GPUParticleShaderStructs::Particle particle){
     particle.isAlive = true;
     particle.isHit = false;
     particle.translate.isEasing = false;
@@ -924,12 +413,12 @@ void ParticleReset(inout Particle particle){
     particle.particleTrails.isTrails = false;
 };
 
-void ParticleTranslate(inout Particle particle,Translate translate,inout uint32_t seed){
+void ParticleTranslate(inout GPUParticleShaderStructs::Particle particle,GPUParticleShaderStructs::Translate translate,inout uint32_t seed){
     particle.translate = translate;
     particle.translate.translate=particle.translate.easing.min;
 }
 
-void ParticleTranslate(inout Particle particle,EmitterArea area ,Translate translate,inout uint32_t seed){
+void ParticleTranslate(inout GPUParticleShaderStructs::Particle particle,GPUParticleShaderStructs::EmitterArea area ,GPUParticleShaderStructs::Translate translate,inout uint32_t seed){
    particle.translate = translate;
    particle.translate.translate = area.position;
     if(area.type==0){
@@ -957,11 +446,11 @@ void ParticleTranslate(inout Particle particle,EmitterArea area ,Translate trans
     particle.translate.easing.min = particle.translate.translate;
 }
 
-void ParticleTriangleInfo(inout Particle particle,TriangleInfo triangleInfo){
+void ParticleTriangleInfo(inout GPUParticleShaderStructs::Particle particle,GPUParticleShaderStructs::TriangleInfo triangleInfo){
     particle.triangleInfo=triangleInfo;
 }
 
-//void ParticleTrail(inout Particle particle,ParticleTrails particleTrails,TrailsPosition trailsPosition) {
+//void ParticleTrail(inout GPUParticleShaderStructs::Particle particle,GPUParticleShaderStructs::ParticleTrails particleTrails,GPUParticleShaderStructs::TrailsPosition trailsPosition) {
 //    if(particle.particleTrails.isTrails){
 //        uint32_t startIndex=trailsPosition.startIndex;
 //        if(trailsPosition.startIndex <= maxTrailNum){
@@ -973,7 +462,7 @@ void ParticleTriangleInfo(inout Particle particle,TriangleInfo triangleInfo){
 //    }
 //}
 
-void CreateParticle(inout Particle particle,Emitter emitter,inout uint32_t seed,uint32_t emitterCount){
+void CreateParticle(inout GPUParticleShaderStructs::Particle particle,GPUParticleShaderStructs::Emitter emitter,inout uint32_t seed,uint32_t emitterCount){
     particle.textureIndex = emitter.textureIndex;
     particle.collisionInfo = emitter.collisionInfo;
     
@@ -994,7 +483,7 @@ void CreateParticle(inout Particle particle,Emitter emitter,inout uint32_t seed,
     ParticleColor(particle, emitter.color,seed); 
 }
 
-void CreateParticle(inout Particle particle,VertexEmitter emitter,float32_t3 translate,TriangleInfo triangleInfo,inout uint32_t seed,uint32_t emitterCount){
+void CreateParticle(inout GPUParticleShaderStructs::Particle particle,GPUParticleShaderStructs::VertexEmitter emitter,float32_t3 translate,GPUParticleShaderStructs::TriangleInfo triangleInfo,inout uint32_t seed,uint32_t emitterCount){
     particle.textureIndex = emitter.textureIndex;
     particle.collisionInfo = emitter.collisionInfo;
     
@@ -1018,7 +507,7 @@ void CreateParticle(inout Particle particle,VertexEmitter emitter,float32_t3 tra
     ParticleColor(particle, emitter.color,seed); 
 }
 
-void CreateParticle(inout Particle particle,MeshEmitter emitter,float32_t3 translate,TriangleInfo triangleInfo, inout uint32_t seed,uint32_t emitterCount){
+void CreateParticle(inout GPUParticleShaderStructs::Particle particle,GPUParticleShaderStructs::MeshEmitter emitter,float32_t3 translate,GPUParticleShaderStructs::TriangleInfo triangleInfo, inout uint32_t seed,uint32_t emitterCount){
     particle.textureIndex = emitter.textureIndex;
     particle.collisionInfo = emitter.collisionInfo;
 
@@ -1042,7 +531,7 @@ void CreateParticle(inout Particle particle,MeshEmitter emitter,float32_t3 trans
     ParticleColor(particle, emitter.color,seed); 
 }
 
-void CreateParticle(inout Particle particle,TransformModelEmitter emitter ,inout uint32_t seed,uint32_t emitterCount){
+void CreateParticle(inout GPUParticleShaderStructs::Particle particle,GPUParticleShaderStructs::TransformModelEmitter emitter ,inout uint32_t seed,uint32_t emitterCount){
     particle.textureIndex = emitter.textureIndex;
     particle.collisionInfo = emitter.collisionInfo;
     
@@ -1065,7 +554,7 @@ void CreateParticle(inout Particle particle,TransformModelEmitter emitter ,inout
 
 }
 
-void CreateParticle(inout Particle particle,TransformAreaEmitter emitter ,inout uint32_t seed,uint32_t emitterCount){
+void CreateParticle(inout GPUParticleShaderStructs::Particle particle,GPUParticleShaderStructs::TransformAreaEmitter emitter ,inout uint32_t seed,uint32_t emitterCount){
     particle.textureIndex = emitter.textureIndex;
     particle.collisionInfo = emitter.collisionInfo;
     

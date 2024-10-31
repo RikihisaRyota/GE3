@@ -1,20 +1,21 @@
 #include "GPUParticle.hlsli"
+#include "GPUParticleShaderStructs.h"
 
 // エミッター用のバッファ
-RWStructuredBuffer<Emitter> addEmitter : register(u0);
-RWStructuredBuffer<Emitter> origalEmitter : register(u1);
+RWStructuredBuffer<EmitterForGPU> addEmitter : register(u0);
+RWStructuredBuffer<EmitterForGPU> origalEmitter : register(u1);
 
-RWStructuredBuffer<VertexEmitter> addVertexEmitter : register(u2);
-RWStructuredBuffer<VertexEmitter> origalVertexEmitter : register(u3);
+RWStructuredBuffer<VertexEmitterForGPU> addVertexEmitter : register(u2);
+RWStructuredBuffer<VertexEmitterForGPU> origalVertexEmitter : register(u3);
 
-RWStructuredBuffer<MeshEmitter> addMeshEmitter : register(u4);
-RWStructuredBuffer<MeshEmitter> origalMeshEmitter : register(u5);
+RWStructuredBuffer<MeshEmitterForGPU> addMeshEmitter : register(u4);
+RWStructuredBuffer<MeshEmitterForGPU> origalMeshEmitter : register(u5);
 
-RWStructuredBuffer<TransformModelEmitter> addTransformModelEmitter : register(u6);
-RWStructuredBuffer<TransformModelEmitter> origalTransformModelEmitter : register(u7);
+RWStructuredBuffer<TransformModelEmitterForGPU> addTransformModelEmitter : register(u6);
+RWStructuredBuffer<TransformModelEmitterForGPU> origalTransformModelEmitter : register(u7);
 
-RWStructuredBuffer<TransformAreaEmitter> addTransformAreaEmitter : register(u8);
-RWStructuredBuffer<TransformAreaEmitter> origalTransformAreaEmitter : register(u9);
+RWStructuredBuffer<TransformAreaEmitterForGPU> addTransformAreaEmitter : register(u8);
+RWStructuredBuffer<TransformAreaEmitterForGPU> origalTransformAreaEmitter : register(u9);
 
 // エミッターの数を表す定数バッファ
 struct Index{
@@ -107,7 +108,7 @@ bool ShouldReplaceEmitter(TransformAreaEmitter origEmitter, TransformAreaEmitter
 }
 
 
-[numthreads(emitterSize, 1, 1)]
+[numthreads(GPUParticleShaderStructs::MaxEmitterNum, 1, 1)]
 void main(uint3 DTid : SV_DispatchThreadID, uint3 GTid : SV_GroupThreadID, uint3 GID : SV_GroupID)
 {
     // グループスレッドIDを使用して、オリジナルエミッターのインデックスを取得

@@ -1,4 +1,5 @@
 #include "GPUParticle.hlsli"
+#include "GPUParticleShaderStructs.h"
 
 RWStructuredBuffer<Particle> input : register(u0);
 
@@ -7,11 +8,11 @@ AppendStructuredBuffer<uint> outputDrawIndexCommands : register(u2);
 
 RWStructuredBuffer<TrailsData> trails  : register(u3);
 
-StructuredBuffer<Emitter> emitter : register(t0);
-StructuredBuffer<VertexEmitter> vertexEmitter : register(t1);
-StructuredBuffer<MeshEmitter> meshEmitter : register(t2);
-StructuredBuffer<TransformModelEmitter> transformModelEmitter : register(t3);
-StructuredBuffer<TransformAreaEmitter> transformAreaEmitter : register(t4);
+StructuredBuffer<EmitterForGPU> emitter : register(t0);
+StructuredBuffer<VertexEmitterForGPU> vertexEmitter : register(t1);
+StructuredBuffer<MeshEmitterForGPU> meshEmitter : register(t2);
+StructuredBuffer<TransformModelEmitterForGPU> transformModelEmitter : register(t3);
+StructuredBuffer<TransformAreaEmitterForGPU> transformAreaEmitter : register(t4);
 
 struct ViewProjection
 {
@@ -46,12 +47,12 @@ float32_t CheckParticleLifeSpan(inout Particle particle, ParticleLifeSpan partic
 }
 
 
-[numthreads(threadBlockSize, 1, 1)]
+[numthreads(GPUParticleShaderStructs::ComputeThreadBlockSize, 1, 1)]
 void main(uint3 DTid : SV_DispatchThreadID)
 {
-    for(uint32_t i=0;i<processNum ;i++){
-        uint index = DTid.x * processNum + i;
-        if(index > maxParticleNum){
+    for(uint32_t i=0;i<GPUParticleShaderStructs::MaxProcessNum ;i++){
+        uint index = DTid.x * GPUParticleShaderStructs::MaxProcessNum+ i;
+        if(index > GPUParticleShaderStructs::MaxParticleNum){
             return;
         }
         if(input[index].isAlive)
@@ -210,7 +211,7 @@ void main(uint3 DTid : SV_DispatchThreadID)
                     //trails[index].position[particleIndex] = input[index].worldMatrix[3].xyz;
 
                     
-                    if((input[index].particleTrails.endIndex-input[index].particleTrails.startIndex) <= trailsRange){
+                    if((input[index].particleTrails.endIndex-input[index].particleTrails.startIndex) <= GPUParticleShaderStructs::TrailsRange){
                         input[index].particleTrails.endIndex++;
                     }else{
                         input[index].particleTrails.endIndex = input[index].particleTrails.startIndex;
@@ -220,7 +221,6 @@ void main(uint3 DTid : SV_DispatchThreadID)
                     input[index].particleTrails.time++;
                 }
             }else if(!input[index].isAlive) {
-                //trails[index].isTrails = false;
             }
         }
     }

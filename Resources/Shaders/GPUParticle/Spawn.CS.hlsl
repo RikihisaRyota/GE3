@@ -1,4 +1,5 @@
 #include "GPUParticle.hlsli"
+#include "GPUParticleShaderStructs.h"
 
 RWStructuredBuffer<Particle> Output : register(u0);
 ConsumeStructuredBuffer<uint> particleIndexCommands : register(u1);
@@ -10,11 +11,11 @@ struct CounterParticle
 };
 RWStructuredBuffer<CounterParticle> particleIndexCounter : register(u3);
 
-StructuredBuffer<Emitter> gEmitter : register(t0);
-StructuredBuffer<VertexEmitter> gVertexEmitter : register(t1);
-StructuredBuffer<MeshEmitter> gMeshEmitter : register(t2);
-StructuredBuffer<TransformModelEmitter> gTransformModelEmitter : register(t3);
-StructuredBuffer<TransformAreaEmitter> gTransformAreaEmitter : register(t4);
+StructuredBuffer<EmitterForGPU> gEmitter : register(t0);
+StructuredBuffer<VertexEmitterForGPU> gVertexEmitter : register(t1);
+StructuredBuffer<MeshEmitterForGPU> gMeshEmitter : register(t2);
+StructuredBuffer<TransformModelEmitterForGPU> gTransformModelEmitter : register(t3);
+StructuredBuffer<TransformAreaEmitterForGPU> gTransformAreaEmitter : register(t4);
 
 struct Vertex
 {

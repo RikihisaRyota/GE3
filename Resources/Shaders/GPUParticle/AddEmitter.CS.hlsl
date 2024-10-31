@@ -1,35 +1,38 @@
 #include "GPUParticle.hlsli"
+#include "GPUParticleShaderStructs.h"
+
+
 struct Count {
     int32_t count;
 };
 
-RWStructuredBuffer<Emitter> origalEmitter : register(u0);
+RWStructuredBuffer<EmitterForGPU> origalEmitter : register(u0);
 RWStructuredBuffer<Count> createEmitterCounter : register(u1);
 
-RWStructuredBuffer<VertexEmitter> origalVertexEmitter : register(u2);
+RWStructuredBuffer<VertexEmitterForGPU> origalVertexEmitter : register(u2);
 RWStructuredBuffer<Count> createVertexEmitterCounter : register(u3);
 
-RWStructuredBuffer<MeshEmitter> origalMeshEmitter : register(u4);
+RWStructuredBuffer<MeshEmitterForGPU> origalMeshEmitter : register(u4);
 RWStructuredBuffer<Count> createMeshEmitterCounter : register(u5);
 
-RWStructuredBuffer<TransformModelEmitter> origalTransformModelEmitter : register(u6);
+RWStructuredBuffer<TransformModelEmitterForGPU> origalTransformModelEmitter : register(u6);
 RWStructuredBuffer<Count> createTransformModelEmitterCounter : register(u7);
 
-RWStructuredBuffer<TransformAreaEmitter> origalTransformAreaEmitter : register(u8);
+RWStructuredBuffer<TransformAreaEmitterForGPU> origalTransformAreaEmitter : register(u8);
 RWStructuredBuffer<Count> createTransformAreaEmitterCounter : register(u9);
 
-RWStructuredBuffer<Emitter> addEmitter : register(u10);
-RWStructuredBuffer<VertexEmitter> addVertexEmitter : register(u11);
-RWStructuredBuffer<MeshEmitter> addMeshEmitter : register(u12);
-RWStructuredBuffer<TransformModelEmitter> addTransformModelEmitter : register(u13);
-RWStructuredBuffer<TransformAreaEmitter> addTransformAreaEmitter : register(u14);
+RWStructuredBuffer<EmitterForGPU> addEmitter : register(u10);
+RWStructuredBuffer<VertexEmitterForGPU> addVertexEmitter : register(u11);
+RWStructuredBuffer<MeshEmitterForGPU> addMeshEmitter : register(u12);
+RWStructuredBuffer<TransformModelEmitterForGPU> addTransformModelEmitter : register(u13);
+RWStructuredBuffer<TransformAreaEmitterForGPU> addTransformAreaEmitter : register(u14);
 
 void ResetEmitter(inout int32_t emitterCount,inout uint32_t isAlive){
     emitterCount = -1;
     isAlive = false;
 }
 
-[numthreads(emitterSize, 1, 1)]
+[numthreads(GPUParticleShaderStructs::MaxEmitterNum, 1, 1)]
 void main(uint3 DTid : SV_DispatchThreadID)
 {
     if (createEmitterCounter[0].count > 0) {

@@ -1,4 +1,5 @@
 #include "GPUParticle.hlsli"
+#include "GPUParticleShaderStructs.h"
 
 struct BulletEmitter{
         ParticleAttributes collisionInfo;
@@ -14,7 +15,7 @@ struct BulletEmitter{
         }emitter;
 };
 
-StructuredBuffer<BulletEmitter> bullets : register(t0);
+StructuredBuffer<BulletForGPU> bullets : register(t0);
 
 RWStructuredBuffer<Particle> particle : register(u0);
 
@@ -52,7 +53,7 @@ bool Collision(Circle circleA,  Circle circleB) {
     return distance <= radiusSum;
 }
 
-[numthreads(threadBlockSize, 1, 1)]
+[numthreads(GPUParticleShaderStructs::ComputeThreadBlockSize, 1, 1)]
 void main( uint3 DTid : SV_DispatchThreadID )
 {
     uint32_t index=DTid.x;

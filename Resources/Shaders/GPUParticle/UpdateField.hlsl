@@ -1,10 +1,11 @@
 #include "GPUParticle.hlsli"
+#include "GPUParticleShaderStructs.h"
 
 RWStructuredBuffer<FieldForGPU> origalField : register(u0);
 AppendStructuredBuffer<uint> fieldIndexStockBuffer : register(u1);
 AppendStructuredBuffer<uint> fieldIndexBuffer : register(u2);
 
-[numthreads(fieldSize, 1, 1)]
+[numthreads(GPUParticleShaderStructs::MaxFieldNum, 1, 1)]
 void main( uint3 DTid : SV_DispatchThreadID )
 {
     uint32_t index = DTid.x;

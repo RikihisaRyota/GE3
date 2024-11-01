@@ -207,7 +207,7 @@ struct Particle
 		Vector4 color;
 
 		Vector3 scale;
-		uint32_t textureInidex;
+		uint32_t textureIndex;
 
 		Translate translate;
 
@@ -306,8 +306,8 @@ struct Particle
 			emitterTime = 0;
 		};
 #endif
-		uint32_t particleTime;
-		uint32_t emitterTime;
+		int32_t particleTime;
+		int32_t emitterTime;
 		Vector2 pad;
 	};
 

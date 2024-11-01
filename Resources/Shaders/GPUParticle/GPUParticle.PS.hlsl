@@ -3,7 +3,7 @@
 
 #define myTex2DSpace space1
 
-StructuredBuffer<Particle> gParticle : register(t0);
+StructuredBuffer<GPUParticleShaderStructs::Particle> gParticle : register(t0);
 
 Texture2D<float4> gTexture[] : register(t0, myTex2DSpace);
 SamplerState gSampler : register(s0);

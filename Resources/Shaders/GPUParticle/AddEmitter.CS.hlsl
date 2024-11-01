@@ -6,26 +6,26 @@ struct Count {
     int32_t count;
 };
 
-RWStructuredBuffer<EmitterForGPU> origalEmitter : register(u0);
+RWStructuredBuffer<GPUParticleShaderStructs::EmitterForGPU> origalEmitter : register(u0);
 RWStructuredBuffer<Count> createEmitterCounter : register(u1);
 
-RWStructuredBuffer<VertexEmitterForGPU> origalVertexEmitter : register(u2);
+RWStructuredBuffer<GPUParticleShaderStructs::VertexEmitterForGPU> origalVertexEmitter : register(u2);
 RWStructuredBuffer<Count> createVertexEmitterCounter : register(u3);
 
-RWStructuredBuffer<MeshEmitterForGPU> origalMeshEmitter : register(u4);
+RWStructuredBuffer<GPUParticleShaderStructs::MeshEmitterForGPU> origalMeshEmitter : register(u4);
 RWStructuredBuffer<Count> createMeshEmitterCounter : register(u5);
 
-RWStructuredBuffer<TransformModelEmitterForGPU> origalTransformModelEmitter : register(u6);
+RWStructuredBuffer<GPUParticleShaderStructs::TransformModelEmitterForGPU> origalTransformModelEmitter : register(u6);
 RWStructuredBuffer<Count> createTransformModelEmitterCounter : register(u7);
 
-RWStructuredBuffer<TransformAreaEmitterForGPU> origalTransformAreaEmitter : register(u8);
+RWStructuredBuffer<GPUParticleShaderStructs::TransformAreaEmitterForGPU> origalTransformAreaEmitter : register(u8);
 RWStructuredBuffer<Count> createTransformAreaEmitterCounter : register(u9);
 
-RWStructuredBuffer<EmitterForGPU> addEmitter : register(u10);
-RWStructuredBuffer<VertexEmitterForGPU> addVertexEmitter : register(u11);
-RWStructuredBuffer<MeshEmitterForGPU> addMeshEmitter : register(u12);
-RWStructuredBuffer<TransformModelEmitterForGPU> addTransformModelEmitter : register(u13);
-RWStructuredBuffer<TransformAreaEmitterForGPU> addTransformAreaEmitter : register(u14);
+RWStructuredBuffer<GPUParticleShaderStructs::EmitterForGPU> addEmitter : register(u10);
+RWStructuredBuffer<GPUParticleShaderStructs::VertexEmitterForGPU> addVertexEmitter : register(u11);
+RWStructuredBuffer<GPUParticleShaderStructs::MeshEmitterForGPU> addMeshEmitter : register(u12);
+RWStructuredBuffer<GPUParticleShaderStructs::TransformModelEmitterForGPU> addTransformModelEmitter : register(u13);
+RWStructuredBuffer<GPUParticleShaderStructs::TransformAreaEmitterForGPU> addTransformAreaEmitter : register(u14);
 
 void ResetEmitter(inout int32_t emitterCount,inout uint32_t isAlive){
     emitterCount = -1;
@@ -39,7 +39,7 @@ void main(uint3 DTid : SV_DispatchThreadID)
         // 現在のスレット
         uint32_t index = DTid.x;
         // 現在のスレッドが処理するエミッターを取得
-        Emitter currentEmitter = origalEmitter[index];
+        GPUParticleShaderStructs::EmitterForGPU currentEmitter = origalEmitter[index];
 
         // もしエミッターがアクティブでない場合にのみ処理を行う
         if (!currentEmitter.isAlive) {
@@ -49,7 +49,7 @@ void main(uint3 DTid : SV_DispatchThreadID)
 
             // valが0以上の場合にのみ新しいエミッターを取得
             if (val >= 0) {
-                Emitter newEmitter = addEmitter[val];
+                GPUParticleShaderStructs::EmitterForGPU newEmitter = addEmitter[val];
 
                 // 新しいエミッターがアクティブな場合のみ更新
                 if (newEmitter.isAlive) {
@@ -64,14 +64,14 @@ void main(uint3 DTid : SV_DispatchThreadID)
 // VertexEmitter
     if (createVertexEmitterCounter[0].count > 0) {
         uint32_t index = DTid.x;
-        VertexEmitter currentEmitter = origalVertexEmitter[index];
+        GPUParticleShaderStructs::VertexEmitterForGPU currentEmitter = origalVertexEmitter[index];
 
         if (!currentEmitter.isAlive) {
             int32_t val = -1;
             InterlockedAdd(createVertexEmitterCounter[0].count, -1, val);
 
             if (val >= 0) {
-                VertexEmitter newEmitter = addVertexEmitter[val];
+                GPUParticleShaderStructs::VertexEmitterForGPU newEmitter = addVertexEmitter[val];
 
                 if (newEmitter.isAlive) {
                     origalVertexEmitter[index] = newEmitter;
@@ -84,14 +84,14 @@ void main(uint3 DTid : SV_DispatchThreadID)
     // MeshEmitter
     if (createMeshEmitterCounter[0].count > 0) {
         uint32_t index = DTid.x;
-        MeshEmitter currentEmitter = origalMeshEmitter[index];
+        GPUParticleShaderStructs::MeshEmitterForGPU currentEmitter = origalMeshEmitter[index];
 
         if (!currentEmitter.isAlive) {
             int32_t val = -1;
             InterlockedAdd(createMeshEmitterCounter[0].count, -1, val);
 
             if (val >= 0) {
-                MeshEmitter newEmitter = addMeshEmitter[val];
+                GPUParticleShaderStructs::MeshEmitterForGPU newEmitter = addMeshEmitter[val];
 
                 if (newEmitter.isAlive) {
                     origalMeshEmitter[index] = newEmitter;
@@ -104,14 +104,14 @@ void main(uint3 DTid : SV_DispatchThreadID)
     // TransformModelEmitter
     if (createTransformModelEmitterCounter[0].count > 0) {
         uint32_t index = DTid.x;
-        TransformModelEmitter currentEmitter = origalTransformModelEmitter[index];
+        GPUParticleShaderStructs::TransformModelEmitterForGPU currentEmitter = origalTransformModelEmitter[index];
 
         if (!currentEmitter.isAlive) {
             int32_t val = -1;
             InterlockedAdd(createTransformModelEmitterCounter[0].count, -1, val);
 
             if (val >= 0) {
-                TransformModelEmitter newEmitter = addTransformModelEmitter[val];
+                GPUParticleShaderStructs::TransformModelEmitterForGPU newEmitter = addTransformModelEmitter[val];
 
                 if (newEmitter.isAlive) {
                     origalTransformModelEmitter[index] = newEmitter;
@@ -124,14 +124,14 @@ void main(uint3 DTid : SV_DispatchThreadID)
     // TransformAreaEmitter
     if (createTransformAreaEmitterCounter[0].count > 0) {
         uint32_t index = DTid.x;
-        TransformAreaEmitter currentEmitter = origalTransformAreaEmitter[index];
+        GPUParticleShaderStructs::TransformAreaEmitterForGPU currentEmitter = origalTransformAreaEmitter[index];
 
         if (!currentEmitter.isAlive) {
             int32_t val = -1;
             InterlockedAdd(createTransformAreaEmitterCounter[0].count, -1, val);
 
             if (val >= 0) {
-                TransformAreaEmitter newEmitter = addTransformAreaEmitter[val];
+                GPUParticleShaderStructs::TransformAreaEmitterForGPU newEmitter = addTransformAreaEmitter[val];
 
                 if (newEmitter.isAlive) {
                     origalTransformAreaEmitter[index] = newEmitter;

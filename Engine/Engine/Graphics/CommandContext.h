@@ -41,6 +41,7 @@ public:
 	void ClearColor(ColorBuffer& target, float Colour[4]);
 	void ClearDepth(DepthBuffer& target);
 	void ClearDepth(DepthBuffer& target,float clearValue);
+	void ClearBuffer(GpuResource& dest, size_t bufferSize);
 
 	void SetPipelineState(const PipelineState& pipelineState);
 	void SetGraphicsRootSignature(const RootSignature& rootSignature);

@@ -2,7 +2,7 @@
 #include "GPUParticleShaderStructs.h"
 
 struct BulletEmitter{
-        ParticleAttributes collisionInfo;
+        GPUParticleShaderStructs::ParticleAttributes collisionInfo;
         struct Bullet{
         float32_t3 position;
 		float32_t radius;
@@ -11,13 +11,13 @@ struct BulletEmitter{
         }bullet;
 
         struct Emitter{
-            ParticleLifeSpan particleLifeSpan;
+            GPUParticleShaderStructs::ParticleLifeSpan particleLifeSpan;
         }emitter;
 };
 
-StructuredBuffer<BulletForGPU> bullets : register(t0);
+StructuredBuffer<GPUParticleShaderStructs::BulletForGPU> bullets : register(t0);
 
-RWStructuredBuffer<Particle> particle : register(u0);
+RWStructuredBuffer<GPUParticleShaderStructs::Particle> particle : register(u0);
 
 struct BulletCount{
     uint32_t count;
@@ -60,7 +60,7 @@ void main( uint3 DTid : SV_DispatchThreadID )
     if(particle[index].isAlive&&!particle[index].isHit){
         uint32_t seed = setSeed(index * gRandom.random);
         Circle a,b;
-        a.position=particle[index].worldMatrix[3].xyz;
+        a.position=particle[index].matWorld[3].xyz;
         a.radius=particle[index].scale.x;
         for(uint32_t i=0;i<bulletCount.count;++i){
             if ((particle[index].collisionInfo.mask & bullets[i].collisionInfo.attribute) != 0 &&

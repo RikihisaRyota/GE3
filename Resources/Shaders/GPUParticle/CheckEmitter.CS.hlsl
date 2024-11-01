@@ -2,20 +2,20 @@
 #include "GPUParticleShaderStructs.h"
 
 // エミッター用のバッファ
-RWStructuredBuffer<EmitterForGPU> addEmitter : register(u0);
-RWStructuredBuffer<EmitterForGPU> origalEmitter : register(u1);
+RWStructuredBuffer<GPUParticleShaderStructs::EmitterForGPU> addEmitter : register(u0);
+RWStructuredBuffer<GPUParticleShaderStructs::EmitterForGPU> origalEmitter : register(u1);
 
-RWStructuredBuffer<VertexEmitterForGPU> addVertexEmitter : register(u2);
-RWStructuredBuffer<VertexEmitterForGPU> origalVertexEmitter : register(u3);
+RWStructuredBuffer<GPUParticleShaderStructs::VertexEmitterForGPU> addVertexEmitter : register(u2);
+RWStructuredBuffer<GPUParticleShaderStructs::VertexEmitterForGPU> origalVertexEmitter : register(u3);
 
-RWStructuredBuffer<MeshEmitterForGPU> addMeshEmitter : register(u4);
-RWStructuredBuffer<MeshEmitterForGPU> origalMeshEmitter : register(u5);
+RWStructuredBuffer<GPUParticleShaderStructs::MeshEmitterForGPU> addMeshEmitter : register(u4);
+RWStructuredBuffer<GPUParticleShaderStructs::MeshEmitterForGPU> origalMeshEmitter : register(u5);
 
-RWStructuredBuffer<TransformModelEmitterForGPU> addTransformModelEmitter : register(u6);
-RWStructuredBuffer<TransformModelEmitterForGPU> origalTransformModelEmitter : register(u7);
+RWStructuredBuffer<GPUParticleShaderStructs::TransformModelEmitterForGPU> addTransformModelEmitter : register(u6);
+RWStructuredBuffer<GPUParticleShaderStructs::TransformModelEmitterForGPU> origalTransformModelEmitter : register(u7);
 
-RWStructuredBuffer<TransformAreaEmitterForGPU> addTransformAreaEmitter : register(u8);
-RWStructuredBuffer<TransformAreaEmitterForGPU> origalTransformAreaEmitter : register(u9);
+RWStructuredBuffer<GPUParticleShaderStructs::TransformAreaEmitterForGPU> addTransformAreaEmitter : register(u8);
+RWStructuredBuffer<GPUParticleShaderStructs::TransformAreaEmitterForGPU> origalTransformAreaEmitter : register(u9);
 
 // エミッターの数を表す定数バッファ
 struct Index{
@@ -27,7 +27,7 @@ ConstantBuffer<Index> addMeshEmitterCount : register(b2);
 ConstantBuffer<Index> addTransformModelEmitterCount : register(b3);
 ConstantBuffer<Index> addTransformAreaEmitterCount : register(b4);
 
-void UpdateEmitterTime(inout EmitterTime time, bool isOnce, bool isAlive)
+void UpdateEmitterTime(inout GPUParticleShaderStructs::EmitterTime time, bool isOnce, bool isAlive)
 {
     if (isOnce)
     {
@@ -42,67 +42,67 @@ void UpdateEmitterTime(inout EmitterTime time, bool isOnce, bool isAlive)
     }
 }
 
-void ReplaceEmitter(inout Emitter origEmitter, in Emitter addEmitter)
+void ReplaceEmitter(inout GPUParticleShaderStructs::EmitterForGPU origEmitter, in GPUParticleShaderStructs::EmitterForGPU addEmitter)
 {
-    EmitterTime time = origEmitter.time;
+    GPUParticleShaderStructs::EmitterTime time = origEmitter.time;
     UpdateEmitterTime(time, origEmitter.frequency.isOnce, origEmitter.isAlive);
     origEmitter = addEmitter;
     origEmitter.time = time;
 }
 
-void ReplaceEmitter(inout VertexEmitter origEmitter, in VertexEmitter addEmitter)
+void ReplaceEmitter(inout GPUParticleShaderStructs::VertexEmitterForGPU origEmitter, in GPUParticleShaderStructs::VertexEmitterForGPU addEmitter)
 {
-    EmitterTime time = origEmitter.time;
+    GPUParticleShaderStructs::EmitterTime time = origEmitter.time;
     UpdateEmitterTime(time, origEmitter.frequency.isOnce, origEmitter.isAlive);
     origEmitter = addEmitter;
     origEmitter.time = time;
 }
 
-void ReplaceEmitter(inout MeshEmitter origEmitter, in MeshEmitter addEmitter)
+void ReplaceEmitter(inout GPUParticleShaderStructs::MeshEmitterForGPU origEmitter, in GPUParticleShaderStructs::MeshEmitterForGPU addEmitter)
 {
-    EmitterTime time = origEmitter.time;
+    GPUParticleShaderStructs::EmitterTime time = origEmitter.time;
     UpdateEmitterTime(time, origEmitter.frequency.isOnce, origEmitter.isAlive);
     origEmitter = addEmitter;
     origEmitter.time = time;
 }
 
-void ReplaceEmitter(inout TransformModelEmitter origEmitter, in TransformModelEmitter addEmitter)
+void ReplaceEmitter(inout GPUParticleShaderStructs::TransformModelEmitterForGPU origEmitter, in GPUParticleShaderStructs::TransformModelEmitterForGPU addEmitter)
 {
-    EmitterTime time = origEmitter.time;
+    GPUParticleShaderStructs::EmitterTime time = origEmitter.time;
     UpdateEmitterTime(time, origEmitter.frequency.isOnce, origEmitter.isAlive);
     origEmitter = addEmitter;
     origEmitter.time = time;
 }
 
-void ReplaceEmitter(inout TransformAreaEmitter origEmitter, in TransformAreaEmitter addEmitter)
+void ReplaceEmitter(inout GPUParticleShaderStructs::TransformAreaEmitterForGPU origEmitter, in GPUParticleShaderStructs::TransformAreaEmitterForGPU addEmitter)
 {
-    EmitterTime time = origEmitter.time;
+    GPUParticleShaderStructs::EmitterTime time = origEmitter.time;
     UpdateEmitterTime(time, origEmitter.frequency.isOnce, origEmitter.isAlive);
     origEmitter = addEmitter;
     origEmitter.time = time;
 }
 
-bool ShouldReplaceEmitter(Emitter origEmitter, Emitter addEmitter)
+bool ShouldReplaceEmitter(GPUParticleShaderStructs::EmitterForGPU origEmitter, GPUParticleShaderStructs::EmitterForGPU addEmitter)
 {
     return (addEmitter.emitterCount == origEmitter.emitterCount && addEmitter.frequency.isLoop);
 }
 
-bool ShouldReplaceEmitter(VertexEmitter origEmitter, VertexEmitter addEmitter)
+bool ShouldReplaceEmitter(GPUParticleShaderStructs::VertexEmitterForGPU origEmitter, GPUParticleShaderStructs::VertexEmitterForGPU addEmitter)
 {
     return (addEmitter.emitterCount == origEmitter.emitterCount && addEmitter.frequency.isLoop);
 }
 
-bool ShouldReplaceEmitter(MeshEmitter origEmitter, MeshEmitter addEmitter)
+bool ShouldReplaceEmitter(GPUParticleShaderStructs::MeshEmitterForGPU origEmitter, GPUParticleShaderStructs::MeshEmitterForGPU addEmitter)
 {
     return (addEmitter.emitterCount == origEmitter.emitterCount && addEmitter.frequency.isLoop);
 }
 
-bool ShouldReplaceEmitter(TransformModelEmitter origEmitter, TransformModelEmitter addEmitter)
+bool ShouldReplaceEmitter(GPUParticleShaderStructs::TransformModelEmitterForGPU origEmitter, GPUParticleShaderStructs::TransformModelEmitterForGPU addEmitter)
 {
     return (addEmitter.emitterCount == origEmitter.emitterCount && addEmitter.frequency.isLoop);
 }
 
-bool ShouldReplaceEmitter(TransformAreaEmitter origEmitter, TransformAreaEmitter addEmitter)
+bool ShouldReplaceEmitter(GPUParticleShaderStructs::TransformAreaEmitterForGPU origEmitter, GPUParticleShaderStructs::TransformAreaEmitterForGPU addEmitter)
 {
     return (addEmitter.emitterCount == origEmitter.emitterCount && addEmitter.frequency.isLoop);
 }

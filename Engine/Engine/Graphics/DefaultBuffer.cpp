@@ -5,6 +5,7 @@
 #include <d3dx12.h>
 
 #include "GraphicsCore.h"
+#include "CommandContext.h"
 
 DefaultBuffer::~DefaultBuffer() {
 	Destroy();
@@ -14,6 +15,8 @@ void DefaultBuffer::Create(const std::wstring& name, size_t bufferSize, D3D12_RE
 	auto device = GraphicsCore::GetInstance()->GetDevice();
 
 	Destroy();
+
+	bufferSize_ = bufferSize;
 
 	auto desc = CD3DX12_RESOURCE_DESC::Buffer(UINT64(bufferSize + sizeof(UINT)), flags);
 	auto heapProps = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
@@ -55,6 +58,10 @@ void DefaultBuffer::CreateSRV(const D3D12_SHADER_RESOURCE_VIEW_DESC& desc) {
 		&desc,
 		srvHandle_
 	);
+}
+
+void DefaultBuffer::Clear(CommandContext& commandContext) {
+	commandContext.ClearBuffer(*this, UINT64(bufferSize_ + sizeof(UINT)));
 }
 
 void DefaultBuffer::Destroy() {

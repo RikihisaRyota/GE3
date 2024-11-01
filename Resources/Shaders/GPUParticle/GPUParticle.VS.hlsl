@@ -1,7 +1,7 @@
 #include "GPUParticle.hlsli"
 #include "GPUParticleShaderStructs.h"
 
-StructuredBuffer<Particle> gParticle : register(t0);
+StructuredBuffer<GPUParticleShaderStructs::Particle> gParticle : register(t0);
 
 StructuredBuffer<uint> gDrawIndex : register(t1);
 
@@ -27,7 +27,7 @@ VertexShaderOutput main(VertexShaderInput input, uint32_t instanceID : SV_Instan
     VertexShaderOutput output;    
     
     // ワールド座標からスクリーン座標に変換
-    output.position = mul(mul(float32_t4(input.position, 1.0f),gParticle[particleID].worldMatrix), mul(gViewProjection.view, gViewProjection.projection));
+    output.position = mul(mul(float32_t4(input.position, 1.0f),gParticle[particleID].matWorld), mul(gViewProjection.view, gViewProjection.projection));
     
     output.texcoord = input.texcoord;
     

@@ -2,6 +2,15 @@
 
 #define PI 3.14159265359f
 
+struct VertexShaderOutput
+{
+    float32_t4 position : SV_POSITION;
+    float32_t2 texcoord : TEXCOORD0;
+    float32_t4 color : COLOR;
+
+    uint32_t instanceId : SV_InstanceID;
+
+};
 /////////////////////////////////////////////////////////////////////////////////////////
 uint32_t randInt(uint32_t seed) {
     seed ^= seed << 13;
@@ -422,7 +431,7 @@ void ParticleTranslate(inout GPUParticleShaderStructs::Particle particle,GPUPart
    particle.translate = translate;
    particle.translate.translate = area.position;
     if(area.type==0){
-        particle.translate.translate += randomRange(area.aabb.range.min, area.aabb.range.max, seed);
+        particle.translate.translate += randomRange(area.aabb.area.min, area.aabb.area.max, seed);
     }else if(area.type==1){
         float32_t3 normal,direction;
         normal.x = randomRange(-1.0f, 1.0f,seed);
@@ -462,7 +471,7 @@ void ParticleTriangleInfo(inout GPUParticleShaderStructs::Particle particle,GPUP
 //    }
 //}
 
-void CreateParticle(inout GPUParticleShaderStructs::Particle particle,GPUParticleShaderStructs::Emitter emitter,inout uint32_t seed,uint32_t emitterCount){
+void CreateParticle(inout GPUParticleShaderStructs::Particle particle,GPUParticleShaderStructs::EmitterForGPU emitter,inout uint32_t seed,uint32_t emitterCount){
     particle.textureIndex = emitter.textureIndex;
     particle.collisionInfo = emitter.collisionInfo;
     
@@ -474,16 +483,16 @@ void CreateParticle(inout GPUParticleShaderStructs::Particle particle,GPUParticl
     
     ParticleScale(particle, emitter.scale,seed);
     
-    ParticleRotate(particle, emitter.rotateAnimation,seed);
+    ParticleRotate(particle, emitter.rotate,seed);
     
-    ParticleArea(particle, emitter.area,seed);
+    ParticleArea(particle, emitter.emitterArea,seed);
 
-    ParticleVelocity(particle, emitter.velocity3D, emitter.acceleration,seed);
+    ParticleVelocity(particle, emitter.velocity, emitter.acceleration,seed);
     
     ParticleColor(particle, emitter.color,seed); 
 }
 
-void CreateParticle(inout GPUParticleShaderStructs::Particle particle,GPUParticleShaderStructs::VertexEmitter emitter,float32_t3 translate,GPUParticleShaderStructs::TriangleInfo triangleInfo,inout uint32_t seed,uint32_t emitterCount){
+void CreateParticle(inout GPUParticleShaderStructs::Particle particle,GPUParticleShaderStructs::VertexEmitterForGPU emitter,float32_t3 translate,GPUParticleShaderStructs::TriangleInfo triangleInfo,inout uint32_t seed,uint32_t emitterCount){
     particle.textureIndex = emitter.textureIndex;
     particle.collisionInfo = emitter.collisionInfo;
     
@@ -495,19 +504,19 @@ void CreateParticle(inout GPUParticleShaderStructs::Particle particle,GPUParticl
     
     ParticleScale(particle, emitter.scale,seed);
     
-    ParticleRotate(particle, emitter.rotateAnimation,seed);
+    ParticleRotate(particle, emitter.rotate,seed);
 
     ParticleTriangleInfo(particle,triangleInfo);
 
     ParticleTranslate(particle,emitter.translate,seed);
     particle.translate.translate = translate;
     
-    ParticleVelocity(particle, emitter.velocity3D, emitter.acceleration,seed);
+    ParticleVelocity(particle, emitter.velocity, emitter.acceleration,seed);
     
     ParticleColor(particle, emitter.color,seed); 
 }
 
-void CreateParticle(inout GPUParticleShaderStructs::Particle particle,GPUParticleShaderStructs::MeshEmitter emitter,float32_t3 translate,GPUParticleShaderStructs::TriangleInfo triangleInfo, inout uint32_t seed,uint32_t emitterCount){
+void CreateParticle(inout GPUParticleShaderStructs::Particle particle,GPUParticleShaderStructs::MeshEmitterForGPU emitter,float32_t3 translate,GPUParticleShaderStructs::TriangleInfo triangleInfo, inout uint32_t seed,uint32_t emitterCount){
     particle.textureIndex = emitter.textureIndex;
     particle.collisionInfo = emitter.collisionInfo;
 
@@ -519,19 +528,19 @@ void CreateParticle(inout GPUParticleShaderStructs::Particle particle,GPUParticl
     
     ParticleScale(particle, emitter.scale,seed);
     
-    ParticleRotate(particle, emitter.rotateAnimation,seed);
+    ParticleRotate(particle, emitter.rotate,seed);
 
     ParticleTriangleInfo(particle,triangleInfo);
     
     ParticleTranslate(particle,emitter.translate,seed);
     particle.translate.translate = translate;
     
-    ParticleVelocity(particle, emitter.velocity3D, emitter.acceleration,seed);
+    ParticleVelocity(particle, emitter.velocity, emitter.acceleration,seed);
     
     ParticleColor(particle, emitter.color,seed); 
 }
 
-void CreateParticle(inout GPUParticleShaderStructs::Particle particle,GPUParticleShaderStructs::TransformModelEmitter emitter ,inout uint32_t seed,uint32_t emitterCount){
+void CreateParticle(inout GPUParticleShaderStructs::Particle particle,GPUParticleShaderStructs::TransformModelEmitterForGPU emitter ,inout uint32_t seed,uint32_t emitterCount){
     particle.textureIndex = emitter.textureIndex;
     particle.collisionInfo = emitter.collisionInfo;
     
@@ -554,7 +563,7 @@ void CreateParticle(inout GPUParticleShaderStructs::Particle particle,GPUParticl
 
 }
 
-void CreateParticle(inout GPUParticleShaderStructs::Particle particle,GPUParticleShaderStructs::TransformAreaEmitter emitter ,inout uint32_t seed,uint32_t emitterCount){
+void CreateParticle(inout GPUParticleShaderStructs::Particle particle,GPUParticleShaderStructs::TransformAreaEmitterForGPU emitter ,inout uint32_t seed,uint32_t emitterCount){
     particle.textureIndex = emitter.textureIndex;
     particle.collisionInfo = emitter.collisionInfo;
     
@@ -568,7 +577,7 @@ void CreateParticle(inout GPUParticleShaderStructs::Particle particle,GPUParticl
     
     ParticleRotate(particle, emitter.rotate,seed);
     
-    ParticleTranslate(particle,emitter.area,emitter.translate,seed);
+    ParticleTranslate(particle,emitter.emitterArea,emitter.translate,seed);
     
     ParticleVelocity(particle, emitter.velocity, emitter.acceleration,seed);
     

@@ -4,6 +4,7 @@
 #include "GpuResource.h"
 #include "DescriptorHandle.h"
 
+class CommandContext;
 class DefaultBuffer : public GpuResource {
 public:
 	~DefaultBuffer();
@@ -11,6 +12,7 @@ public:
 	void Create(const std::wstring& name, size_t bufferSize, D3D12_RESOURCE_FLAGS flags = D3D12_RESOURCE_FLAG_NONE);
 	void CreateUAV(const D3D12_UNORDERED_ACCESS_VIEW_DESC& desc);
 	void CreateSRV(const D3D12_SHADER_RESOURCE_VIEW_DESC& desc);
+	void Clear(CommandContext& commandContext);
 	const DescriptorHandle& GetUAVHandle() { return uavHandle_; }
 	const DescriptorHandle& GetSRVHandle() { return srvHandle_; }
 	const UINT& GetCounterOffset() const { return counterOffset_; }
@@ -23,4 +25,5 @@ private:
 	DescriptorHandle uavHandle_;
 	DescriptorHandle srvHandle_;
 	UINT counterOffset_;
+	size_t bufferSize_;
 };

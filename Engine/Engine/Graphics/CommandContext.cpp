@@ -175,6 +175,13 @@ void CommandContext::ClearDepth(DepthBuffer& target) {
 
 void CommandContext::ClearDepth(DepthBuffer& target, float clearValue) {}
 
+void CommandContext::ClearBuffer(GpuResource& dest, size_t bufferSize) {
+	auto allocation = currentDynamicBuffers_[LinearAllocatorType::kUpload].Allocate(bufferSize, 256);
+	memset(allocation.cpuAddress, 0, bufferSize);
+
+	CopyBufferRegion(dest, 0, allocation.buffer, allocation.offset, bufferSize);
+}
+
 void CommandContext::SetPipelineState(const PipelineState& pipelineState) {
 	ID3D12PipelineState* ps = pipelineState;
 	if (pipelineState_ != ps) {

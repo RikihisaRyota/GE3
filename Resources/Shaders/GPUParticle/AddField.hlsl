@@ -1,8 +1,8 @@
 #include "GPUParticle.hlsli"
 #include "GPUParticleShaderStructs.h"
 
-StructuredBuffer<FieldForGPU> addField : register(t0);
-RWStructuredBuffer<FieldForGPU> origalField : register(u0);
+StructuredBuffer<GPUParticleShaderStructs::FieldForGPU> addField : register(t0);
+RWStructuredBuffer<GPUParticleShaderStructs::FieldForGPU> origalField : register(u0);
 RWStructuredBuffer<int32_t> createFieldCounter : register(u1);
 ConsumeStructuredBuffer<uint> fieldIndexStockBuffer : register(u2);
 
@@ -15,7 +15,7 @@ void main( uint3 DTid : SV_DispatchThreadID )
     InterlockedAdd(createFieldCounter[0], -1, createFieldNum);
     if(createFieldNum >= 0){
         // addFieldバッファから対応するインデックスのエミッターを取得
-        FieldForGPU newField = addField[createFieldNum];
+        GPUParticleShaderStructs::FieldForGPU newField = addField[createFieldNum];
         if (newField.isAlive) {
             uint32_t index = fieldIndexStockBuffer.Consume();
             origalField[index] = newField;

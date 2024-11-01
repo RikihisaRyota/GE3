@@ -1,21 +1,21 @@
 #include "GPUParticle.hlsli"
 #include "GPUParticleShaderStructs.h"
 
-RWStructuredBuffer<Particle> Output : register(u0);
+RWStructuredBuffer<GPUParticleShaderStructs::Particle> Output : register(u0);
 ConsumeStructuredBuffer<uint> particleIndexCommands : register(u1);
 // エミッター一つの生成情報
-RWStructuredBuffer<CreateParticleNum> createParticle : register(u2);
+RWStructuredBuffer<GPUParticleShaderStructs::CreateParticle> createParticle : register(u2);
 struct CounterParticle
 {
     int32_t count;
 };
 RWStructuredBuffer<CounterParticle> particleIndexCounter : register(u3);
 
-StructuredBuffer<EmitterForGPU> gEmitter : register(t0);
-StructuredBuffer<VertexEmitterForGPU> gVertexEmitter : register(t1);
-StructuredBuffer<MeshEmitterForGPU> gMeshEmitter : register(t2);
-StructuredBuffer<TransformModelEmitterForGPU> gTransformModelEmitter : register(t3);
-StructuredBuffer<TransformAreaEmitterForGPU> gTransformAreaEmitter : register(t4);
+StructuredBuffer<GPUParticleShaderStructs::EmitterForGPU> gEmitter : register(t0);
+StructuredBuffer<GPUParticleShaderStructs::VertexEmitterForGPU> gVertexEmitter : register(t1);
+StructuredBuffer<GPUParticleShaderStructs::MeshEmitterForGPU> gMeshEmitter : register(t2);
+StructuredBuffer<GPUParticleShaderStructs::TransformModelEmitterForGPU> gTransformModelEmitter : register(t3);
+StructuredBuffer<GPUParticleShaderStructs::TransformAreaEmitterForGPU> gTransformAreaEmitter : register(t4);
 
 struct Vertex
 {
@@ -63,16 +63,16 @@ void main(uint3 DTid : SV_DispatchThreadID, uint3 GTid : SV_GroupThreadID, uint3
                 if(counter>0){
                     int index = particleIndexCommands.Consume();
                     uint32_t seed = setSeed(index * gRandom.random);
-                    uint32_t emitterIndex=createParticle[emitterNum].emitterNum;
-                    Emitter emitter=gEmitter[emitterIndex];
+                    uint32_t emitterIndex=createParticle[emitterNum].emitterIndex;
+                    GPUParticleShaderStructs::EmitterForGPU emitter=gEmitter[emitterIndex];
                     CreateParticle(Output[index], emitter,seed,emitterIndex);
                 }
             }
         }
     }else if(createParticle[emitterNum].emitterType == 1){
             if(createParticle[emitterNum].createParticleNum > 0){
-                uint32_t emitterIndex=createParticle[emitterNum].emitterNum;
-                VertexEmitter emitter = gVertexEmitter[emitterIndex];
+                uint32_t emitterIndex=createParticle[emitterNum].emitterIndex;
+                GPUParticleShaderStructs::VertexEmitterForGPU emitter = gVertexEmitter[emitterIndex];
                 float32_t4x4 worldMatrix;
                 float32_t3 translate=float32_t3(0.0f,0.0f,0.0f);
                 float32_t4 vertexPosition=float32_t4(0.0f,0.0f,0.0f,0.0f);
@@ -80,7 +80,7 @@ void main(uint3 DTid : SV_DispatchThreadID, uint3 GTid : SV_GroupThreadID, uint3
                 InterlockedAdd(createParticle[emitterNum].createParticleNum, -1,createNum);
                 if (createNum > 0)
                 { 
-                    TriangleInfo info;
+                    GPUParticleShaderStructs::TriangleInfo info;
                     uint32_t seed = setSeed(createNum*gRandom.random);
                     worldMatrix = MakeAffine(emitter.localTransform.scale,emitter.localTransform.rotate,emitter.localTransform.translate);
                     vertexPosition = vertexBuffers[emitter.model.vertexBufferIndex][createNum].position;
@@ -133,8 +133,8 @@ void main(uint3 DTid : SV_DispatchThreadID, uint3 GTid : SV_GroupThreadID, uint3
             if (createNum > 0)
             { 
                 uint32_t seed = setSeed(createNum*gRandom.random);
-                uint32_t emitterIndex=createParticle[emitterNum].emitterNum;
-                MeshEmitter emitter = gMeshEmitter[emitterIndex];
+                uint32_t emitterIndex=createParticle[emitterNum].emitterIndex;
+                GPUParticleShaderStructs::MeshEmitterForGPU emitter = gMeshEmitter[emitterIndex];
                 float32_t4x4 worldMatrix;
                 float32_t3 translate;
                 float32_t4 vertexPosition;
@@ -149,7 +149,7 @@ void main(uint3 DTid : SV_DispatchThreadID, uint3 GTid : SV_GroupThreadID, uint3
                 int32_t counter=-1;
                 InterlockedAdd(particleIndexCounter[0].count, -1,counter);
                 if(counter>0){
-                    TriangleInfo info;
+                    GPUParticleShaderStructs::TriangleInfo info;
                     int32_t index = particleIndexCommands.Consume();
                     info.vertex = triIndices;
                     // ランダムなバリセンター座標を生成
@@ -181,8 +181,8 @@ void main(uint3 DTid : SV_DispatchThreadID, uint3 GTid : SV_GroupThreadID, uint3
                 int32_t counter=-1;
                 InterlockedAdd(particleIndexCounter[0].count, -1,counter);
                 if(counter>0){
-                    uint32_t emitterIndex=createParticle[emitterNum].emitterNum;
-                    TransformModelEmitter emitter = gTransformModelEmitter[emitterIndex];
+                    uint32_t emitterIndex=createParticle[emitterNum].emitterIndex;
+                    GPUParticleShaderStructs::TransformModelEmitterForGPU emitter = gTransformModelEmitter[emitterIndex];
                     // 重なり防止
                     if(emitter.startModel.vertexCount >= emitter.endModel.vertexCount){
                         if(createNum / emitter.endModel.vertexCount >= 1){
@@ -214,8 +214,8 @@ void main(uint3 DTid : SV_DispatchThreadID, uint3 GTid : SV_GroupThreadID, uint3
                 if(counter>0){
                     int32_t particleIndex = particleIndexCommands.Consume();
                     uint32_t seed = setSeed(particleIndex * gRandom.random);
-                    uint32_t emitterIndex=createParticle[emitterNum].emitterNum;
-                    TransformAreaEmitter emitter = gTransformAreaEmitter[emitterIndex];
+                    uint32_t emitterIndex=createParticle[emitterNum].emitterIndex;
+                    GPUParticleShaderStructs::TransformAreaEmitterForGPU emitter = gTransformAreaEmitter[emitterIndex];
                     uint32_t modelIndex = createNum % emitter.model.vertexCount;
                     float32_t4x4 worldMatrix;
                     worldMatrix=emitter.modelWorldMatrix;

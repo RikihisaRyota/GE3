@@ -1,9 +1,9 @@
 #include "GPUParticle.hlsli"
 #include "GPUParticleShaderStructs.h"
 
-StructuredBuffer<FieldForGPU> origalField : register(t0);
+StructuredBuffer<GPUParticleShaderStructs::FieldForGPU> origalField : register(t0);
 StructuredBuffer<uint> fieldIndexBuffer : register(t1);
-RWStructuredBuffer<Particle> particle : register(u0);
+RWStructuredBuffer<GPUParticleShaderStructs::Particle> particle : register(u0);
 
 
 struct Random
@@ -14,7 +14,7 @@ struct Random
 
 ConstantBuffer<Random> gRandom : register(b0);
 
-void AttractionField(FieldForGPU field,inout Particle particle){
+void AttractionField(GPUParticleShaderStructs::FieldForGPU field,inout GPUParticleShaderStructs::Particle particle){
     float32_t3 direction;
     if(field.fieldArea.type==0){
         direction = field.fieldArea.position - particle.translate.translate;
@@ -30,11 +30,11 @@ void AttractionField(FieldForGPU field,inout Particle particle){
     particle.velocity += normalize(direction) * field.field.attraction.attraction;
 }
 
-void ExternalForceField(FieldForGPU field,inout Particle particle,inout uint32_t seed){
+void ExternalForceField(GPUParticleShaderStructs::FieldForGPU field,inout GPUParticleShaderStructs::Particle particle,inout uint32_t seed){
     particle.velocity += randomRange(field.field.externalForce.externalForce.min,field.field.externalForce.externalForce.max,seed);
 }
 
-void VelocityRotateForce(FieldForGPU field, inout Particle particle, inout uint32_t seed) {
+void VelocityRotateForce(GPUParticleShaderStructs::FieldForGPU field, inout GPUParticleShaderStructs::Particle particle, inout uint32_t seed) {
     float32_t3 rotationAxis = normalize(field.field.velocityRotateForce.direction); 
     float32_t angleRadians = field.field.velocityRotateForce.rotateSpeed; 
     float32_t cosTheta = cos(angleRadians);
@@ -63,7 +63,7 @@ void VelocityRotateForce(FieldForGPU field, inout Particle particle, inout uint3
 
     particle.velocity = rotatedVelocity;
 }
-void PositionRotateForce(FieldForGPU field, inout Particle particle, inout uint32_t seed) {
+void PositionRotateForce(GPUParticleShaderStructs::FieldForGPU field, inout GPUParticleShaderStructs::Particle particle, inout uint32_t seed) {
     float32_t3 rotationAxis = normalize(field.field.positionRotateForce.direction); 
     float32_t angleRadians = field.field.positionRotateForce.rotateSpeed; 
     float32_t cosTheta = cos(angleRadians);
@@ -109,7 +109,7 @@ void PositionRotateForce(FieldForGPU field, inout Particle particle, inout uint3
     particle.velocity = originalParallelVelocity + velocityChange;
 }
 
-void UpdateField(FieldForGPU field,inout Particle particle,inout uint32_t seed){
+void UpdateField(GPUParticleShaderStructs::FieldForGPU field,inout GPUParticleShaderStructs::Particle particle,inout uint32_t seed){
     if(field.field.type==0){
         AttractionField(field,particle);
     }else if(field.field.type==1){
@@ -136,8 +136,8 @@ void main( uint3 DTid : SV_DispatchThreadID , uint3 GTid : SV_GroupThreadID)
                 if(sdAABB(
                     particle[particleIndex].translate.translate,
                     origalField[fieldIndex].fieldArea.position,
-                    origalField[fieldIndex].fieldArea.aabb.range.min+origalField[fieldIndex].fieldArea.position,
-                    origalField[fieldIndex].fieldArea.aabb.range.max+origalField[fieldIndex].fieldArea.position) <= 0){
+                    origalField[fieldIndex].fieldArea.aabb.area.min+origalField[fieldIndex].fieldArea.position,
+                    origalField[fieldIndex].fieldArea.aabb.area.max+origalField[fieldIndex].fieldArea.position) <= 0){
                     UpdateField(origalField[fieldIndex],particle[particleIndex],seed);
                 }
             }

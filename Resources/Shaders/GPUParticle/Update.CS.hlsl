@@ -1,18 +1,18 @@
 #include "GPUParticle.hlsli"
 #include "GPUParticleShaderStructs.h"
 
-RWStructuredBuffer<Particle> input : register(u0);
+RWStructuredBuffer<GPUParticleShaderStructs::Particle> input : register(u0);
 
 AppendStructuredBuffer<uint> particleIndexCommands : register(u1);
 AppendStructuredBuffer<uint> outputDrawIndexCommands : register(u2);
 
-RWStructuredBuffer<TrailsData> trails  : register(u3);
+RWStructuredBuffer<GPUParticleShaderStructs::TrailsData> trails  : register(u3);
 
-StructuredBuffer<EmitterForGPU> emitter : register(t0);
-StructuredBuffer<VertexEmitterForGPU> vertexEmitter : register(t1);
-StructuredBuffer<MeshEmitterForGPU> meshEmitter : register(t2);
-StructuredBuffer<TransformModelEmitterForGPU> transformModelEmitter : register(t3);
-StructuredBuffer<TransformAreaEmitterForGPU> transformAreaEmitter : register(t4);
+StructuredBuffer<GPUParticleShaderStructs::EmitterForGPU> emitter : register(t0);
+StructuredBuffer<GPUParticleShaderStructs::VertexEmitterForGPU> vertexEmitter : register(t1);
+StructuredBuffer<GPUParticleShaderStructs::MeshEmitterForGPU> meshEmitter : register(t2);
+StructuredBuffer<GPUParticleShaderStructs::TransformModelEmitterForGPU> transformModelEmitter : register(t3);
+StructuredBuffer<GPUParticleShaderStructs::TransformAreaEmitterForGPU> transformAreaEmitter : register(t4);
 
 struct ViewProjection
 {
@@ -24,7 +24,7 @@ struct ViewProjection
 };
 ConstantBuffer<ViewProjection> gViewProjection : register(b0);
 
-float32_t CheckParticleLifeSpan(inout Particle particle, ParticleLifeSpan particleLifeSpan, bool emitterIsAlive) {
+float32_t CheckParticleLifeSpan(inout GPUParticleShaderStructs::Particle particle, GPUParticleShaderStructs::ParticleLifeSpan particleLifeSpan, bool emitterIsAlive) {
     // エミッター寿命を使わない場合
     if (!particle.particleLifeTime.isEmitterLife) {
         return float32_t(particle.particleLifeTime.time) / float32_t(particle.particleLifeTime.maxTime);
@@ -61,31 +61,31 @@ void main(uint3 DTid : SV_DispatchThreadID)
             switch (input[index].parent.emitterType) {
                 case 0:
                 {
-                    Emitter e = emitter[input[index].parent.emitterCount];
+                    GPUParticleShaderStructs::EmitterForGPU e = emitter[input[index].parent.emitterCount];
                     t = CheckParticleLifeSpan(input[index],e.particleLifeSpan,e.isAlive);
                 }
                 break;
                 case 1:
                 {
-                    VertexEmitter e = vertexEmitter[input[index].parent.emitterCount];
+                    GPUParticleShaderStructs::VertexEmitterForGPU e = vertexEmitter[input[index].parent.emitterCount];
                     t = CheckParticleLifeSpan(input[index],e.particleLifeSpan,e.isAlive);
                 }
                 break;
                 case 2:
                 {
-                    MeshEmitter e = meshEmitter[input[index].parent.emitterCount];
+                    GPUParticleShaderStructs::MeshEmitterForGPU e = meshEmitter[input[index].parent.emitterCount];
                     t = CheckParticleLifeSpan(input[index],e.particleLifeSpan,e.isAlive);
                 }
                 break;
                 case 3:
                 {
-                    TransformModelEmitter e = transformModelEmitter[input[index].parent.emitterCount];
+                    GPUParticleShaderStructs::TransformModelEmitterForGPU e = transformModelEmitter[input[index].parent.emitterCount];
                     t = CheckParticleLifeSpan(input[index],e.particleLifeSpan,e.isAlive);
                 }
                 break;
                 case 4:
                 {
-                    TransformAreaEmitter e = transformAreaEmitter[input[index].parent.emitterCount];
+                    GPUParticleShaderStructs::TransformAreaEmitterForGPU e = transformAreaEmitter[input[index].parent.emitterCount];
                     t = CheckParticleLifeSpan(input[index],e.particleLifeSpan,e.isAlive);
                 }
                 break;
@@ -190,10 +190,10 @@ void main(uint3 DTid : SV_DispatchThreadID)
             {
                 if(input[index].parent.isParent){
                     
-                    input[index].worldMatrix = mul(mul(mul(scaleMatrix, rotateMatrix), translateMatrix), parentWorldMatrix);
+                    input[index].matWorld = mul(mul(mul(scaleMatrix, rotateMatrix), translateMatrix), parentWorldMatrix);
                 }
                 else{
-                    input[index].worldMatrix = mul(mul(scaleMatrix, rotateMatrix), translateMatrix);
+                    input[index].matWorld = mul(mul(scaleMatrix, rotateMatrix), translateMatrix);
                 }
                 outputDrawIndexCommands.Append(index);
             }

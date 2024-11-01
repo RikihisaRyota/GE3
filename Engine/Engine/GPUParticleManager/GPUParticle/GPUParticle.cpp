@@ -1130,11 +1130,14 @@ void GPUParticle::EmitterDesc::Initialize(CommandContext& commandContext) {
 	switch (type) {
 	case GPUParticleShaderStructs::EmitterType::kEmitter:
 	{
+		defaultCopyBuffer.Clear(commandContext);
+		originalBuffer.Clear(commandContext);
 		size_t size = sizeof(GPUParticleShaderStructs::EmitterForGPU) * GPUParticleShaderStructs::MaxEmitterNum;
 		std::vector<GPUParticleShaderStructs::EmitterForGPU> reset(GPUParticleShaderStructs::MaxEmitterNum);
 		commandContext.CopyBuffer(defaultCopyBuffer, size, reset.data());
 		commandContext.CopyBuffer(originalBuffer, size, reset.data());
 	}
+
 	break;
 	case GPUParticleShaderStructs::EmitterType::kVertexEmitter:
 	{

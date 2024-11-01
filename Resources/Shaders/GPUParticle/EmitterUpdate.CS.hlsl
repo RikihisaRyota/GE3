@@ -2,23 +2,23 @@
 #include "GPUParticleShaderStructs.h"
 
 // バッファの宣言
-RWStructuredBuffer<EmitterForGPU> inputEmitter : register(u0);
-RWStructuredBuffer<VertexEmitterForGPU> inputVertexEmitter : register(u1);
-RWStructuredBuffer<MeshEmitterForGPU> inputMeshEmitter : register(u2);
-RWStructuredBuffer<TransformModelEmitterForGPU> inputTransformModelEmitter : register(u3);
-RWStructuredBuffer<TransformAreaEmitterForGPU> inputTransformAreaEmitter : register(u4);
+RWStructuredBuffer<GPUParticleShaderStructs::EmitterForGPU> inputEmitter : register(u0);
+RWStructuredBuffer<GPUParticleShaderStructs::VertexEmitterForGPU> inputVertexEmitter : register(u1);
+RWStructuredBuffer<GPUParticleShaderStructs::MeshEmitterForGPU> inputMeshEmitter : register(u2);
+RWStructuredBuffer<GPUParticleShaderStructs::TransformModelEmitterForGPU> inputTransformModelEmitter : register(u3);
+RWStructuredBuffer<GPUParticleShaderStructs::TransformAreaEmitterForGPU> inputTransformAreaEmitter : register(u4);
 // エミッターごとの生成パーティクル数
 
-AppendStructuredBuffer<CreateParticleNum> createParticle : register(u5);
+AppendStructuredBuffer<GPUParticleShaderStructs::CreateParticle> createParticle : register(u5);
 // 合計何個パーティクルを生成するか
 RWStructuredBuffer<uint> createParticleCounter : register(u6);
 
 // エミッターの時間を更新する関数
-void UpdateEmitterTime(inout Emitter emitter,uint32_t index) {
+void UpdateEmitterTime(inout GPUParticleShaderStructs::EmitterForGPU emitter,uint32_t index) {
     if (emitter.time.particleTime >= emitter.frequency.interval) {
         // パーティクル生成の条件を満たす場合
-        CreateParticleNum particle;
-        particle.emitterNum = index;
+        GPUParticleShaderStructs::CreateParticle particle;
+        particle.emitterIndex = index;
         particle.emitterType = 0;
         particle.createParticleNum = emitter.createParticleNum;
         particle.maxCreateParticleNum = emitter.createParticleNum;
@@ -40,11 +40,11 @@ void UpdateEmitterTime(inout Emitter emitter,uint32_t index) {
     }
 }
 
-void UpdateEmitterTime(inout VertexEmitter emitter,uint32_t index) {
+void UpdateEmitterTime(inout GPUParticleShaderStructs::VertexEmitterForGPU emitter,uint32_t index) {
     if (emitter.time.particleTime >= emitter.frequency.interval) {
         // パーティクル生成の条件を満たす場合
-        CreateParticleNum particle;
-        particle.emitterNum = index;
+        GPUParticleShaderStructs::CreateParticle particle;
+        particle.emitterIndex = index;
         particle.emitterType = 1;
         particle.createParticleNum = emitter.model.vertexCount;
         particle.maxCreateParticleNum = particle.createParticleNum;
@@ -66,11 +66,11 @@ void UpdateEmitterTime(inout VertexEmitter emitter,uint32_t index) {
     }
 }
 
-void UpdateEmitterTime(inout MeshEmitter emitter,uint32_t index) {
+void UpdateEmitterTime(inout GPUParticleShaderStructs::MeshEmitterForGPU emitter,uint32_t index) {
     if (emitter.time.particleTime >= emitter.frequency.interval) {
         // パーティクル生成の条件を満たす場合
-        CreateParticleNum particle;
-        particle.emitterNum = index;
+        GPUParticleShaderStructs::CreateParticle particle;
+        particle.emitterIndex = index;
         particle.emitterType = 2;
         particle.createParticleNum = (emitter.model.indexCount) * emitter.numCreate;
         particle.maxCreateParticleNum = particle.createParticleNum;
@@ -92,11 +92,11 @@ void UpdateEmitterTime(inout MeshEmitter emitter,uint32_t index) {
     }
 }
 
-void UpdateEmitterTime(inout TransformModelEmitter emitter,uint32_t index) {
+void UpdateEmitterTime(inout GPUParticleShaderStructs::TransformModelEmitterForGPU emitter,uint32_t index) {
     if (emitter.time.particleTime >= emitter.frequency.interval) {
         // パーティクル生成の条件を満たす場合
-        CreateParticleNum particle;
-        particle.emitterNum = index;
+        GPUParticleShaderStructs::CreateParticle particle;
+        particle.emitterIndex = index;
         particle.emitterType = 3;
         particle.createParticleNum =  max(emitter.startModel.vertexCount,emitter.endModel.vertexCount);
         particle.maxCreateParticleNum = particle.createParticleNum;
@@ -117,11 +117,11 @@ void UpdateEmitterTime(inout TransformModelEmitter emitter,uint32_t index) {
     }
 }
 
-void UpdateEmitterTime(inout TransformAreaEmitter emitter,uint32_t index) {
+void UpdateEmitterTime(inout GPUParticleShaderStructs::TransformAreaEmitterForGPU emitter,uint32_t index) {
     if (emitter.time.particleTime >= emitter.frequency.interval) {
         // パーティクル生成の条件を満たす場合
-        CreateParticleNum particle;
-        particle.emitterNum = index;
+        GPUParticleShaderStructs::CreateParticle particle;
+        particle.emitterIndex = index;
         particle.emitterType = 4;
         particle.createParticleNum =  emitter.model.vertexCount;
         particle.maxCreateParticleNum = particle.createParticleNum;
@@ -145,7 +145,7 @@ void UpdateEmitterTime(inout TransformAreaEmitter emitter,uint32_t index) {
 
 
 // エミッターの生存状態をチェックして更新する関数
-void UpdateEmitterState(inout Emitter emitter) {
+void UpdateEmitterState(inout GPUParticleShaderStructs::EmitterForGPU emitter) {
     if (!emitter.frequency.isLoop) {
         if (emitter.time.emitterTime >= emitter.frequency.emitterLife) {
             emitter.isAlive = false;
@@ -158,7 +158,7 @@ void UpdateEmitterState(inout Emitter emitter) {
     }
 }
 
-void UpdateEmitterState(inout VertexEmitter emitter) {
+void UpdateEmitterState(inout GPUParticleShaderStructs::VertexEmitterForGPU emitter) {
     if (!emitter.frequency.isLoop) {
         if (emitter.time.emitterTime >= emitter.frequency.emitterLife) {
             emitter.isAlive = false;
@@ -171,7 +171,7 @@ void UpdateEmitterState(inout VertexEmitter emitter) {
     }
 }
 
-void UpdateEmitterState(inout MeshEmitter emitter) {
+void UpdateEmitterState(inout GPUParticleShaderStructs::MeshEmitterForGPU emitter) {
     if (!emitter.frequency.isLoop) {
         if (emitter.time.emitterTime >= emitter.frequency.emitterLife) {
             emitter.isAlive = false;
@@ -184,7 +184,7 @@ void UpdateEmitterState(inout MeshEmitter emitter) {
     }
 }
 
-void UpdateEmitterState(inout TransformModelEmitter emitter) {
+void UpdateEmitterState(inout GPUParticleShaderStructs::TransformModelEmitterForGPU emitter) {
     if (!emitter.frequency.isLoop) {
         if (emitter.time.emitterTime >= emitter.frequency.emitterLife) {
             emitter.isAlive = false;
@@ -197,7 +197,7 @@ void UpdateEmitterState(inout TransformModelEmitter emitter) {
     }
 }
 
-void UpdateEmitterState(inout TransformAreaEmitter emitter) {
+void UpdateEmitterState(inout GPUParticleShaderStructs::TransformAreaEmitterForGPU emitter) {
     if (!emitter.frequency.isLoop) {
         if (emitter.time.emitterTime >= emitter.frequency.emitterLife) {
             emitter.isAlive = false;

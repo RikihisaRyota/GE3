@@ -30,8 +30,8 @@ GPUParticle::GPUParticle() {
 	InitializeAddEmitter();
 	InitializeBullets();
 	InitializeField();
-	InitializeBuffer();
 	InitializeTrails();
+	InitializeBuffer();
 }
 
 GPUParticle::~GPUParticle() {}
@@ -953,6 +953,7 @@ void GPUParticle::InitializeBuffer() {
 	enum {
 		kParticleIndexBuffer,
 		kFieldIndexBuffer,
+		kTrailsIndexBuffer,
 
 		kCount,
 	};
@@ -968,9 +969,12 @@ void GPUParticle::InitializeBuffer() {
 		particleIndexBuffer[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 0, 0);
 		CD3DX12_DESCRIPTOR_RANGE fieldIndexBuffer[1]{};
 		fieldIndexBuffer[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 1, 0);
+		CD3DX12_DESCRIPTOR_RANGE trailsIndexBuffer[1]{};
+		trailsIndexBuffer[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 2, 0);
 		CD3DX12_ROOT_PARAMETER rootParameters[kCount]{};
 		rootParameters[kParticleIndexBuffer].InitAsDescriptorTable(_countof(particleIndexBuffer), particleIndexBuffer);
 		rootParameters[kFieldIndexBuffer].InitAsDescriptorTable(_countof(fieldIndexBuffer), fieldIndexBuffer);
+		rootParameters[kTrailsIndexBuffer].InitAsDescriptorTable(_countof(trailsIndexBuffer), trailsIndexBuffer);
 		D3D12_ROOT_SIGNATURE_DESC desc{};
 		desc.pParameters = rootParameters;
 		desc.NumParameters = _countof(rootParameters);

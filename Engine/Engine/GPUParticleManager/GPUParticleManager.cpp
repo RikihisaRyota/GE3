@@ -455,6 +455,10 @@ void GPUParticleManager::CreateEmitter() {
 				kCreateParticleNum,
 				kParticleIndexCounter,
 
+				kTrailsIndex,
+				kTrailsData,
+				kTrailsHead,
+
 				kOriginalEmitter,
 				kOriginalVertexEmitter,
 				kOriginalMeshEmitter,
@@ -474,6 +478,8 @@ void GPUParticleManager::CreateEmitter() {
 		// AppendStructuredBuffer用（カウンター付きUAVの場合このように宣言）
 		CD3DX12_DESCRIPTOR_RANGE consumeRanges[1]{};
 		consumeRanges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 1, 0);
+		CD3DX12_DESCRIPTOR_RANGE trailsConsumeRanges[1]{};
+		trailsConsumeRanges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 4, 0);
 		// レジスタースペースがびにょ
 		CD3DX12_DESCRIPTOR_RANGE vertexBuffer[1]{};
 		vertexBuffer[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, graphics->kNumSRVs, 5, 0);
@@ -485,6 +491,10 @@ void GPUParticleManager::CreateEmitter() {
 		rootParameters[SpawnRootParameter::kParticleIndex].InitAsDescriptorTable(_countof(consumeRanges), consumeRanges);
 		rootParameters[SpawnRootParameter::kCreateParticleNum].InitAsUnorderedAccessView(2);
 		rootParameters[SpawnRootParameter::kParticleIndexCounter].InitAsUnorderedAccessView(3);
+
+		rootParameters[SpawnRootParameter::kTrailsIndex].InitAsDescriptorTable(_countof(trailsConsumeRanges), trailsConsumeRanges);
+		rootParameters[SpawnRootParameter::kTrailsData].InitAsUnorderedAccessView(5);
+		rootParameters[SpawnRootParameter::kTrailsHead].InitAsUnorderedAccessView(6);
 
 		rootParameters[SpawnRootParameter::kOriginalEmitter].InitAsShaderResourceView(0);
 		rootParameters[SpawnRootParameter::kOriginalVertexEmitter].InitAsShaderResourceView(1);

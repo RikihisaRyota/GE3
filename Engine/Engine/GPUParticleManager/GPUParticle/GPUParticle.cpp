@@ -288,16 +288,20 @@ void GPUParticle::Spawn(CommandContext& commandContext, const UploadBuffer& rand
 	commandContext.SetComputeUAV(2, createParticleBuffer_->GetGPUVirtualAddress());
 	commandContext.SetComputeUAV(3, originalCounterBuffer_->GetGPUVirtualAddress());
 
-	commandContext.SetComputeShaderResource(4, emitterForGPUDesc_.originalBuffer->GetGPUVirtualAddress());
-	commandContext.SetComputeShaderResource(5, vertexEmitterForGPUDesc_.originalBuffer->GetGPUVirtualAddress());
-	commandContext.SetComputeShaderResource(6, meshEmitterForGPUDesc_.originalBuffer->GetGPUVirtualAddress());
-	commandContext.SetComputeShaderResource(7, transformModelEmitterForGPUDesc_.originalBuffer->GetGPUVirtualAddress());
-	commandContext.SetComputeShaderResource(8, transformAreaEmitterForGPUDesc_.originalBuffer->GetGPUVirtualAddress());
+	commandContext.SetComputeDescriptorTable(4, trailsIndexBuffers_.GetUAVHandle());
+	commandContext.SetComputeUAV(5, trailsDataBuffers_->GetGPUVirtualAddress());
+	commandContext.SetComputeUAV(6, trailsHeadBuffers_->GetGPUVirtualAddress());
 
-	commandContext.SetComputeDescriptorTable(9, GraphicsCore::GetInstance()->GetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV).GetStartDescriptorHandle());
-	commandContext.SetComputeDescriptorTable(10, GraphicsCore::GetInstance()->GetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV).GetStartDescriptorHandle());
+	commandContext.SetComputeShaderResource(7, emitterForGPUDesc_.originalBuffer->GetGPUVirtualAddress());
+	commandContext.SetComputeShaderResource(8, vertexEmitterForGPUDesc_.originalBuffer->GetGPUVirtualAddress());
+	commandContext.SetComputeShaderResource(9, meshEmitterForGPUDesc_.originalBuffer->GetGPUVirtualAddress());
+	commandContext.SetComputeShaderResource(10, transformModelEmitterForGPUDesc_.originalBuffer->GetGPUVirtualAddress());
+	commandContext.SetComputeShaderResource(11, transformAreaEmitterForGPUDesc_.originalBuffer->GetGPUVirtualAddress());
 
-	commandContext.SetComputeConstantBuffer(11, random.GetGPUVirtualAddress());
+	commandContext.SetComputeDescriptorTable(12, GraphicsCore::GetInstance()->GetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV).GetStartDescriptorHandle());
+	commandContext.SetComputeDescriptorTable(13, GraphicsCore::GetInstance()->GetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV).GetStartDescriptorHandle());
+
+	commandContext.SetComputeConstantBuffer(14, random.GetGPUVirtualAddress());
 
 	commandContext.ExecuteIndirect(
 		*spawnCommandSignature_,
@@ -1120,9 +1124,10 @@ void GPUParticle::InitializeTrails() {
  	auto device = GraphicsCore::GetInstance()->GetDevice();
 	auto graphics = GraphicsCore::GetInstance();
 	{
-		trailsIndexBuffers_.Create(L"trailsIndexBuffers", sizeof(GPUParticleShaderStructs::TrailsData) * GPUParticleShaderStructs::MaxTrailsNum, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
+		trailsIndexBuffers_.Create(L"trailsIndexBuffers", sizeof(uint32_t) * GPUParticleShaderStructs::MaxTrailsNum, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
 		trailsDataBuffers_.Create(L"trailsDataBuffers", sizeof(GPUParticleShaderStructs::TrailsData) * GPUParticleShaderStructs::MaxTrailsNum, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
-		trailsPositionBuffers_.Create(L"trailsBuffers", sizeof(GPUParticleShaderStructs::TrailsData) * GPUParticleShaderStructs::MaxTrailsNum * GPUParticleShaderStructs::TrailsRange, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
+		trailsHeadBuffers_.Create(L"trailsHeadBuffers_", sizeof(GPUParticleShaderStructs::TrailsHead), D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
+		trailsPositionBuffers_.Create(L"trailsBuffers", sizeof(GPUParticleShaderStructs::TrailsPosition) * GPUParticleShaderStructs::MaxTrailsNum * GPUParticleShaderStructs::TrailsRange, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
 	}
 }
 

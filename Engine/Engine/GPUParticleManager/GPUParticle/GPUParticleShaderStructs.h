@@ -198,6 +198,9 @@ struct Particle
 	struct TrailsPosition {
 		Vector3 position;
 	};
+	struct TrailsHead {
+		uint32_t headIndex;
+	};
 
 
 	struct EmitterTrails {

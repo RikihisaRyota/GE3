@@ -114,6 +114,7 @@ private:
 	// 軌跡用
 	DefaultBuffer trailsIndexBuffers_;
 	DefaultBuffer trailsDataBuffers_;
+	DefaultBuffer trailsHeadBuffers_;
 	DefaultBuffer trailsPositionBuffers_;
 
 	struct EmitterDesc {

@@ -39,6 +39,33 @@ struct Random
 
 ConstantBuffer<Random> gRandom : register(b0);
 
+//void CheckTrailsData(GPUParticleShaderStructs::EmitterTrails emitterTrails,uint32_t particleIndex){
+//    if(emitterTrails.isTrails){
+//        GPUParticleShaderStructs::TrailsData data;
+//        data.particleIndex = particleIndex;
+//        // マイナスオーバーフロー注意
+//        data.trailsIndex = trailsCounter.Consume();
+//        data.startIndex=trailsHead[0].headIndex;
+//        data.endIndex = data.startIndex + GPUParticleShaderStructs::TrailsRange;
+//        data.currentIndex = data.startIndex;
+//        
+//        data.width =  emitterTrails.width;
+//        data.textureIndex =  emitterTrails.textureIndex;
+//        data.interval = emitterTrails.interval;
+//        data.time = 0;
+//
+//        data.lifeLimit = emitterTrails.lifeLimit;
+//        // headインクリメント
+//        int32_t headCount = -1;
+//        InterlockedAdd(trailsHead[0].headIndex,GPUParticleShaderStructs::TrailsRange, headCount);
+//        if(headCount >= GPUParticleShaderStructs::MaxTrailsDataNum * GPUParticleShaderStructs::TrailsRange){
+//            trailsHead[0].headIndex = 0;
+//        }else{
+//            trailsHead[0].headIndex = headCount;
+//        }
+//    }
+//}
+
 [numthreads(1, 1, 1)]
 void main(uint3 DTid : SV_DispatchThreadID, uint3 GTid : SV_GroupThreadID, uint3 GID : SV_GroupID)
 {

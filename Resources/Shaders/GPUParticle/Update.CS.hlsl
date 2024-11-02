@@ -200,28 +200,6 @@ void main(uint3 DTid : SV_DispatchThreadID)
             if(!input[index].particleLifeTime.isEmitterLife){
                 input[index].particleLifeTime.time++;
             }
-            // Trails
-            if(input[index].particleTrails.isTrails){
-                if(input[index].particleTrails.time >= input[index].particleTrails.interval){
-
-                    // 特定の粒子インデックスを取得
-                    //uint32_t particleIndex = input[index].particleTrails.endIndex;
-
-                    // trailsの中の特定のTrailsPositionインスタンスにアクセス
-                    //trails[index].position[particleIndex] = input[index].worldMatrix[3].xyz;
-
-                    
-                    if((input[index].particleTrails.endIndex-input[index].particleTrails.startIndex) <= GPUParticleShaderStructs::TrailsRange){
-                        input[index].particleTrails.endIndex++;
-                    }else{
-                        input[index].particleTrails.endIndex = input[index].particleTrails.startIndex;
-                    }
-                    input[index].particleTrails.time=0;
-                }else{
-                    input[index].particleTrails.time++;
-                }
-            }else if(!input[index].isAlive) {
-            }
         }
     }
 }

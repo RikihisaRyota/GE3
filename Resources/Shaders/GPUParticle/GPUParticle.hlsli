@@ -419,7 +419,6 @@ void ParticleReset(inout GPUParticleShaderStructs::Particle particle){
     particle.translate.isEasing = false;
     particle.parent.isParent = false;
     particle.particleLifeTime.isEmitterLife = false;
-    particle.particleTrails.isTrails = false;
 };
 
 void ParticleTranslate(inout GPUParticleShaderStructs::Particle particle,GPUParticleShaderStructs::Translate translate,inout uint32_t seed){

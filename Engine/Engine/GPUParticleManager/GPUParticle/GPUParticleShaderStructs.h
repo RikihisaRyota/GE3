@@ -180,24 +180,33 @@ struct Particle
 		//float pad1;
 	};
 
-	struct ParticleTrails {
-		uint32_t isTrails;
+	struct TrailsData {
+		uint32_t particleIndex;
+		uint32_t trailsIndex;
+		uint32_t startIndex;
+		uint32_t endIndex;
+
+		uint32_t currentIndex;
 		uint32_t textureIndex;
 		uint32_t interval;
 		uint32_t time;
 
-		float lifeLimit;
 		uint32_t width;
-		uint32_t startIndex;
-		uint32_t endIndex;
+		float lifeLimit;
 	};
 
-	struct TrailsData {
-		uint32_t startIndex;
+
+	struct EmitterTrails {
+		uint32_t isTrails;
+		uint32_t textureIndex;
+		uint32_t interval;
+		float width;
+
+		float lifeLimit;
+		float pad[3];
 	};
 
 	struct Particle {
-		ParticleTrails particleTrails;
 		TriangleInfo triangleInfo;
 
 		Vector3MinMax scaleRange;
@@ -358,16 +367,6 @@ struct Particle
 		Vector3 translate;
 		float pad1;
 		Quaternion rotate ;
-	};
-
-	struct EmitterTrails {
-		uint32_t isTrails;
-		uint32_t textureIndex;
-		uint32_t interval;
-		float width;
-
-		float lifeLimit;
-		float pad[3];
 	};
 
 	struct TransformModelEmitterForGPU {

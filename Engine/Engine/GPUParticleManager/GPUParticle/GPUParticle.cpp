@@ -335,16 +335,14 @@ void GPUParticle::ParticleUpdate(const ViewProjection& viewProjection, CommandCo
 	commandContext.SetComputeDescriptorTable(1, originalCommandBuffer_.GetUAVHandle());
 	commandContext.SetComputeDescriptorTable(2, drawIndexCommandBuffers_.GetUAVHandle());
 
-	commandContext.SetComputeUAV(3, trailsBuffers_.GetGPUVirtualAddress());
-	
-	commandContext.SetComputeShaderResource(4, emitterForGPUDesc_.originalBuffer->GetGPUVirtualAddress());
-	commandContext.SetComputeShaderResource(5, vertexEmitterForGPUDesc_.originalBuffer->GetGPUVirtualAddress());
-	commandContext.SetComputeShaderResource(6, meshEmitterForGPUDesc_.originalBuffer->GetGPUVirtualAddress());
-	commandContext.SetComputeShaderResource(7, transformModelEmitterForGPUDesc_.originalBuffer->GetGPUVirtualAddress());
-	commandContext.SetComputeShaderResource(8, transformAreaEmitterForGPUDesc_.originalBuffer->GetGPUVirtualAddress());
+	commandContext.SetComputeShaderResource(3, emitterForGPUDesc_.originalBuffer->GetGPUVirtualAddress());
+	commandContext.SetComputeShaderResource(4, vertexEmitterForGPUDesc_.originalBuffer->GetGPUVirtualAddress());
+	commandContext.SetComputeShaderResource(5, meshEmitterForGPUDesc_.originalBuffer->GetGPUVirtualAddress());
+	commandContext.SetComputeShaderResource(6, transformModelEmitterForGPUDesc_.originalBuffer->GetGPUVirtualAddress());
+	commandContext.SetComputeShaderResource(7, transformAreaEmitterForGPUDesc_.originalBuffer->GetGPUVirtualAddress());
 
 
-	commandContext.SetComputeConstantBuffer(9, viewProjection.constBuff_.GetGPUVirtualAddress());
+	commandContext.SetComputeConstantBuffer(8, viewProjection.constBuff_.GetGPUVirtualAddress());
 
 	commandContext.Dispatch(static_cast<UINT>(ceil((GPUParticleShaderStructs::MaxParticleNum / GPUParticleShaderStructs::MaxProcessNum) / GPUParticleShaderStructs::ComputeThreadBlockSize)), 1, 1);
 	commandContext.UAVBarrier(particleBuffer_);
@@ -1122,7 +1120,9 @@ void GPUParticle::InitializeTrails() {
  	auto device = GraphicsCore::GetInstance()->GetDevice();
 	auto graphics = GraphicsCore::GetInstance();
 	{
-		trailsBuffers_.Create(L"trailsBuffers", sizeof(GPUParticleShaderStructs::TrailsData), D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
+		trailsIndexBuffers_.Create(L"trailsIndexBuffers", sizeof(GPUParticleShaderStructs::TrailsData) * GPUParticleShaderStructs::MaxTrailsNum, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
+		trailsDataBuffers_.Create(L"trailsDataBuffers", sizeof(GPUParticleShaderStructs::TrailsData) * GPUParticleShaderStructs::MaxTrailsNum, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
+		trailsPositionBuffers_.Create(L"trailsBuffers", sizeof(GPUParticleShaderStructs::TrailsData) * GPUParticleShaderStructs::MaxTrailsNum * GPUParticleShaderStructs::TrailsRange, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
 	}
 }
 

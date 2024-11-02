@@ -582,8 +582,6 @@ void GPUParticleManager::CreateUpdate() {
 				kParticleIndex,
 				kCreateParticleNum,
 
-				kTails,
-
 				kEmitter,
 				kVertexEmitter,
 				kMeshEmitter,
@@ -608,7 +606,6 @@ void GPUParticleManager::CreateUpdate() {
 		rootParameters[UpdateParticle::kParticle].InitAsUnorderedAccessView(0);
 		rootParameters[UpdateParticle::kParticleIndex].InitAsDescriptorTable(_countof(particleIndexRange), particleIndexRange);
 		rootParameters[UpdateParticle::kCreateParticleNum].InitAsDescriptorTable(_countof(outputDrawRange), outputDrawRange);
-		rootParameters[UpdateParticle::kTails].InitAsUnorderedAccessView(3);
 
 		rootParameters[UpdateParticle::kEmitter].InitAsShaderResourceView(0);
 		rootParameters[UpdateParticle::kVertexEmitter].InitAsShaderResourceView(1);

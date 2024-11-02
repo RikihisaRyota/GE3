@@ -195,6 +195,10 @@ struct Particle
 		float lifeLimit;
 	};
 
+	struct TrailsPosition {
+		Vector3 position;
+	};
+
 
 	struct EmitterTrails {
 		uint32_t isTrails;

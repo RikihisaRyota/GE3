@@ -112,7 +112,9 @@ private:
 	// 何個生成するか数える用
 	DefaultBuffer createParticleCounterCopySrcBuffer_;
 	// 軌跡用
-	DefaultBuffer trailsBuffers_;
+	DefaultBuffer trailsIndexBuffers_;
+	DefaultBuffer trailsDataBuffers_;
+	DefaultBuffer trailsPositionBuffers_;
 
 	struct EmitterDesc {
 		void Initialize(CommandContext& commandContext);

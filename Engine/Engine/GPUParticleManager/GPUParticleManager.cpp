@@ -61,6 +61,7 @@ void GPUParticleManager::Initialize() {
 	CreateParticleBuffer();
 	CreateEmitter();
 	CreateUpdate();
+	CreateUpdateTrails();
 	CreateGraphics();
 	CreateIndexBuffer();
 	CreateBullet();
@@ -70,6 +71,7 @@ void GPUParticleManager::Initialize() {
 	randomBuffer_.Create(L"rondomBuffer", sizeof(UINT));
 	gpuParticle_->SetDrawCommandSignature(commandSignature_.get());
 	gpuParticle_->SetSpawnCommandSignature(spawnCommandSignature_.get());
+	gpuParticle_->SetTrailsCommandSignature(trailsCommandSignature_.get());
 }
 
 void GPUParticleManager::Update(const ViewProjection& viewProjection, CommandContext& commandContext) {
@@ -103,6 +105,10 @@ void GPUParticleManager::Update(const ViewProjection& viewProjection, CommandCon
 	commandContext.SetComputeRootSignature(*updateComputeRootSignature_);
 	commandContext.SetPipelineState(*updateComputePipelineState_);
 	gpuParticle_->ParticleUpdate(viewProjection, commandContext);
+
+	commandContext.SetComputeRootSignature(*updateTrailsRootSignature_);
+	commandContext.SetPipelineState(*updateTrailsPipelineState_);
+	gpuParticle_->UpdateTrails(commandContext);
 
 	commandContext.SetComputeRootSignature(*bulletRootSignature_);
 	commandContext.SetPipelineState(*bulletPipelineState_);
@@ -641,6 +647,65 @@ void GPUParticleManager::CreateUpdate() {
 		desc.CS = CD3DX12_SHADER_BYTECODE(cs->GetBufferPointer(), cs->GetBufferSize());
 		updateComputePipelineState_->Create(L"GPUParticle UpdateCPSO", desc);
 	}
+}
+
+void GPUParticleManager::CreateUpdateTrails() {
+	auto graphics = GraphicsCore::GetInstance();
+	auto device = graphics->GetDevice();
+	// アップデートシグネイチャー
+	{
+		struct UpdateParticle {
+			enum Param {
+				kIndex,
+				kData,
+				kPosition,
+				kParticle,
+				
+				kCount
+			};
+		};
+
+		updateTrailsRootSignature_ = std::make_unique<RootSignature>();
+
+		//	ParticleIndexCommand用（カウンター付きUAVの場合このように宣言）
+		CD3DX12_DESCRIPTOR_RANGE indexRange[1]{};
+		indexRange[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 0, 0);
+
+		CD3DX12_ROOT_PARAMETER rootParameters[UpdateParticle::kCount]{};
+		rootParameters[UpdateParticle::kIndex].InitAsDescriptorTable(_countof(indexRange), indexRange);
+		rootParameters[UpdateParticle::kData].InitAsUnorderedAccessView(1);
+		rootParameters[UpdateParticle::kPosition].InitAsUnorderedAccessView(2);
+		rootParameters[UpdateParticle::kParticle].InitAsShaderResourceView(0);
+
+		D3D12_ROOT_SIGNATURE_DESC desc{};
+		desc.pParameters = rootParameters;
+		desc.NumParameters = _countof(rootParameters);
+
+		updateTrailsRootSignature_->Create(L"GPUParticle UpdateRootSignature", desc);
+	}
+	// アップデートパイプライン
+	{
+		updateTrailsPipelineState_ = std::make_unique<PipelineState>();
+		D3D12_COMPUTE_PIPELINE_STATE_DESC desc{};
+		desc.pRootSignature = *updateTrailsRootSignature_;
+		auto cs = ShaderCompiler::Compile(L"Resources/Shaders/GPUParticle/UpdateTrails.hlsl", L"cs_6_0");
+		desc.CS = CD3DX12_SHADER_BYTECODE(cs->GetBufferPointer(), cs->GetBufferSize());
+		updateTrailsPipelineState_->Create(L"GPUParticle UpdateCPSO", desc);
+	}
+	// コマンドシグネイチャ
+	{
+		trailsCommandSignature_ = std::make_unique<CommandSignature>();
+		D3D12_INDIRECT_ARGUMENT_DESC argumentDescs[1] = {};
+		argumentDescs[0].Type = D3D12_INDIRECT_ARGUMENT_TYPE_DISPATCH;
+
+		D3D12_COMMAND_SIGNATURE_DESC commandSignatureDesc{};
+		commandSignatureDesc.pArgumentDescs = argumentDescs;
+		commandSignatureDesc.NumArgumentDescs = _countof(argumentDescs);
+		commandSignatureDesc.ByteStride = sizeof(D3D12_DISPATCH_ARGUMENTS);
+		trailsCommandSignature_->Create(L"trailsCommandSignature", commandSignatureDesc, nullptr);
+	}
+
+
 }
 
 void GPUParticleManager::CreateIndexBuffer() {

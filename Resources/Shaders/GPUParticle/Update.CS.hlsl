@@ -6,7 +6,6 @@ RWStructuredBuffer<GPUParticleShaderStructs::Particle> input : register(u0);
 AppendStructuredBuffer<uint> particleIndexCommands : register(u1);
 AppendStructuredBuffer<uint> outputDrawIndexCommands : register(u2);
 
-RWStructuredBuffer<GPUParticleShaderStructs::TrailsData> trails  : register(u3);
 
 StructuredBuffer<GPUParticleShaderStructs::EmitterForGPU> emitter : register(t0);
 StructuredBuffer<GPUParticleShaderStructs::VertexEmitterForGPU> vertexEmitter : register(t1);

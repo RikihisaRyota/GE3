@@ -48,7 +48,8 @@ void CheckTrailsData(GPUParticleShaderStructs::EmitterTrails emitterTrails,uint3
         GPUParticleShaderStructs::TrailsData data;
         data.particleIndex = particleIndex;
         // マイナスオーバーフロー注意
-        data.trailsIndex = trailsIndexCounter.Consume();
+
+        //data.trailsIndex = trailsIndexCounter.Consume();
         data.startIndex=trailsHead[0].headIndex;
         data.endIndex = data.startIndex + GPUParticleShaderStructs::TrailsRange;
         data.currentIndex = data.startIndex;
@@ -97,6 +98,7 @@ void main(uint3 DTid : SV_DispatchThreadID, uint3 GTid : SV_GroupThreadID, uint3
                     uint32_t emitterIndex=createParticle[emitterNum].emitterIndex;
                     GPUParticleShaderStructs::EmitterForGPU emitter=gEmitter[emitterIndex];
                     CreateParticle(Output[index], emitter,seed,emitterIndex);
+                    CheckTrailsData( emitter.emitterTrails , index);
                 }
             }
         }
@@ -124,6 +126,7 @@ void main(uint3 DTid : SV_DispatchThreadID, uint3 GTid : SV_GroupThreadID, uint3
                     info.vertex = float32_t3 (1.0f,1.0f,1.0f);
                     info.weight = float32_t3(1.0f,1.0f,1.0f);
                     CreateParticle(Output[index], emitter,translate,info,seed,emitterIndex);
+                    CheckTrailsData( emitter.emitterTrails , index);
                     //// 0からに
                     //createNum = createParticle[emitterNum].maxCreateParticleNum - createNum;
                     //// 三角形の頂点インデックスを取得
@@ -200,6 +203,7 @@ void main(uint3 DTid : SV_DispatchThreadID, uint3 GTid : SV_GroupThreadID, uint3
                     translate =  mul(vertexPosition,worldMatrix).xyz;
                     emitter.translate.easing.max = translate;
                     CreateParticle(Output[index], emitter,translate,info,seed,emitterIndex);
+                    CheckTrailsData( emitter.emitterTrails , index);
                 }
             }
         }
@@ -231,6 +235,7 @@ void main(uint3 DTid : SV_DispatchThreadID, uint3 GTid : SV_GroupThreadID, uint3
                     emitter.translate.easing.min = mul(vertexBuffers[emitter.startModel.vertexBufferIndex][startModelIndex].position,startWorldMatrix).xyz;
                     emitter.translate.easing.max = mul(vertexBuffers[emitter.endModel.vertexBufferIndex][endModelIndex].position,endWorldMatrix).xyz;
                     CreateParticle(Output[particleIndex], emitter,seed,emitterIndex);
+                    CheckTrailsData( emitter.emitterTrails , particleIndex);
                 }
             }
         }
@@ -253,6 +258,7 @@ void main(uint3 DTid : SV_DispatchThreadID, uint3 GTid : SV_GroupThreadID, uint3
                     emitter.translate.isEasing=true;
                     emitter.translate.easing.max = mul(vertexBuffers[emitter.model.vertexBufferIndex][modelIndex].position,worldMatrix).xyz;
                     CreateParticle(Output[particleIndex], emitter,seed,emitterIndex);
+                    CheckTrailsData( emitter.emitterTrails , particleIndex);
                 }
             }
         }

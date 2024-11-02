@@ -660,6 +660,16 @@ namespace GPUParticleShaderStructs {
 		JSON_ROOT();
 	}
 
+	void LoadTrails(GPUParticleShaderStructs::EmitterTrails& emitterTrails) {
+		JSON_OBJECT("EmitterTrails");
+		JSON_LOAD_BY_NAME("isTrails", emitterTrails.isTrails);
+		JSON_LOAD_BY_NAME("textureIndex", emitterTrails.textureIndex);
+		JSON_LOAD_BY_NAME("interval", emitterTrails.interval);
+		JSON_LOAD_BY_NAME("width", emitterTrails.width);
+		JSON_LOAD_BY_NAME("lifeLimit", emitterTrails.lifeLimit);
+		JSON_ROOT();
+	}
+
 	void LoadTextureHandle(uint32_t& texture) {
 		std::string path{};
 		JSON_LOAD_BY_NAME("textureIndex", path);
@@ -817,6 +827,16 @@ namespace GPUParticleShaderStructs {
 		JSON_ROOT();
 	}
 
+	void SaveTrails(GPUParticleShaderStructs::EmitterTrails& emitterTrails) {
+		JSON_OBJECT("EmitterTrails");
+		JSON_SAVE_BY_NAME("isTrails", emitterTrails.isTrails);
+		JSON_SAVE_BY_NAME("textureIndex", emitterTrails.textureIndex);
+		JSON_SAVE_BY_NAME("interval", emitterTrails.interval);
+		JSON_SAVE_BY_NAME("width", emitterTrails.width);
+		JSON_SAVE_BY_NAME("lifeLimit", emitterTrails.lifeLimit);
+		JSON_ROOT();
+	}
+
 	void SaveTextureHandle(uint32_t& texture) {
 		JSON_SAVE_BY_NAME("textureIndex", TextureManager::GetInstance()->GetTexture(TextureManager::GetInstance()->GetTextureLocation(texture)).GetPath().string());
 
@@ -904,6 +924,7 @@ namespace GPUParticleShaderStructs {
 		dst.frequency = src.frequency;
 		dst.time = src.time;
 		dst.particleLifeSpan = src.particleLifeSpan;
+		dst.emitterTrails = src.emitterTrails;
 		dst.textureIndex = src.textureIndex;
 		dst.createParticleNum = src.createParticleNum;
 		dst.isAlive = src.isAlive;
@@ -922,6 +943,7 @@ namespace GPUParticleShaderStructs {
 		dst.frequency = src.frequency;
 		dst.time = src.time;
 		dst.particleLifeSpan = src.particleLifeSpan;
+		dst.emitterTrails = src.emitterTrails;
 		dst.collisionInfo = src.collisionInfo;
 		dst.parent = src.parent;
 		dst.model = src.model;
@@ -939,6 +961,7 @@ namespace GPUParticleShaderStructs {
 		dst.frequency = src.frequency;
 		dst.time = src.time;
 		dst.particleLifeSpan = src.particleLifeSpan;
+		dst.emitterTrails = src.emitterTrails;
 		dst.collisionInfo = src.collisionInfo;
 		dst.parent = src.parent;
 		dst.model = src.model;
@@ -974,6 +997,7 @@ namespace GPUParticleShaderStructs {
 		dst.frequency = src.frequency;
 		dst.time = src.time;
 		dst.particleLifeSpan = src.particleLifeSpan;
+		dst.emitterTrails = src.emitterTrails;
 		dst.collisionInfo = src.collisionInfo;
 		dst.parent = src.parent;
 		dst.startModel = src.startModel;
@@ -1004,6 +1028,7 @@ namespace GPUParticleShaderStructs {
 		dst.time.particleTime = src.frequency.interval;
 		dst.time.emitterTime = 0;
 		dst.particleLifeSpan = src.particleLifeSpan;
+		dst.emitterTrails = src.emitterTrails;
 		dst.textureIndex = src.textureIndex;
 		dst.createParticleNum = src.createParticleNum;
 		dst.isAlive = src.isAlive;
@@ -1027,6 +1052,7 @@ namespace GPUParticleShaderStructs {
 		dst.frequency = src.frequency;
 		dst.time = src.time;
 		dst.particleLifeSpan = src.particleLifeSpan;
+		dst.emitterTrails = src.emitterTrails;
 		dst.collisionInfo = src.collisionInfo;
 		dst.parent = src.parent;
 		dst.parent.emitterType = GPUParticleShaderStructs::EmitterType::kVertexEmitter;
@@ -1050,6 +1076,7 @@ namespace GPUParticleShaderStructs {
 		dst.frequency = src.frequency;
 		dst.time = src.time;
 		dst.particleLifeSpan = src.particleLifeSpan;
+		dst.emitterTrails = src.emitterTrails;
 		dst.collisionInfo = src.collisionInfo;
 		dst.parent = src.parent;
 		dst.parent.emitterType = GPUParticleShaderStructs::EmitterType::kMeshEmitter;
@@ -1074,6 +1101,7 @@ namespace GPUParticleShaderStructs {
 		dst.frequency = src.frequency;
 		dst.time = src.time;
 		dst.particleLifeSpan = src.particleLifeSpan;
+		dst.emitterTrails = src.emitterTrails;
 		dst.collisionInfo = src.collisionInfo;
 		dst.parent = src.parent;
 		dst.parent.emitterType = GPUParticleShaderStructs::EmitterType::kTransformAreaEmitter;
@@ -1097,6 +1125,7 @@ namespace GPUParticleShaderStructs {
 		dst.frequency = src.frequency;
 		dst.time = src.time;
 		dst.particleLifeSpan = src.particleLifeSpan;
+		dst.emitterTrails = src.emitterTrails;
 		dst.collisionInfo = src.collisionInfo;
 		dst.parent = src.parent;
 		dst.parent.emitterType = GPUParticleShaderStructs::EmitterType::kTransformModelEmitter;
@@ -1155,6 +1184,8 @@ void GPUParticleShaderStructs::EmitterEditor(const std::string name, std::tuple<
 
 	DrawParticleLife(emitter->particleLifeSpan);
 
+	DrawTrails(emitter->emitterTrails);
+
 	DrawTextureHandle(emitter->textureIndex);
 
 	DrawCreateParticleNum(emitter->createParticleNum);
@@ -1199,6 +1230,8 @@ void GPUParticleShaderStructs::EmitterEditor(const std::string name, std::tuple<
 	DrawFrequency(desc->frequency);
 
 	DrawParticleLife(desc->particleLifeSpan);
+
+	DrawTrails(desc->emitterTrails);
 
 	DrawTextureHandle(desc->textureIndex);
 
@@ -1246,6 +1279,8 @@ void GPUParticleShaderStructs::EmitterEditor(const std::string name, std::tuple<
 
 	DrawParticleLife(desc->particleLifeSpan);
 
+	DrawTrails(desc->emitterTrails);
+
 	DrawTextureHandle(desc->textureIndex);
 
 	DrawCollisionInfo(desc->collisionInfo);
@@ -1286,6 +1321,8 @@ void GPUParticleShaderStructs::EmitterEditor(const std::string name, std::tuple<
 	DrawFrequency(emitter->frequency);
 
 	DrawParticleLife(emitter->particleLifeSpan);
+
+	DrawTrails(emitter->emitterTrails);
 
 	DrawTextureHandle(emitter->textureIndex);
 
@@ -1328,6 +1365,8 @@ void GPUParticleShaderStructs::EmitterEditor(const std::string name, std::tuple<
 	DrawFrequency(emitter->frequency);
 
 	DrawParticleLife(emitter->particleLifeSpan);
+
+	DrawTrails(emitter->emitterTrails);
 
 	DrawTextureHandle(emitter->textureIndex);
 

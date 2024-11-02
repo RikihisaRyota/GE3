@@ -61,6 +61,7 @@ private:
 	void CreateGraphics();
 	void CreateEmitter();
 	void CreateUpdate();
+	void CreateUpdateTrails();
 	void CreateIndexBuffer();
 	void CreateBullet();
 	void CreateMeshParticle();
@@ -84,12 +85,6 @@ private:
 	std::unique_ptr<CommandSignature> spawnCommandSignature_;
 	std::unique_ptr<PipelineState> bulletPipelineState_;
 	std::unique_ptr<RootSignature> bulletRootSignature_;
-	//std::unique_ptr<PipelineState> meshParticlePipelineState_;
-	//std::unique_ptr<RootSignature> meshParticleRootSignature_;
-	//std::unique_ptr<PipelineState> vertexParticlePipelineState_;
-	//std::unique_ptr<RootSignature> vertexParticleRootSignature_;
-	//std::unique_ptr<PipelineState> edgeParticlePipelineState_;
-	//std::unique_ptr<RootSignature> edgeParticleRootSignature_;
 
 	std::unique_ptr<RootSignature> checkFieldRootSignature_;
 	std::unique_ptr<PipelineState> checkFieldPipelineState_;
@@ -99,6 +94,10 @@ private:
 	std::unique_ptr<PipelineState> updateFieldPipelineState_;
 	std::unique_ptr<RootSignature> collisionFieldRootSignature_;
 	std::unique_ptr<PipelineState> collisionFieldPipelineState_;
+
+	std::unique_ptr<CommandSignature> trailsCommandSignature_;
+	std::unique_ptr<RootSignature> updateTrailsRootSignature_;
+	std::unique_ptr<PipelineState> updateTrailsPipelineState_;
 
 	//std::unique_ptr<RootSignature> translateModelParticleRootSignature_;
 	//std::unique_ptr<PipelineState> translateModelParticlePipelineState_;

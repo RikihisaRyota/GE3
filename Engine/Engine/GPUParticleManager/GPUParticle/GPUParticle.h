@@ -46,6 +46,7 @@ public:
 	void CheckEmitter(CommandContext& commandContext);
 	void AddEmitter(CommandContext& commandContext);
 	void ParticleUpdate(const ViewProjection& viewProjection, CommandContext& commandContext);
+	void UpdateTrails(CommandContext& commandContext);
 	void BulletUpdate(CommandContext& commandContext, const UploadBuffer& random);
 	void Draw(const ViewProjection& viewProjection, CommandContext& commandContext);
 	void DrawImGui();
@@ -66,6 +67,7 @@ public:
 
 	void SetDrawCommandSignature(CommandSignature* commandSignature) { commandSignature_ = commandSignature; }
 	void SetSpawnCommandSignature(CommandSignature* commandSignature) { spawnCommandSignature_ = commandSignature; }
+	void SetTrailsCommandSignature(CommandSignature* commandSignature) { trailsCommandSignature_ = commandSignature; }
 
 	void SetField(const GPUParticleShaderStructs::FieldForCPU& fieldForCPU);
 	void SetEmitter(const GPUParticleShaderStructs::EmitterForCPU& emitterForCPU, const Matrix4x4& parent);
@@ -112,6 +114,8 @@ private:
 	// 何個生成するか数える用
 	DefaultBuffer createParticleCounterCopySrcBuffer_;
 	// 軌跡用
+	CommandSignature* trailsCommandSignature_;
+	DefaultBuffer trailsArgumentBuffers_;
 	DefaultBuffer trailsIndexBuffers_;
 	DefaultBuffer trailsDataBuffers_;
 	DefaultBuffer trailsHeadBuffers_;

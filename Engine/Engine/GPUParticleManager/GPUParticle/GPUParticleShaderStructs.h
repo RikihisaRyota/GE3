@@ -204,6 +204,14 @@ struct Particle
 
 
 	struct EmitterTrails {
+#ifdef __cplusplus
+		EmitterTrails() {
+			interval = 5;
+			width = 0.5f;
+			lifeLimit = 1.0f;
+		};
+#endif
+
 		uint32_t isTrails;
 		uint32_t textureIndex;
 		uint32_t interval;
@@ -1075,6 +1083,9 @@ struct Particle
 
 	void LoadParticleLife(GPUParticleShaderStructs::ParticleLifeSpan& particleLifeSpan);
 	void SaveParticleLife(GPUParticleShaderStructs::ParticleLifeSpan& particleLifeSpan);
+
+	void LoadTrails(GPUParticleShaderStructs::EmitterTrails& emitterTrails);
+	void SaveTrails(GPUParticleShaderStructs::EmitterTrails& emitterTrails);
 
 	void LoadTextureHandle(uint32_t& texture);
 	void SaveTextureHandle(uint32_t& texture);

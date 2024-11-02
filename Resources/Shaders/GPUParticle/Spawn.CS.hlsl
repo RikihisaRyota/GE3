@@ -49,8 +49,8 @@ void CheckTrailsData(GPUParticleShaderStructs::EmitterTrails emitterTrails,uint3
         data.particleIndex = particleIndex;
         // マイナスオーバーフロー注意
 
-        //data.trailsIndex = trailsIndexCounter.Consume();
-        data.startIndex=trailsHead[0].headIndex;
+        data.trailsIndex = 0;// trailsIndexCounter.Consume();
+        data.startIndex = trailsHead[0].headIndex;
         data.endIndex = data.startIndex + GPUParticleShaderStructs::TrailsRange;
         data.currentIndex = data.startIndex;
         
@@ -68,6 +68,7 @@ void CheckTrailsData(GPUParticleShaderStructs::EmitterTrails emitterTrails,uint3
         }else{
             trailsHead[0].headIndex = headCount;
         }
+        trailsData[data.trailsIndex] = data;
     }
 }
 
@@ -98,7 +99,7 @@ void main(uint3 DTid : SV_DispatchThreadID, uint3 GTid : SV_GroupThreadID, uint3
                     uint32_t emitterIndex=createParticle[emitterNum].emitterIndex;
                     GPUParticleShaderStructs::EmitterForGPU emitter=gEmitter[emitterIndex];
                     CreateParticle(Output[index], emitter,seed,emitterIndex);
-                    CheckTrailsData( emitter.emitterTrails , index);
+                    CheckTrailsData(emitter.emitterTrails,index);
                 }
             }
         }

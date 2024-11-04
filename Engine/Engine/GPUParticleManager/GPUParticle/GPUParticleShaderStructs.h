@@ -36,6 +36,7 @@ namespace GPUParticleShaderStructs {
 	static const UINT MaxProcessNum = 1;
 	static const UINT TrailsRange = 1024;
 	static const UINT MaxTrailsNum = 1 << 15;
+	static const UINT MaxTrailsTotal = MaxTrailsNum * TrailsRange;
 
 #pragma region Utility
 	struct UintMinMax {
@@ -181,8 +182,15 @@ struct Particle
 	};
 
 	struct TrailsData {
+#ifdef __cplusplus
+		TrailsData() {
+			trailsIndex = -1;
+			isAlive = 0;
+		};
+#endif
+		uint32_t isAlive;
 		uint32_t particleIndex;
-		uint32_t trailsIndex;
+		int32_t trailsIndex;
 		uint32_t startIndex;
 		uint32_t endIndex;
 
@@ -191,12 +199,13 @@ struct Particle
 		uint32_t interval;
 		uint32_t time;
 
-		uint32_t width;
+		float width;
 		float lifeLimit;
 	};
 
 	struct TrailsPosition {
 		Vector3 position;
+		Vector2 texcoord;
 	};
 	struct TrailsHead {
 		uint32_t headIndex;

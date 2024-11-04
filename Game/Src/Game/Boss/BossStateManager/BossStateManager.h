@@ -247,6 +247,12 @@ public:
 		kHomingAttack,
 		kCount,
 	};
+	enum AttackStateType {
+		kRush,
+		kSmash,
+		kHoming,
+		kAttackStateTypeCount,
+	};
 
 	struct JsonData {
 		BossStateRoot::JsonData root;

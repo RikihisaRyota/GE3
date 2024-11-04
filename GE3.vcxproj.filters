@@ -964,5 +964,11 @@
     <FxCompile Include="Resources\Shaders\GaussianFilter\VerticalGaussianFilter.PS.hlsl">
       <Filter>Shaders\GaussianFilter</Filter>
     </FxCompile>
+    <FxCompile Include="Resources\Shaders\GPUParticle\Trails.VS.hlsl">
+      <Filter>Shaders\GPUParticle</Filter>
+    </FxCompile>
+    <FxCompile Include="Resources\Shaders\GPUParticle\Trails.PS.hlsl">
+      <Filter>Shaders\GPUParticle</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

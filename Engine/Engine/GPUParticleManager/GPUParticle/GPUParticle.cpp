@@ -275,6 +275,9 @@ void GPUParticle::Spawn(CommandContext& commandContext, const UploadBuffer& rand
 	commandContext.TransitionResource(originalCommandBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 	commandContext.TransitionResource(createParticleBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 	commandContext.TransitionResource(originalCounterBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+	commandContext.TransitionResource(trailsIndexBuffers_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+	commandContext.TransitionResource(trailsDataBuffers_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+	commandContext.TransitionResource(trailsHeadBuffers_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 	commandContext.TransitionResource(spawnArgumentBuffer_, D3D12_RESOURCE_STATE_INDIRECT_ARGUMENT);
 
 	emitterForGPUDesc_.Spawn(commandContext);
@@ -369,14 +372,15 @@ void GPUParticle::UpdateTrails(CommandContext& commandContext) {
 	commandContext.SetComputeUAV(2, trailsPositionBuffers_.GetGPUVirtualAddress());
 	commandContext.SetComputeShaderResource(3, particleBuffer_.GetGPUVirtualAddress());
 
-	commandContext.ExecuteIndirect(
-		*trailsCommandSignature_,
-		1,
-		trailsArgumentBuffers_,
-		0,
-		nullptr,
-		0
-	);
+	commandContext.Dispatch(static_cast<UINT>(ceil((GPUParticleShaderStructs::MaxTrailsNum) / GPUParticleShaderStructs::ComputeThreadBlockSize)), 1, 1);
+	//commandContext.ExecuteIndirect(
+	//	*trailsCommandSignature_,
+	//	1,
+	//	trailsArgumentBuffers_,
+	//	0,
+	//	nullptr,
+	//	0
+	//);
 	commandContext.EndEvent();
 }
 
@@ -1030,6 +1034,7 @@ void GPUParticle::InitializeBuffer() {
 
 	commandContext.SetComputeDescriptorTable(kParticleIndexBuffer, originalCommandBuffer_.GetUAVHandle());
 	commandContext.SetComputeDescriptorTable(kFieldIndexBuffer, fieldIndexStockBuffer_.GetUAVHandle());
+	commandContext.SetComputeDescriptorTable(kTrailsIndexBuffer, trailsIndexBuffers_.GetUAVHandle());
 	commandContext.Dispatch(static_cast<UINT>(ceil(GPUParticleShaderStructs::MaxParticleNum / float(GPUParticleShaderStructs::ComputeThreadBlockSize))), 1, 1);
 
 	// カウンターを初期化
@@ -1163,10 +1168,19 @@ void GPUParticle::InitializeTrails() {
 	auto graphics = GraphicsCore::GetInstance();
 	{
 		trailsArgumentBuffers_.Create(L"trailsArgumentBuffers",sizeof(D3D12_DISPATCH_ARGUMENTS));
-		trailsIndexBuffers_.Create(L"trailsIndexBuffers", sizeof(uint32_t) * GPUParticleShaderStructs::MaxTrailsNum, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
+		trailsIndexBuffers_.Create(L"trailsIndexBuffers", sizeof(int32_t) * GPUParticleShaderStructs::MaxTrailsNum, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
+		D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = {};
+		uavDesc.Format = DXGI_FORMAT_UNKNOWN;
+		uavDesc.ViewDimension = D3D12_UAV_DIMENSION_BUFFER;
+		uavDesc.Buffer.FirstElement = 0;
+		uavDesc.Buffer.NumElements = GPUParticleShaderStructs::MaxTrailsNum;
+		uavDesc.Buffer.StructureByteStride = sizeof(int32_t);
+		uavDesc.Buffer.CounterOffsetInBytes = trailsIndexBuffers_.GetCounterOffset();
+		uavDesc.Buffer.Flags = D3D12_BUFFER_UAV_FLAG_NONE;
+		trailsIndexBuffers_.CreateUAV(uavDesc);
 		trailsDataBuffers_.Create(L"trailsDataBuffers", sizeof(GPUParticleShaderStructs::TrailsData) * GPUParticleShaderStructs::MaxTrailsNum, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
 		trailsHeadBuffers_.Create(L"trailsHeadBuffers_", sizeof(GPUParticleShaderStructs::TrailsHead), D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
-		trailsPositionBuffers_.Create(L"trailsBuffers", sizeof(GPUParticleShaderStructs::TrailsPosition) * GPUParticleShaderStructs::MaxTrailsNum * GPUParticleShaderStructs::TrailsRange, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
+		trailsPositionBuffers_.Create(L"trailsBuffers", sizeof(GPUParticleShaderStructs::TrailsPosition) * GPUParticleShaderStructs::MaxTrailsTotal, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
 	}
 }
 

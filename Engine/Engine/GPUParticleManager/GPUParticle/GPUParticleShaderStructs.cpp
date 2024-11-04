@@ -387,6 +387,7 @@ namespace GPUParticleShaderStructs {
 	void DrawTrails(GPUParticleShaderStructs::EmitterTrails& emitterTrails) {
 #ifdef _DEBUG
 		if (ImGui::TreeNode("Trails")) {
+			ImGui::Checkbox("IsTrails", reinterpret_cast<bool*>(&emitterTrails.isTrails));
 			if (emitterTrails.isTrails) {
 				int interval = emitterTrails.interval;
 				ImGui::DragInt("Interval", &interval, 1);
@@ -414,7 +415,6 @@ namespace GPUParticleShaderStructs {
 					ImGui::TreePop();
 				}
 			}
-			ImGui::Checkbox("IsTrails", reinterpret_cast<bool*>(&emitterTrails.isTrails));
 			ImGui::TreePop();
 		}
 #endif // _DEBUG
@@ -1450,71 +1450,71 @@ void GPUParticleShaderStructs::Debug(const std::string name, FieldForCPU& desc) 
 
 
 void GPUParticleShaderStructs::DebugDraw(const EmitterForCPU& emitter) {
-	static const  Vector4 emitterColor = { 0.5f,0.5f,1.0f,1.0f };
-	switch (emitter.emitterArea.type) {
-	case GPUParticleShaderStructs::Type::kAABB:
-	{
-		AABB aabb{};
-		aabb.min_ = emitter.emitterArea.aabb.area.min;
-		aabb.max_ = emitter.emitterArea.aabb.area.max;
-		aabb.center_ = emitter.emitterArea.position;
-		DrawLine(aabb, emitterColor);
-	}
-	break;
-	case GPUParticleShaderStructs::Type::kSphere:
-	{
-		Sphere sphere{};
-		sphere.center = emitter.emitterArea.position;
-		sphere.radius = emitter.emitterArea.sphere.radius;
-		DrawLine(sphere, emitterColor);
-	}
-	break;
-	case GPUParticleShaderStructs::Type::kCapsule:
-	{
-		Capsule capsule{};
-		capsule.segment.start = emitter.emitterArea.capsule.segment.origin + emitter.emitterArea.position;
-		capsule.segment.end = emitter.emitterArea.capsule.segment.diff + emitter.emitterArea.position;
-		capsule.radius = emitter.emitterArea.capsule.radius;
-		DrawLine(capsule, emitterColor);
-	}
-	break;
-	default:
-		break;
-	}
+	//static const  Vector4 emitterColor = { 0.5f,0.5f,1.0f,1.0f };
+	//switch (emitter.emitterArea.type) {
+	//case GPUParticleShaderStructs::Type::kAABB:
+	//{
+	//	AABB aabb{};
+	//	aabb.min_ = emitter.emitterArea.aabb.area.min;
+	//	aabb.max_ = emitter.emitterArea.aabb.area.max;
+	//	aabb.center_ = emitter.emitterArea.position;
+	//	DrawLine(aabb, emitterColor);
+	//}
+	//break;
+	//case GPUParticleShaderStructs::Type::kSphere:
+	//{
+	//	Sphere sphere{};
+	//	sphere.center = emitter.emitterArea.position;
+	//	sphere.radius = emitter.emitterArea.sphere.radius;
+	//	DrawLine(sphere, emitterColor);
+	//}
+	//break;
+	//case GPUParticleShaderStructs::Type::kCapsule:
+	//{
+	//	Capsule capsule{};
+	//	capsule.segment.start = emitter.emitterArea.capsule.segment.origin + emitter.emitterArea.position;
+	//	capsule.segment.end = emitter.emitterArea.capsule.segment.diff + emitter.emitterArea.position;
+	//	capsule.radius = emitter.emitterArea.capsule.radius;
+	//	DrawLine(capsule, emitterColor);
+	//}
+	//break;
+	//default:
+	//	break;
+	//}
 }
 
 void GPUParticleShaderStructs::DebugDraw(const FieldForCPU& emitter) {
-	static const  Vector4 emitterColor = { 1.0f,0.5f,0.5f,1.0f };
-	switch (emitter.fieldArea.type) {
-	case GPUParticleShaderStructs::Type::kAABB:
-	{
-		AABB aabb{};
-		aabb.min_ = emitter.fieldArea.aabb.area.min;
-		aabb.max_ = emitter.fieldArea.aabb.area.max;
-		aabb.center_ = emitter.fieldArea.position;
-		DrawLine(aabb, emitterColor);
-	}
-	break;
-	case GPUParticleShaderStructs::Type::kSphere:
-	{
-		Sphere sphere{};
-		sphere.center = emitter.fieldArea.position;
-		sphere.radius = emitter.fieldArea.sphere.radius;
-		DrawLine(sphere, emitterColor);
-	}
-	break;
-	case GPUParticleShaderStructs::Type::kCapsule:
-	{
-		Capsule capsule{};
-		capsule.segment.start = emitter.fieldArea.capsule.segment.origin;
-		capsule.segment.end = emitter.fieldArea.capsule.segment.diff;
-		capsule.radius = emitter.fieldArea.capsule.radius;
-		DrawLine(capsule, emitterColor);
-	}
-	break;
-	default:
-		break;
-	}
+	//static const  Vector4 emitterColor = { 1.0f,0.5f,0.5f,1.0f };
+	//switch (emitter.fieldArea.type) {
+	//case GPUParticleShaderStructs::Type::kAABB:
+	//{
+	//	AABB aabb{};
+	//	aabb.min_ = emitter.fieldArea.aabb.area.min;
+	//	aabb.max_ = emitter.fieldArea.aabb.area.max;
+	//	aabb.center_ = emitter.fieldArea.position;
+	//	DrawLine(aabb, emitterColor);
+	//}
+	//break;
+	//case GPUParticleShaderStructs::Type::kSphere:
+	//{
+	//	Sphere sphere{};
+	//	sphere.center = emitter.fieldArea.position;
+	//	sphere.radius = emitter.fieldArea.sphere.radius;
+	//	DrawLine(sphere, emitterColor);
+	//}
+	//break;
+	//case GPUParticleShaderStructs::Type::kCapsule:
+	//{
+	//	Capsule capsule{};
+	//	capsule.segment.start = emitter.fieldArea.capsule.segment.origin;
+	//	capsule.segment.end = emitter.fieldArea.capsule.segment.diff;
+	//	capsule.radius = emitter.fieldArea.capsule.radius;
+	//	DrawLine(capsule, emitterColor);
+	//}
+	//break;
+	//default:
+	//	break;
+	//}
 
 }
 
@@ -1680,6 +1680,7 @@ void GPUParticleShaderStructs::Load(const std::string name, GPUParticleShaderStr
 	LoadColor(emitter.color);
 	LoadFrequency(emitter.frequency);
 	LoadParticleLife(emitter.particleLifeSpan);
+	LoadTrails(emitter.emitterTrails);
 	LoadRotate(emitter.rotate);
 	LoadScale(emitter.scale);
 	LoadVelocity(emitter.velocity);
@@ -1696,6 +1697,7 @@ void GPUParticleShaderStructs::Save(const std::string name, GPUParticleShaderStr
 	SaveColor(emitter.color);
 	SaveFrequency(emitter.frequency);
 	SaveParticleLife(emitter.particleLifeSpan);
+	SaveTrails(emitter.emitterTrails);
 	SaveRotate(emitter.rotate);
 	SaveScale(emitter.scale);
 	SaveVelocity(emitter.velocity);
@@ -1712,6 +1714,7 @@ void GPUParticleShaderStructs::Load(const std::string name, GPUParticleShaderStr
 	LoadTranslate(desc.translate);
 	LoadScale(desc.scale);
 	LoadParticleLife(desc.particleLifeSpan);
+	LoadTrails(desc.emitterTrails);
 	LoadColor(desc.color);
 	LoadFrequency(desc.frequency);
 	LoadRotate(desc.rotate);
@@ -1731,6 +1734,7 @@ void GPUParticleShaderStructs::Save(const std::string name, GPUParticleShaderStr
 	SaveTranslate(desc.translate);
 	SaveScale(desc.scale);
 	SaveParticleLife(desc.particleLifeSpan);
+	SaveTrails(desc.emitterTrails);
 	SaveColor(desc.color);
 	SaveFrequency(desc.frequency);
 	SaveRotate(desc.rotate);
@@ -1748,6 +1752,7 @@ void GPUParticleShaderStructs::Load(const std::string name, GPUParticleShaderStr
 	LoadTranslate(desc.translate);
 	LoadScale(desc.scale);
 	LoadParticleLife(desc.particleLifeSpan);
+	LoadTrails(desc.emitterTrails);
 	LoadColor(desc.color);
 	LoadFrequency(desc.frequency);
 	LoadRotate(desc.rotate);
@@ -1763,6 +1768,7 @@ void GPUParticleShaderStructs::Save(const std::string name, GPUParticleShaderStr
 	SaveTranslate(desc.translate);
 	SaveScale(desc.scale);
 	SaveParticleLife(desc.particleLifeSpan);
+	SaveTrails(desc.emitterTrails);
 	SaveColor(desc.color);
 	SaveFrequency(desc.frequency);
 	SaveRotate(desc.rotate);
@@ -1781,6 +1787,7 @@ void GPUParticleShaderStructs::Save(const std::string name, GPUParticleShaderStr
 	SaveRotate(emitter.rotate);
 	SaveVelocity(emitter.velocity);
 	SaveParticleLife(emitter.particleLifeSpan);
+	SaveTrails(emitter.emitterTrails);
 	SaveColor(emitter.color);
 	SaveFrequency(emitter.frequency);
 	SaveCollisionInfo(emitter.collisionInfo);
@@ -1796,6 +1803,7 @@ void GPUParticleShaderStructs::Load(const std::string name, GPUParticleShaderStr
 	LoadRotate(emitter.rotate);
 	LoadVelocity(emitter.velocity);
 	LoadParticleLife(emitter.particleLifeSpan);
+	LoadTrails(emitter.emitterTrails);
 	LoadColor(emitter.color);
 	LoadFrequency(emitter.frequency);
 	LoadCollisionInfo(emitter.collisionInfo);
@@ -1812,6 +1820,7 @@ void GPUParticleShaderStructs::Save(const std::string name, GPUParticleShaderStr
 	SaveRotate(emitter.rotate);
 	SaveVelocity(emitter.velocity);
 	SaveParticleLife(emitter.particleLifeSpan);
+	SaveTrails(emitter.emitterTrails);
 	SaveColor(emitter.color);
 	SaveFrequency(emitter.frequency);
 	SaveCollisionInfo(emitter.collisionInfo);
@@ -1828,6 +1837,7 @@ void GPUParticleShaderStructs::Load(const std::string name, GPUParticleShaderStr
 	LoadRotate(emitter.rotate);
 	LoadVelocity(emitter.velocity);
 	LoadParticleLife(emitter.particleLifeSpan);
+	LoadTrails(emitter.emitterTrails);
 	LoadColor(emitter.color);
 	LoadFrequency(emitter.frequency);
 	LoadCollisionInfo(emitter.collisionInfo);

@@ -86,6 +86,7 @@
         "isLoop": 1,
         "isOnce": 1
     },
+    "EmitterTrails": {},
     "EmitterTranslate": {
         "attraction": 0.5,
         "isEasing": 1,

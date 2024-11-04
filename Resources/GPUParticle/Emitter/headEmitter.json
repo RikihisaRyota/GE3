@@ -15,6 +15,7 @@
         "Start": {}
     },
     "EmitterFrequency": {},
+    "EmitterTrails": {},
     "Parent": {},
     "ParticleLifeSpan": {},
     "RotateAnimation": {

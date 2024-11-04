@@ -11,7 +11,8 @@ struct CounterParticle
 };
 RWStructuredBuffer<CounterParticle> particleIndexCounter : register(u3);
 
-ConsumeStructuredBuffer<uint> trailsIndexCounter : register(u4);
+ConsumeStructuredBuffer<int> trailsIndexCounter : register(u4);
+//AppendStructuredBuffer<int> trailsIndexCounter : register(u4);
 RWStructuredBuffer<GPUParticleShaderStructs::TrailsData> trailsData : register(u5);
 RWStructuredBuffer<GPUParticleShaderStructs::TrailsHead> trailsHead : register(u6);
 
@@ -44,12 +45,12 @@ struct Random
 ConstantBuffer<Random> gRandom : register(b0);
 
 void CheckTrailsData(GPUParticleShaderStructs::EmitterTrails emitterTrails,uint32_t particleIndex){
-    if(emitterTrails.isTrails){
+    if(emitterTrails.isTrails == true){
         GPUParticleShaderStructs::TrailsData data;
+        
         data.particleIndex = particleIndex;
-        // マイナスオーバーフロー注意
-
-        data.trailsIndex = 0;// trailsIndexCounter.Consume();
+        data.isAlive = true;
+        data.trailsIndex = trailsIndexCounter.Consume();
         data.startIndex = trailsHead[0].headIndex;
         data.endIndex = data.startIndex + GPUParticleShaderStructs::TrailsRange;
         data.currentIndex = data.startIndex;
@@ -60,15 +61,15 @@ void CheckTrailsData(GPUParticleShaderStructs::EmitterTrails emitterTrails,uint3
         data.time = 0;
 
         data.lifeLimit = emitterTrails.lifeLimit;
+        trailsData[data.trailsIndex] = data;
         // headインクリメント
         int32_t headCount = -1;
         InterlockedAdd(trailsHead[0].headIndex,GPUParticleShaderStructs::TrailsRange, headCount);
-        if(headCount >= GPUParticleShaderStructs::MaxTrailsNum * GPUParticleShaderStructs::TrailsRange){
+        if(headCount >=  GPUParticleShaderStructs::MaxTrailsTotal){
             trailsHead[0].headIndex = 0;
         }else{
             trailsHead[0].headIndex = headCount;
         }
-        trailsData[data.trailsIndex] = data;
     }
 }
 
@@ -80,7 +81,6 @@ void main(uint3 DTid : SV_DispatchThreadID, uint3 GTid : SV_GroupThreadID, uint3
 
     // グループIDを使用(dispach数)
     uint32_t emitterNum  = GID.y;
-
     // 作成できない場合早期リターン
     if(particleIndexCounter[0].count <= 0) {
         return;

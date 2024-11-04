@@ -100,6 +100,13 @@
         "isLoop": 1,
         "isOnce": 0
     },
+    "EmitterTrails": {
+        "interval": 5,
+        "isTrails": 1,
+        "lifeLimit": 1.0,
+        "textureIndex": 0,
+        "width": 0.5
+    },
     "Parent": {
         "isParent": 0
     },
@@ -161,6 +168,6 @@
             0.0
         ]
     },
-    "createParticleNum": 1,
+    "createParticleNum": 500,
     "textureIndex": "Resources/Images/GPUParticle.png"
 }

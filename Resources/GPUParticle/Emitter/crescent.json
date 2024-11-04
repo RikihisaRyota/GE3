@@ -87,6 +87,7 @@
         "interval": 1,
         "isLoop": 0
     },
+    "EmitterTrails": {},
     "Parent": {},
     "ParticleLifeSpan": {
         "Max": 20,

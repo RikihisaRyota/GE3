@@ -84,8 +84,8 @@ void BossStateRoot::Update(CommandContext& commandContext) {
 		data_.disguisingField.isAlive = false;
 		data_.transformField.isAlive = false;
 		time_ += 1.0f / data_.allFrame;
-		/*if (time_ >= 1.0f) {
-			BossStateManager::State tmp = static_cast<BossStateManager::State>((rnd_.NextUIntLimit() % 2) + int(BossStateManager::State::kRushAttack));
+		if (time_ >= 1.0f) {
+			BossStateManager::State tmp = static_cast<BossStateManager::State>((rnd_.NextUIntLimit() % int(BossStateManager::AttackStateType::kAttackStateTypeCount)) + int(BossStateManager::State::kRushAttack));
 			switch (tmp) {
 			case BossStateManager::State::kRushAttack:
 				manager_.ChangeState<BossStateRushAttack>();
@@ -93,16 +93,19 @@ void BossStateRoot::Update(CommandContext& commandContext) {
 			case BossStateManager::State::kSmashAttack:
 				manager_.ChangeState<BossStateSmashAttack>();
 				break;
+			case BossStateManager::State::kHomingAttack:
+				manager_.ChangeState<BossStateHomingAttack>();
+				break;
 
 			}
 			data_.transformEmitter.isAlive = false;
-		}*/
+		}
 		time_ = std::fmod(time_, 1.0f);
 	}
 
 	manager_.gpuParticleManager_->SetEmitter(data_.disguisingEmitter);
 	manager_.gpuParticleManager_->SetField(data_.disguisingField);
-	manager_.gpuParticleManager_->SetField(data_.transformField);
+	//manager_.gpuParticleManager_->SetField(data_.transformField);
 	/*if (preModelHandle != ModelHandle()) {
 		manager_.gpuParticleManager_->SetTransformModelEmitter(preModelHandle, manager_.boss_->GetModelHandle(), data_.transformEmitter);
 	}*/
@@ -420,7 +423,7 @@ void BossStateSmashAttack::Update(CommandContext& commandContext) {
 				smashAfterimageEmitter.color.range.start.min *= 0.5f;
 				//smashAfterimageEmitter.color.range.end.max *= 0.1f;
 				//smashAfterimageEmitter.color.range.end.min *= 0.1f;
-				manager_.gpuParticleManager_->SetVertexEmitter(modelHandle_, smashAfterimageEmitter, Mul(worldTransform_.matWorld, smash_.at(i).transform.matWorld));
+				//manager_.gpuParticleManager_->SetVertexEmitter(modelHandle_, smashAfterimageEmitter, Mul(worldTransform_.matWorld, smash_.at(i).transform.matWorld));
 			}
 		}
 

@@ -91,6 +91,7 @@
         "isLoop": 0,
         "isOnce": 1
     },
+    "EmitterTrails": {},
     "EmitterTranslate": {
         "attraction": 0.03999999910593033,
         "isEasing": 1,

@@ -170,7 +170,7 @@ void Player::BulletUpdate() {
 
 void Player::Shot() {
 	auto input = Input::GetInstance();
-	if (input->PushKey(DIK_SPACE) || input->PushGamepadButton(Button::RT)) {
+	if (input->PushKey(DIK_SPACE) || input->PushGamepadButton(Button::RT) || input->PushGamepadButton(Button::B)) {
 		playerBulletManager_->Create(worldTransform_);
 	}
 }

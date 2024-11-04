@@ -47,6 +47,7 @@
             0.0
         ]
     },
+    "EmitterTrails": {},
     "EmitterTranslate": {
         "attraction": 0.009999999776482582,
         "isEasing": 1,

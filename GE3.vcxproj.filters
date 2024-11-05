@@ -970,5 +970,8 @@
     <FxCompile Include="Resources\Shaders\GPUParticle\Trails.PS.hlsl">
       <Filter>Shaders\GPUParticle</Filter>
     </FxCompile>
+    <FxCompile Include="Resources\Shaders\GPUParticle\UpdateTrails.hlsl">
+      <Filter>Shaders\GPUParticle</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

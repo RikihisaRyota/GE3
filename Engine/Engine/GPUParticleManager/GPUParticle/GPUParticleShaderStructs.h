@@ -205,7 +205,8 @@ struct Particle
 
 	struct TrailsPosition {
 		Vector3 position;
-		Vector2 texcoord;
+		Vector2 texcood;
+		Vector2 uv;
 	};
 	struct TrailsHead {
 		uint32_t headIndex;

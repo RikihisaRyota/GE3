@@ -49,6 +49,7 @@ public:
 	void UpdateTrails(CommandContext& commandContext);
 	void BulletUpdate(CommandContext& commandContext, const UploadBuffer& random);
 	void Draw(const ViewProjection& viewProjection, CommandContext& commandContext);
+	void DrawTrails(const ViewProjection& viewProjection, CommandContext& commandContext);
 	void DrawImGui();
 	void CreateMeshParticle(const ModelHandle& modelHandle, Animation::Animation& animation, const Matrix4x4& worldTransform, const GPUParticleShaderStructs::MeshEmitterForCPU& mesh, const UploadBuffer& random, CommandContext& commandContext);
 	void CreateMeshParticle(const ModelHandle& modelHandle, const Matrix4x4& worldTransform, const GPUParticleShaderStructs::MeshEmitterForCPU& mesh, const UploadBuffer& random, CommandContext& commandContext);
@@ -116,6 +117,7 @@ private:
 	// 軌跡用
 	CommandSignature* trailsCommandSignature_;
 	DefaultBuffer trailsArgumentBuffers_;
+	DefaultBuffer trailsStockBuffers_;
 	DefaultBuffer trailsIndexBuffers_;
 	DefaultBuffer trailsDataBuffers_;
 	DefaultBuffer trailsHeadBuffers_;

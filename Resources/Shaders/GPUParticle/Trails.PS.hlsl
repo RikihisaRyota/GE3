@@ -1,4 +1,20 @@
-float4 main() : SV_TARGET
+#include "GPUParticle.hlsli"
+#include "GPUParticleShaderStructs.h"
+
+#define myTex2DSpace space1
+
+Texture2D<float4> gTexture[] : register(t0, myTex2DSpace);
+SamplerState gSampler : register(s0);
+
+struct PixelShaderOutput
 {
-	return float4(1.0f, 1.0f, 1.0f, 1.0f);
+    float32_t4 color : SV_TARGET0;
+};
+
+PixelShaderOutput main(VertexShaderOutput input)
+{
+    
+    PixelShaderOutput output;
+    output.color = float32_t4(1.0f,1.0f,1.0f,1.0f);
+    return output;
 }

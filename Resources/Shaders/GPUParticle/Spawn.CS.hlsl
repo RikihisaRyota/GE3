@@ -11,8 +11,7 @@ struct CounterParticle
 };
 RWStructuredBuffer<CounterParticle> particleIndexCounter : register(u3);
 
-ConsumeStructuredBuffer<int> trailsIndexCounter : register(u4);
-//AppendStructuredBuffer<int> trailsIndexCounter : register(u4);
+ConsumeStructuredBuffer<int> trailsStock : register(u4);
 RWStructuredBuffer<GPUParticleShaderStructs::TrailsData> trailsData : register(u5);
 RWStructuredBuffer<GPUParticleShaderStructs::TrailsHead> trailsHead : register(u6);
 
@@ -46,11 +45,20 @@ ConstantBuffer<Random> gRandom : register(b0);
 
 void CheckTrailsData(GPUParticleShaderStructs::EmitterTrails emitterTrails,uint32_t particleIndex){
     if(emitterTrails.isTrails == true){
+        // headインクリメント
+        int32_t headCount = -1;
+        int32_t trailsRangeValue = GPUParticleShaderStructs::TrailsRange;
+        InterlockedAdd(trailsHead[0].headIndex,1024, headCount);
+        if(headCount >=  GPUParticleShaderStructs::MaxTrailsTotal){
+            trailsHead[0].headIndex = 0;
+        }else{
+            trailsHead[0].headIndex = headCount;
+        }
         GPUParticleShaderStructs::TrailsData data;
         
         data.particleIndex = particleIndex;
         data.isAlive = true;
-        data.trailsIndex = trailsIndexCounter.Consume();
+        data.trailsIndex = trailsStock.Consume();
         data.startIndex = trailsHead[0].headIndex;
         data.endIndex = data.startIndex + GPUParticleShaderStructs::TrailsRange;
         data.currentIndex = data.startIndex;
@@ -62,14 +70,6 @@ void CheckTrailsData(GPUParticleShaderStructs::EmitterTrails emitterTrails,uint3
 
         data.lifeLimit = emitterTrails.lifeLimit;
         trailsData[data.trailsIndex] = data;
-        // headインクリメント
-        int32_t headCount = -1;
-        InterlockedAdd(trailsHead[0].headIndex,GPUParticleShaderStructs::TrailsRange, headCount);
-        if(headCount >=  GPUParticleShaderStructs::MaxTrailsTotal){
-            trailsHead[0].headIndex = 0;
-        }else{
-            trailsHead[0].headIndex = headCount;
-        }
     }
 }
 

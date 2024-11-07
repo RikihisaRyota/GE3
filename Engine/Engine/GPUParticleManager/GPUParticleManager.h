@@ -106,7 +106,8 @@ private:
 
 	std::unique_ptr<RootSignature> tailsRootSignature_;
 	std::unique_ptr<PipelineState> tailsPipelineState_;
-
+	std::unique_ptr<PipelineState> tailsGraphicsPipelineState_;
+	std::unique_ptr<RootSignature> tailsGraphicsRootSignature_;
 	UploadBuffer vertexBuffer_;
 	D3D12_VERTEX_BUFFER_VIEW vbView_{};
 	

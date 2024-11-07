@@ -104,7 +104,7 @@
         "interval": 5,
         "isTrails": 1,
         "lifeLimit": 1.0,
-        "textureIndex": 0,
+        "textureIndex": 28,
         "width": 0.5
     },
     "Parent": {
@@ -168,6 +168,6 @@
             0.0
         ]
     },
-    "createParticleNum": 500,
+    "createParticleNum": 1,
     "textureIndex": "Resources/Images/GPUParticle.png"
 }

@@ -1,8 +1,9 @@
 #include "GPUParticleShaderStructs.h"
 
-AppendStructuredBuffer<int> trailsCounter : register(u0);
-RWStructuredBuffer<GPUParticleShaderStructs::TrailsData> trailsData : register(u1);
-RWStructuredBuffer<GPUParticleShaderStructs::TrailsPosition> trailsPosition : register(u2);
+AppendStructuredBuffer<int> trailsStock : register(u0);
+AppendStructuredBuffer<int> trailsCounter : register(u1);
+RWStructuredBuffer<GPUParticleShaderStructs::TrailsData> trailsData : register(u2);
+RWStructuredBuffer<GPUParticleShaderStructs::TrailsPosition> trailsPosition : register(u3);
 StructuredBuffer<GPUParticleShaderStructs::Particle> particles : register(t0);
 [numthreads(GPUParticleShaderStructs::ComputeThreadBlockSize, 1, 1)]
 void main( uint3 DTid : SV_DispatchThreadID )
@@ -15,6 +16,8 @@ void main( uint3 DTid : SV_DispatchThreadID )
         if(particle.isAlive){
             if(data.time >= data.interval) {        
                 trailsPosition[data.currentIndex].position = particle.matWorld[3].xyz;
+                
+                //trailsPosition[data.currentIndex].texcoord = float32_t2(0.0f,0.0f);
                 data.currentIndex++;
                 if(data.currentIndex >= data.endIndex){
                     data.currentIndex = data.startIndex;
@@ -23,14 +26,16 @@ void main( uint3 DTid : SV_DispatchThreadID )
             } else {
                 data.time++;
             }
+            // 生きているindexを格納
+            trailsCounter.Append(data.currentIndex);
         }else{
                 // 死んでいたらindexを返し初期化
-                trailsCounter.Append(data.trailsIndex);
+                trailsStock.Append(data.trailsIndex);
                 data.trailsIndex = -1;
                 data.isAlive = 0;
                 for(uint32_t i = data.startIndex; i < data.endIndex;i++){
                     trailsPosition[i].position = float32_t3(0.0f,0.0f,0.0f);
-                    trailsPosition[i].texcoord = float32_t2(0.0f,0.0f);
+                    //trailsPosition[i].texcoord = float32_t2(0.0f,0.0f);
                 }
         }
         trailsData[trailsIndex] = data;

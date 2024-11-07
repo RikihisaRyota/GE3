@@ -30,6 +30,7 @@ void DrawLine::Initialize() {
 
 void DrawLine::Draw(CommandContext& commandContext, const ViewProjection& viewProjection) {
 	if (!vertices_.empty()) {
+		commandContext.BeginEvent(L"DrawLine");
 		memset(vertBuff_.GetCPUData(), 0, vertBuff_.GetBufferSize());
 
 		vertBuff_.Copy(vertices_.data(), vertices_.size() * sizeof(vertices_[0]));
@@ -44,7 +45,7 @@ void DrawLine::Draw(CommandContext& commandContext, const ViewProjection& viewPr
 		commandContext.SetGraphicsDynamicConstantBufferView(0,sizeof(ConstBufferDataViewProjection), viewProjection.constMap_);
 
 		commandContext.Draw(static_cast<UINT>(vertices_.size()));
-		
+		commandContext.EndEvent();
 		Reset();
 	}
 }

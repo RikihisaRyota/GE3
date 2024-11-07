@@ -729,6 +729,17 @@ struct Particle
 		SRV srv;
 		D3D12_DRAW_INDEXED_ARGUMENTS drawIndex;
 	};
+
+	struct TrailsCommand {
+		struct SRV {
+			D3D12_GPU_VIRTUAL_ADDRESS trailsData;
+			D3D12_GPU_VIRTUAL_ADDRESS trailsPosition;
+			D3D12_GPU_VIRTUAL_ADDRESS counterBuffer;
+		};
+		SRV srv;
+		D3D12_DRAW_ARGUMENTS drawIndex;
+	};
+
 	struct TransformModelEmitterForCPU {
 		TransformModelEmitterForCPU() {
 			if (staticEmitterCount == (std::numeric_limits<int32_t>::max)()) {

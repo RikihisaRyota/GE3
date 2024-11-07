@@ -151,6 +151,14 @@ void GPUParticleManager::Draw(const ViewProjection& viewProjection, CommandConte
 	};
 	commandContext.SetDynamicIndexBuffer(indices.size(), DXGI_FORMAT_R16_UINT, indices.data());
 	gpuParticle_->Draw(viewProjection, commandContext);
+
+
+	commandContext.SetGraphicsRootSignature(*tailsGraphicsRootSignature_);
+	commandContext.SetPipelineState(*tailsGraphicsPipelineState_);
+
+	commandContext.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
+
+	gpuParticle_->DrawTrails(viewProjection, commandContext);
 	//commandContext.TransitionResource(RenderManager::GetInstance()->GetMainDepthBuffer(), D3D12_RESOURCE_STATE_DEPTH_WRITE);
 	//commandContext.FlushResourceBarriers();
 }
@@ -656,7 +664,8 @@ void GPUParticleManager::CreateUpdateTrails() {
 	{
 		struct UpdateParticle {
 			enum Param {
-				kIndex,
+				kStock,
+				kCounter,
 				kData,
 				kPosition,
 				kParticle,
@@ -668,20 +677,23 @@ void GPUParticleManager::CreateUpdateTrails() {
 		updateTrailsRootSignature_ = std::make_unique<RootSignature>();
 
 		//	ParticleIndexCommand用（カウンター付きUAVの場合このように宣言）
-		CD3DX12_DESCRIPTOR_RANGE indexRange[1]{};
-		indexRange[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 0, 0);
+		CD3DX12_DESCRIPTOR_RANGE stockRange[1]{};
+		stockRange[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 0, 0);
+		CD3DX12_DESCRIPTOR_RANGE counterRange[1]{};
+		counterRange[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 1, 0);
 
 		CD3DX12_ROOT_PARAMETER rootParameters[UpdateParticle::kCount]{};
-		rootParameters[UpdateParticle::kIndex].InitAsDescriptorTable(_countof(indexRange), indexRange);
-		rootParameters[UpdateParticle::kData].InitAsUnorderedAccessView(1);
-		rootParameters[UpdateParticle::kPosition].InitAsUnorderedAccessView(2);
+		rootParameters[UpdateParticle::kStock].InitAsDescriptorTable(_countof(stockRange), stockRange);
+		rootParameters[UpdateParticle::kCounter].InitAsDescriptorTable(_countof(counterRange), counterRange);
+		rootParameters[UpdateParticle::kData].InitAsUnorderedAccessView(2);
+		rootParameters[UpdateParticle::kPosition].InitAsUnorderedAccessView(3);
 		rootParameters[UpdateParticle::kParticle].InitAsShaderResourceView(0);
 
 		D3D12_ROOT_SIGNATURE_DESC desc{};
 		desc.pParameters = rootParameters;
 		desc.NumParameters = _countof(rootParameters);
 
-		updateTrailsRootSignature_->Create(L"GPUParticle UpdateRootSignature", desc);
+		updateTrailsRootSignature_->Create(L"updateTrailsRootSignature", desc);
 	}
 	// アップデートパイプライン
 	{
@@ -690,22 +702,107 @@ void GPUParticleManager::CreateUpdateTrails() {
 		desc.pRootSignature = *updateTrailsRootSignature_;
 		auto cs = ShaderCompiler::Compile(L"Resources/Shaders/GPUParticle/UpdateTrails.hlsl", L"cs_6_0");
 		desc.CS = CD3DX12_SHADER_BYTECODE(cs->GetBufferPointer(), cs->GetBufferSize());
-		updateTrailsPipelineState_->Create(L"GPUParticle UpdateCPSO", desc);
+		updateTrailsPipelineState_->Create(L"updateTrailsPipelineState", desc);
+	}
+	// グラフィックスルートシグネイチャ
+	{
+		struct TrailsGraphicsSigunature {
+			enum Parm {
+				kData,
+				kPosition,
+				kCounter,
+				kViewProjection,
+				kTexture,
+				kSampler,
+
+				kCount
+			};
+		};
+		tailsGraphicsRootSignature_ = std::make_unique<RootSignature>();
+
+		CD3DX12_DESCRIPTOR_RANGE textureRange[1]{};
+		textureRange[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, graphics->kNumSRVs, 0, 1);
+
+		CD3DX12_DESCRIPTOR_RANGE samplerRanges[1]{};
+		samplerRanges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER, 1, 0);
+
+		CD3DX12_ROOT_PARAMETER rootParameters[TrailsGraphicsSigunature::kCount]{};
+		rootParameters[TrailsGraphicsSigunature::kData].InitAsShaderResourceView(0);
+		rootParameters[TrailsGraphicsSigunature::kPosition].InitAsShaderResourceView(1);
+		rootParameters[TrailsGraphicsSigunature::kCounter].InitAsShaderResourceView(2);
+		rootParameters[TrailsGraphicsSigunature::kViewProjection].InitAsConstantBufferView(0);
+		rootParameters[TrailsGraphicsSigunature::kTexture].InitAsDescriptorTable(_countof(textureRange), textureRange, D3D12_SHADER_VISIBILITY_PIXEL);
+		rootParameters[TrailsGraphicsSigunature::kSampler].InitAsDescriptorTable(_countof(samplerRanges), samplerRanges, D3D12_SHADER_VISIBILITY_PIXEL);
+
+		D3D12_ROOT_SIGNATURE_DESC desc{};
+		desc.pParameters = rootParameters;
+		desc.NumParameters = _countof(rootParameters);
+		desc.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
+
+		tailsGraphicsRootSignature_->Create(L"tailsGraphicsRootSignature_", desc);
 	}
 	// コマンドシグネイチャ
 	{
+		struct TrailsCommand {
+			enum Parm {
+				kData,
+				kPosition,
+				kCounter,
+				kDrawArgument,
+
+				kCount
+			};
+		};
+
 		trailsCommandSignature_ = std::make_unique<CommandSignature>();
-		D3D12_INDIRECT_ARGUMENT_DESC argumentDescs[1] = {};
-		argumentDescs[0].Type = D3D12_INDIRECT_ARGUMENT_TYPE_DISPATCH;
+		D3D12_INDIRECT_ARGUMENT_DESC argumentDesc[TrailsCommand::kCount] = {};
+		argumentDesc[TrailsCommand::kData].Type = D3D12_INDIRECT_ARGUMENT_TYPE_SHADER_RESOURCE_VIEW;
+		argumentDesc[TrailsCommand::kData].ShaderResourceView.RootParameterIndex = 0;
+		argumentDesc[TrailsCommand::kPosition].Type = D3D12_INDIRECT_ARGUMENT_TYPE_SHADER_RESOURCE_VIEW;
+		argumentDesc[TrailsCommand::kPosition].ShaderResourceView.RootParameterIndex = 1;
+		argumentDesc[TrailsCommand::kCounter].Type = D3D12_INDIRECT_ARGUMENT_TYPE_SHADER_RESOURCE_VIEW;
+		argumentDesc[TrailsCommand::kCounter].ShaderResourceView.RootParameterIndex = 2;
+
+		argumentDesc[TrailsCommand::kDrawArgument].Type = D3D12_INDIRECT_ARGUMENT_TYPE_DRAW;
 
 		D3D12_COMMAND_SIGNATURE_DESC commandSignatureDesc{};
-		commandSignatureDesc.pArgumentDescs = argumentDescs;
-		commandSignatureDesc.NumArgumentDescs = _countof(argumentDescs);
-		commandSignatureDesc.ByteStride = sizeof(D3D12_DISPATCH_ARGUMENTS);
-		trailsCommandSignature_->Create(L"trailsCommandSignature", commandSignatureDesc, nullptr);
+		commandSignatureDesc.pArgumentDescs = argumentDesc;
+		commandSignatureDesc.NumArgumentDescs = _countof(argumentDesc);
+		commandSignatureDesc.ByteStride = sizeof(GPUParticleShaderStructs::TrailsCommand);
+		trailsCommandSignature_->Create(L"trailsCommandSignature", commandSignatureDesc, tailsGraphicsRootSignature_.get());
 	}
 
+	// グラフィックスパイプライン
+	{
+		tailsGraphicsPipelineState_ = std::make_unique<PipelineState>();
+		D3D12_GRAPHICS_PIPELINE_STATE_DESC desc{};
 
+		desc.pRootSignature = *tailsGraphicsRootSignature_;
+
+		//D3D12_INPUT_ELEMENT_DESC inputElements[] = {
+		//	{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+		//	{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+		//};
+		//D3D12_INPUT_LAYOUT_DESC inputLayoutDesc{};
+		//inputLayoutDesc.pInputElementDescs = inputElements;
+		//inputLayoutDesc.NumElements = _countof(inputElements);
+		//desc.InputLayout = inputLayoutDesc;
+
+		auto vs = ShaderCompiler::Compile(L"Resources/Shaders/GPUParticle/Trails.VS.hlsl", L"vs_6_0");
+		auto ps = ShaderCompiler::Compile(L"Resources/Shaders/GPUParticle/Trails.PS.hlsl", L"ps_6_0");
+		desc.VS = CD3DX12_SHADER_BYTECODE(vs->GetBufferPointer(), vs->GetBufferSize());
+		desc.PS = CD3DX12_SHADER_BYTECODE(ps->GetBufferPointer(), ps->GetBufferSize());
+		desc.BlendState = Helper::BlendAdditive;
+		desc.DepthStencilState = Helper::DepthStateRead;
+		desc.RasterizerState = Helper::RasterizerNoCull;
+		desc.NumRenderTargets = 1;
+		desc.RTVFormats[0] = RenderManager::GetInstance()->GetRenderTargetFormat();
+		//desc.DSVFormat = RenderManager::GetInstance()->GetDepthFormat();
+		desc.SampleMask = D3D12_DEFAULT_SAMPLE_MASK;
+		desc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE;
+		desc.SampleDesc.Count = 1;
+		tailsGraphicsPipelineState_->Create(L"tailsGraphicsPipelineState_", desc);
+	}
 }
 
 void GPUParticleManager::CreateIndexBuffer() {

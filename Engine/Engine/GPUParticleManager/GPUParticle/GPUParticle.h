@@ -46,7 +46,7 @@ public:
 	void CheckEmitter(CommandContext& commandContext);
 	void AddEmitter(CommandContext& commandContext);
 	void ParticleUpdate(const ViewProjection& viewProjection, CommandContext& commandContext);
-	void UpdateTrails(CommandContext& commandContext);
+	void UpdateTrails(const ViewProjection& viewProjection, CommandContext& commandContext);
 	void BulletUpdate(CommandContext& commandContext, const UploadBuffer& random);
 	void Draw(const ViewProjection& viewProjection, CommandContext& commandContext);
 	void DrawTrails(const ViewProjection& viewProjection, CommandContext& commandContext);
@@ -68,7 +68,7 @@ public:
 
 	void SetDrawCommandSignature(CommandSignature* commandSignature) { commandSignature_ = commandSignature; }
 	void SetSpawnCommandSignature(CommandSignature* commandSignature) { spawnCommandSignature_ = commandSignature; }
-	void SetTrailsCommandSignature(CommandSignature* commandSignature) { trailsCommandSignature_ = commandSignature; }
+	void SetTrailsDrawCommandSignature(CommandSignature* commandSignature) { trailsDrawCommandSignature_ = commandSignature; }
 
 	void SetField(const GPUParticleShaderStructs::FieldForCPU& fieldForCPU);
 	void SetEmitter(const GPUParticleShaderStructs::EmitterForCPU& emitterForCPU, const Matrix4x4& parent);
@@ -115,13 +115,15 @@ private:
 	// 何個生成するか数える用
 	DefaultBuffer createParticleCounterCopySrcBuffer_;
 	// 軌跡用
-	CommandSignature* trailsCommandSignature_;
+	CommandSignature* trailsDrawCommandSignature_;
 	DefaultBuffer trailsArgumentBuffers_;
 	DefaultBuffer trailsStockBuffers_;
 	DefaultBuffer trailsIndexBuffers_;
 	DefaultBuffer trailsDataBuffers_;
 	DefaultBuffer trailsHeadBuffers_;
 	DefaultBuffer trailsPositionBuffers_;
+	DefaultBuffer trailsVertexBuffers_;
+	DefaultBuffer trailsIndiesBuffers_;
 
 	struct EmitterDesc {
 		void Initialize(CommandContext& commandContext);

@@ -60,6 +60,18 @@ void DefaultBuffer::CreateSRV(const D3D12_SHADER_RESOURCE_VIEW_DESC& desc) {
 	);
 }
 
+void DefaultBuffer::CreateIndexView(const DXGI_FORMAT& format) {
+	ibView_.BufferLocation = resource_->GetGPUVirtualAddress();
+	ibView_.Format = format;
+	ibView_.SizeInBytes = UINT(bufferSize_);
+}
+
+void DefaultBuffer::CreateVertexView(size_t srideByte) {
+	vbView_.BufferLocation = resource_->GetGPUVirtualAddress();
+	vbView_.SizeInBytes = UINT(bufferSize_);
+	vbView_.StrideInBytes = UINT(srideByte);
+}
+
 void DefaultBuffer::Clear(CommandContext& commandContext) {
 	commandContext.ClearBuffer(*this, UINT64(bufferSize_ + sizeof(UINT)));
 }

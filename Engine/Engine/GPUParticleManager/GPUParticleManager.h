@@ -95,7 +95,7 @@ private:
 	std::unique_ptr<RootSignature> collisionFieldRootSignature_;
 	std::unique_ptr<PipelineState> collisionFieldPipelineState_;
 
-	std::unique_ptr<CommandSignature> trailsCommandSignature_;
+	std::unique_ptr<CommandSignature> trailsDrawCommandSignature_;
 	std::unique_ptr<RootSignature> updateTrailsRootSignature_;
 	std::unique_ptr<PipelineState> updateTrailsPipelineState_;
 

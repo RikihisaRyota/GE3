@@ -45,21 +45,25 @@ ConstantBuffer<Random> gRandom : register(b0);
 
 void CheckTrailsData(GPUParticleShaderStructs::EmitterTrails emitterTrails,uint32_t particleIndex){
     if(emitterTrails.isTrails == true){
-        // headインクリメント
-        int32_t headCount = -1;
         int32_t trailsRangeValue = GPUParticleShaderStructs::TrailsRange;
-        InterlockedAdd(trailsHead[0].headIndex,1024, headCount);
-        if(headCount >=  GPUParticleShaderStructs::MaxTrailsTotal){
-            trailsHead[0].headIndex = 0;
-        }else{
-            trailsHead[0].headIndex = headCount;
+        int32_t originalValue;
+
+        // headIndex をインクリメントし、元の値を取得
+        InterlockedAdd(trailsHead[0].headIndex, trailsRangeValue, originalValue);
+
+        // 加算後の headIndex を計算
+        int32_t headCount = originalValue + trailsRangeValue;
+
+        // headCount が範囲を超えた場合の処理
+        if (headCount >= GPUParticleShaderStructs::MaxTrailsTotal) {
+            headCount = headCount % GPUParticleShaderStructs::MaxTrailsTotal;
         }
         GPUParticleShaderStructs::TrailsData data;
         
         data.particleIndex = particleIndex;
         data.isAlive = true;
         data.trailsIndex = trailsStock.Consume();
-        data.startIndex = trailsHead[0].headIndex;
+        data.startIndex = headCount;
         data.endIndex = data.startIndex + GPUParticleShaderStructs::TrailsRange;
         data.currentIndex = data.startIndex;
         

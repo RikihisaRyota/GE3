@@ -5,7 +5,7 @@
 
 StructuredBuffer<GPUParticleShaderStructs::TrailsData> trailsData : register(t0);
 StructuredBuffer<GPUParticleShaderStructs::TrailsPosition> trailsPosition : register(t1);
-StructuredBuffer<int> trailsCounter : register(t2);
+StructuredBuffer<GPUParticleShaderStructs::TrailsIndex> trailsCounter : register(t2);
 struct ViewProjection
 {
     float32_t4x4 view; // ビュー変換行列
@@ -16,16 +16,32 @@ struct ViewProjection
 };
 ConstantBuffer<ViewProjection> gViewProjection : register(b0);
 
-// 頂点シェーダー本体
-struct VertexShaderInput
-{
-    float32_t3 position : POSITION0;
-    float32_t2 texcoord : TEXCOORD0;
-};
-
-VertexShaderOutput main(uint32_t instanceID : SV_InstanceID) {
+VertexShaderOutput main(GPUParticleShaderStructs::TrailsInputVertex input, uint32_t instanceID : SV_InstanceID, uint32_t vertexID : SV_VertexID){
     VertexShaderOutput output;
-    float32_t3 position = trailsPosition[trailsCounter[instanceID]].position;
-    output.position = mul(float32_t4(position,1.0f), mul(gViewProjection.view, gViewProjection.projection));
+
+//    // 各インスタンスに3つの頂点があると仮定
+//    int baseIndex = trailsCounter[instanceID].positionIndex;
+//
+//    // 三角形の頂点オフセットを計算
+//    int vertexOffset = baseIndex + vertexID;
+//
+//    // 現在の最大のインデックスを取得
+//    int32_t maxPositionIndex = trailsData[trailsCounter[instanceID].trailsIndex].currentIndex;
+//
+//    // 範囲外のインデックスを防ぐ
+//    int clampedOffset = min(vertexOffset, maxPositionIndex - 1);
+//
+//    // 頂点の位置を取得
+//    float32_t3 position = trailsPosition[clampedOffset].position;
+//    float32_t4 color = float32_t4(1.0f, 1.0f, 1.0f, 1.0f);
+//
+//    // 範囲外の場合、色を黒に設定
+//    if (vertexOffset >= maxPositionIndex) {
+//        color = float32_t4(0.0f, 0.0f, 0.0f, 0.0f);
+//    }
+
+    // ビュー・プロジェクション行列で座標変換
+    output.position = mul(float32_t4(input[instanceID].position, 1.0f), mul(gViewProjection.view, gViewProjection.projection));
+    output.color = float32_t4(1.0f,1.0f,1.0f,1.0f);
     return output;
 }

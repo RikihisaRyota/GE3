@@ -203,15 +203,30 @@ struct Particle
 		float lifeLimit;
 	};
 
+	struct TrailsVertex {
+#ifdef __cplusplus
+		Vector3 position;
+		Vector2 uv;
+#else
+		Vector3 position : POSITION;
+		Vector2 uv : TEXCOORD0;
+#endif
+	};
+
 	struct TrailsPosition {
 		Vector3 position;
-		Vector2 texcood;
-		Vector2 uv;
+		TrailsVertex vertex[2];
 	};
+
 	struct TrailsHead {
 		uint32_t headIndex;
 	};
 
+	struct TrailsIndex {
+		int32_t positionIndex;
+		int32_t trailsIndex;
+
+	};
 
 	struct EmitterTrails {
 #ifdef __cplusplus
@@ -353,7 +368,7 @@ struct Particle
 #endif
 		UintMinMax range;
 		uint32_t isEmitterLife;
-		uint32_t isCountDown ;
+		uint32_t isCountDown;
 		Vector2 pad;
 	};
 
@@ -391,7 +406,7 @@ struct Particle
 		float pad;
 		Vector3 translate;
 		float pad1;
-		Quaternion rotate ;
+		Quaternion rotate;
 	};
 
 	struct TransformModelEmitterForGPU {
@@ -486,7 +501,7 @@ struct Particle
 
 		int32_t emitterCount;
 
-		uint32_t isAlive ;
+		uint32_t isAlive;
 
 		float pad;
 	};
@@ -690,9 +705,9 @@ struct Particle
 
 		ParticleAttributes collisionInfo;
 
-		uint32_t isAlive ;
+		uint32_t isAlive;
 
-		int32_t fieldCount ;
+		int32_t fieldCount;
 
 		Vector2 pad;
 	};
@@ -735,6 +750,7 @@ struct Particle
 			D3D12_GPU_VIRTUAL_ADDRESS trailsData;
 			D3D12_GPU_VIRTUAL_ADDRESS trailsPosition;
 			D3D12_GPU_VIRTUAL_ADDRESS counterBuffer;
+			//D3D12_GPU_VIRTUAL_ADDRESS vertexBuffer;
 		};
 		SRV srv;
 		D3D12_DRAW_ARGUMENTS drawIndex;

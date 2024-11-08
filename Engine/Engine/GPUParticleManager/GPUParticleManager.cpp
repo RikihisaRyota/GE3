@@ -71,7 +71,7 @@ void GPUParticleManager::Initialize() {
 	randomBuffer_.Create(L"rondomBuffer", sizeof(UINT));
 	gpuParticle_->SetDrawCommandSignature(commandSignature_.get());
 	gpuParticle_->SetSpawnCommandSignature(spawnCommandSignature_.get());
-	gpuParticle_->SetTrailsCommandSignature(trailsCommandSignature_.get());
+	gpuParticle_->SetTrailsDrawCommandSignature(trailsDrawCommandSignature_.get());
 }
 
 void GPUParticleManager::Update(const ViewProjection& viewProjection, CommandContext& commandContext) {
@@ -108,7 +108,7 @@ void GPUParticleManager::Update(const ViewProjection& viewProjection, CommandCon
 
 	commandContext.SetComputeRootSignature(*updateTrailsRootSignature_);
 	commandContext.SetPipelineState(*updateTrailsPipelineState_);
-	gpuParticle_->UpdateTrails(commandContext);
+	gpuParticle_->UpdateTrails(viewProjection, commandContext);
 
 	commandContext.SetComputeRootSignature(*bulletRootSignature_);
 	commandContext.SetPipelineState(*bulletPipelineState_);
@@ -120,7 +120,7 @@ void GPUParticleManager::Update(const ViewProjection& viewProjection, CommandCon
 
 	commandContext.SetComputeRootSignature(*collisionFieldRootSignature_);
 	commandContext.SetPipelineState(*collisionFieldPipelineState_);
-	gpuParticle_->CollisionField(commandContext,randomBuffer_);
+	gpuParticle_->CollisionField(commandContext, randomBuffer_);
 }
 
 void GPUParticleManager::Draw(const ViewProjection& viewProjection, CommandContext& commandContext) {
@@ -156,7 +156,7 @@ void GPUParticleManager::Draw(const ViewProjection& viewProjection, CommandConte
 	commandContext.SetGraphicsRootSignature(*tailsGraphicsRootSignature_);
 	commandContext.SetPipelineState(*tailsGraphicsPipelineState_);
 
-	commandContext.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
+	commandContext.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	gpuParticle_->DrawTrails(viewProjection, commandContext);
 	//commandContext.TransitionResource(RenderManager::GetInstance()->GetMainDepthBuffer(), D3D12_RESOURCE_STATE_DEPTH_WRITE);
@@ -666,10 +666,12 @@ void GPUParticleManager::CreateUpdateTrails() {
 			enum Param {
 				kStock,
 				kCounter,
+				kVertex,
 				kData,
 				kPosition,
 				kParticle,
-				
+				kViewProjection,
+
 				kCount
 			};
 		};
@@ -681,13 +683,17 @@ void GPUParticleManager::CreateUpdateTrails() {
 		stockRange[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 0, 0);
 		CD3DX12_DESCRIPTOR_RANGE counterRange[1]{};
 		counterRange[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 1, 0);
+		CD3DX12_DESCRIPTOR_RANGE vertexRange[1]{};
+		vertexRange[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 2, 0);
 
 		CD3DX12_ROOT_PARAMETER rootParameters[UpdateParticle::kCount]{};
 		rootParameters[UpdateParticle::kStock].InitAsDescriptorTable(_countof(stockRange), stockRange);
 		rootParameters[UpdateParticle::kCounter].InitAsDescriptorTable(_countof(counterRange), counterRange);
-		rootParameters[UpdateParticle::kData].InitAsUnorderedAccessView(2);
-		rootParameters[UpdateParticle::kPosition].InitAsUnorderedAccessView(3);
+		rootParameters[UpdateParticle::kVertex].InitAsDescriptorTable(_countof(vertexRange), vertexRange);
+		rootParameters[UpdateParticle::kData].InitAsUnorderedAccessView(3);
+		rootParameters[UpdateParticle::kPosition].InitAsUnorderedAccessView(4);
 		rootParameters[UpdateParticle::kParticle].InitAsShaderResourceView(0);
+		rootParameters[UpdateParticle::kViewProjection].InitAsConstantBufferView(0);
 
 		D3D12_ROOT_SIGNATURE_DESC desc{};
 		desc.pParameters = rootParameters;
@@ -754,7 +760,7 @@ void GPUParticleManager::CreateUpdateTrails() {
 			};
 		};
 
-		trailsCommandSignature_ = std::make_unique<CommandSignature>();
+		trailsDrawCommandSignature_ = std::make_unique<CommandSignature>();
 		D3D12_INDIRECT_ARGUMENT_DESC argumentDesc[TrailsCommand::kCount] = {};
 		argumentDesc[TrailsCommand::kData].Type = D3D12_INDIRECT_ARGUMENT_TYPE_SHADER_RESOURCE_VIEW;
 		argumentDesc[TrailsCommand::kData].ShaderResourceView.RootParameterIndex = 0;
@@ -769,7 +775,7 @@ void GPUParticleManager::CreateUpdateTrails() {
 		commandSignatureDesc.pArgumentDescs = argumentDesc;
 		commandSignatureDesc.NumArgumentDescs = _countof(argumentDesc);
 		commandSignatureDesc.ByteStride = sizeof(GPUParticleShaderStructs::TrailsCommand);
-		trailsCommandSignature_->Create(L"trailsCommandSignature", commandSignatureDesc, tailsGraphicsRootSignature_.get());
+		trailsDrawCommandSignature_->Create(L"trailsDrawCommandSignature", commandSignatureDesc, tailsGraphicsRootSignature_.get());
 	}
 
 	// グラフィックスパイプライン
@@ -779,14 +785,14 @@ void GPUParticleManager::CreateUpdateTrails() {
 
 		desc.pRootSignature = *tailsGraphicsRootSignature_;
 
-		//D3D12_INPUT_ELEMENT_DESC inputElements[] = {
-		//	{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-		//	{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-		//};
-		//D3D12_INPUT_LAYOUT_DESC inputLayoutDesc{};
-		//inputLayoutDesc.pInputElementDescs = inputElements;
-		//inputLayoutDesc.NumElements = _countof(inputElements);
-		//desc.InputLayout = inputLayoutDesc;
+		D3D12_INPUT_ELEMENT_DESC inputElements[] = {
+			{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+			{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+		};
+		D3D12_INPUT_LAYOUT_DESC inputLayoutDesc{};
+		inputLayoutDesc.pInputElementDescs = inputElements;
+		inputLayoutDesc.NumElements = _countof(inputElements);
+		desc.InputLayout = inputLayoutDesc;
 
 		auto vs = ShaderCompiler::Compile(L"Resources/Shaders/GPUParticle/Trails.VS.hlsl", L"vs_6_0");
 		auto ps = ShaderCompiler::Compile(L"Resources/Shaders/GPUParticle/Trails.PS.hlsl", L"ps_6_0");
@@ -799,7 +805,7 @@ void GPUParticleManager::CreateUpdateTrails() {
 		desc.RTVFormats[0] = RenderManager::GetInstance()->GetRenderTargetFormat();
 		//desc.DSVFormat = RenderManager::GetInstance()->GetDepthFormat();
 		desc.SampleMask = D3D12_DEFAULT_SAMPLE_MASK;
-		desc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE;
+		desc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 		desc.SampleDesc.Count = 1;
 		tailsGraphicsPipelineState_->Create(L"tailsGraphicsPipelineState_", desc);
 	}

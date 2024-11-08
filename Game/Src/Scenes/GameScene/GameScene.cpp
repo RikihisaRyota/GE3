@@ -112,22 +112,22 @@ void GameScene::Update(CommandContext& commandContext) {
 	if (!debugCamera_->GetIsDebugCamera()) {
 		followCamera_->Update();
 	}
-	player_->Update(commandContext);
-	boss_->Update(commandContext);
-	for (auto& object : gameObject_) {
-		object->Update();
-		if (object->GetObjectName() == "Post") {
-			GPUParticleShaderStructs::EmitterForCPU emitter{};
-			GPUParticleShaderStructs::NonSharedCopy(emitter, postEmitter_);
-			emitter.emitterArea.capsule.segment.origin = MakeTranslateMatrix(object->GetWorldTransform().matWorld) + postEmitter_.emitterArea.capsule.segment.origin;
-			emitter.emitterArea.capsule.segment.diff = MakeTranslateMatrix(object->GetWorldTransform().matWorld) + postEmitter_.emitterArea.capsule.segment.diff;
-			gpuParticleManager_->SetEmitter(emitter);
-		}
-		if (object->GetObjectName() == "Ground") {
-			postEmitter_.emitterArea.position = MakeTranslateMatrix(object->GetWorldTransform().matWorld);
-			//gpuParticleManager_->SetEmitter(groundEmitter_);
-		}
-	}
+	//player_->Update(commandContext);
+	//boss_->Update(commandContext);
+	//for (auto& object : gameObject_) {
+	//	object->Update();
+	//	if (object->GetObjectName() == "Post") {
+	//		GPUParticleShaderStructs::EmitterForCPU emitter{};
+	//		GPUParticleShaderStructs::NonSharedCopy(emitter, postEmitter_);
+	//		emitter.emitterArea.capsule.segment.origin = MakeTranslateMatrix(object->GetWorldTransform().matWorld) + postEmitter_.emitterArea.capsule.segment.origin;
+	//		emitter.emitterArea.capsule.segment.diff = MakeTranslateMatrix(object->GetWorldTransform().matWorld) + postEmitter_.emitterArea.capsule.segment.diff;
+	//		gpuParticleManager_->SetEmitter(emitter);
+	//	}
+	//	if (object->GetObjectName() == "Ground") {
+	//		postEmitter_.emitterArea.position = MakeTranslateMatrix(object->GetWorldTransform().matWorld);
+	//		//gpuParticleManager_->SetEmitter(groundEmitter_);
+	//	}
+	//}
 
 	gpuParticleManager_->Update(*viewProjection_, RenderManager::GetInstance()->GetCommandContext());
 

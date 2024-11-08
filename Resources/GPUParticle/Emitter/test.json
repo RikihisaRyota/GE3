@@ -96,7 +96,7 @@
     },
     "EmitterFrequency": {
         "emitterLife": 1,
-        "interval": 0,
+        "interval": 120,
         "isLoop": 1,
         "isOnce": 0
     },
@@ -112,7 +112,7 @@
     },
     "ParticleLifeSpan": {
         "Max": 120,
-        "Min": 60,
+        "Min": 120,
         "isCountDown": 0,
         "isEmitterLife": 0
     },

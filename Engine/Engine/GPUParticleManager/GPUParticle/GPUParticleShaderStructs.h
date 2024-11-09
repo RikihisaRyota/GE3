@@ -213,6 +213,10 @@ struct Particle
 #endif
 	};
 
+	struct TrailsVertexData {
+		TrailsVertex vertex[3];
+	};
+
 	struct TrailsPosition {
 		Vector3 position;
 		TrailsVertex vertex[2];

@@ -99,6 +99,9 @@ private:
 	std::unique_ptr<RootSignature> updateTrailsRootSignature_;
 	std::unique_ptr<PipelineState> updateTrailsPipelineState_;
 
+	std::unique_ptr<RootSignature> addVertexTrailsRootSignature_;
+	std::unique_ptr<PipelineState> addVertexTrailsPipelineState_;
+
 	//std::unique_ptr<RootSignature> translateModelParticleRootSignature_;
 	//std::unique_ptr<PipelineState> translateModelParticlePipelineState_;
 	//std::unique_ptr<RootSignature> translateModelAreaParticleRootSignature_;

@@ -47,6 +47,7 @@ public:
 	void AddEmitter(CommandContext& commandContext);
 	void ParticleUpdate(const ViewProjection& viewProjection, CommandContext& commandContext);
 	void UpdateTrails(const ViewProjection& viewProjection, CommandContext& commandContext);
+	void AddTrailsVertex(CommandContext& commandContext);
 	void BulletUpdate(CommandContext& commandContext, const UploadBuffer& random);
 	void Draw(const ViewProjection& viewProjection, CommandContext& commandContext);
 	void DrawTrails(const ViewProjection& viewProjection, CommandContext& commandContext);
@@ -122,7 +123,7 @@ private:
 	DefaultBuffer trailsDataBuffers_;
 	DefaultBuffer trailsHeadBuffers_;
 	DefaultBuffer trailsPositionBuffers_;
-	DefaultBuffer trailsVertexBuffers_;
+	DefaultBuffer trailsVertexDataBuffers_;
 	DefaultBuffer trailsIndiesBuffers_;
 	DefaultBuffer trailsDrawInstanceCountBuffers_;
 

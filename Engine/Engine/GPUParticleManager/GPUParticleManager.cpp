@@ -106,9 +106,6 @@ void GPUParticleManager::Update(const ViewProjection& viewProjection, CommandCon
 	commandContext.SetPipelineState(*updateComputePipelineState_);
 	gpuParticle_->ParticleUpdate(viewProjection, commandContext);
 
-	commandContext.SetComputeRootSignature(*updateTrailsRootSignature_);
-	commandContext.SetPipelineState(*updateTrailsPipelineState_);
-	gpuParticle_->UpdateTrails(viewProjection, commandContext);
 
 	commandContext.SetComputeRootSignature(*bulletRootSignature_);
 	commandContext.SetPipelineState(*bulletPipelineState_);
@@ -121,6 +118,14 @@ void GPUParticleManager::Update(const ViewProjection& viewProjection, CommandCon
 	commandContext.SetComputeRootSignature(*collisionFieldRootSignature_);
 	commandContext.SetPipelineState(*collisionFieldPipelineState_);
 	gpuParticle_->CollisionField(commandContext, randomBuffer_);
+
+	commandContext.SetComputeRootSignature(*updateTrailsRootSignature_);
+	commandContext.SetPipelineState(*updateTrailsPipelineState_);
+	gpuParticle_->UpdateTrails(viewProjection, commandContext);
+
+	commandContext.SetComputeRootSignature(*addVertexTrailsRootSignature_);
+	commandContext.SetPipelineState(*addVertexTrailsPipelineState_);
+	gpuParticle_->AddTrailsVertex(commandContext);
 }
 
 void GPUParticleManager::Draw(const ViewProjection& viewProjection, CommandContext& commandContext) {
@@ -666,7 +671,6 @@ void GPUParticleManager::CreateUpdateTrails() {
 			enum Param {
 				kStock,
 				kCounter,
-				kVertex,
 				kData,
 				kPosition,
 				kParticle,
@@ -683,15 +687,13 @@ void GPUParticleManager::CreateUpdateTrails() {
 		stockRange[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 0, 0);
 		CD3DX12_DESCRIPTOR_RANGE counterRange[1]{};
 		counterRange[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 1, 0);
-		CD3DX12_DESCRIPTOR_RANGE vertexRange[1]{};
-		vertexRange[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 2, 0);
+	
 
 		CD3DX12_ROOT_PARAMETER rootParameters[UpdateParticle::kCount]{};
 		rootParameters[UpdateParticle::kStock].InitAsDescriptorTable(_countof(stockRange), stockRange);
 		rootParameters[UpdateParticle::kCounter].InitAsDescriptorTable(_countof(counterRange), counterRange);
-		rootParameters[UpdateParticle::kVertex].InitAsDescriptorTable(_countof(vertexRange), vertexRange);
-		rootParameters[UpdateParticle::kData].InitAsUnorderedAccessView(3);
-		rootParameters[UpdateParticle::kPosition].InitAsUnorderedAccessView(4);
+		rootParameters[UpdateParticle::kData].InitAsUnorderedAccessView(2);
+		rootParameters[UpdateParticle::kPosition].InitAsUnorderedAccessView(3);
 		rootParameters[UpdateParticle::kParticle].InitAsShaderResourceView(0);
 		rootParameters[UpdateParticle::kViewProjection].InitAsConstantBufferView(0);
 
@@ -709,6 +711,45 @@ void GPUParticleManager::CreateUpdateTrails() {
 		auto cs = ShaderCompiler::Compile(L"Resources/Shaders/GPUParticle/UpdateTrails.hlsl", L"cs_6_0");
 		desc.CS = CD3DX12_SHADER_BYTECODE(cs->GetBufferPointer(), cs->GetBufferSize());
 		updateTrailsPipelineState_->Create(L"updateTrailsPipelineState", desc);
+	}
+	// アップデートシグネイチャー
+	{
+		struct UpdateParticle {
+			enum Param {
+				kVertexData,
+				kData,
+				kPosition,
+
+				kCount
+			};
+		};
+
+		addVertexTrailsRootSignature_ = std::make_unique<RootSignature>();
+
+		//	ParticleIndexCommand用（カウンター付きUAVの場合このように宣言）
+		CD3DX12_DESCRIPTOR_RANGE vertexData[1]{};
+		vertexData[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 0, 0);
+
+
+		CD3DX12_ROOT_PARAMETER rootParameters[UpdateParticle::kCount]{};
+		rootParameters[UpdateParticle::kVertexData].InitAsDescriptorTable(_countof(vertexData), vertexData);
+		rootParameters[UpdateParticle::kData].InitAsShaderResourceView(0);
+		rootParameters[UpdateParticle::kPosition].InitAsShaderResourceView(1);
+
+		D3D12_ROOT_SIGNATURE_DESC desc{};
+		desc.pParameters = rootParameters;
+		desc.NumParameters = _countof(rootParameters);
+
+		addVertexTrailsRootSignature_->Create(L"addVertexTrailsRootSignature", desc);
+	}
+	// アップデートパイプライン
+	{
+		addVertexTrailsPipelineState_ = std::make_unique<PipelineState>();
+		D3D12_COMPUTE_PIPELINE_STATE_DESC desc{};
+		desc.pRootSignature = *addVertexTrailsRootSignature_;
+		auto cs = ShaderCompiler::Compile(L"Resources/Shaders/GPUParticle/AddTrailsVertex.hlsl", L"cs_6_0");
+		desc.CS = CD3DX12_SHADER_BYTECODE(cs->GetBufferPointer(), cs->GetBufferSize());
+		addVertexTrailsPipelineState_->Create(L"updateTrailsPipelineState", desc);
 	}
 	// グラフィックスルートシグネイチャ
 	{
@@ -758,7 +799,7 @@ void GPUParticleManager::CreateUpdateTrails() {
 				kData,
 				kPosition,
 				kCounter,
-				kVertex,
+				kVertexData,
 				kDrawInstance,
 				kDrawArgument,
 
@@ -774,8 +815,8 @@ void GPUParticleManager::CreateUpdateTrails() {
 		argumentDesc[TrailsCommand::kPosition].ShaderResourceView.RootParameterIndex = 1;
 		argumentDesc[TrailsCommand::kCounter].Type = D3D12_INDIRECT_ARGUMENT_TYPE_SHADER_RESOURCE_VIEW;
 		argumentDesc[TrailsCommand::kCounter].ShaderResourceView.RootParameterIndex = 2;
-		argumentDesc[TrailsCommand::kVertex].Type = D3D12_INDIRECT_ARGUMENT_TYPE_SHADER_RESOURCE_VIEW;
-		argumentDesc[TrailsCommand::kVertex].ShaderResourceView.RootParameterIndex = 3;
+		argumentDesc[TrailsCommand::kVertexData].Type = D3D12_INDIRECT_ARGUMENT_TYPE_SHADER_RESOURCE_VIEW;
+		argumentDesc[TrailsCommand::kVertexData].ShaderResourceView.RootParameterIndex = 3;
 		argumentDesc[TrailsCommand::kDrawInstance].Type = D3D12_INDIRECT_ARGUMENT_TYPE_SHADER_RESOURCE_VIEW;
 		argumentDesc[TrailsCommand::kDrawInstance].ShaderResourceView.RootParameterIndex = 4;
 

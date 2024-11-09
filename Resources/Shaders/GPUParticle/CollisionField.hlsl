@@ -132,34 +132,34 @@ void main( uint3 DTid : SV_DispatchThreadID , uint3 GTid : SV_GroupThreadID)
     if(origalField[fieldIndex].isAlive&&particle[particleIndex].isAlive){
         if((particle[particleIndex].collisionInfo.attribute & origalField[fieldIndex].collisionInfo.mask)!=0){
             // AABB
-            if(origalField[fieldIndex].fieldArea.type==0){
-                if(sdAABB(
-                    particle[particleIndex].translate.translate,
-                    origalField[fieldIndex].fieldArea.position,
-                    origalField[fieldIndex].fieldArea.aabb.area.min+origalField[fieldIndex].fieldArea.position,
-                    origalField[fieldIndex].fieldArea.aabb.area.max+origalField[fieldIndex].fieldArea.position) <= 0){
-                    UpdateField(origalField[fieldIndex],particle[particleIndex],seed);
-                }
-            }
-            // Sphere
-            else if(origalField[fieldIndex].fieldArea.type==1){
-                if(sdSphere(
-                    particle[particleIndex].translate.translate,
-                    origalField[fieldIndex].fieldArea.position,
-                    origalField[fieldIndex].fieldArea.sphere.radius) <= 0){
-                    UpdateField(origalField[fieldIndex],particle[particleIndex],seed);
-                }
-            }
-            // Capsule
-            else if(origalField[fieldIndex].fieldArea.type==2){
-                if(sdCapsule(
-                    particle[particleIndex].translate.translate,
-                origalField[fieldIndex].fieldArea.capsule.segment.origin,
-                origalField[fieldIndex].fieldArea.capsule.segment.diff,
-                origalField[fieldIndex].fieldArea.capsule.radius) <= 0){
-                    UpdateField(origalField[fieldIndex],particle[particleIndex],seed);
-                }
-            }
+            //if(origalField[fieldIndex].fieldArea.type==0){
+            //    if(sdAABB(
+            //        particle[particleIndex].translate.translate,
+            //        origalField[fieldIndex].fieldArea.position,
+            //        origalField[fieldIndex].fieldArea.aabb.area.min+origalField[fieldIndex].fieldArea.position,
+            //        origalField[fieldIndex].fieldArea.aabb.area.max+origalField[fieldIndex].fieldArea.position) <= 0){
+            //        UpdateField(origalField[fieldIndex],particle[particleIndex],seed);
+            //    }
+            //}
+            //// Sphere
+            //else if(origalField[fieldIndex].fieldArea.type==1){
+            //    if(sdSphere(
+            //        particle[particleIndex].translate.translate,
+            //        origalField[fieldIndex].fieldArea.position,
+            //        origalField[fieldIndex].fieldArea.sphere.radius) <= 0){
+            //        UpdateField(origalField[fieldIndex],particle[particleIndex],seed);
+            //    }
+            //}
+            //// Capsule
+            //else if(origalField[fieldIndex].fieldArea.type==2){
+            //    if(sdCapsule(
+            //        particle[particleIndex].translate.translate,
+            //    origalField[fieldIndex].fieldArea.capsule.segment.origin,
+            //    origalField[fieldIndex].fieldArea.capsule.segment.diff,
+            //    origalField[fieldIndex].fieldArea.capsule.radius) <= 0){
+            //        UpdateField(origalField[fieldIndex],particle[particleIndex],seed);
+            //    }
+            //}
         }
     }
 }

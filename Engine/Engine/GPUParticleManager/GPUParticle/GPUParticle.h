@@ -124,6 +124,7 @@ private:
 	DefaultBuffer trailsPositionBuffers_;
 	DefaultBuffer trailsVertexBuffers_;
 	DefaultBuffer trailsIndiesBuffers_;
+	DefaultBuffer trailsDrawInstanceCountBuffers_;
 
 	struct EmitterDesc {
 		void Initialize(CommandContext& commandContext);

@@ -750,7 +750,8 @@ struct Particle
 			D3D12_GPU_VIRTUAL_ADDRESS trailsData;
 			D3D12_GPU_VIRTUAL_ADDRESS trailsPosition;
 			D3D12_GPU_VIRTUAL_ADDRESS counterBuffer;
-			//D3D12_GPU_VIRTUAL_ADDRESS vertexBuffer;
+			D3D12_GPU_VIRTUAL_ADDRESS vertexBuffer;
+			D3D12_GPU_VIRTUAL_ADDRESS instanceCount;
 		};
 		SRV srv;
 		D3D12_DRAW_ARGUMENTS drawIndex;

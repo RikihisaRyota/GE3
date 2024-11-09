@@ -717,6 +717,8 @@ void GPUParticleManager::CreateUpdateTrails() {
 				kData,
 				kPosition,
 				kCounter,
+				kVertex,
+				kDrawInstanceCount,
 				kViewProjection,
 				kTexture,
 				kSampler,
@@ -736,6 +738,8 @@ void GPUParticleManager::CreateUpdateTrails() {
 		rootParameters[TrailsGraphicsSigunature::kData].InitAsShaderResourceView(0);
 		rootParameters[TrailsGraphicsSigunature::kPosition].InitAsShaderResourceView(1);
 		rootParameters[TrailsGraphicsSigunature::kCounter].InitAsShaderResourceView(2);
+		rootParameters[TrailsGraphicsSigunature::kVertex].InitAsShaderResourceView(3);
+		rootParameters[TrailsGraphicsSigunature::kDrawInstanceCount].InitAsShaderResourceView(4);
 		rootParameters[TrailsGraphicsSigunature::kViewProjection].InitAsConstantBufferView(0);
 		rootParameters[TrailsGraphicsSigunature::kTexture].InitAsDescriptorTable(_countof(textureRange), textureRange, D3D12_SHADER_VISIBILITY_PIXEL);
 		rootParameters[TrailsGraphicsSigunature::kSampler].InitAsDescriptorTable(_countof(samplerRanges), samplerRanges, D3D12_SHADER_VISIBILITY_PIXEL);
@@ -754,6 +758,8 @@ void GPUParticleManager::CreateUpdateTrails() {
 				kData,
 				kPosition,
 				kCounter,
+				kVertex,
+				kDrawInstance,
 				kDrawArgument,
 
 				kCount
@@ -768,6 +774,10 @@ void GPUParticleManager::CreateUpdateTrails() {
 		argumentDesc[TrailsCommand::kPosition].ShaderResourceView.RootParameterIndex = 1;
 		argumentDesc[TrailsCommand::kCounter].Type = D3D12_INDIRECT_ARGUMENT_TYPE_SHADER_RESOURCE_VIEW;
 		argumentDesc[TrailsCommand::kCounter].ShaderResourceView.RootParameterIndex = 2;
+		argumentDesc[TrailsCommand::kVertex].Type = D3D12_INDIRECT_ARGUMENT_TYPE_SHADER_RESOURCE_VIEW;
+		argumentDesc[TrailsCommand::kVertex].ShaderResourceView.RootParameterIndex = 3;
+		argumentDesc[TrailsCommand::kDrawInstance].Type = D3D12_INDIRECT_ARGUMENT_TYPE_SHADER_RESOURCE_VIEW;
+		argumentDesc[TrailsCommand::kDrawInstance].ShaderResourceView.RootParameterIndex = 4;
 
 		argumentDesc[TrailsCommand::kDrawArgument].Type = D3D12_INDIRECT_ARGUMENT_TYPE_DRAW;
 
@@ -785,14 +795,14 @@ void GPUParticleManager::CreateUpdateTrails() {
 
 		desc.pRootSignature = *tailsGraphicsRootSignature_;
 
-		D3D12_INPUT_ELEMENT_DESC inputElements[] = {
+		/*D3D12_INPUT_ELEMENT_DESC inputElements[] = {
 			{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
 			{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
 		};
 		D3D12_INPUT_LAYOUT_DESC inputLayoutDesc{};
 		inputLayoutDesc.pInputElementDescs = inputElements;
 		inputLayoutDesc.NumElements = _countof(inputElements);
-		desc.InputLayout = inputLayoutDesc;
+		desc.InputLayout = inputLayoutDesc;*/
 
 		auto vs = ShaderCompiler::Compile(L"Resources/Shaders/GPUParticle/Trails.VS.hlsl", L"vs_6_0");
 		auto ps = ShaderCompiler::Compile(L"Resources/Shaders/GPUParticle/Trails.PS.hlsl", L"ps_6_0");

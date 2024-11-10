@@ -23,6 +23,11 @@ GPUParticleに力を入れていてParticleを出せるだけでなくエディ�
   ![image](https://github.com/user-attachments/assets/526d9122-cffe-4d05-be91-51fcd9f2a134)
 * モデルのメッシュ\
 ![image](https://github.com/user-attachments/assets/1808c076-29bc-4cd2-add1-ad110c2bea45)
+その他のパーティクルの速度やスケール寿命などのパラメーターも調整できます。\
+![emitter](https://github.com/user-attachments/assets/79097d46-94bd-4aed-84b4-e57afffaa368)
+
+#### フィールド
+
 # GameScene
 ## 説明
 GPUParticleを使用したボスとプレイヤーとの一対一の3Dシューティングゲームです。\

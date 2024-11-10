@@ -42,7 +42,7 @@ GPUParticleに力を入れていてParticleを出せるだけでなくエディ�
 
 * 回転（ポジション）
   パーティクルの位置に対して回転します。\
-  ![rotatepos](https://github.com/user-attachments/assets/39163b48-9dfe-4126-8676-56ea04980f79)
+  ![rotatepos](https://github.com/user-attachments/assets/39163b48-9dfe-4126-8676-56ea04980f79)\
 フィールドとエミッターには属性をつけることができ、それにより影響するエミッターを区別することができます。\
   ![filerd](https://github.com/user-attachments/assets/fd9b863f-32c6-4500-b9e1-e5ca9c765c78)
 # GameScene

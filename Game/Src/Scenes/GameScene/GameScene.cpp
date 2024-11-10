@@ -42,6 +42,7 @@ GameScene::GameScene() {
 	TextureManager::GetInstance()->Load("Resources/Images/smoke.png");
 	TextureManager::GetInstance()->Load("Resources/Images/crescent.png");
 	TextureManager::GetInstance()->Load("Resources/Images/noise.png");
+	TextureManager::GetInstance()->Load("Resources/Images/te.png");
 
 
 	//soundHandle_ = Audio::GetInstance()->SoundLoad("Resources/Audios/walk.mp3");

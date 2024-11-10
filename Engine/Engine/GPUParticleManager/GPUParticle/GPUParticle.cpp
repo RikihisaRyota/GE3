@@ -369,7 +369,6 @@ void GPUParticle::UpdateTrails(const ViewProjection& viewProjection, CommandCont
 	commandContext.TransitionResource(trailsDataBuffers_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 	commandContext.TransitionResource(trailsPositionBuffers_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 	commandContext.TransitionResource(particleBuffer_, D3D12_RESOURCE_STATE_ALL_SHADER_RESOURCE);
-	commandContext.TransitionResource(trailsArgumentBuffers_, D3D12_RESOURCE_STATE_INDIRECT_ARGUMENT);
 
 	commandContext.SetComputeDescriptorTable(0, trailsStockBuffers_.GetUAVHandle());
 	commandContext.SetComputeDescriptorTable(1, trailsIndexBuffers_.GetUAVHandle());
@@ -1100,8 +1099,10 @@ void GPUParticle::InitializeBuffer() {
 	}
 	// フィールド初期化
 	{
-		commandContext.CopyBuffer(fieldAddBuffer_, fieldCPUBuffer_);
-		commandContext.CopyBuffer(fieldOriginalBuffer_, fieldCPUBuffer_);
+		std::array<GPUParticleShaderStructs::FieldForGPU, GPUParticleShaderStructs::MaxFieldNum> reset{};
+		size_t size = sizeof(GPUParticleShaderStructs::FieldForGPU) * GPUParticleShaderStructs::MaxFieldNum;
+		commandContext.CopyBuffer(fieldAddBuffer_, size, reset.data());
+		commandContext.CopyBuffer(fieldOriginalBuffer_,size, reset.data());
 	}
 
 	{
@@ -1192,11 +1193,12 @@ void GPUParticle::InitializeField() {
 	auto device = GraphicsCore::GetInstance()->GetDevice();
 	auto graphics = GraphicsCore::GetInstance();
 	{
-		fieldOriginalBuffer_.Create(L"FieldOriginalBuffer", sizeof(GPUParticleShaderStructs::FieldForGPU) * GPUParticleShaderStructs::MaxFieldNum, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
-		fieldCPUBuffer_.Create(L"FieldCPUBuffer", sizeof(GPUParticleShaderStructs::FieldForGPU) * GPUParticleShaderStructs::MaxFieldNum);
+		size_t size = sizeof(GPUParticleShaderStructs::FieldForGPU) * GPUParticleShaderStructs::MaxFieldNum;
+		fieldOriginalBuffer_.Create(L"FieldOriginalBuffer", size, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
+		fieldCPUBuffer_.Create(L"FieldCPUBuffer", size);
 		std::array<GPUParticleShaderStructs::FieldForGPU, GPUParticleShaderStructs::MaxFieldNum> reset{};
 		fieldCPUBuffer_.Copy(reset.data(), fieldCPUBuffer_.GetBufferSize());
-		fieldAddBuffer_.Create(L"FieldAddBuffer", sizeof(GPUParticleShaderStructs::FieldForGPU) * GPUParticleShaderStructs::MaxFieldNum, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
+		fieldAddBuffer_.Create(L"FieldAddBuffer", size, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
 
 		fieldCounterBuffer_.Create(L"FieldCounterBuffer", sizeof(UINT));
 		createFieldNumBuffer_.Create(L"CreateFieldNumBuffer", sizeof(UINT), D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);

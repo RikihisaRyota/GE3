@@ -188,7 +188,6 @@ struct Particle
 			isAlive = 0;
 		};
 #endif
-		uint32_t isAlive;
 		uint32_t particleIndex;
 		int32_t trailsIndex;
 		uint32_t startIndex;
@@ -199,18 +198,14 @@ struct Particle
 		uint32_t interval;
 		uint32_t time;
 
+		uint32_t isAlive;
 		float width;
 		float lifeLimit;
 	};
 
 	struct TrailsVertex {
-#ifdef __cplusplus
 		Vector3 position;
 		Vector2 uv;
-#else
-		Vector3 position : POSITION;
-		Vector2 uv : TEXCOORD0;
-#endif
 	};
 
 	struct TrailsVertexData {
@@ -229,7 +224,6 @@ struct Particle
 	struct TrailsIndex {
 		int32_t positionIndex;
 		int32_t trailsIndex;
-
 	};
 
 	struct EmitterTrails {
@@ -694,7 +688,6 @@ struct Particle
 
 	struct FieldForGPU {
 #ifdef __cplusplus
-
 		FieldForGPU() {
 			isAlive = false;
 

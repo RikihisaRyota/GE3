@@ -27,14 +27,12 @@ VertexShaderOutput main(uint32_t instanceID : SV_InstanceID, uint32_t vertexID :
     index = min(index,maxInstance);
     float32_t3 position = trailsVertexData[index].vertex[vertexID].position;
     float32_t4 color = float32_t4(1.0f, 1.0f, 1.0f, 1.0f);
-    //if(index >= maxInstance){
-    //    position = trailsVertex[index-1].vertex[vertexID].position;
-    //    color = float32_t4(0.0f, 0.0f, 0.0f, 0.0f);
-    //}
     // ビュー・プロジェクション行列で座標変換
     float32_t4 worldPosition = float32_t4(position, 1.0f);
     output.position = mul(worldPosition, mul(gViewProjection.view, gViewProjection.projection));
     output.color = color;
+    output.texcoord = trailsVertexData[index].vertex[vertexID].uv;
+    output.instanceId = instanceID;
 
     return output;
 }

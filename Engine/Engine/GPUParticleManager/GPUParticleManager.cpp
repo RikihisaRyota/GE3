@@ -106,6 +106,13 @@ void GPUParticleManager::Update(const ViewProjection& viewProjection, CommandCon
 	commandContext.SetPipelineState(*updateComputePipelineState_);
 	gpuParticle_->ParticleUpdate(viewProjection, commandContext);
 
+	//commandContext.SetComputeRootSignature(*updateTrailsRootSignature_);
+	//commandContext.SetPipelineState(*updateTrailsPipelineState_);
+	//gpuParticle_->UpdateTrails(viewProjection, commandContext);
+
+	//commandContext.SetComputeRootSignature(*addVertexTrailsRootSignature_);
+	//commandContext.SetPipelineState(*addVertexTrailsPipelineState_);
+	//gpuParticle_->AddTrailsVertex(commandContext);
 
 	commandContext.SetComputeRootSignature(*bulletRootSignature_);
 	commandContext.SetPipelineState(*bulletPipelineState_);
@@ -119,13 +126,6 @@ void GPUParticleManager::Update(const ViewProjection& viewProjection, CommandCon
 	commandContext.SetPipelineState(*collisionFieldPipelineState_);
 	gpuParticle_->CollisionField(commandContext, randomBuffer_);
 
-	commandContext.SetComputeRootSignature(*updateTrailsRootSignature_);
-	commandContext.SetPipelineState(*updateTrailsPipelineState_);
-	gpuParticle_->UpdateTrails(viewProjection, commandContext);
-
-	commandContext.SetComputeRootSignature(*addVertexTrailsRootSignature_);
-	commandContext.SetPipelineState(*addVertexTrailsPipelineState_);
-	gpuParticle_->AddTrailsVertex(commandContext);
 }
 
 void GPUParticleManager::Draw(const ViewProjection& viewProjection, CommandContext& commandContext) {
@@ -157,13 +157,12 @@ void GPUParticleManager::Draw(const ViewProjection& viewProjection, CommandConte
 	commandContext.SetDynamicIndexBuffer(indices.size(), DXGI_FORMAT_R16_UINT, indices.data());
 	gpuParticle_->Draw(viewProjection, commandContext);
 
-
 	commandContext.SetGraphicsRootSignature(*tailsGraphicsRootSignature_);
 	commandContext.SetPipelineState(*tailsGraphicsPipelineState_);
 
 	commandContext.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	gpuParticle_->DrawTrails(viewProjection, commandContext);
+	//gpuParticle_->DrawTrails(viewProjection, commandContext);
 	//commandContext.TransitionResource(RenderManager::GetInstance()->GetMainDepthBuffer(), D3D12_RESOURCE_STATE_DEPTH_WRITE);
 	//commandContext.FlushResourceBarriers();
 }

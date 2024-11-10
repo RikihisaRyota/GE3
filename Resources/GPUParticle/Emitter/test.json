@@ -103,8 +103,8 @@
     "EmitterTrails": {
         "interval": 5,
         "isTrails": 1,
-        "lifeLimit": 1.0,
-        "textureIndex": 28,
+        "lifeLimit": 0.5,
+        "textureIndex": 64,
         "width": 0.5
     },
     "Parent": {

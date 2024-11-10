@@ -177,7 +177,6 @@ private:
 	std::vector<GPUParticleShaderStructs::BulletForGPU> bullets_;
 	// フィールド
 	DefaultBuffer fieldOriginalBuffer_;
-	//DescriptorHandle fieldOriginalHandle_;
 	UploadBuffer fieldCPUBuffer_;
 	DefaultBuffer fieldAddBuffer_;
 	UploadBuffer fieldCounterBuffer_;

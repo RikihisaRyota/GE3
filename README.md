@@ -25,10 +25,9 @@ GPUParticleに力を入れていてParticleを出せるだけでなくエディ�
 ![image](https://github.com/user-attachments/assets/1808c076-29bc-4cd2-add1-ad110c2bea45)
 その他のパーティクルの速度やスケール寿命などのパラメーターも調整できます。\
 ![emitter](https://github.com/user-attachments/assets/79097d46-94bd-4aed-84b4-e57afffaa368)
-
 #### フィールド
 パーティクルに影響を及ぼすフィールドを設置することができます。\
-
+形状はエミッターと同様、球、AABB、Capsuleがあります。
 * 引力
   フィールドの中心にパーティクルを引き込みます。\
   ![innryoku](https://github.com/user-attachments/assets/14b78aba-561e-4b7b-9492-2223e73c49d4)
@@ -45,7 +44,7 @@ GPUParticleに力を入れていてParticleを出せるだけでなくエディ�
   パーティクルの位置に対して回転します。\
   ![rotatepos](https://github.com/user-attachments/assets/39163b48-9dfe-4126-8676-56ea04980f79)
 フィールドとエミッターには属性をつけることができ、それにより影響するエミッターを区別することができます。\
-
+  ![filerd](https://github.com/user-attachments/assets/fd9b863f-32c6-4500-b9e1-e5ca9c765c78)
 # GameScene
 ## 説明
 GPUParticleを使用したボスとプレイヤーとの一対一の3Dシューティングゲームです。\

@@ -28,15 +28,24 @@ GPUParticleに力を入れていてParticleを出せるだけでなくエディ�
 
 #### フィールド
 パーティクルに影響を及ぼすフィールドを設置することができます。\
-フィールドとエミッターには属性をつけることができ、それにより影響するエミッターを区別することができます。\
+
 * 引力
   フィールドの中心にパーティクルを引き込みます。\
+  ![innryoku](https://github.com/user-attachments/assets/14b78aba-561e-4b7b-9492-2223e73c49d4)
+
 * 風力
   パーティクルに任意のベクトルの速度を加算します。\
+  ![huuryoku](https://github.com/user-attachments/assets/5390a2d9-c24c-4dbf-be01-9b29995032f0)
+
 * 回転（速度）
   パーティクルの速度に対して回転します。\
+  ![rotatevel](https://github.com/user-attachments/assets/1da3ceb3-a057-4f9d-9b98-6c713c4cedab)
+
 * 回転（ポジション）
   パーティクルの位置に対して回転します。\
+  ![rotatepos](https://github.com/user-attachments/assets/39163b48-9dfe-4126-8676-56ea04980f79)
+フィールドとエミッターには属性をつけることができ、それにより影響するエミッターを区別することができます。\
+
 # GameScene
 ## 説明
 GPUParticleを使用したボスとプレイヤーとの一対一の3Dシューティングゲームです。\

@@ -19,14 +19,14 @@
         "EmitterCapsule": {
             "EmitterSegment": {
                 "end": [
-                    0.0,
+                    -15.0,
                     5.0,
-                    0.0
+                    -70.0
                 ],
                 "start": [
-                    0.0,
+                    -15.0,
                     -5.0,
-                    0.0
+                    -70.0
                 ]
             },
             "distanceFactor": {
@@ -43,9 +43,9 @@
             "radius": 0.0
         },
         "position": [
-            -15.0,
             0.0,
-            -70.0
+            0.0,
+            0.0
         ],
         "type": 2
     },
@@ -86,13 +86,20 @@
         "isLoop": 1,
         "isOnce": 0
     },
-    "EmitterTrails": {},
+    "EmitterTrails": {
+        "interval": 5,
+        "isTrails": 0,
+        "lifeLimit": 1.0,
+        "textureIndex": 0,
+        "width": 0.5
+    },
     "Parent": {
         "isParent": 0
     },
     "ParticleLifeSpan": {
         "Max": 360,
         "Min": 120,
+        "isCountDown": 0,
         "isEmitterLife": 0
     },
     "RotateAnimation": {
@@ -145,6 +152,6 @@
             0.0
         ]
     },
-    "createParticleNum": 500,
-    "textureIndex": "Resources/Images/GPUParticle.png"
+    "createParticleNum": 200,
+    "textureIndex": "Resources/Images/white1x1.png"
 }

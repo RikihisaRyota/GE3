@@ -6,14 +6,14 @@
     "EmitterArea": {
         "EmitterAABB": {
             "Max": [
-                40.0,
-                1.0,
-                40.0
+                5.0,
+                5.0,
+                5.0
             ],
             "Min": [
-                0.0,
-                20.0,
-                -40.0
+                -5.0,
+                -5.0,
+                -5.0
             ],
             "position": [
                 -80.0,
@@ -24,21 +24,21 @@
         "EmitterCapsule": {
             "EmitterSegment": {
                 "end": [
-                    0.0,
-                    0.0,
-                    0.0
+                    15.0,
+                    5.0,
+                    -70.0
                 ],
                 "start": [
-                    0.0,
-                    0.0,
-                    0.0
+                    15.0,
+                    -5.0,
+                    -70.0
                 ]
             },
             "distanceFactor": {
                 "Max": 0.0,
                 "Min": 0.0
             },
-            "radius": 0.0
+            "radius": 5.0
         },
         "EmitterSphere": {
             "EmitterCapsule": {
@@ -54,14 +54,14 @@
                 0.0,
                 0.0
             ],
-            "radius": 1.5
+            "radius": 6.0
         },
         "position": [
+            15.0,
             0.0,
-            20.0,
-            0.0
+            -70.0
         ],
-        "type": 1
+        "type": 0
     },
     "EmitterColor": {
         "End": {
@@ -96,23 +96,23 @@
     },
     "EmitterFrequency": {
         "emitterLife": 1,
-        "interval": 120,
+        "interval": 0,
         "isLoop": 1,
         "isOnce": 0
     },
     "EmitterTrails": {
-        "interval": 5,
+        "interval": 0,
         "isTrails": 1,
         "lifeLimit": 0.5,
         "textureIndex": 64,
-        "width": 0.5
+        "width": 0.10000000149011612
     },
     "Parent": {
         "isParent": 0
     },
     "ParticleLifeSpan": {
         "Max": 120,
-        "Min": 120,
+        "Min": 60,
         "isCountDown": 0,
         "isEmitterLife": 0
     },
@@ -158,12 +158,12 @@
     },
     "Velocity3D": {
         "Max": [
-            -0.05000000074505806,
+            0.0,
             0.15000000596046448,
             0.0
         ],
         "Min": [
-            -0.05000000074505806,
+            0.0,
             0.10000000149011612,
             0.0
         ]

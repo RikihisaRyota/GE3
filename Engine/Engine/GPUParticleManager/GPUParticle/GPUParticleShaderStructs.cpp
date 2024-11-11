@@ -1472,8 +1472,8 @@ void GPUParticleShaderStructs::DebugDraw(const EmitterForCPU& emitter) {
 	case GPUParticleShaderStructs::Type::kCapsule:
 	{
 		Capsule capsule{};
-		capsule.segment.start = emitter.emitterArea.capsule.segment.origin + emitter.emitterArea.position;
-		capsule.segment.end = emitter.emitterArea.capsule.segment.diff + emitter.emitterArea.position;
+		capsule.segment.start = emitter.emitterArea.capsule.segment.origin ;
+		capsule.segment.end = emitter.emitterArea.capsule.segment.diff;
 		capsule.radius = emitter.emitterArea.capsule.radius;
 		DrawLine(capsule, emitterColor);
 	}

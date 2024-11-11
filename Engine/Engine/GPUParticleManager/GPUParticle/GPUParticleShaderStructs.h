@@ -28,14 +28,14 @@ namespace GPUParticleShaderStructs {
 
 	static const UINT ComputeThreadBlockSize = 1024;
 	static const UINT MeshComputeThreadBlockSize = 1024;
-	static const UINT MaxParticleShouldBeSquare = 22;
+	static const UINT MaxParticleShouldBeSquare = 20;
 	static const UINT MaxParticleNum = 1U << MaxParticleShouldBeSquare;
 	static const UINT MaxEmitterNum = 1024;
 	static const UINT MaxFieldNum = 1024;
 	static const UINT MaxBulletNum = 10;
 	static const UINT MaxProcessNum = 1;
 	static const UINT TrailsRange = 1024;
-	static const UINT MaxTrailsNum = 1 << 15;
+	static const UINT MaxTrailsNum = 1U << 15;
 	static const UINT MaxTrailsTotal = MaxTrailsNum * TrailsRange;
 
 #pragma region Utility
@@ -198,6 +198,8 @@ struct Particle
 		uint32_t interval;
 		uint32_t time;
 
+
+		int32_t loopNum;
 		uint32_t isAlive;
 		float width;
 		float lifeLimit;

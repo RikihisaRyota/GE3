@@ -71,6 +71,7 @@ void CheckTrailsData(GPUParticleShaderStructs::EmitterTrails emitterTrails,uint3
         data.textureIndex =  emitterTrails.textureIndex;
         data.interval = emitterTrails.interval;
         data.time = data.interval;
+        data.loopNum = 0;
 
         data.lifeLimit = emitterTrails.lifeLimit;
         trailsData[data.trailsIndex] = data;

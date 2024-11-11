@@ -114,7 +114,7 @@ void GameScene::Update(CommandContext& commandContext) {
 		followCamera_->Update();
 	}
 	//player_->Update(commandContext);
-	//boss_->Update(commandContext);
+	boss_->Update(commandContext);
 	//for (auto& object : gameObject_) {
 	//	object->Update();
 	//	if (object->GetObjectName() == "Post") {
@@ -165,6 +165,8 @@ void GameScene::Update(CommandContext& commandContext) {
 
 	gpuParticleManager_->SetField(testField_);
 	gpuParticleManager_->SetEmitter(testEmitter_);
+	gpuParticleManager_->SetEmitter(test1Emitter_);
+	gpuParticleManager_->SetEmitter(test2Emitter_);
 	GPUParticleShaderStructs::Debug("test", testField_);
 	GPUParticleShaderStructs::Debug("test", testEmitter_);
 	GPUParticleShaderStructs::Debug("postEmitter", postEmitter_);
@@ -215,9 +217,9 @@ void GameScene::Draw(CommandContext& commandContext) {
 	if (bossDebug) {
 		boss_->DrawDebug();
 	}
-	for (auto& object : gameObject_) {
-		object->DrawDebug();
-	}
+	//for (auto& object : gameObject_) {
+	//	object->DrawDebug();
+	//}
 	GPUParticleShaderStructs::DebugDraw(testEmitter_);
 	GPUParticleShaderStructs::DebugDraw(test1Emitter_);
 	GPUParticleShaderStructs::DebugDraw(test2Emitter_);

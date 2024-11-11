@@ -106,13 +106,13 @@ void GPUParticleManager::Update(const ViewProjection& viewProjection, CommandCon
 	commandContext.SetPipelineState(*updateComputePipelineState_);
 	gpuParticle_->ParticleUpdate(viewProjection, commandContext);
 
-	//commandContext.SetComputeRootSignature(*updateTrailsRootSignature_);
-	//commandContext.SetPipelineState(*updateTrailsPipelineState_);
-	//gpuParticle_->UpdateTrails(viewProjection, commandContext);
+	commandContext.SetComputeRootSignature(*updateTrailsRootSignature_);
+	commandContext.SetPipelineState(*updateTrailsPipelineState_);
+	gpuParticle_->UpdateTrails(viewProjection, commandContext);
 
-	//commandContext.SetComputeRootSignature(*addVertexTrailsRootSignature_);
-	//commandContext.SetPipelineState(*addVertexTrailsPipelineState_);
-	//gpuParticle_->AddTrailsVertex(commandContext);
+	commandContext.SetComputeRootSignature(*addVertexTrailsRootSignature_);
+	commandContext.SetPipelineState(*addVertexTrailsPipelineState_);
+	gpuParticle_->AddTrailsVertex(commandContext);
 
 	commandContext.SetComputeRootSignature(*bulletRootSignature_);
 	commandContext.SetPipelineState(*bulletPipelineState_);
@@ -162,9 +162,9 @@ void GPUParticleManager::Draw(const ViewProjection& viewProjection, CommandConte
 
 	commandContext.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	//gpuParticle_->DrawTrails(viewProjection, commandContext);
-	//commandContext.TransitionResource(RenderManager::GetInstance()->GetMainDepthBuffer(), D3D12_RESOURCE_STATE_DEPTH_WRITE);
-	//commandContext.FlushResourceBarriers();
+	gpuParticle_->DrawTrails(viewProjection, commandContext);
+	commandContext.TransitionResource(RenderManager::GetInstance()->GetMainDepthBuffer(), D3D12_RESOURCE_STATE_DEPTH_WRITE);
+	commandContext.FlushResourceBarriers();
 }
 
 void GPUParticleManager::DrawImGui() {

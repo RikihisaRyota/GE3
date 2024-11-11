@@ -174,7 +174,6 @@ void RenderManager::EndRender(const ViewProjection& viewProjection) {
 
 	commandContext.End();
 
-	
 	imguiManager->NewFrame();
 }
 

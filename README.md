@@ -9,7 +9,7 @@ GPUParticleについて研究していてComputeShaderを使用しGPU上でSpwn,
 * エンジン側で当たり判定の実装。（AABB,Sphere,OBB,Capsule）
 * ライティングの実装
 ## 注目してほしいところ
-GPUParticleに力を入れていてParticleを出せるだけでなくエディターを充実させることで楽にパーティクルを実装できるようにしました。\
+GPUParticleに力を入れていてParticleを出せるだけでなくエディターを充実させることで楽にパーティクルを実装できるようにしました。
 ### GPUParticle機能紹介
 #### エミッター
 様々な形状のエミッターでパーティクルを発生できます

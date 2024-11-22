@@ -75,47 +75,47 @@ void GPUParticleEditor::EmitterUpdate() {
 
 void GPUParticleEditor::Spawn(CommandContext& commandContext) {
 
-	commandContext.SetComputeRootSignature(*spawnComputeRootSignature_);
-	commandContext.SetPipelineState(*spawnComputePipelineState_);
+	//commandContext.SetComputeRootSignature(*spawnComputeRootSignature_);
+	//commandContext.SetPipelineState(*spawnComputePipelineState_);
 
-	commandContext.TransitionResource(emitterBuffer_, D3D12_RESOURCE_STATE_GENERIC_READ);
-	commandContext.TransitionResource(particleBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-	commandContext.TransitionResource(originalCommandBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+	//commandContext.TransitionResource(emitterBuffer_, D3D12_RESOURCE_STATE_GENERIC_READ);
+	//commandContext.TransitionResource(particleBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+	//commandContext.TransitionResource(originalCommandBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 
-	commandContext.SetComputeConstantBuffer(GPUParticleEditorParameter::Spawn::kEmitter, emitterBuffer_.GetGPUVirtualAddress());
-	commandContext.SetComputeUAV(GPUParticleEditorParameter::Spawn::kParticleIndex, particleBuffer_.GetGPUVirtualAddress());
-	commandContext.SetComputeDescriptorTable(GPUParticleEditorParameter::Spawn::kConsumeParticleIndex, originalCommandUAVHandle_);
+	//commandContext.SetComputeConstantBuffer(GPUParticleEditorParameter::Spawn::kEmitter, emitterBuffer_.GetGPUVirtualAddress());
+	//commandContext.SetComputeUAV(GPUParticleEditorParameter::Spawn::kParticleIndex, particleBuffer_.GetGPUVirtualAddress());
+	//commandContext.SetComputeDescriptorTable(GPUParticleEditorParameter::Spawn::kConsumeParticleIndex, originalCommandUAVHandle_);
 
-	commandContext.Dispatch(static_cast<UINT>(ceil(emitter_.createParticleNum / GPUParticleShaderStructs::ComputeThreadBlockSize)), 1, 1);
+	//commandContext.Dispatch(static_cast<UINT>(ceil(emitter_.createParticleNum / GPUParticleShaderStructs::ComputeThreadBlockSize)), 1, 1);
 
-	commandContext.CopyBufferRegion(originalCommandCounterBuffer_, 0, originalCommandBuffer_, particleIndexCounterOffset_, sizeof(UINT));
+	//commandContext.CopyBufferRegion(originalCommandCounterBuffer_, 0, originalCommandBuffer_, particleIndexCounterOffset_, sizeof(UINT));
 
 }
 
 void GPUParticleEditor::ParticleUpdate(CommandContext& commandContext) {
-	commandContext.SetComputeRootSignature(*updateComputeRootSignature_);
-	commandContext.SetPipelineState(*updateComputePipelineState_);
-	// リセット
-	commandContext.CopyBufferRegion(drawIndexCommandBuffers_, particleIndexCounterOffset_, resetAppendDrawIndexBufferCounterReset_, 0, sizeof(UINT));
+	//commandContext.SetComputeRootSignature(*updateComputeRootSignature_);
+	//commandContext.SetPipelineState(*updateComputePipelineState_);
+	//// リセット
+	//commandContext.CopyBufferRegion(drawIndexCommandBuffers_, particleIndexCounterOffset_, resetAppendDrawIndexBufferCounterReset_, 0, sizeof(UINT));
 
-	commandContext.TransitionResource(particleBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-	commandContext.TransitionResource(originalCommandBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-	commandContext.TransitionResource(drawIndexCommandBuffers_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+	//commandContext.TransitionResource(particleBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+	//commandContext.TransitionResource(originalCommandBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+	//commandContext.TransitionResource(drawIndexCommandBuffers_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 
-	commandContext.SetComputeUAV(0, particleBuffer_->GetGPUVirtualAddress());
-	commandContext.SetComputeDescriptorTable(1, originalCommandUAVHandle_);
-	commandContext.SetComputeDescriptorTable(2, drawIndexCommandUAVHandle_);
+	//commandContext.SetComputeUAV(0, particleBuffer_->GetGPUVirtualAddress());
+	//commandContext.SetComputeDescriptorTable(1, originalCommandUAVHandle_);
+	//commandContext.SetComputeDescriptorTable(2, drawIndexCommandUAVHandle_);
 
-	commandContext.Dispatch(static_cast<UINT>(ceil(GPUParticleShaderStructs::MaxParticleNum / float(GPUParticleShaderStructs::ComputeThreadBlockSize))), 1, 1);
+	//commandContext.Dispatch(static_cast<UINT>(ceil(GPUParticleShaderStructs::MaxParticleNum / float(GPUParticleShaderStructs::ComputeThreadBlockSize))), 1, 1);
 
-	UINT64 destInstanceCountArgumentOffset = sizeof(GPUParticleShaderStructs::IndirectCommand::SRV) + sizeof(UINT);
-	UINT64 srcInstanceCountArgumentOffset = particleIndexCounterOffset_;
+	//UINT64 destInstanceCountArgumentOffset = sizeof(GPUParticleShaderStructs::IndirectCommand::SRV) + sizeof(UINT);
+	//UINT64 srcInstanceCountArgumentOffset = particleIndexCounterOffset_;
 
-	commandContext.CopyBufferRegion(drawArgumentBuffer_, destInstanceCountArgumentOffset, drawIndexCommandBuffers_, srcInstanceCountArgumentOffset, sizeof(UINT));
+	//commandContext.CopyBufferRegion(drawArgumentBuffer_, destInstanceCountArgumentOffset, drawIndexCommandBuffers_, srcInstanceCountArgumentOffset, sizeof(UINT));
 }
 
 void GPUParticleEditor::Draw(const ViewProjection& viewProjection, CommandContext& commandContext) {
-	if (*static_cast<uint32_t*>(originalCommandCounterBuffer_.GetCPUData()) != 0) {
+	/*if (*static_cast<uint32_t*>(originalCommandCounterBuffer_.GetCPUData()) != 0) {
 		commandContext.SetGraphicsRootSignature(*graphicsRootSignature_);
 		commandContext.SetPipelineState(*graphicsPipelineState_);
 
@@ -138,7 +138,7 @@ void GPUParticleEditor::Draw(const ViewProjection& viewProjection, CommandContex
 			nullptr,
 			0
 		);
-	}
+	}*/
 }
 
 void GPUParticleEditor::CreateGraphics() {
@@ -376,7 +376,6 @@ void GPUParticleEditor::CreateParticleBuffer() {
 void GPUParticleEditor::CreateUpdateParticle() {
 	auto graphics = GraphicsCore::GetInstance();
 	auto device = GraphicsCore::GetInstance()->GetDevice();
-	auto& commandContext = RenderManager::GetInstance()->GetCommandContext();
 
 	particleIndexSize_ = GPUParticleShaderStructs::MaxParticleNum * sizeof(uint32_t);
 	particleIndexCounterOffset_ = AlignForUavCounter(particleIndexSize_);

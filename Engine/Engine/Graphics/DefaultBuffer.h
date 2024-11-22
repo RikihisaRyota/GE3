@@ -1,20 +1,22 @@
 #pragma once
 #include <string>
 
+#include "CommandContext.h"
 #include "GpuResource.h"
 #include "DescriptorHandle.h"
 
-class CommandContext;
+
 class DefaultBuffer : public GpuResource {
 public:
 	~DefaultBuffer();
 
-	void Create(const std::wstring& name, size_t bufferSize, D3D12_RESOURCE_FLAGS flags = D3D12_RESOURCE_FLAG_NONE);
+	void Create(const std::wstring& name, size_t bufferSize, D3D12_RESOURCE_FLAGS flags = D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
 	void CreateUAV(const D3D12_UNORDERED_ACCESS_VIEW_DESC& desc);
 	void CreateSRV(const D3D12_SHADER_RESOURCE_VIEW_DESC& desc);
 	void CreateIndexView(const DXGI_FORMAT& format);
 	void CreateVertexView(size_t srideByte);
-	void Clear(CommandContext& commandContext);
+	void Clear(const QueueType::Type::Param& type, CommandContext& commandContext);
+	const size_t& GetBufferSize() { return bufferSize_; }
 	const DescriptorHandle& GetUAVHandle() { return uavHandle_; }
 	const DescriptorHandle& GetSRVHandle() { return srvHandle_; }
 	const D3D12_INDEX_BUFFER_VIEW& GetIndexView() { return ibView_; }

@@ -24,7 +24,7 @@ void RenderManager::Initialize() {
 
 	// コマンドリストの初期化
 	commandContext_.Create();
-	commandContext_.Close();
+	//commandContext_.Close();
 
 	// メインとなるバッファを初期化
 	uint32_t targetSwapChainBufferIndex = (swapChain_.GetBackBufferIndex() + 1) % SwapChain::kNumBuffers;
@@ -126,7 +126,7 @@ void RenderManager::Reset() {
 void RenderManager::BeginRender() {
 	auto& commandContext = commandContext_;
 
-	commandContext.Start(D3D12_COMMAND_LIST_TYPE_DIRECT);
+	commandContext.StartFrame();
 
 	SetRenderTarget(mainColorBuffer_, mainDepthBuffer_);
 	commandContext.ClearColor(mainColorBuffer_);
@@ -146,17 +146,17 @@ void RenderManager::EndRender(const ViewProjection& viewProjection) {
 	//radialBlur_.Render(commandContext, mainColorBuffer_);
 	//dissolve_.Render(commandContext, mainColorBuffer_);
 	//hsvFilter_.Render(commandContext, mainColorBuffer_);
-	bloom_.Render(commandContext,mainColorBuffer_);
+	bloom_.Render(commandContext, mainColorBuffer_);
 
-	commandContext.TransitionResource(swapChainColorBuffer, D3D12_RESOURCE_STATE_RENDER_TARGET);
+	commandContext.TransitionResource(QueueType::Type::DIRECT, swapChainColorBuffer, D3D12_RESOURCE_STATE_RENDER_TARGET);
 	commandContext.SetRenderTarget(swapChainColorBuffer.GetRTV());
 	commandContext.ClearColor(swapChainColorBuffer);
 	commandContext.SetViewportAndScissorRect(0, 0, swapChainColorBuffer.GetWidth(), swapChainColorBuffer.GetHeight());
 
 	commandContext.SetGraphicsRootSignature(rootSignature_);
-	commandContext.SetPipelineState(pipelineState_);
+	commandContext.SetPipelineState(QueueType::Type::DIRECT, pipelineState_);
 	commandContext.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	commandContext.TransitionResource(mainColorBuffer_, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+	commandContext.TransitionResource(QueueType::Type::DIRECT, mainColorBuffer_, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 	commandContext.SetGraphicsDescriptorTable(0, mainColorBuffer_.GetSRV());
 	commandContext.Draw(3);
 
@@ -164,15 +164,14 @@ void RenderManager::EndRender(const ViewProjection& viewProjection) {
 	auto imguiManager = ImGuiManager::GetInstance();
 	imguiManager->Render(commandContext);
 
-	commandContext.TransitionResource(swapChainColorBuffer, D3D12_RESOURCE_STATE_PRESENT);
-	commandContext.Close();
+	commandContext.TransitionResource(QueueType::Type::DIRECT, swapChainColorBuffer, D3D12_RESOURCE_STATE_PRESENT);
 
 	swapChain_.Present();
 
 	auto& commandQueue = GraphicsCore::GetInstance()->GetCommandQueue(D3D12_COMMAND_LIST_TYPE_DIRECT);
-	commandQueue.WaitForIdle();
 
-	commandContext.End();
+	commandContext.Close();
+	commandContext.EndFrame();
 
 	imguiManager->NewFrame();
 }
@@ -185,7 +184,7 @@ void RenderManager::Shutdown() {
 void RenderManager::SetRenderTarget(ColorBuffer& target) {
 	auto& commandContext = commandContext_;
 
-	commandContext.TransitionResource(target, D3D12_RESOURCE_STATE_RENDER_TARGET);
+	commandContext.TransitionResource(QueueType::Type::DIRECT, target, D3D12_RESOURCE_STATE_RENDER_TARGET);
 	commandContext.SetRenderTarget(target.GetRTV());
 
 }
@@ -193,7 +192,7 @@ void RenderManager::SetRenderTarget(ColorBuffer& target) {
 void RenderManager::SetRenderTarget(ColorBuffer& target, DepthBuffer& depth) {
 	auto& commandContext = commandContext_;
 
-	commandContext.TransitionResource(target, D3D12_RESOURCE_STATE_RENDER_TARGET);
-	commandContext.TransitionResource(depth, D3D12_RESOURCE_STATE_DEPTH_WRITE);
+	commandContext.TransitionResource(QueueType::Type::DIRECT, target, D3D12_RESOURCE_STATE_RENDER_TARGET);
+	commandContext.TransitionResource(QueueType::Type::DIRECT, depth, D3D12_RESOURCE_STATE_DEPTH_WRITE);
 	commandContext.SetRenderTarget(target.GetRTV(), depth.GetDSV());
 }

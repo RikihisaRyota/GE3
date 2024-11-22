@@ -165,7 +165,7 @@ struct Particle
 		float radius;
 		float attraction;
 		Vector2 pad;
-	};
+	};	
 
 	struct ParticleParent {
 		uint32_t isParent;

@@ -165,14 +165,15 @@ namespace Animation {
 		paletteResource.Copy(mappedPalette.data(), sizeof(WellForGPU) * skeleton.joints.size());
 
 		auto& model = ModelManager::GetInstance()->GetModel(modelHandle);
-		commandContext.BeginEvent(L"Skinning");
+		commandContext.BeginEvent(QueueType::Type::COMPUTE,L"Skinning");
 		commandContext.SetComputeRootSignature(rootSignature);
-		commandContext.SetPipelineState(pipelineState);
+		commandContext.SetPipelineState(QueueType::Type::COMPUTE,pipelineState);
 
-		commandContext.TransitionResource(paletteResource, D3D12_RESOURCE_STATE_GENERIC_READ);
-		commandContext.TransitionResource(model.GetVertexBuffer(), D3D12_RESOURCE_STATE_GENERIC_READ);
-		commandContext.TransitionResource(influenceResource, D3D12_RESOURCE_STATE_GENERIC_READ);
-		commandContext.TransitionResource(vertexBuffer, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+		commandContext.TransitionResource(QueueType::Type::COMPUTE,paletteResource, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
+		commandContext.TransitionResource(QueueType::Type::COMPUTE,model.GetVertexBuffer(), D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
+		commandContext.TransitionResource(QueueType::Type::COMPUTE,influenceResource, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
+		commandContext.TransitionResource(QueueType::Type::COMPUTE,vertexBuffer, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+		commandContext.TransitionResource(QueueType::Type::COMPUTE,skinningInfomation, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
 
 		commandContext.SetComputeShaderResource(kWell, paletteResource.GetGPUVirtualAddress());
 		commandContext.SetComputeShaderResource(kInputVertex, model.GetVertexBuffer().GetGPUVirtualAddress());
@@ -181,8 +182,8 @@ namespace Animation {
 		commandContext.SetComputeConstantBuffer(kSkinningInfomation, skinningInfomation.GetGPUVirtualAddress());
 		commandContext.Dispatch(UINT(model.GetAllVertexCount() + 1023) / 1024, 1, 1);
 
-		commandContext.UAVBarrier(vertexBuffer);
-		commandContext.EndEvent();
+		commandContext.UAVBarrier(QueueType::Type::COMPUTE,vertexBuffer);
+		commandContext.EndEvent(QueueType::Type::COMPUTE);
 	}
 
 }

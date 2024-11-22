@@ -188,7 +188,7 @@ void ParticleManager::Draw(CommandContext& commandContext, const ViewProjection&
 	// ルートシグネチャの設定
 	commandContext.SetGraphicsRootSignature(rootSignature_);
 	// パイプラインステートの設定
-	commandContext.SetPipelineState(graphicsPipeline_);
+	commandContext.SetPipelineState(QueueType::Type::DIRECT, graphicsPipeline_);
 	// プリミティブ形状を設定
 	commandContext.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	// 頂点バッファの設定

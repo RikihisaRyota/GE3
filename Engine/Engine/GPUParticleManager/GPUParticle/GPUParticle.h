@@ -136,7 +136,6 @@ private:
 		void Spawn(CommandContext& commandContext);
 		void UpdateParticle(CommandContext& commandContext);
 		DefaultBuffer originalBuffer;
-		//UploadBuffer uploadCopyBuffer;
 		DefaultBuffer defaultCopyBuffer;
 		DefaultBuffer  addCountBuffer;
 		DefaultBuffer createEmitterBuffer;

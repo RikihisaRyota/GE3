@@ -214,7 +214,33 @@ float32_t4x4 MakeAffine(float32_t3 scale, float32_t4 rotate, float32_t3 translat
 
     return mul(mul(scaleMatrix,rotateMatrix),translateMatrix);
 }
+float32_t4x4 MakeAffine(float32_t3 scale, float32_t4x4 rotate, float32_t3 translate){
+    float32_t4x4 mat={
+        1.0f,0.0f,0.0f,0.0f,
+        0.0f,1.0f,0.0f,0.0f,
+        0.0f,0.0f,1.0f,0.0f,
+        0.0f,0.0f,0.0f,1.0f
+    };
 
+    mat[0].x = scale.x * rotate[0].x;
+    mat[0].y = scale.x * rotate[0].y;
+    mat[0].z = scale.x * rotate[0].z;
+
+    mat[1].x = scale.y * rotate[1].x;
+    mat[1].y = scale.y * rotate[1].y;
+    mat[1].z = scale.y * rotate[1].z;
+
+    mat[2].x = scale.z * rotate[2].x;
+    mat[2].y = scale.z * rotate[2].y;
+    mat[2].z = scale.z * rotate[2].z;
+
+    mat[3].x = translate.x;
+    mat[3].y = translate.y;
+    mat[3].z = translate.z;
+    mat[3].w = 1.0f;
+
+    return mat;
+}
 /////////////////////////////////////////////////////////////////////////////////////////
 float32_t sdAABB(float32_t3 p, float32_t3 a, float32_t3 b) 
 {

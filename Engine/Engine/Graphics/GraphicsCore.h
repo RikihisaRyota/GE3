@@ -24,6 +24,7 @@ public:
 	DescriptorHandle AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE type);
 
 	CommandQueue& GetCommandQueue(D3D12_COMMAND_LIST_TYPE type);
+	CommandListManager& GetCommandListManager() { return commandListManager_; }
 	ID3D12Device* GetDevice() const { return device_.Get(); }
 	DescriptorHeap& GetDescriptorHeap(const D3D12_DESCRIPTOR_HEAP_TYPE& type) {return descriptorHeaps_[type];}
 	LinearAllocatorPagePool& GetLinearAllocatorPagePool(const LinearAllocatorType& type) { return linearAllocatorPagePools_[type.type]; }

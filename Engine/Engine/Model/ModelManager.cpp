@@ -198,7 +198,7 @@ ModelHandle ModelManager::Load(const std::filesystem::path path) {
 }
 
 void ModelManager::Draw(const Matrix4x4& worldMatrix, const ViewProjection& viewProjection, const ModelHandle& modelHandle, CommandContext& commandContext) {
-	commandContext.BeginEvent(L"DrawModel");
+	commandContext.BeginEvent(QueueType::Type::DIRECT, L"DrawModel");
 	
 	struct ConstBufferDataWorldTransform {
 		Matrix4x4 matWorld; // ローカル → ワールド変換行列
@@ -206,7 +206,7 @@ void ModelManager::Draw(const Matrix4x4& worldMatrix, const ViewProjection& view
 	};
 
 	commandContext.SetGraphicsRootSignature(*rootSignature_);
-	commandContext.SetPipelineState(*pipelineState_);
+	commandContext.SetPipelineState(QueueType::Type::DIRECT, *pipelineState_);
 	commandContext.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	commandContext.SetVertexBuffer(0, models_.at(modelHandle)->GetVertexView());
 	commandContext.SetIndexBuffer(models_.at(modelHandle)->GetIndexView());
@@ -233,7 +233,7 @@ void ModelManager::Draw(const Matrix4x4& worldMatrix, const ViewProjection& view
 		commandContext.SetGraphicsDescriptorTable(Parameter::RootParameter::Sampler, SamplerManager::LinearWrap);
 		commandContext.DrawIndexed(modelData->meshes->indexCount, modelData->meshes->indexOffset, modelData->meshes->vertexOffset);
 	}
-	commandContext.EndEvent();
+	commandContext.EndEvent(QueueType::Type::DIRECT);
 }
 
 void ModelManager::Draw(const Matrix4x4& worldMatrix, Animation::Animation& skinning, const ViewProjection& viewProjection, const ModelHandle& modelHandle, CommandContext& commandContext) {
@@ -243,12 +243,12 @@ void ModelManager::Draw(const Matrix4x4& worldMatrix, Animation::Animation& skin
 	//};
 
 	commandContext.SetGraphicsRootSignature(*rootSignature_);
-	commandContext.SetPipelineState(*pipelineState_);
+	commandContext.SetPipelineState(QueueType::Type::DIRECT , *pipelineState_);
 
 	commandContext.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	for (auto& modelData : models_.at(modelHandle)->GetMeshData()) {
 		commandContext.SetIndexBuffer(models_.at(modelHandle)->GetIndexView());
-		commandContext.TransitionResource(skinning.skinCluster.vertexBuffer, D3D12_RESOURCE_STATE_GENERIC_READ);
+		commandContext.TransitionResource(QueueType::Type::DIRECT, skinning.skinCluster.vertexBuffer, D3D12_RESOURCE_STATE_GENERIC_READ);
 		commandContext.SetVertexBuffer(0, skinning.skinCluster.vertexBufferView);
 		ConstBufferDataWorldTransform constBufferDataWorldTransform{};
 		constBufferDataWorldTransform.matWorld = worldMatrix;

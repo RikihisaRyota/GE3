@@ -107,7 +107,7 @@ SpriteHandle SpriteManager::Create(
 
 void SpriteManager::Draw(const SpriteHandle& spriteHandle, CommandContext& commandContext) {
 	commandContext.SetGraphicsRootSignature(*rootSignature_);
-	commandContext.SetPipelineState(*pipelineState_);
+	commandContext.SetPipelineState(QueueType::Type::DIRECT, *pipelineState_);
 	commandContext.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	sprites_.at(spriteHandle)->Draw(commandContext);

@@ -23,8 +23,6 @@ GraphicsCore* GraphicsCore::GetInstance() {
 void GraphicsCore::Initialize() {
 	CreateDevice();
 
-	//commandQueue_.Create();
-
 	int32_t numDescriptorsTable[D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES];
 	numDescriptorsTable[D3D12_DESCRIPTOR_HEAP_TYPE_RTV] = kNumRTVs;
 	numDescriptorsTable[D3D12_DESCRIPTOR_HEAP_TYPE_DSV] = kNumDSVs;
@@ -44,9 +42,7 @@ void GraphicsCore::Initialize() {
 }
 
 void GraphicsCore::Shutdown() {
-	commandListManager_.GetGraphicsQueue().WaitForIdle();
-	commandListManager_.GetComputeQueue().WaitForIdle();
-	commandListManager_.GetCopyQueue().WaitForIdle();
+	commandListManager_.Shutdown();
 	for (int i = 0; i < LinearAllocatorType::Type::kNumAllocatorTypes; ++i) {
 		linearAllocatorPagePools_[i].Finalize();
 	}
@@ -72,9 +68,9 @@ void GraphicsCore::CreateDevice() {
 	ComPtr<ID3D12Debug1> debugController = nullptr;
 	if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController)))) {
 		//デバックレイヤーを有効化する
-		//debugController->EnableDebugLayer();
+		debugController->EnableDebugLayer();
 		//更にGPU側でもチェックを行うようにする
-		debugController->SetEnableGPUBasedValidation(TRUE);
+		//debugController->SetEnableGPUBasedValidation(TRUE);
 	}
 #endif // _DEBUG
 	// DXGIファクトリーの生成

@@ -72,8 +72,8 @@ void DefaultBuffer::CreateVertexView(size_t srideByte) {
 	vbView_.StrideInBytes = UINT(srideByte);
 }
 
-void DefaultBuffer::Clear(CommandContext& commandContext) {
-	commandContext.ClearBuffer(*this, UINT64(bufferSize_ + sizeof(UINT)));
+void DefaultBuffer::Clear(const QueueType::Type::Param& type,CommandContext& commandContext) {
+	commandContext.ClearBuffer(type,*this, UINT64(bufferSize_ + sizeof(UINT)));
 }
 
 void DefaultBuffer::Destroy() {

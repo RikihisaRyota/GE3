@@ -70,22 +70,22 @@ void HSVFilter::Initialize(const ColorBuffer& target) {
 }
 
 void HSVFilter::Render(CommandContext& commandContext, ColorBuffer& texture) {
-	commandContext.TransitionResource(temporaryBuffer_, D3D12_RESOURCE_STATE_RENDER_TARGET);
+	commandContext.TransitionResource(QueueType::Type::DIRECT, temporaryBuffer_, D3D12_RESOURCE_STATE_RENDER_TARGET);
 	commandContext.SetRenderTarget(temporaryBuffer_.GetRTV());
 	commandContext.ClearColor(temporaryBuffer_);
 	commandContext.SetViewportAndScissorRect(0, 0, temporaryBuffer_.GetWidth(), temporaryBuffer_.GetHeight());
 
 	commandContext.SetGraphicsRootSignature(rootSignature_);
-	commandContext.SetPipelineState(pipelineState_);
+	commandContext.SetPipelineState(QueueType::Type::DIRECT, pipelineState_);
 
 	commandContext.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	commandContext.TransitionResource(texture, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+	commandContext.TransitionResource(QueueType::Type::DIRECT, texture, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 	commandContext.SetGraphicsDescriptorTable(RootParameter::kTexture, texture.GetSRV());
 	commandContext.SetGraphicsDynamicConstantBufferView(RootParameter::kHSV, sizeof(desc_), &desc_);
 	commandContext.Draw(3);
 
-	commandContext.CopyBuffer(texture, temporaryBuffer_);
+	commandContext.CopyBuffer(QueueType::Type::DIRECT, texture, temporaryBuffer_);
 }
 
 void HSVFilter::Debug() {

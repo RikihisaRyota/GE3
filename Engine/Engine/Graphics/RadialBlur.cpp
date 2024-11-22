@@ -76,22 +76,22 @@ void RadialBlur::Render(CommandContext& commandContext, ColorBuffer& texture) {
 	if (isUsed_) {
 
 		descBuffer_.Copy(&desc_, sizeof(Desc));
-		commandContext.TransitionResource(temporaryBuffer_, D3D12_RESOURCE_STATE_RENDER_TARGET);
+		commandContext.TransitionResource(QueueType::Type::DIRECT, temporaryBuffer_, D3D12_RESOURCE_STATE_RENDER_TARGET);
 		commandContext.SetRenderTarget(temporaryBuffer_.GetRTV());
 		commandContext.ClearColor(temporaryBuffer_);
 		commandContext.SetViewportAndScissorRect(0, 0, temporaryBuffer_.GetWidth(), temporaryBuffer_.GetHeight());
 
 		commandContext.SetGraphicsRootSignature(rootSignature_);
-		commandContext.SetPipelineState(pipelineState_);
+		commandContext.SetPipelineState(QueueType::Type::DIRECT, pipelineState_);
 
 		commandContext.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-		commandContext.TransitionResource(texture, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+		commandContext.TransitionResource(QueueType::Type::DIRECT, texture, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 		commandContext.SetGraphicsDescriptorTable(RootParameter::kTexture, texture.GetSRV());
 		commandContext.SetGraphicsConstantBuffer(RootParameter::kDesc, descBuffer_.GetGPUVirtualAddress());
 		commandContext.Draw(3);
 
-		commandContext.CopyBuffer(texture, temporaryBuffer_);
+		commandContext.CopyBuffer(QueueType::Type::DIRECT, texture, temporaryBuffer_);
 	}
 }
 

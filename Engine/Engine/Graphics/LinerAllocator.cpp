@@ -5,13 +5,14 @@
 #include <d3dx12.h>
 
 #include "GraphicsCore.h"
+#include "CommandListManager.h"
 
 
 void LinearAllocationPage::Create(const std::wstring& name, LinearAllocatorType type) {
 	size_ = type.GetSize();
 	CD3DX12_HEAP_PROPERTIES heapProps = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
 	CD3DX12_RESOURCE_DESC desc = CD3DX12_RESOURCE_DESC::Buffer(size_);
-	D3D12_RESOURCE_STATES state = D3D12_RESOURCE_STATE_GENERIC_READ;
+	D3D12_RESOURCE_STATES state = D3D12_RESOURCE_STATE_COMMON;
 	if (type == LinearAllocatorType::kDefault) {
 		heapProps.Type = D3D12_HEAP_TYPE_DEFAULT;
 		desc.Flags = D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
@@ -46,16 +47,10 @@ void LinearAllocatorPagePool::Discard(const D3D12_COMMAND_LIST_TYPE& commandType
 	}
 }
 
-LinearAllocationPage* LinearAllocatorPagePool::Allocate() {
+LinearAllocationPage* LinearAllocatorPagePool::Allocate(const D3D12_COMMAND_LIST_TYPE& commandType) {
 	std::lock_guard lock(mutex_);
 	LinearAllocationPage* page = nullptr;
-	if (CheckAllocate(D3D12_COMMAND_LIST_TYPE_DIRECT, &page)) {
-		return page;
-	}
-	if (CheckAllocate(D3D12_COMMAND_LIST_TYPE_COMPUTE, &page)) {
-		return page;
-	}
-	if (CheckAllocate(D3D12_COMMAND_LIST_TYPE_COPY, &page)) {
+	if (CheckAllocate(commandType, &page)) {
 		return page;
 	}
 	page = CreatePage();
@@ -68,6 +63,7 @@ bool LinearAllocatorPagePool::CheckAllocate(const D3D12_COMMAND_LIST_TYPE& comma
 	if (!pageQueue.empty()) {
 		const auto& [fenceValue, readyPage] = pageQueue.front();
 		auto& queue = GraphicsCore::GetInstance()->GetCommandQueue(commandType);
+
 		if (fenceValue <= queue.GetLastCompletedFenceValue()) {
 			pageQueue.pop();
 			*page = readyPage;
@@ -98,11 +94,11 @@ void LinearAllocator::Create(LinearAllocatorType Type) {
 	allocationType_ = Type;
 }
 
-DynAlloc LinearAllocator::Allocate(size_t size, size_t alignment) {
+DynAlloc LinearAllocator::Allocate(const D3D12_COMMAND_LIST_TYPE& commandType, size_t size, size_t alignment) {
 	assert(size <= allocationType_.GetSize());
 
 	if (!HasSpace(size, alignment)) {
-		currentPage_ = GraphicsCore::GetInstance()->GetLinearAllocatorPagePool(allocationType_).Allocate();
+		currentPage_ = GraphicsCore::GetInstance()->GetLinearAllocatorPagePool(allocationType_).Allocate(commandType);
 		currentOffset_ = 0;
 		usedPages_.emplace_back(currentPage_);
 	}

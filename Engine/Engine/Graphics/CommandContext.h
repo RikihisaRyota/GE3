@@ -20,30 +20,46 @@ class GPUResource;
 class PipelineState;
 class RootSignature;
 class CommandSignature;
+namespace QueueType {
+	struct Type {
+		enum Param {
+			COPY,
+			COMPUTE,
+			DIRECT,
+			COUNT
+		};
+	};
+	inline D3D12_COMMAND_LIST_TYPE GetType(const QueueType::Type::Param& type);
+	inline std::string GetTypeString(const QueueType::Type::Param& type);
+}
+
 class CommandContext {
 public:
 	void Create();
 
-	void Start(D3D12_COMMAND_LIST_TYPE type);
+	void StartFrame();
+	void Start();
+	void EndFrame();
 	void End();
 	void Close();
 	void Flush();
 
-	void TransitionResource(GpuResource& resource, D3D12_RESOURCE_STATES newState);
-	void UAVBarrier(GpuResource& resource);
+	void TransitionResource(const QueueType::Type::Param& type,GpuResource& resource, const D3D12_RESOURCE_STATES& newState);
+	void UAVBarrier(const QueueType::Type::Param& type, GpuResource& resource);
 	void FlushResourceBarriers();
 
-	void CopyBuffer(GpuResource& dest, GpuResource& src);
-	void CopyBuffer(GpuResource& dest, size_t bufferSize, const void* bufferData);
-	void CopyBufferRegion(GpuResource& dest,UINT64 destOffset, GpuResource& src,UINT64 srcOffset,UINT64 NumBytes = 0) ;
+	void CopyBuffer(const QueueType::Type::Param& type, GpuResource& dest, GpuResource& src);
+	void CopyBuffer(const QueueType::Type::Param& type, GpuResource& dest, size_t bufferSize, const void* bufferData);
+	void CopyBufferRegion(const QueueType::Type::Param& type, GpuResource& dest, UINT64 destOffset, GpuResource& src, UINT64 srcOffset, UINT64 NumBytes = 0);
+	void ReadBackCopyBufferRegion(const QueueType::Type::Param& type, GpuResource& dest, UINT64 destOffset, GpuResource& src, UINT64 srcOffset, UINT64 NumBytes = 0);
 
 	void ClearColor(ColorBuffer& target);
 	void ClearColor(ColorBuffer& target, float Colour[4]);
 	void ClearDepth(DepthBuffer& target);
-	void ClearDepth(DepthBuffer& target,float clearValue);
-	void ClearBuffer(GpuResource& dest, size_t bufferSize);
+	void ClearDepth(DepthBuffer& target, float clearValue);
+	void ClearBuffer(const QueueType::Type::Param& type, GpuResource& dest, size_t bufferSize);
 
-	void SetPipelineState(const PipelineState& pipelineState);
+	void SetPipelineState(const QueueType::Type::Param& type, const PipelineState& pipelineState);
 	void SetGraphicsRootSignature(const RootSignature& rootSignature);
 	void SetComputeRootSignature(const RootSignature& rootSignature);
 
@@ -61,13 +77,13 @@ public:
 	void SetComputeDynamicShaderResource(UINT rootIndex, size_t bufferSize, const void* bufferData);
 	void SetDynamicVertexBuffer(UINT slot, size_t numVertices, size_t vertexStride, const void* vertexData);
 	void SetDynamicIndexBuffer(size_t numIndices, DXGI_FORMAT indexFormat, const void* indexData);
-	void SetGraphicsConstantBuffer(UINT rootIndex,D3D12_GPU_VIRTUAL_ADDRESS address);
-	void SetComputeConstantBuffer(UINT rootIndex,D3D12_GPU_VIRTUAL_ADDRESS address);
+	void SetGraphicsConstantBuffer(UINT rootIndex, D3D12_GPU_VIRTUAL_ADDRESS address);
+	void SetComputeConstantBuffer(UINT rootIndex, D3D12_GPU_VIRTUAL_ADDRESS address);
 	void SetGraphicsShaderResource(UINT rootIndex, D3D12_GPU_VIRTUAL_ADDRESS address);
 	void SetComputeShaderResource(UINT rootIndex, D3D12_GPU_VIRTUAL_ADDRESS address);
 	void SetGraphicsDescriptorTable(UINT rootIndex, D3D12_GPU_DESCRIPTOR_HANDLE handle);
 	void SetComputeDescriptorTable(UINT rootIndex, D3D12_GPU_DESCRIPTOR_HANDLE handle);
-	void SetDescriptorHeaps(UINT numDescriptorHeaps, ID3D12DescriptorHeap* descriptorHeaps);
+	void SetDescriptorHeaps(UINT numDescriptorHeaps, ID3D12DescriptorHeap* descriptorHeaps, const QueueType::Type::Param& type);
 
 	void SetComputeUAV(uint32_t rootParameterIndex, D3D12_GPU_VIRTUAL_ADDRESS bufferLocation);
 
@@ -86,29 +102,38 @@ public:
 	void DrawIndexed(UINT indexCount, UINT startIndexLocation = 0, INT baseVertexLocation = 0);
 	void DrawInstanced(UINT vertexCountPerInstance, UINT instanceCount, UINT startVertexLocation = 0, UINT startInstanceLocation = 0);
 	void DrawIndexedInstanced(UINT indexCountPerInstance, UINT instanceCount, UINT startIndexLocation = 0, INT baseVertexLocation = 0, UINT startInstanceLocation = 0);
-	void ExecuteIndirect(const CommandSignature& commandSignature, UINT maxCommandCount,ID3D12Resource* argumentBuffer,UINT64 argumentBufferOffset, ID3D12Resource* countBuffer, UINT64 countBufferOffset);
+	void ExecuteIndirect(const CommandSignature& commandSignature, UINT maxCommandCount, ID3D12Resource* argumentBuffer, UINT64 argumentBufferOffset, ID3D12Resource* countBuffer, UINT64 countBufferOffset, const QueueType::Type::Param& type);
 
 	void Dispatch(uint32_t x, uint32_t y, uint32_t z);
 
-	void BeginEvent(const std::wstring& name);
-	void EndEvent();
+	void BeginEvent(const QueueType::Type::Param& type, const std::wstring& name);
+	void EndEvent(const QueueType::Type::Param& type);
 
-	void SetMarker(const std::wstring& name);
+	void SetMarker(const QueueType::Type::Param& type, const std::wstring& name);
 
-	operator ID3D12GraphicsCommandList* () const { return commandList_.Get(); }
+	ID3D12GraphicsCommandList* GetCurrentCommandList(const QueueType::Type::Param& type) { return currentCommandList_[type].Get(); }
+	ID3D12GraphicsCommandList* GetPreCommandList(const QueueType::Type::Param& type) { return preCommandList_[type].Get(); }
 private:
+
 	static const size_t kMaxNumResourceBarriers_ = 16;
-	Microsoft::WRL::ComPtr<ID3D12CommandAllocator> commandAllocator_;
-	Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList_;
+	Microsoft::WRL::ComPtr<ID3D12CommandAllocator> currentCommandAllocator_[QueueType::Type::COUNT];
+	Microsoft::WRL::ComPtr<ID3D12CommandAllocator> preCommandAllocator_[QueueType::Type::COUNT];
+	Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> currentCommandList_[QueueType::Type::COUNT];
+	Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> preCommandList_[QueueType::Type::COUNT];
 
 	ID3D12RootSignature* graphicsRootSignature_;
 	ID3D12RootSignature* computeRootSignature_;
 	ID3D12PipelineState* pipelineState_;
 
-	uint32_t numResourceBarriers_;
+	struct ResourceBarrier {
+		uint32_t numResourceBarriers;
+		D3D12_RESOURCE_BARRIER resourceBarrier[kMaxNumResourceBarriers_];
+	};
 
-	D3D12_RESOURCE_BARRIER resourceBarriers_[kMaxNumResourceBarriers_];
-	LinearAllocator currentDynamicBuffers_[LinearAllocatorType::kNumAllocatorTypes];
-	LinearAllocator previousDynamicBuffers_[LinearAllocatorType::kNumAllocatorTypes];
-	D3D12_COMMAND_LIST_TYPE type_;
+	ResourceBarrier resourceBarriers_[QueueType::Type::COUNT];
+
+	LinearAllocator currentDynamicBuffers_[QueueType::Type::COUNT][LinearAllocatorType::kNumAllocatorTypes];
+	LinearAllocator previousDynamicBuffers_[QueueType::Type::COUNT][LinearAllocatorType::kNumAllocatorTypes];
+
+	bool isFirstFrameComplete_;
 };

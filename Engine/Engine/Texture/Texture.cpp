@@ -82,6 +82,7 @@ void Texture::UploadTextureData(const DirectX::ScratchImage& mipImages) {
 	auto graphicsCore = GraphicsCore::GetInstance();
 	CommandContext commandContext;
 	commandContext.Create();
+	commandContext.Start();
 
 	std::vector<D3D12_SUBRESOURCE_DATA> subResources{};
 	DirectX::PrepareUpload(device, mipImages.GetImages(), mipImages.GetImageCount(), mipImages.GetMetadata(), subResources);
@@ -99,15 +100,15 @@ void Texture::UploadTextureData(const DirectX::ScratchImage& mipImages) {
 	);
 	intermediateResource.SetState(D3D12_RESOURCE_STATE_GENERIC_READ);
 	intermediateResource->SetName(L"intermediateResource");
-	commandContext.TransitionResource(*this, D3D12_RESOURCE_STATE_COPY_DEST);
+	commandContext.TransitionResource(QueueType::Type::DIRECT, *this, D3D12_RESOURCE_STATE_COPY_DEST);
 	commandContext.FlushResourceBarriers();
 
-	UpdateSubresources(commandContext, resource_.Get(), intermediateResource.GetResource(), 0, 0, UINT(subResources.size()), subResources.data());
+	UpdateSubresources(commandContext.GetCurrentCommandList(QueueType::Type::DIRECT), resource_.Get(), intermediateResource.GetResource(), 0, 0, UINT(subResources.size()), subResources.data());
 
-	commandContext.TransitionResource(*this, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+	commandContext.TransitionResource(QueueType::Type::DIRECT, *this, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 	commandContext.Close();
 	commandContext.Flush();
-	commandContext.End();
+	//commandContext.End();
 }
 
 void Texture::CreateView(const DirectX::TexMetadata& metadata) {

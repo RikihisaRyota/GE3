@@ -79,7 +79,7 @@ public:
 	void Finalize();
 	void Clear();
 	void Discard(const D3D12_COMMAND_LIST_TYPE& commandType, UINT64 fenceValue, const std::vector<LinearAllocationPage*>& pages);
-	LinearAllocationPage* Allocate();
+	LinearAllocationPage* Allocate(const D3D12_COMMAND_LIST_TYPE& commandType);
 private:
 	bool CheckAllocate(const D3D12_COMMAND_LIST_TYPE& commandType, LinearAllocationPage** page);
 	std::queue<std::pair<uint64_t, LinearAllocationPage*>>& GetPageQueue(D3D12_COMMAND_LIST_TYPE commandType);
@@ -87,9 +87,9 @@ private:
 
 	LinearAllocatorType type_;
 	std::vector<std::unique_ptr<LinearAllocationPage>> pagePool_;
-	std::queue<std::pair<uint64_t, LinearAllocationPage*> > directPageQueue_;
-	std::queue<std::pair<uint64_t, LinearAllocationPage*> > computePageQueue_;
-	std::queue<std::pair<uint64_t, LinearAllocationPage*> > copyPageQueue_;
+	std::queue<std::pair<uint64_t, LinearAllocationPage*>> directPageQueue_;
+	std::queue<std::pair<uint64_t, LinearAllocationPage*>> computePageQueue_;
+	std::queue<std::pair<uint64_t, LinearAllocationPage*>> copyPageQueue_;
 	std::mutex mutex_;
 };
 
@@ -98,7 +98,7 @@ public:
 
 	void Create(LinearAllocatorType Type);
 
-	DynAlloc Allocate(size_t size, size_t alignment = DEFAULT_ALIGN);
+	DynAlloc Allocate(const D3D12_COMMAND_LIST_TYPE& commandType, size_t size, size_t alignment = DEFAULT_ALIGN);
 
 	void Reset(D3D12_COMMAND_LIST_TYPE commandType, UINT64 fenceValue);
 	

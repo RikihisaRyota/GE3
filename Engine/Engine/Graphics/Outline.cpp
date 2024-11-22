@@ -95,23 +95,23 @@ void Outline::Render(CommandContext& commandContext, ColorBuffer& texture, Depth
 		Matrix4x4 tmp = Inverse(Mul(viewProjection.matView_, viewProjection.matProjection_));
 		inverseCameraBuffer_.Copy(&tmp, sizeof(Matrix4x4));
 
-		commandContext.TransitionResource(temporaryBuffer_, D3D12_RESOURCE_STATE_RENDER_TARGET);
+		commandContext.TransitionResource(QueueType::Type::DIRECT,temporaryBuffer_, D3D12_RESOURCE_STATE_RENDER_TARGET);
 		commandContext.SetRenderTarget(temporaryBuffer_.GetRTV());
 		commandContext.ClearColor(temporaryBuffer_);
 		commandContext.SetViewportAndScissorRect(0, 0, temporaryBuffer_.GetWidth(), temporaryBuffer_.GetHeight());
 
 		commandContext.SetGraphicsRootSignature(rootSignature_);
-		commandContext.SetPipelineState(pipelineState_);
+		commandContext.SetPipelineState(QueueType::Type::DIRECT, pipelineState_);
 
 		commandContext.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-		commandContext.TransitionResource(texture, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-		commandContext.TransitionResource(depth, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+		commandContext.TransitionResource(QueueType::Type::DIRECT, texture, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+		commandContext.TransitionResource(QueueType::Type::DIRECT, depth, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 		commandContext.SetGraphicsConstantBuffer(RootParameter::kInverseCamera, inverseCameraBuffer_.GetGPUVirtualAddress());
 		commandContext.SetGraphicsDescriptorTable(RootParameter::kTexture, texture.GetSRV());
 		commandContext.SetGraphicsDescriptorTable(RootParameter::kDepthTexture, depth.GetSRV());
 		commandContext.Draw(3);
 
-		commandContext.CopyBuffer(texture, temporaryBuffer_);
+		commandContext.CopyBuffer(QueueType::Type::DIRECT, texture, temporaryBuffer_);
 	}
 }

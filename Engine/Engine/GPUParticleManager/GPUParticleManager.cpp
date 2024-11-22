@@ -5,6 +5,7 @@
 
 #include <d3dx12.h>
 
+#include "Engine/ConvertString/ConvertString.h"
 #include "Engine/Graphics/CommandContext.h"
 #include "Engine/Graphics/GraphicsCore.h"
 #include "Engine/Graphics/Helper.h"
@@ -14,7 +15,6 @@
 #include "Engine/Texture/TextureManager.h"
 #include "Engine/ShderCompiler/ShaderCompiler.h"
 #include "Engine/Math/WorldTransform.h"
-
 
 namespace ParticleManager {
 
@@ -79,51 +79,52 @@ void GPUParticleManager::Update(const ViewProjection& viewProjection, CommandCon
 	randomBuffer_.Copy(&seed, sizeof(UINT));
 
 	commandContext.SetComputeRootSignature(*checkFieldRootSignature_);
-	commandContext.SetPipelineState(*checkFieldPipelineState_);
+	commandContext.SetPipelineState(QueueType::Type::COMPUTE, *checkFieldPipelineState_);
+
 	gpuParticle_->CheckField(commandContext);
 
 	commandContext.SetComputeRootSignature(*addFieldRootSignature_);
-	commandContext.SetPipelineState(*addFieldPipelineState_);
+	commandContext.SetPipelineState(QueueType::Type::COMPUTE, *addFieldPipelineState_);
 	gpuParticle_->AddField(commandContext);
 
 	commandContext.SetComputeRootSignature(*checkEmitterComputeRootSignature_);
-	commandContext.SetPipelineState(*checkEmitterComputePipelineState_);
+	commandContext.SetPipelineState(QueueType::Type::COMPUTE, *checkEmitterComputePipelineState_);
 	gpuParticle_->CheckEmitter(commandContext);
 
 	commandContext.SetComputeRootSignature(*addEmitterComputeRootSignature_);
-	commandContext.SetPipelineState(*addEmitterComputePipelineState_);
+	commandContext.SetPipelineState(QueueType::Type::COMPUTE, *addEmitterComputePipelineState_);
 	gpuParticle_->AddEmitter(commandContext);
 
 	commandContext.SetComputeRootSignature(*emitterUpdateComputeRootSignature_);
-	commandContext.SetPipelineState(*emitterUpdateComputePipelineState_);
+	commandContext.SetPipelineState(QueueType::Type::COMPUTE, *emitterUpdateComputePipelineState_);
 	gpuParticle_->UpdateEmitter(commandContext);
 
 	commandContext.SetComputeRootSignature(*spawnComputeRootSignature_);
-	commandContext.SetPipelineState(*spawnComputePipelineState_);
+	commandContext.SetPipelineState(QueueType::Type::COMPUTE, *spawnComputePipelineState_);
 	gpuParticle_->Spawn(commandContext, randomBuffer_);
 
 	commandContext.SetComputeRootSignature(*updateComputeRootSignature_);
-	commandContext.SetPipelineState(*updateComputePipelineState_);
+	commandContext.SetPipelineState(QueueType::Type::COMPUTE, *updateComputePipelineState_);
 	gpuParticle_->ParticleUpdate(viewProjection, commandContext);
 
 	commandContext.SetComputeRootSignature(*updateTrailsRootSignature_);
-	commandContext.SetPipelineState(*updateTrailsPipelineState_);
+	commandContext.SetPipelineState(QueueType::Type::COMPUTE, *updateTrailsPipelineState_);
 	gpuParticle_->UpdateTrails(viewProjection, commandContext);
 
 	commandContext.SetComputeRootSignature(*addVertexTrailsRootSignature_);
-	commandContext.SetPipelineState(*addVertexTrailsPipelineState_);
+	commandContext.SetPipelineState(QueueType::Type::COMPUTE, *addVertexTrailsPipelineState_);
 	gpuParticle_->AddTrailsVertex(commandContext);
 
 	commandContext.SetComputeRootSignature(*bulletRootSignature_);
-	commandContext.SetPipelineState(*bulletPipelineState_);
+	commandContext.SetPipelineState(QueueType::Type::COMPUTE, *bulletPipelineState_);
 	gpuParticle_->BulletUpdate(commandContext, randomBuffer_);
 
 	commandContext.SetComputeRootSignature(*updateFieldRootSignature_);
-	commandContext.SetPipelineState(*updateFieldPipelineState_);
+	commandContext.SetPipelineState(QueueType::Type::COMPUTE, *updateFieldPipelineState_);
 	gpuParticle_->UpdateField(commandContext);
 
 	commandContext.SetComputeRootSignature(*collisionFieldRootSignature_);
-	commandContext.SetPipelineState(*collisionFieldPipelineState_);
+	commandContext.SetPipelineState(QueueType::Type::COMPUTE, *collisionFieldPipelineState_);
 	gpuParticle_->CollisionField(commandContext, randomBuffer_);
 
 }
@@ -135,7 +136,7 @@ void GPUParticleManager::Draw(const ViewProjection& viewProjection, CommandConte
 	//commandContext.SetRenderTarget(RenderManager::GetInstance()->GetMainColorBuffer().GetRTV(), RenderManager::GetInstance()->GetMainDepthBuffer().GetReadOnlyDSV());
 
 	commandContext.SetGraphicsRootSignature(*graphicsRootSignature_);
-	commandContext.SetPipelineState(*graphicsPipelineState_);
+	commandContext.SetPipelineState(QueueType::Type::DIRECT, *graphicsPipelineState_);
 
 	commandContext.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	struct Vertex {
@@ -158,12 +159,12 @@ void GPUParticleManager::Draw(const ViewProjection& viewProjection, CommandConte
 	gpuParticle_->Draw(viewProjection, commandContext);
 
 	commandContext.SetGraphicsRootSignature(*tailsGraphicsRootSignature_);
-	commandContext.SetPipelineState(*tailsGraphicsPipelineState_);
+	commandContext.SetPipelineState(QueueType::Type::DIRECT, *tailsGraphicsPipelineState_);
 
 	commandContext.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	gpuParticle_->DrawTrails(viewProjection, commandContext);
-	commandContext.TransitionResource(RenderManager::GetInstance()->GetMainDepthBuffer(), D3D12_RESOURCE_STATE_DEPTH_WRITE);
+	commandContext.TransitionResource(QueueType::Type::DIRECT, RenderManager::GetInstance()->GetMainDepthBuffer(), D3D12_RESOURCE_STATE_DEPTH_WRITE);
 	commandContext.FlushResourceBarriers();
 }
 
@@ -686,7 +687,7 @@ void GPUParticleManager::CreateUpdateTrails() {
 		stockRange[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 0, 0);
 		CD3DX12_DESCRIPTOR_RANGE counterRange[1]{};
 		counterRange[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 1, 0);
-	
+
 
 		CD3DX12_ROOT_PARAMETER rootParameters[UpdateParticle::kCount]{};
 		rootParameters[UpdateParticle::kStock].InitAsDescriptorTable(_countof(stockRange), stockRange);
@@ -853,7 +854,7 @@ void GPUParticleManager::CreateUpdateTrails() {
 		desc.RasterizerState = Helper::RasterizerNoCull;
 		desc.NumRenderTargets = 1;
 		desc.RTVFormats[0] = RenderManager::GetInstance()->GetRenderTargetFormat();
-		//desc.DSVFormat = RenderManager::GetInstance()->GetDepthFormat();
+		desc.DSVFormat = RenderManager::GetInstance()->GetDepthFormat();
 		desc.SampleMask = D3D12_DEFAULT_SAMPLE_MASK;
 		desc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 		desc.SampleDesc.Count = 1;

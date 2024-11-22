@@ -72,29 +72,29 @@ void GaussianFilter::Initialize(const ColorBuffer& target) {
 	}
 }
 
-void GaussianFilter::Render(CommandContext& commandContext,ColorBuffer& target) {
+void GaussianFilter::Render(CommandContext& commandContext, ColorBuffer& target) {
 	// 水平方向
-	commandContext.CopyBuffer(originalTexture_,target);
-	commandContext.TransitionResource(originalTexture_, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-	commandContext.TransitionResource(horizontalBuffer_, D3D12_RESOURCE_STATE_RENDER_TARGET);
+	commandContext.CopyBuffer(QueueType::Type::DIRECT, originalTexture_, target);
+	commandContext.TransitionResource(QueueType::Type::DIRECT, originalTexture_, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+	commandContext.TransitionResource(QueueType::Type::DIRECT, horizontalBuffer_, D3D12_RESOURCE_STATE_RENDER_TARGET);
 	commandContext.SetRenderTarget(horizontalBuffer_.GetRTV());
 	commandContext.ClearColor(horizontalBuffer_);
 	commandContext.SetViewportAndScissorRect(0, 0, horizontalBuffer_.GetWidth(), horizontalBuffer_.GetHeight());
 
 	commandContext.SetGraphicsRootSignature(rootSignature_);
-	commandContext.SetPipelineState(horizontalPipelineState_);
+	commandContext.SetPipelineState(QueueType::Type::DIRECT, horizontalPipelineState_);
 	commandContext.SetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	commandContext.SetGraphicsDescriptorTable(0, originalTexture_.GetSRV());
 	commandContext.Draw(3);
 
-	commandContext.TransitionResource(horizontalBuffer_, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-	commandContext.TransitionResource(verticalBuffer_, D3D12_RESOURCE_STATE_RENDER_TARGET);
+	commandContext.TransitionResource(QueueType::Type::DIRECT, horizontalBuffer_, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+	commandContext.TransitionResource(QueueType::Type::DIRECT, verticalBuffer_, D3D12_RESOURCE_STATE_RENDER_TARGET);
 	commandContext.ClearColor(verticalBuffer_);
 	commandContext.SetRenderTarget(verticalBuffer_.GetRTV());
 	commandContext.SetViewportAndScissorRect(0, 0, verticalBuffer_.GetWidth(), verticalBuffer_.GetHeight());
 
 	commandContext.SetGraphicsRootSignature(rootSignature_);
-	commandContext.SetPipelineState(verticalPipelineState_);
+	commandContext.SetPipelineState(QueueType::Type::DIRECT, verticalPipelineState_);
 	commandContext.SetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	commandContext.SetGraphicsDescriptorTable(0, horizontalBuffer_.GetSRV());
 	commandContext.Draw(3);

@@ -568,7 +568,7 @@ void ImGuiManager::NewFrame() {
 void ImGuiManager::Render(CommandContext& commandContext) {
 #ifdef ENABLE_IMGUI
 	ImGui::Render();
-	ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), commandContext);
+	ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), commandContext.GetCurrentCommandList(QueueType::Type::DIRECT));
 #else
 	commandContext;
 #endif // ENABLE_IMGUI

@@ -132,15 +132,15 @@ void Bloom::Render(CommandContext& commandContext, ColorBuffer& texture) {
 		return;
 	}
 	// 輝度摘出
-	commandContext.CopyBuffer(originalBuffer_, texture);
-	commandContext.TransitionResource(originalBuffer_, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-	commandContext.TransitionResource(luminanceBuffer_, D3D12_RESOURCE_STATE_RENDER_TARGET);
+	commandContext.CopyBuffer(QueueType::Type::DIRECT, originalBuffer_, texture);
+	commandContext.TransitionResource(QueueType::Type::DIRECT, originalBuffer_, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+	commandContext.TransitionResource(QueueType::Type::DIRECT, luminanceBuffer_, D3D12_RESOURCE_STATE_RENDER_TARGET);
 	commandContext.SetRenderTarget(luminanceBuffer_.GetRTV());
 	commandContext.ClearColor(luminanceBuffer_);
 	commandContext.SetViewportAndScissorRect(0, 0, luminanceBuffer_.GetWidth(), luminanceBuffer_.GetHeight());
 
 	commandContext.SetGraphicsRootSignature(luminanceRootSignature_);
-	commandContext.SetPipelineState(luminancePipelineState_);
+	commandContext.SetPipelineState(QueueType::Type::DIRECT, luminancePipelineState_);
 	commandContext.SetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	commandContext.SetGraphicsDescriptorTable(0, originalBuffer_.GetSRV());
 	commandContext.SetGraphicsDynamicConstantBufferView(1, sizeof(desc_), &desc_);
@@ -150,23 +150,23 @@ void Bloom::Render(CommandContext& commandContext, ColorBuffer& texture) {
 	for (uint32_t i = 1; i < kMaxLevel; i++) {
 		gaussianFilter_[i].Render(commandContext, gaussianFilter_[i - 1].GetColorBuffer());
 	}
-	commandContext.TransitionResource(originalBuffer_, D3D12_RESOURCE_STATE_RENDER_TARGET);
+	commandContext.TransitionResource(QueueType::Type::DIRECT, originalBuffer_, D3D12_RESOURCE_STATE_RENDER_TARGET);
 	commandContext.SetRenderTarget(originalBuffer_.GetRTV());
 	commandContext.ClearColor(originalBuffer_);
 	commandContext.SetViewportAndScissorRect(0, 0, originalBuffer_.GetWidth(), originalBuffer_.GetHeight());
 
 	commandContext.SetGraphicsRootSignature(bloomRootSignature_);
-	commandContext.SetPipelineState(bloomPipelineState_);
+	commandContext.SetPipelineState(QueueType::Type::DIRECT, bloomPipelineState_);
 
 	commandContext.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	for (uint32_t i = 0; i < kMaxLevel; i++) {
-		commandContext.TransitionResource(gaussianFilter_[i].GetColorBuffer(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+		commandContext.TransitionResource(QueueType::Type::DIRECT, gaussianFilter_[i].GetColorBuffer(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 		commandContext.SetGraphicsDescriptorTable(i, gaussianFilter_[i].GetColorBuffer().GetSRV());
 	}
 	commandContext.SetGraphicsDescriptorTable(kMaxLevel, texture.GetSRV());
 	commandContext.Draw(3);
 
-	commandContext.CopyBuffer(texture, originalBuffer_);
+	commandContext.CopyBuffer(QueueType::Type::DIRECT, texture, originalBuffer_);
 }
 
 void Bloom::Debug() {

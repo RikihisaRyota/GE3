@@ -3,26 +3,26 @@
 #include <assert.h>
 #include <thread>
 
+#include <sstream>
+#include <iomanip>
+
+#include "Engine/ConvertString/ConvertString.h"
 #include "CommandContext.h"
 #include "GraphicsCore.h"
 #include "CommandListManager.h"
 
-CommandQueue::CommandQueue(D3D12_COMMAND_LIST_TYPE Type) :
-	type_(Type),
-	commandQueue_(nullptr),
-	fence_(nullptr),
-	nextFenceValue_((uint64_t)Type << 56 | 1),
-	lastCompletedFenceValue_((uint64_t)Type << 56),
-	allocatorPool_(Type) {}
+CommandQueue::CommandQueue(D3D12_COMMAND_LIST_TYPE Type)
+	: type_(Type), commandQueue_(nullptr), allocatorPool_(Type) {
+	lastCompletedFenceValue_ = 0;
+}
 
 CommandQueue::~CommandQueue() {
-	Shutdown();
+	//Shutdown();
 }
 
 void CommandQueue::Create() {
 	HRESULT hr = S_FALSE;
 	auto device = GraphicsCore::GetInstance()->GetDevice();
-
 	// コマンドリストキューを作成
 	D3D12_COMMAND_QUEUE_DESC commandQueueDesc{};
 	commandQueueDesc.Type = type_;
@@ -33,56 +33,82 @@ void CommandQueue::Create() {
 		IID_PPV_ARGS(&commandQueue_));
 	assert(SUCCEEDED(hr));
 
-	// フェンスを作成
-	hr = device->CreateFence(
-		0,
-		D3D12_FENCE_FLAG_NONE,
-		IID_PPV_ARGS(&fence_)
-	);
-	assert(SUCCEEDED(hr));
-	fence_->SetName(L"Fence");
-	fence_->Signal((uint64_t)type_ << 56);
-
-	// フェンスイベントを作成
-	fenceEventHandle_ = CreateEvent(nullptr, FALSE, FALSE, nullptr);
-	assert(fenceEventHandle_ != nullptr);
-
 	assert(IsReady());
 }
 
-uint64_t CommandQueue::IncrementFence(void) {
+uint64_t CommandQueue::IncrementFence(ID3D12Fence* fence) {
 	std::lock_guard<std::mutex> LockGuard(fenceMutex_);
-	commandQueue_->Signal(fence_.Get(), nextFenceValue_);
-	return nextFenceValue_++;
+	commandQueue_->Signal(fence, ++currentSignalValue_);
+	return currentSignalValue_;
 }
 
-bool CommandQueue::IsFenceComplete(uint64_t FenceValue) {
+void CommandQueue::StallForFence(ID3D12Fence* fence, uint64_t FenceValue) {
+	CommandQueue& Producer = CommandListManager().GetQueue((D3D12_COMMAND_LIST_TYPE)(FenceValue >> 56));
+	commandQueue_->Wait(fence, FenceValue);
+}
+
+bool CommandQueue::IsFenceComplete(ID3D12Fence* fence, uint64_t FenceValue) {
 	if (FenceValue > lastCompletedFenceValue_)
-		lastCompletedFenceValue_ = (std::max)(lastCompletedFenceValue_, fence_->GetCompletedValue());
+		lastCompletedFenceValue_ = (std::max)(lastCompletedFenceValue_, fence->GetCompletedValue());
 
 	return FenceValue <= lastCompletedFenceValue_;
 }
 
-void CommandQueue::StallForFence(uint64_t FenceValue) {
-	CommandQueue& Producer = CommandListManager().GetQueue((D3D12_COMMAND_LIST_TYPE)(FenceValue >> 56));
-	commandQueue_->Wait(Producer.fence_.Get(), FenceValue);
-}
+void CommandQueue::WaitForFence(ID3D12Fence* fence, const HANDLE& handle, uint64_t FenceValue) {
+	if (IsFenceComplete(fence, FenceValue)) {
+		std::string s;
+		switch (type_) {
+		case D3D12_COMMAND_LIST_TYPE_DIRECT:
+			s = "DIRECT";
+			break;
+		case D3D12_COMMAND_LIST_TYPE_COMPUTE:
+			s = "COMPUTE";
+			break;
+		case D3D12_COMMAND_LIST_TYPE_COPY:
+			s = "COPY";
+			break;
+		default:
+			break;
+		}
+		std::string t;
 
-void CommandQueue::StallForProducer(CommandQueue& Producer) {
-	assert(Producer.nextFenceValue_ > 0);
-	commandQueue_->Wait(Producer.fence_.Get(), Producer.nextFenceValue_ - 1);
-}
-
-void CommandQueue::WaitForFence(uint64_t FenceValue) {
-	if (IsFenceComplete(FenceValue)) {
+		std::stringstream ss;
+		ss
+			<< std::setw(10) << std::left << s
+			<< std::setw(15) << std::left << "CompleteFence"
+			<< std::setw(15) << std::left << "currentValue : " << std::to_string(FenceValue)
+			<< std::setw(10) << std::left << "lastCompletedFenceValue : " << lastCompletedFenceValue_;
+		Log(ss.str() + "\n");
 		return;
 	}
 	{
 		std::lock_guard<std::mutex> LockGuard(eventMutex_);
 
-		fence_->SetEventOnCompletion(FenceValue, fenceEventHandle_);
-		WaitForSingleObject(fenceEventHandle_, INFINITE);
+		fence->SetEventOnCompletion(FenceValue, handle);
+		WaitForSingleObject(handle, INFINITE);
 		lastCompletedFenceValue_ = FenceValue;
+		std::string s;
+		switch (type_) {
+		case D3D12_COMMAND_LIST_TYPE_DIRECT:
+			s = "DIRECT";
+			break;
+		case D3D12_COMMAND_LIST_TYPE_COMPUTE:
+			s = "COMPUTE";
+			break;
+		case D3D12_COMMAND_LIST_TYPE_COPY:
+			s = "COPY";
+			break;
+		default:
+			break;
+		}
+
+		std::stringstream ss;
+		ss
+			<< std::setw(10) << std::left << s
+			<< std::setw(15) << std::left << "CompleteFence"
+			<< std::setw(15) << std::left << "currentValue : " << std::to_string(FenceValue)
+			<< std::setw(10) << std::left << "lastCompletedFenceValue : " << lastCompletedFenceValue_;
+		Log(ss.str() + "\n");
 	}
 }
 
@@ -113,14 +139,12 @@ void CommandQueue::UpdateFixFPS() {
 	}
 }
 
-void CommandQueue::Shutdown() {
+void CommandQueue::Shutdown(ID3D12Fence* fence, const HANDLE& handle) {
 	if (commandQueue_ == nullptr)
 		return;
-	WaitForIdle();
+	WaitForIdle(fence, handle);
 	//allocatorPool_.Shutdown();
 
-	CloseHandle(fenceEventHandle_);
-	fenceEventHandle_ = nullptr;
 	//fence_->Release();
 	//fence_ = nullptr;
 
@@ -128,18 +152,40 @@ void CommandQueue::Shutdown() {
 	//commandQueue_ = nullptr;
 }
 
-uint64_t CommandQueue::ExecuteCommandList(ID3D12CommandList* List) {
+void CommandQueue::ExecuteCommandList(ID3D12CommandList* List, const std::string& fenceType) {
 	std::lock_guard<std::mutex> LockGuard(fenceMutex_);
 
 	commandQueue_->ExecuteCommandLists(1, &List);
 
-	commandQueue_->Signal(fence_.Get(), nextFenceValue_);
-
-	return nextFenceValue_++;
+	std::stringstream ss;
+	ss << fenceType
+		<< std::setw(15) << std::left << "ExeCute ";
+	Log(ss.str() + "\n");
 }
 
-Microsoft::WRL::ComPtr<ID3D12CommandAllocator> CommandQueue::RequestAllocator(void) {
-	uint64_t CompletedFence = fence_->GetCompletedValue();
+void CommandQueue::Wait(ID3D12Fence* fence, uint64_t& value, const std::string& fenceType) {
+	commandQueue_->Wait(fence, value);
+	std::stringstream ss;
+	ss << fenceType
+		<< std::setw(15) << std::left << "Wait "
+		<< std::setw(10) << std::left << "value :"
+		<< std::to_string(value); 
+	Log(ss.str() + "\n");
+}
+
+void CommandQueue::Signal(ID3D12Fence* fence, uint64_t& value, const std::string& fenceType) {
+	commandQueue_->Signal(fence, ++value);
+	std::stringstream ss;
+	ss << fenceType
+		<< std::setw(15) << std::left << "Signal"
+		<< std::setw(10) << std::left << "value :"
+		<< std::to_string(value);
+	Log(ss.str() + "\n");
+
+}
+
+Microsoft::WRL::ComPtr<ID3D12CommandAllocator> CommandQueue::RequestAllocator(ID3D12Fence* fence) {
+	uint64_t CompletedFence = fence->GetCompletedValue();
 
 	return allocatorPool_.Allocate(CompletedFence);
 }
@@ -154,31 +200,85 @@ CommandListManager::CommandListManager() :
 	copyQueue_(D3D12_COMMAND_LIST_TYPE_COPY) {}
 
 CommandListManager::~CommandListManager() {
-	graphicsQueue_.Shutdown();
-	computeQueue_.Shutdown();
-	copyQueue_.Shutdown();
+	Shutdown();
+}
+
+void CommandListManager::Shutdown() {
+	graphicsQueue_.Shutdown(frameFenceDesc_.fence.Get(), frameFenceDesc_.fenceEventHandle);
+	computeQueue_.Shutdown(frameFenceDesc_.fence.Get(), frameFenceDesc_.fenceEventHandle);
+	copyQueue_.Shutdown(frameFenceDesc_.fence.Get(), frameFenceDesc_.fenceEventHandle);
+	for (uint32_t i = 0; i < QueueType::Type::Param::COUNT; i++) {
+		graphicsQueue_.Shutdown(queueFenceDesc_[i].fence.Get(), queueFenceDesc_[i].fenceEventHandle);
+		computeQueue_.Shutdown(queueFenceDesc_[i].fence.Get(), queueFenceDesc_[i].fenceEventHandle);
+		copyQueue_.Shutdown(queueFenceDesc_[i].fence.Get(), queueFenceDesc_[i].fenceEventHandle);
+
+		CloseHandle(queueFenceDesc_[i].fenceEventHandle);
+		CloseHandle(frameFenceDesc_.fenceEventHandle);
+		queueFenceDesc_[i].fenceEventHandle = nullptr;
+		frameFenceDesc_.fenceEventHandle = nullptr;
+	}
 }
 
 void CommandListManager::Create() {
-
 	graphicsQueue_.Create();
 	computeQueue_.Create();
 	copyQueue_.Create();
+	CreateFence();
 }
 
-void CommandListManager::CreateNewCommandList(D3D12_COMMAND_LIST_TYPE Type, ID3D12GraphicsCommandList** List, ID3D12CommandAllocator** Allocator) {
-	assert(Type != D3D12_COMMAND_LIST_TYPE_BUNDLE);
-	switch (Type) {
-	case D3D12_COMMAND_LIST_TYPE_DIRECT: *Allocator = graphicsQueue_.RequestAllocator().Get(); break;
-	case D3D12_COMMAND_LIST_TYPE_BUNDLE: break;
-	case D3D12_COMMAND_LIST_TYPE_COMPUTE: *Allocator = computeQueue_.RequestAllocator().Get(); break;
-	case D3D12_COMMAND_LIST_TYPE_COPY: *Allocator = copyQueue_.RequestAllocator().Get(); break;
+//void CommandListManager::CreateNewCommandList(D3D12_COMMAND_LIST_TYPE Type, ID3D12GraphicsCommandList** List, ID3D12CommandAllocator** Allocator) {
+//	assert(Type != D3D12_COMMAND_LIST_TYPE_BUNDLE);
+//	switch (Type) {
+//	case D3D12_COMMAND_LIST_TYPE_DIRECT: *Allocator = graphicsQueue_.RequestAllocator(fenceDesc_.fence.Get()).Get(); break;
+//	case D3D12_COMMAND_LIST_TYPE_BUNDLE: break;
+//	case D3D12_COMMAND_LIST_TYPE_COMPUTE: *Allocator = computeQueue_.RequestAllocator(fenceDesc_.fence.Get()).Get(); break;
+//	case D3D12_COMMAND_LIST_TYPE_COPY: *Allocator = copyQueue_.RequestAllocator(fenceDesc_.fence.Get()).Get(); break;
+//	}
+//	assert(SUCCEEDED(GraphicsCore::GetInstance()->GetDevice()->CreateCommandList(1, Type, *Allocator, nullptr, IID_PPV_ARGS(List))));
+//	(*List)->SetName(L"CommandList");
+//}
+
+//void CommandListManager::WaitForFence(uint64_t FenceValue) {
+//	CommandQueue& Producer = GetQueue((D3D12_COMMAND_LIST_TYPE)(FenceValue >> 56));
+//	Producer.WaitForFence(fenceDesc_.fence.Get(), fenceDesc_.fenceEventHandle, fenceDesc_.fenceValue);
+//}
+
+void CommandListManager::CreateFence() {
+	auto device = GraphicsCore::GetInstance()->GetDevice();
+	for (uint32_t i = 0; i < QueueType::Type::COUNT + 1; i++) {
+		if (i < QueueType::Type::COUNT) {
+			queueFenceDesc_[i].fenceValue = 0;
+			// フェンスを作成
+			auto hr = device->CreateFence(
+				0,
+				D3D12_FENCE_FLAG_NONE,
+				IID_PPV_ARGS(&queueFenceDesc_[i].fence)
+			);
+			assert(SUCCEEDED(hr));
+
+			// フェンスイベントを作成
+			queueFenceDesc_[i].fenceEventHandle = CreateEvent(nullptr, FALSE, FALSE, nullptr);
+			assert(queueFenceDesc_[i].fenceEventHandle != nullptr);
+			queueFenceDesc_[i].fence->Signal(queueFenceDesc_[i].fenceValue);
+		}
+		else {
+			frameFenceDesc_.fenceValue = 0;
+			// フェンスを作成
+			auto hr = device->CreateFence(
+				0,
+				D3D12_FENCE_FLAG_NONE,
+				IID_PPV_ARGS(&frameFenceDesc_.fence)
+			);
+			assert(SUCCEEDED(hr));
+
+			// フェンスイベントを作成
+			frameFenceDesc_.fenceEventHandle = CreateEvent(nullptr, FALSE, FALSE, nullptr);
+			assert(frameFenceDesc_.fenceEventHandle != nullptr);
+			frameFenceDesc_.fence->Signal(frameFenceDesc_.fenceValue);
+		}
 	}
-	assert(SUCCEEDED(GraphicsCore::GetInstance()->GetDevice()->CreateCommandList(1, Type, *Allocator, nullptr, IID_PPV_ARGS(List))));
-	(*List)->SetName(L"CommandList");
-}
-
-void CommandListManager::WaitForFence(uint64_t FenceValue) {
-	CommandQueue& Producer = GetQueue((D3D12_COMMAND_LIST_TYPE)(FenceValue >> 56));
-	Producer.WaitForFence(FenceValue);
+	queueFenceDesc_[QueueType::Type::COPY].fence->SetName(L"CopyQueueFence");
+	queueFenceDesc_[QueueType::Type::COMPUTE].fence->SetName(L"ComputeQueueFence");
+	queueFenceDesc_[QueueType::Type::DIRECT].fence->SetName(L"DirectQueueFence");
+	frameFenceDesc_.fence->SetName(L"FrameQueueFence");
 }

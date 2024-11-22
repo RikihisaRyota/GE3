@@ -13,12 +13,12 @@
 #include "Engine/Math/MyMath.h"
 
 namespace {
-		enum Param {
-			kWorldTransform,
-			kViewProjection,
-			kTexture,
-			kCount,
-		};
+	enum Param {
+		kWorldTransform,
+		kViewProjection,
+		kTexture,
+		kCount,
+	};
 }
 
 Skybox::Skybox() {
@@ -63,8 +63,8 @@ Skybox::Skybox() {
 		desc.PS = CD3DX12_SHADER_BYTECODE(ps->GetBufferPointer(), ps->GetBufferSize());
 		desc.BlendState = Helper::BlendAlpha;
 		desc.DepthStencilState.DepthEnable = true;
-		desc.DepthStencilState.DepthWriteMask= D3D12_DEPTH_WRITE_MASK_ZERO;
-		desc.DepthStencilState.DepthFunc= D3D12_COMPARISON_FUNC_LESS_EQUAL;
+		desc.DepthStencilState.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
+		desc.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
 		desc.RasterizerState = Helper::RasterizerDefault;
 		desc.NumRenderTargets = 1;
 		desc.RTVFormats[0] = RenderManager::GetInstance()->GetRenderTargetFormat();
@@ -126,7 +126,7 @@ Skybox::Skybox() {
 		};
 
 
-		vertBuff_.Create(L"SkyboxVertexBuffer", vertices_.size()*sizeof(Vector4));
+		vertBuff_.Create(L"SkyboxVertexBuffer", vertices_.size() * sizeof(Vector4));
 		// 頂点バッファビューの作成
 		vbView_.BufferLocation = vertBuff_->GetGPUVirtualAddress();
 		vbView_.SizeInBytes = UINT(vertices_.size() * sizeof(Vector4));
@@ -136,7 +136,7 @@ Skybox::Skybox() {
 	{
 		textureHandle_ = TextureManager::GetInstance()->Load("Resources/Images/Skybox/rostock_laage_airport_4k.dds");
 		worldTransform_.Initialize();
-		
+
 		worldTransform_.UpdateMatrix();
 	}
 }
@@ -154,7 +154,7 @@ void Skybox::Update() {
 
 void Skybox::Draw(CommandContext& commandContext, const ViewProjection& viewProjection) {
 	commandContext.SetGraphicsRootSignature(*rootSignature_);
-	commandContext.SetPipelineState(*pipelineState_);
+	commandContext.SetPipelineState(QueueType::Type::DIRECT, *pipelineState_);
 
 	commandContext.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 

@@ -9,7 +9,7 @@ GPUParticleについて研究していてComputeShaderを使用しGPU上でSpwn,
 * エンジン側で当たり判定の実装。（AABB,Sphere,OBB,Capsule）
 * ライティングの実装
 ## 注目してほしいところ
-GPUParticleに力を入れていてParticleを出せるだけでなくエディターを充実させることで楽にパーティクルを実装できるようにしました。\
+GPUParticleに力を入れていてParticleを出せるだけでなくエディターを充実させることで楽にパーティクルを実装できるようにしました。
 ### GPUParticle機能紹介
 #### エミッター
 様々な形状のエミッターでパーティクルを発生できます
@@ -21,7 +21,7 @@ GPUParticleに力を入れていてParticleを出せるだけでなくエディ�
   ![capsule](https://github.com/user-attachments/assets/9ed6aee4-e645-444c-860d-2febb512ff54)
 * モデルの頂点\
   ![image](https://github.com/user-attachments/assets/526d9122-cffe-4d05-be91-51fcd9f2a134)
-* モデルのメッシュ\
+* メッシュ\
 ![image](https://github.com/user-attachments/assets/1808c076-29bc-4cd2-add1-ad110c2bea45)
 その他のパーティクルの速度やスケール寿命などのパラメーターも調整できます。\
 ![emitter](https://github.com/user-attachments/assets/79097d46-94bd-4aed-84b4-e57afffaa368)
@@ -50,3 +50,4 @@ GPUParticleに力を入れていてParticleを出せるだけでなくエディ�
 GPUParticleを使用したボスとプレイヤーとの一対一の3Dシューティングゲームです。\
 研究しているGPUParticleを大量に使いボスの形態変化や攻撃のパーティクルに注目してください。
 ![GameScene](https://github.com/user-attachments/assets/62440a37-9832-49e3-b625-39a50e1586b5)
+

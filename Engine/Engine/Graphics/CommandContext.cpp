@@ -16,6 +16,7 @@
 #include "CommandSignature.h"
 #include "CommandListManager.h"
 
+
 void CommandContext::Create() {
 	auto device = GraphicsCore::GetInstance()->GetDevice();
 	auto graphics = GraphicsCore::GetInstance();

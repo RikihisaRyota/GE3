@@ -23,7 +23,7 @@ public:
 	friend class CommandContext;
 	CommandQueue(D3D12_COMMAND_LIST_TYPE Type);
 	~CommandQueue();
-	void Create();
+	void Create(const std::wstring& name);
 	void Shutdown(ID3D12Fence* fence, const HANDLE& handle);
 
 	inline bool IsReady() {
@@ -106,8 +106,11 @@ public:
 	}
 
 	FenceDesc& GetQueueFenceDesc(const QueueType::Type::Param& type) { return queueFenceDesc_[type]; }
-	std::array<FenceDesc, QueueType::Type::Param::COUNT>& GetAllQueueFenceDesc() { return queueFenceDesc_; }
-	FenceDesc& GetFrameFenceDesc() { return frameFenceDesc_; }
+	//std::array<FenceDesc, QueueType::Type::Param::COUNT>& GetAllQueueFence() { return queueFenceDesc_; }
+	FenceDesc& GetCopyQueueFence() { return queueFenceDesc_[QueueType::Type::Param::COPY]; }
+	FenceDesc& GetComputeQueueFence() { return queueFenceDesc_[QueueType::Type::Param::COMPUTE]; }
+	FenceDesc& GetDirectQueueFence() { return queueFenceDesc_[QueueType::Type::Param::DIRECT]; }
+	FenceDesc& GetFrameFence() { return frameFenceDesc_; }
 private:
 	void CreateFence();
 

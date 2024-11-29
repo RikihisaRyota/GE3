@@ -80,7 +80,6 @@ void GPUParticleManager::Update(const ViewProjection& viewProjection, CommandCon
 
 	commandContext.SetComputeRootSignature(*checkFieldRootSignature_);
 	commandContext.SetPipelineState(QueueType::Type::COMPUTE, *checkFieldPipelineState_);
-
 	gpuParticle_->CheckField(commandContext);
 
 	commandContext.SetComputeRootSignature(*addFieldRootSignature_);

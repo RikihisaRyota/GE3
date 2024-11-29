@@ -130,7 +130,7 @@ void GameScene::Update(CommandContext& commandContext) {
 		}
 	}
 
-	//gpuParticleManager_->Update(*viewProjection_, commandContext);
+	gpuParticleManager_->Update(*viewProjection_, commandContext);
 
 	CollisionManager::GetInstance()->Collision();
 #ifdef _DEBUG

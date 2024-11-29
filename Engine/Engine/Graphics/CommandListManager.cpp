@@ -20,7 +20,7 @@ CommandQueue::~CommandQueue() {
 	//Shutdown();
 }
 
-void CommandQueue::Create() {
+void CommandQueue::Create(const std::wstring& name) {
 	HRESULT hr = S_FALSE;
 	auto device = GraphicsCore::GetInstance()->GetDevice();
 	// コマンドリストキューを作成
@@ -32,6 +32,7 @@ void CommandQueue::Create() {
 		&commandQueueDesc,
 		IID_PPV_ARGS(&commandQueue_));
 	assert(SUCCEEDED(hr));
+	commandQueue_->SetName(name.c_str());
 
 	assert(IsReady());
 }
@@ -220,9 +221,9 @@ void CommandListManager::Shutdown() {
 }
 
 void CommandListManager::Create() {
-	graphicsQueue_.Create();
-	computeQueue_.Create();
-	copyQueue_.Create();
+	graphicsQueue_.Create(L"DIRECT");
+	computeQueue_.Create(L"COMPUTE");
+	copyQueue_.Create(L"COPY");
 	CreateFence();
 }
 

@@ -20,7 +20,7 @@ namespace SamplerManager {
         samplerDesc.Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
         samplerDesc.MipLODBias = D3D12_DEFAULT_MIP_LOD_BIAS;
         samplerDesc.MaxAnisotropy = D3D12_DEFAULT_MAX_ANISOTROPY;
-        samplerDesc.ComparisonFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
+        //samplerDesc.ComparisonFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
         samplerDesc.BorderColor[0] = 0.0f;
         samplerDesc.BorderColor[1] = 0.0f;
         samplerDesc.BorderColor[2] = 0.0f;

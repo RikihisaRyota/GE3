@@ -67,33 +67,46 @@ void CommandContext::Create() {
 }
 
 void CommandContext::StartFrame() {
+	static int frameCount = 0;
 	auto graphics = GraphicsCore::GetInstance();
 
-	auto& allFence = graphics->GetCommandListManager().GetAllQueueFenceDesc();
-	auto& frameFenceDesc = graphics->GetCommandListManager().GetFrameFenceDesc();
+	// Queueを取得
+	auto& copyQueue = graphics->GetCommandQueue(GetType(QueueType::Type::Param::COPY));
+	auto& computeQueue = graphics->GetCommandQueue(GetType(QueueType::Type::Param::COMPUTE));
+	auto& directQueue = graphics->GetCommandQueue(GetType(QueueType::Type::Param::DIRECT));
+
+	// CopyQueue
+	auto queueType = QueueType::Type::Param::COPY;
+	auto& copyQueueFence = graphics->GetCommandListManager().GetCopyQueueFence();
+
+	copyQueue.ExecuteCommandList(currentCommandList_[queueType].Get(), QueueType::GetTypeString(queueType));
+	// Signal発行
+	copyQueue.Signal(copyQueueFence.fence.Get(), copyQueueFence.fenceValue, QueueType::GetTypeString(queueType));
+	// DirectにWaitを発行
+	directQueue.Wait(copyQueueFence.fence.Get(), copyQueueFence.fenceValue, QueueType::GetTypeString(QueueType::Type::Param::DIRECT));
+
+	// ComputeQueue
+	queueType = QueueType::Type::Param::COMPUTE;
+	auto& computeQueueFence = graphics->GetCommandListManager().GetComputeQueueFence();
+
+	computeQueue.ExecuteCommandList(currentCommandList_[queueType].Get(), QueueType::GetTypeString(queueType));
+	// Signal発行
+	computeQueue.Signal(computeQueueFence.fence.Get(), computeQueueFence.fenceValue, QueueType::GetTypeString(queueType));
+	// DirectにWaitを発行
+	directQueue.Wait(computeQueueFence.fence.Get(), computeQueueFence.fenceValue, QueueType::GetTypeString(QueueType::Type::Param::DIRECT));
+
+	// DirectQueue
+	// FrameFenceを取得
+	auto& frameFence = graphics->GetCommandListManager().GetFrameFence();
+	queueType = QueueType::Type::Param::DIRECT;
+	directQueue.ExecuteCommandList(currentCommandList_[queueType].Get(), QueueType::GetTypeString(queueType));
+
 
 	for (int32_t t = 0; t < QueueType::Type::COUNT; t++) {
 		auto commandListType = GetType(QueueType::Type::Param(t));
 		auto queueType = QueueType::Type::Param(t);
 		auto& queue = graphics->GetCommandQueue(commandListType);
 		if (currentCommandList_[commandListType]) {
-
-			// Directは一番最後になるように
-			if (queueType != QueueType::Type::DIRECT) {
-				queue.ExecuteCommandList(currentCommandList_[queueType].Get(), QueueType::GetTypeString(QueueType::Type::Param(queueType)));
-				queue.Signal(allFence.at(t).fence.Get(), allFence.at(t).fenceValue, QueueType::GetTypeString(queueType));
-			}
-			else {
-				// Copy,Computeをwait
-				for (uint32_t i = 0; i < QueueType::Type::DIRECT; i++) {
-					queue.Wait(allFence.at(i).fence.Get(), allFence.at(i).fenceValue, QueueType::GetTypeString(QueueType::Type::Param(i)));
-				}
-				queue.ExecuteCommandList(currentCommandList_[queueType].Get(), QueueType::GetTypeString(QueueType::Type::Param(queueType)));
-				//queue.Signal(allFence.at(t).fence.Get(), allFence.at(t).fenceValue, QueueType::GetTypeString(queueType));
-				// FrameFenceにシグナル
-				queue.Signal(frameFenceDesc.fence.Get(), frameFenceDesc.fenceValue, "Frame");
-			}
-
 			// pre代入
 			std::swap(currentCommandAllocator_[queueType], preCommandAllocator_[queueType]);
 			std::swap(currentCommandList_[queueType], preCommandList_[queueType]);
@@ -118,6 +131,7 @@ void CommandContext::StartFrame() {
 	computeRootSignature_ = nullptr;
 	graphicsRootSignature_ = nullptr;
 	pipelineState_ = nullptr;
+	frameCount++;
 }
 
 void CommandContext::Start() {
@@ -151,11 +165,15 @@ void CommandContext::Start() {
 
 void CommandContext::EndFrame() {
 	auto graphics = GraphicsCore::GetInstance();
-	auto& frameFenceDesc = graphics->GetCommandListManager().GetFrameFenceDesc();
-	int64_t preFenceValue = int64_t(frameFenceDesc.fenceValue) ;
+	auto& frameFence = graphics->GetCommandListManager().GetFrameFence();
+	auto& directQueue = graphics->GetCommandQueue(GetType(QueueType::Type::Param::DIRECT));
+
+	directQueue.Signal(frameFence.fence.Get(), frameFence.fenceValue, QueueType::GetTypeString(QueueType::Type::Param::DIRECT));
+
+	int64_t preFenceValue = int64_t(frameFence.fenceValue);
 
 	auto& queue = graphics->GetCommandQueue(QueueType::GetType(QueueType::Type::DIRECT));
-	queue.WaitForFence(frameFenceDesc.fence.Get(), frameFenceDesc.fenceEventHandle, preFenceValue);
+	queue.WaitForFence(frameFence.fence.Get(), frameFence.fenceEventHandle, preFenceValue);
 
 	for (uint32_t t = 0; t < QueueType::Type::COUNT; t++) {
 		// 前回のフレームのリソースをリセット
@@ -223,7 +241,7 @@ void CommandContext::Close() {
 
 void CommandContext::Flush() {
 	auto graphics = GraphicsCore::GetInstance();
-	auto& frameFenceDesc = graphics->GetCommandListManager().GetFrameFenceDesc();
+	auto& frameFenceDesc = graphics->GetCommandListManager().GetFrameFence();
 	for (uint32_t t = 0; t < QueueType::Type::COUNT; t++) {
 		auto commandListType = GetType(QueueType::Type::Param(t));
 		auto queueType = QueueType::Type::Param(t);
@@ -231,7 +249,7 @@ void CommandContext::Flush() {
 
 		queue.ExecuteCommandList(currentCommandList_[t].Get(), QueueType::GetTypeString(queueType));
 		queue.Signal(frameFenceDesc.fence.Get(), frameFenceDesc.fenceValue, QueueType::GetTypeString(queueType));
-		queue.Wait(frameFenceDesc.fence.Get(), frameFenceDesc.fenceValue, QueueType::GetTypeString(queueType));
+		//queue.Wait(frameFenceDesc.fence.Get(), frameFenceDesc.fenceValue, QueueType::GetTypeString(queueType));
 		queue.WaitForFence(frameFenceDesc.fence.Get(), frameFenceDesc.fenceEventHandle, frameFenceDesc.fenceValue);
 		// フレームの終わりにスワップ
 		std::swap(currentCommandAllocator_[t], preCommandAllocator_[t]);

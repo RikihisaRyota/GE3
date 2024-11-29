@@ -57,6 +57,7 @@ void GPUParticle::CheckField(CommandContext& commandContext) {
 		commandContext.Dispatch(uint32_t(fieldCount), 1, 1);
 
 		commandContext.UAVBarrier(QueueType::Type::COMPUTE, fieldOriginalBuffer_);
+		commandContext.UAVBarrier(QueueType::Type::COMPUTE, fieldAddBuffer_);
 		commandContext.EndEvent(QueueType::Type::COMPUTE);
 	}
 }
@@ -78,6 +79,8 @@ void GPUParticle::AddField(CommandContext& commandContext) {
 		commandContext.SetComputeDescriptorTable(3, fieldIndexStockBuffer_.GetUAVHandle());
 		commandContext.Dispatch(1, 1, 1);
 		commandContext.UAVBarrier(QueueType::Type::COMPUTE, fieldOriginalBuffer_);
+		commandContext.UAVBarrier(QueueType::Type::COMPUTE, createFieldNumBuffer_);
+		commandContext.UAVBarrier(QueueType::Type::COMPUTE, fieldIndexStockBuffer_);
 		commandContext.EndEvent(QueueType::Type::COMPUTE);
 	}
 }

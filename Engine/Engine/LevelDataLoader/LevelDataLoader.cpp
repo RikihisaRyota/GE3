@@ -38,9 +38,10 @@ namespace LevelDataLoader {
 
 			// 種別を取得
 			std::string type = object["type"].get<std::string>();
-
 			// Mesh
-			if (type.compare("MESH")==0) {
+			if ((type.compare("MESH") == 0) &&
+				object.contains("objectName") &&
+				!object["objectName"].get<std::string>().empty()) {
 				LevelDataLoader::SetGameObject(object);
 			}
 		}

@@ -5,7 +5,7 @@
 #include "GraphicsCore.h"
 
 void DescriptorHeap::Create(D3D12_DESCRIPTOR_HEAP_TYPE type, uint32_t numDescriptors) {
-	
+
 	auto device = GraphicsCore::GetInstance()->GetDevice();
 
 	// デスクリプタヒープの設定
@@ -17,10 +17,11 @@ void DescriptorHeap::Create(D3D12_DESCRIPTOR_HEAP_TYPE type, uint32_t numDescrip
 	// シェーダーから見える必要があれば
 	if (type == D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV || type == D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER) {
 		desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-	}else{
+	}
+	else {
 		desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 	}
-	auto hr = device->CreateDescriptorHeap(&desc,IID_PPV_ARGS(descriptorHeap_.ReleaseAndGetAddressOf()));
+	auto hr = device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(descriptorHeap_.ReleaseAndGetAddressOf()));
 	assert(SUCCEEDED(hr));
 
 	descriptorSize_ = device->GetDescriptorHandleIncrementSize(desc.Type);

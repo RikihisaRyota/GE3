@@ -1,6 +1,7 @@
 #include "CommandContext.h"
 
 #include <vector>
+#include <fstream>
 #include <iostream>
 #include <cassert>
 
@@ -66,7 +67,6 @@ void CommandContext::Create() {
 }
 
 void CommandContext::StartFrame() {
-	static int frameCount = 0;
 	auto graphics = GraphicsCore::GetInstance();
 
 	// Queueを取得
@@ -130,7 +130,6 @@ void CommandContext::StartFrame() {
 	computeRootSignature_ = nullptr;
 	graphicsRootSignature_ = nullptr;
 	pipelineState_ = nullptr;
-	frameCount++;
 }
 
 void CommandContext::Start() {
@@ -179,6 +178,7 @@ void CommandContext::EndFrame() {
 		for (uint32_t i = 0; i < LinearAllocatorType::kNumAllocatorTypes; ++i) {
 			previousDynamicBuffers_[t][i].Reset(QueueType::GetType(QueueType::Type::Param(t)), preFenceValue);
 			// 現在のバッファと前回のバッファを入れ替える
+
 			std::swap(currentDynamicBuffers_[t][i], previousDynamicBuffers_[t][i]);
 		}
 	}
@@ -218,10 +218,20 @@ void CommandContext::Close() {
 	for (uint32_t i = 0; i < QueueType::Type::COUNT; i++) {
 		auto hr = currentCommandList_[i]->Close();
 		if (FAILED(hr)) {
-			// エラーコードをログ出力
-			std::cerr << "Close failed for command list " << i << ", HRESULT: " << hr << std::endl;
+			// システムメモリの使用状況をログに記録
+			MEMORYSTATUSEX statex;
+			statex.dwLength = sizeof(MEMORYSTATUSEX);
+			GlobalMemoryStatusEx(&statex);
 
-			// 詳細なエラー情報を取得
+			std::ofstream logFile("log.txt", std::ios::app);
+			logFile << "Close failed for command list " << i << ", HRESULT: " << hr << std::endl;
+			logFile << "システムメモリ使用率: " << statex.dwMemoryLoad << "%" << std::endl;
+			logFile << "使用可能な物理メモリ: " << statex.ullAvailPhys / (1024 * 1024) << " MB" << std::endl;
+			logFile << "総システムメモリ: " << statex.ullTotalPhys / (1024 * 1024) << " MB" << std::endl;
+			logFile.close();
+
+
+			// エラーメッセージを取得して出力
 			TCHAR errorMsg[256];
 			FormatMessage(
 				FORMAT_MESSAGE_FROM_SYSTEM,
@@ -232,11 +242,12 @@ void CommandContext::Close() {
 				sizeof(errorMsg) / sizeof(TCHAR),
 				NULL
 			);
-			OutputDebugString(errorMsg);  // 出力する
+			OutputDebugString(errorMsg);
 		}
 		assert(SUCCEEDED(hr));
 	}
 }
+
 
 void CommandContext::Flush() {
 	auto graphics = GraphicsCore::GetInstance();

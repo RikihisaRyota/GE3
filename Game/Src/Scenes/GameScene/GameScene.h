@@ -11,6 +11,7 @@
 #include "Src/Game/FollowCamera/FollowCamera.h"
 #include "Src/Game/Player/Player.h"
 #include "Src/Game/Skybox/Skybox.h"
+#include "Src/Game/BackGround/BackGround.h"
 #include "Src/Game/GameObject/GameObject.h"
 #include "Src/Scenes/BaseScene/BaseScene.h"
 
@@ -36,6 +37,7 @@ private:
 	std::unique_ptr<GPUParticleManager> gpuParticleManager_;
 	std::unique_ptr<FollowCamera> followCamera_;
 
+	std::unique_ptr<BackGround> backGround_;
 	std::unique_ptr<Player> player_;
 	std::unique_ptr<Boss> boss_;
 	std::unique_ptr<Skybox> skybox_;

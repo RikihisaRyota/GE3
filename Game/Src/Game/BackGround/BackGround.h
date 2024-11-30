@@ -15,10 +15,16 @@ public:
 
 	void Draw();
 
+	void DrawImGui();
+
 	void SetGPUParticleManager(GPUParticleManager* GPUParticleManager) { gpuParticleManager_ = GPUParticleManager; }
 
 private:
 	GPUParticleManager* gpuParticleManager_;
+	ModelHandle modelHandle_;
+
+	GPUParticleShaderStructs::VertexEmitterForCPU vertexEmitter_;
+	GPUParticleShaderStructs::MeshEmitterForCPU meshEmitter_;
 
 	WorldTransform worldTransform_;
 };

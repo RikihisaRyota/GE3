@@ -1,0 +1,12 @@
+Close failed for command list 1, HRESULT: -2147024882
+システムメモリ使用率: 85%
+使用可能な物理メモリ: 2375 MB
+総システムメモリ: 16205 MB
+Close failed for command list 2, HRESULT: -2147024882
+システムメモリ使用率: 96%
+使用可能な物理メモリ: 492 MB
+総システムメモリ: 16205 MB
+Close failed for command list 1, HRESULT: -2147024882
+システムメモリ使用率: 93%
+使用可能な物理メモリ: 1083 MB
+総システムメモリ: 16205 MB

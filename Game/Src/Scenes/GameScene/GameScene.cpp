@@ -35,6 +35,7 @@ GameScene::GameScene() {
 	boss_ = std::make_unique<Boss>();
 	followCamera_ = std::make_unique<FollowCamera>();
 	skybox_ = std::make_unique<Skybox>();
+	backGround_ = std::make_unique<BackGround>();
 
 
 	gpuTexture_ = TextureManager::GetInstance()->Load("Resources/Images/GPUParticle.png");
@@ -55,6 +56,7 @@ GameScene::GameScene() {
 	boss_->SetPlayer(player_.get());
 	player_->SetGPUParticleManager(gpuParticleManager_.get());
 	boss_->SetGPUParticleManager(gpuParticleManager_.get());
+	backGround_->SetGPUParticleManager(gpuParticleManager_.get());
 
 	GPUParticleShaderStructs::Load("postEmitter", postEmitter_);
 	GPUParticleShaderStructs::Load("groundEmitter", groundEmitter_);
@@ -79,11 +81,10 @@ void GameScene::Initialize() {
 	//DrawLine::GetInstance()->SetLine({ -10.0f,1.0f,0.0f }, { 10.0f,1.0f,0.0f }, { 0.0f,1.0f,0.0f,1.0f });
 	//Audio::GetInstance()->SoundPlayLoopStart(playHandle_);
 
-	// しゃーなし
 	player_->SetViewProjection(viewProjection_);
 	player_->Initialize();
 	boss_->Initialize();
-
+	backGround_->Initialize();
 	skybox_->Initialize();
 
 	followCamera_->SetTarget(&player_->GetWorldTransform());
@@ -115,6 +116,7 @@ void GameScene::Update(CommandContext& commandContext) {
 	}
 	player_->Update(commandContext);
 	boss_->Update(commandContext);
+	backGround_->Update();
 	for (auto& object : gameObject_) {
 		object->Update();
 		if (object->GetObjectName() == "Post") {
@@ -159,6 +161,7 @@ void GameScene::Update(CommandContext& commandContext) {
 	followCamera_->DrawImGui();
 	player_->DrawImGui();
 	boss_->DrawImGui();
+	backGround_->DrawImGui();
 	for (auto& object : gameObject_) {
 		object->DrawImGui();
 	}
@@ -193,13 +196,13 @@ void GameScene::Draw(CommandContext& commandContext) {
 	//ModelManager::GetInstance()->Draw(testWorldTransform_.matWorld, *viewProjection_, testModel_, commandContext);
 	player_->Draw(*viewProjection_, commandContext);
 	boss_->Draw(*viewProjection_, commandContext);
+	backGround_->Draw();
 	for (auto& object : gameObject_) {
-	/*	if (object->GetObjectName() != "Post") {
-			object->Draw(*viewProjection_, commandContext);
-		}*/
-		if (object->GetObjectName() == "Ground") {
-			object->Draw(*viewProjection_, commandContext);
+
+		if (object->GetObjectName() == "Post" || object->GetObjectName() == "BackGround") {
+			continue;	
 		}
+		object->Draw(*viewProjection_, commandContext);
 	}
 
 

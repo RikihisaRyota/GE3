@@ -34,8 +34,8 @@ namespace GPUParticleShaderStructs {
 	static const UINT MaxFieldNum = 1024;
 	static const UINT MaxBulletNum = 10;
 	static const UINT MaxProcessNum = 1;
-	static const UINT TrailsRange = 1024;
-	static const UINT MaxTrailsNum = 1U << 15;
+	static const UINT TrailsRange = 512;
+	static const UINT MaxTrailsNum = 1U << 10;
 	static const UINT MaxTrailsTotal = MaxTrailsNum * TrailsRange;
 
 #pragma region Utility

@@ -252,17 +252,63 @@ namespace GPUParticleShaderStructs {
 
 	void DrawScale(GPUParticleShaderStructs::ScaleAnimation& scale) {
 #ifdef _DEBUG
-		if (ImGui::TreeNode("Scale")) {
-			if (!scale.isStaticSize && !scale.isUniformScale) {
-				DrawStartEnd(scale.range);
+		// isUniformScale
+		// 縦横一緒
+		// isStaticSize
+		// 寿命関係なくずっと一緒
+		// isMedPoint
+		// 中間
+		auto MidPoint = [&scale]() {
+			if (scale.isMedPoint) {
+				if (!scale.isStaticSize && !scale.isUniformScale) {
+					if (ImGui::TreeNode("Medium")) {
+						DrawMinMax(scale.mediumRange);
+						ImGui::TreePop();
+					}
+				}
+				else if (!scale.isStaticSize && scale.isUniformScale) {
+					if (ImGui::TreeNode("Medium")) {
+						ImGui::DragFloat("Min", &scale.mediumRange.min.x, 0.01f, 0.0f);
+						ImGui::DragFloat("Max", &scale.mediumRange.max.x, 0.01f, 0.0f);
+						scale.mediumRange.min.y = scale.mediumRange.min.x;
+						scale.mediumRange.min.z = scale.mediumRange.min.x;
+						scale.mediumRange.max.y = scale.mediumRange.max.x;
+						scale.mediumRange.max.z = scale.mediumRange.max.x;
+						ImGui::TreePop();
+					}
+				}
+				else {
+					ImGui::DragFloat("Med:Min", &scale.mediumRange.min.x, 0.01f, 0.0f);
+					ImGui::DragFloat("Med:Max", &scale.mediumRange.max.x, 0.01f, 0.0f);
+					scale.mediumRange.min.y = scale.mediumRange.min.x;
+					scale.mediumRange.min.z = scale.mediumRange.min.x;
+					scale.mediumRange.max.y = scale.mediumRange.max.x;
+					scale.mediumRange.max.z = scale.mediumRange.max.x;
+				}
 			}
+			};
+		if (ImGui::TreeNode("Scale")) {
+			// 縦横一緒の大きさではなく寿命関係なくずっと一緒ではない
+			if (!scale.isStaticSize && !scale.isUniformScale) {
+				if (ImGui::TreeNode("Start")) {
+					DrawMinMax(scale.range.start);
+					ImGui::TreePop();
+				}
+				MidPoint();
+
+				if (ImGui::TreeNode("End")) {
+					DrawMinMax(scale.range.end);
+					ImGui::TreePop();
+				}
+			}
+			// 縦横一緒の大きさで寿命関係なくずっと一緒ではない
 			else if (!scale.isStaticSize && scale.isUniformScale) {
 				if (ImGui::TreeNode("Start")) {
 					ImGui::DragFloat("Min", &scale.range.start.min.x, 0.01f, 0.0f);
 					ImGui::DragFloat("Max", &scale.range.start.max.x, 0.01f, 0.0f);
 					ImGui::TreePop();
 				}
-
+				MidPoint();
 				if (ImGui::TreeNode("End")) {
 					ImGui::DragFloat("Min", &scale.range.end.min.x, 0.01f, 0.0f);
 					ImGui::DragFloat("Max", &scale.range.end.max.x, 0.01f, 0.0f);
@@ -277,11 +323,13 @@ namespace GPUParticleShaderStructs {
 				scale.range.end.max.y = scale.range.end.max.x;
 				scale.range.end.max.z = scale.range.end.max.x;
 			}
+			// 縦横一緒の大きさではなく寿命関係なくずっと一緒
 			else if (scale.isStaticSize && !scale.isUniformScale) {
 				ImGui::DragFloat3("Min", &scale.range.start.min.x, 0.01f, 0.0f);
 				ImGui::DragFloat3("Max", &scale.range.start.max.x, 0.01f, 0.0f);
 				scale.range.end = scale.range.start;
 			}
+			// 縦横一緒の大きさで寿命関係なくずっと一緒
 			else {
 				ImGui::DragFloat("Min", &scale.range.start.min.x, 0.01f, 0.0f);
 				ImGui::DragFloat("Max", &scale.range.start.max.x, 0.01f, 0.0f);
@@ -293,6 +341,7 @@ namespace GPUParticleShaderStructs {
 			}
 			ImGui::Checkbox("IsUniformScale", reinterpret_cast<bool*>(&scale.isUniformScale));
 			ImGui::Checkbox("IsStaticSize", reinterpret_cast<bool*>(&scale.isStaticSize));
+			ImGui::Checkbox("IsMedPoint", reinterpret_cast<bool*>(&scale.isMedPoint));
 			ImGui::TreePop();
 		}
 #endif // _DEBUG
@@ -614,8 +663,10 @@ namespace GPUParticleShaderStructs {
 	void LoadScale(GPUParticleShaderStructs::ScaleAnimation& scale) {
 		JSON_OBJECT("ScaleAnimation");
 		LoadStartEnd(scale.range);
+		LoadMinMax(scale.mediumRange);
 		JSON_LOAD_BY_NAME("isStaticSize", scale.isStaticSize);
 		JSON_LOAD_BY_NAME("isUniformScale", scale.isUniformScale);
+		JSON_LOAD_BY_NAME("isMedPoint", scale.isMedPoint);
 		JSON_ROOT();
 	}
 
@@ -769,8 +820,10 @@ namespace GPUParticleShaderStructs {
 	void SaveScale(GPUParticleShaderStructs::ScaleAnimation& scale) {
 		JSON_OBJECT("ScaleAnimation");
 		SaveStartEnd(scale.range);
+		SaveMinMax(scale.mediumRange);
 		JSON_SAVE_BY_NAME("isStaticSize", scale.isStaticSize);
 		JSON_SAVE_BY_NAME("isUniformScale", scale.isUniformScale);
+		JSON_SAVE_BY_NAME("isMedPoint", scale.isMedPoint);
 		JSON_ROOT();
 	}
 
@@ -1472,7 +1525,7 @@ void GPUParticleShaderStructs::DebugDraw(const EmitterForCPU& emitter) {
 	case GPUParticleShaderStructs::Type::kCapsule:
 	{
 		Capsule capsule{};
-		capsule.segment.start = emitter.emitterArea.capsule.segment.origin ;
+		capsule.segment.start = emitter.emitterArea.capsule.segment.origin;
 		capsule.segment.end = emitter.emitterArea.capsule.segment.diff;
 		capsule.radius = emitter.emitterArea.capsule.radius;
 		DrawLine(capsule, emitterColor);

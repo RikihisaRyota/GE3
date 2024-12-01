@@ -1,7 +1,7 @@
 {
     "CollisionInfo": {
-        "attribute": 0,
-        "mask": 0
+        "attribute": 12,
+        "mask": 2
     },
     "EmitterColor": {
         "End": {
@@ -91,6 +91,16 @@
                 0.10000000149011612
             ]
         },
+        "Max": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Min": [
+            0.0,
+            0.0,
+            0.0
+        ],
         "Start": {
             "Max": [
                 0.5,
@@ -103,6 +113,7 @@
                 0.10000000149011612
             ]
         },
+        "isMedPoint": 0,
         "isStaticSize": 1,
         "isUniformScale": 1
     },

@@ -106,7 +106,6 @@ public:
 	}
 
 	FenceDesc& GetQueueFenceDesc(const QueueType::Type::Param& type) { return queueFenceDesc_[type]; }
-	//std::array<FenceDesc, QueueType::Type::Param::COUNT>& GetAllQueueFence() { return queueFenceDesc_; }
 	FenceDesc& GetCopyQueueFence() { return queueFenceDesc_[QueueType::Type::Param::COPY]; }
 	FenceDesc& GetComputeQueueFence() { return queueFenceDesc_[QueueType::Type::Param::COMPUTE]; }
 	FenceDesc& GetDirectQueueFence() { return queueFenceDesc_[QueueType::Type::Param::DIRECT]; }

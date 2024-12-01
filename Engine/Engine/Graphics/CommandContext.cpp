@@ -109,6 +109,7 @@ void CommandContext::StartFrame() {
 			// pre代入
 			std::swap(currentCommandAllocator_[queueType], preCommandAllocator_[queueType]);
 			std::swap(currentCommandList_[queueType], preCommandList_[queueType]);
+			currentCommandAllocator_[t] = queue.allocatorPool_.Allocate(queue.GetLastCompletedFenceValue());
 			// コマンドリストをリセット
 			currentCommandList_[queueType]->Reset(currentCommandAllocator_[queueType].Get(), nullptr);
 
@@ -165,15 +166,23 @@ void CommandContext::EndFrame() {
 	auto graphics = GraphicsCore::GetInstance();
 	auto& frameFence = graphics->GetCommandListManager().GetFrameFence();
 	auto& directQueue = graphics->GetCommandQueue(GetType(QueueType::Type::Param::DIRECT));
+	auto& computeQueue = graphics->GetCommandQueue(GetType(QueueType::Type::Param::COMPUTE));
+	auto& copyQueue = graphics->GetCommandQueue(GetType(QueueType::Type::Param::COPY));
 
 	directQueue.Signal(frameFence.fence.Get(), frameFence.fenceValue, QueueType::GetTypeString(QueueType::Type::Param::DIRECT));
 
 	int64_t preFenceValue = int64_t(frameFence.fenceValue);
 
-	auto& queue = graphics->GetCommandQueue(QueueType::GetType(QueueType::Type::DIRECT));
-	queue.WaitForFence(frameFence.fence.Get(), frameFence.fenceEventHandle, preFenceValue);
+	directQueue.WaitForFence(frameFence.fence.Get(), frameFence.fenceEventHandle, preFenceValue);
+	// 既に終了しているvalueをそれぞれに格納
+	computeQueue.WaitForFence(frameFence.fence.Get(), frameFence.fenceEventHandle, preFenceValue);
+	copyQueue.WaitForFence(frameFence.fence.Get(), frameFence.fenceEventHandle, preFenceValue);
 
 	for (uint32_t t = 0; t < QueueType::Type::COUNT; t++) {
+		auto commandListType = GetType(QueueType::Type::Param(t));
+		auto queueType = QueueType::Type::Param(t);
+		auto& queue = graphics->GetCommandQueue(commandListType);
+		queue.allocatorPool_.Discard(preFenceValue,preCommandAllocator_[t]);
 		// 前回のフレームのリソースをリセット
 		for (uint32_t i = 0; i < LinearAllocatorType::kNumAllocatorTypes; ++i) {
 			previousDynamicBuffers_[t][i].Reset(QueueType::GetType(QueueType::Type::Param(t)), preFenceValue);

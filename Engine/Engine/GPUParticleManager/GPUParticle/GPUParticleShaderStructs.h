@@ -35,7 +35,7 @@ namespace GPUParticleShaderStructs {
 	static const UINT MaxBulletNum = 10;
 	static const UINT MaxProcessNum = 1;
 	static const UINT TrailsRange = 512;
-	static const UINT MaxTrailsNum = 1U << 10;
+	static const UINT MaxTrailsNum = 1U << 15;
 	static const UINT MaxTrailsTotal = MaxTrailsNum * TrailsRange;
 
 #pragma region Utility
@@ -250,6 +250,8 @@ struct Particle
 		TriangleInfo triangleInfo;
 
 		Vector3MinMax scaleRange;
+		Vector3 medScale;
+		uint32_t isMedPoint;
 		ParticleLifeTime particleLifeTime;
 
 		Vector4MinMax colorRange;
@@ -274,7 +276,7 @@ struct Particle
 
 		float rotateVelocity;
 		float rotate;
-		float pad[2];
+		float pad1[2];
 	};
 
 
@@ -317,9 +319,11 @@ struct Particle
 
 	struct ScaleAnimation {
 		Vector3StartEnd range;
+		Vector3MinMax mediumRange;
 		uint32_t isUniformScale;
 		uint32_t isStaticSize;
-		Vector2 pad;
+		uint32_t isMedPoint;
+		uint32_t pad;
 	};
 
 	struct RotateAnimation {

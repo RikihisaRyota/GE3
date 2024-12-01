@@ -120,7 +120,13 @@ void main(uint3 DTid : SV_DispatchThreadID)
             float32_t4x4 translateMatrix = MakeTranslationMatrix(inputParticle.translate.translate);
 
             // スケール
-            inputParticle.scale = lerp(inputParticle.scaleRange.min, inputParticle.scaleRange.max, t);
+            if(inputParticle.isMedPoint && t <= 0.5f){
+                inputParticle.scale = lerp(inputParticle.scaleRange.min, inputParticle.medScale, t);
+            }else if(inputParticle.isMedPoint && t >= 0.5f){
+                inputParticle.scale = lerp(inputParticle.medScale, inputParticle.scaleRange.max, t);
+            }else{
+                inputParticle.scale = lerp(inputParticle.scaleRange.min, inputParticle.scaleRange.max, t);
+            }
             //float32_t4x4 scaleMatrix = MakeScaleMatrix(inputParticle.scale);
             
             // 回転

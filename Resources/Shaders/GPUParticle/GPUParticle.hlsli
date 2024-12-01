@@ -389,10 +389,21 @@ void ParticleScale(inout GPUParticleShaderStructs::Particle particle,GPUParticle
         particle.scaleRange.max.x = randomRange(scale.range.end.min.x, scale.range.end.max.x,seed);
         particle.scaleRange.max.y = randomRange(scale.range.end.min.y, scale.range.end.max.y,seed);
         particle.scaleRange.max.z = randomRange(scale.range.end.min.z, scale.range.end.max.z,seed);
+        if(scale.isMedPoint){
+            particle.medScale.x = randomRange(scale.mediumRange.min.x, scale.mediumRange.max.x,seed);
+            particle.medScale.y = randomRange(scale.mediumRange.min.y, scale.mediumRange.max.y,seed);
+            particle.medScale.z = randomRange(scale.mediumRange.min.z, scale.mediumRange.max.z,seed);
+            particle.isMedPoint = true;
+        }
+
     }
     else if(scale.isUniformScale&&!scale.isStaticSize) {
         particle.scaleRange.min=randomRangeSame(scale.range.start.min, scale.range.start.max,seed);
         particle.scaleRange.max=randomRangeSame(scale.range.end.min, scale.range.end.max,seed);
+         if(scale.isMedPoint){
+            particle.medScale = randomRangeSame(scale.mediumRange.min, scale.mediumRange.max,seed);
+            particle.isMedPoint = true;
+        }
     }else if(!scale.isUniformScale&&scale.isStaticSize) {
         particle.scaleRange.min.x = randomRange(scale.range.start.min.x, scale.range.start.max.x,seed);
         particle.scaleRange.min.y = randomRange(scale.range.start.min.y, scale.range.start.max.y,seed);
@@ -445,6 +456,7 @@ void ParticleReset(inout GPUParticleShaderStructs::Particle particle){
     particle.translate.isEasing = false;
     particle.parent.isParent = false;
     particle.particleLifeTime.isEmitterLife = false;
+    particle.isMedPoint = false;
 };
 
 void ParticleTranslate(inout GPUParticleShaderStructs::Particle particle,GPUParticleShaderStructs::Translate translate,inout uint32_t seed){

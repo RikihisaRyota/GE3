@@ -5,7 +5,7 @@
 #include <iostream>
 #include <cassert>
 
-#include <pix3.h>
+//#include <pix3.h>
 
 #include "Color.h"
 #include "GraphicsCore.h"
@@ -596,15 +596,15 @@ void CommandContext::Dispatch(uint32_t x, uint32_t y, uint32_t z) {
 }
 
 void CommandContext::BeginEvent(const QueueType::Type::Param& type, const std::wstring& name) {
-	PIXBeginEvent(currentCommandList_[type].Get(), 0, name.c_str());
+	//PIXBeginEvent(currentCommandList_[type].Get(), 0, name.c_str());
 }
 
 void CommandContext::EndEvent(const QueueType::Type::Param& type) {
-	PIXEndEvent(currentCommandList_[type].Get());
+	//PIXEndEvent(currentCommandList_[type].Get());
 }
 
 void CommandContext::SetMarker(const QueueType::Type::Param& type, const std::wstring& name) {
-	PIXSetMarker(currentCommandList_[type].Get(), 0, name.c_str());
+	//PIXSetMarker(currentCommandList_[type].Get(), 0, name.c_str());
 }
 
 D3D12_COMMAND_LIST_TYPE QueueType::GetType(const QueueType::Type::Param& type) {

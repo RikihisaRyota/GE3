@@ -165,7 +165,7 @@ namespace Animation {
 		paletteResource.Copy(mappedPalette.data(), sizeof(WellForGPU) * skeleton.joints.size());
 
 		auto& model = ModelManager::GetInstance()->GetModel(modelHandle);
-		//commandContext.BeginEvent(QueueType::Type::COMPUTE,L"Skinning");
+		commandContext.BeginEvent(QueueType::Type::COMPUTE,L"Skinning");
 		commandContext.SetComputeRootSignature(rootSignature);
 		commandContext.SetPipelineState(QueueType::Type::COMPUTE,pipelineState);
 
@@ -183,7 +183,7 @@ namespace Animation {
 		commandContext.Dispatch(UINT(model.GetAllVertexCount() + 1023) / 1024, 1, 1);
 
 		commandContext.UAVBarrier(QueueType::Type::COMPUTE,vertexBuffer);
-		//commandContext.EndEvent(QueueType::Type::COMPUTE);
+		commandContext.EndEvent(QueueType::Type::COMPUTE);
 	}
 
 }

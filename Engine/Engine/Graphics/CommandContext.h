@@ -106,10 +106,10 @@ public:
 
 	void Dispatch(uint32_t x, uint32_t y, uint32_t z);
 
-	//void BeginEvent(const QueueType::Type::Param& type, const std::wstring& name);
-	//void EndEvent(const QueueType::Type::Param& type);
+	void BeginEvent(const QueueType::Type::Param& type, const std::wstring& name);
+	void EndEvent(const QueueType::Type::Param& type);
 
-	//void SetMarker(const QueueType::Type::Param& type, const std::wstring& name);
+	void SetMarker(const QueueType::Type::Param& type, const std::wstring& name);
 
 	ID3D12GraphicsCommandList* GetCurrentCommandList(const QueueType::Type::Param& type) { return currentCommandList_[type].Get(); }
 	ID3D12GraphicsCommandList* GetPreCommandList(const QueueType::Type::Param& type) { return preCommandList_[type].Get(); }

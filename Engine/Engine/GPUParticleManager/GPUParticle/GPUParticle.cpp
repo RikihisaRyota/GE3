@@ -41,7 +41,7 @@ void GPUParticle::Initialize() {}
 void GPUParticle::CheckField(CommandContext& commandContext) {
 	// エミッター追加
 	if (!fields_.empty()) {
-		//commandContext.BeginEvent(QueueType::Type::COMPUTE, L"CheckField");
+		commandContext.BeginEvent(QueueType::Type::COMPUTE, L"CheckField");
 		size_t fieldCount = fields_.size();
 		size_t copySize = sizeof(GPUParticleShaderStructs::FieldForCPU) * fieldCount;
 		fieldCPUBuffer_.ResetBuffer();
@@ -58,14 +58,14 @@ void GPUParticle::CheckField(CommandContext& commandContext) {
 
 		commandContext.UAVBarrier(QueueType::Type::COMPUTE, fieldOriginalBuffer_);
 		commandContext.UAVBarrier(QueueType::Type::COMPUTE, fieldAddBuffer_);
-		//commandContext.EndEvent(QueueType::Type::COMPUTE);
+		commandContext.EndEvent(QueueType::Type::COMPUTE);
 	}
 }
 
 void GPUParticle::AddField(CommandContext& commandContext) {
 	// フィールド追加
 	if (!fields_.empty()) {
-		//commandContext.BeginEvent(QueueType::Type::COMPUTE, L"AddField");
+		commandContext.BeginEvent(QueueType::Type::COMPUTE, L"AddField");
 		commandContext.CopyBufferRegion(QueueType::Type::COMPUTE, createFieldNumBuffer_, 0, fieldCounterBuffer_, 0, sizeof(UINT));
 
 		commandContext.TransitionResource(QueueType::Type::COMPUTE, fieldAddBuffer_, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
@@ -81,14 +81,14 @@ void GPUParticle::AddField(CommandContext& commandContext) {
 		commandContext.UAVBarrier(QueueType::Type::COMPUTE, fieldOriginalBuffer_);
 		commandContext.UAVBarrier(QueueType::Type::COMPUTE, createFieldNumBuffer_);
 		commandContext.UAVBarrier(QueueType::Type::COMPUTE, fieldIndexStockBuffer_);
-		//commandContext.EndEvent(QueueType::Type::COMPUTE);
+		commandContext.EndEvent(QueueType::Type::COMPUTE);
 	}
 }
 
 void GPUParticle::UpdateField(CommandContext& commandContext) {
 
 	if (!fields_.empty()) {
-		//commandContext.BeginEvent(QueueType::Type::COMPUTE, L"UpdateField");
+		commandContext.BeginEvent(QueueType::Type::COMPUTE, L"UpdateField");
 		commandContext.CopyBufferRegion(QueueType::Type::COMPUTE, fieldIndexBuffer_, fieldIndexBuffer_.GetCounterOffset(), resetCounterBuffer_, 0, sizeof(UINT));
 
 		commandContext.TransitionResource(QueueType::Type::COMPUTE, fieldOriginalBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
@@ -102,13 +102,13 @@ void GPUParticle::UpdateField(CommandContext& commandContext) {
 		commandContext.UAVBarrier(QueueType::Type::COMPUTE, fieldOriginalBuffer_);
 		commandContext.UAVBarrier(QueueType::Type::COMPUTE, fieldIndexStockBuffer_);
 		commandContext.UAVBarrier(QueueType::Type::COMPUTE, fieldIndexBuffer_);
-		//commandContext.EndEvent(QueueType::Type::COMPUTE);
+		commandContext.EndEvent(QueueType::Type::COMPUTE);
 	}
 }
 
 void GPUParticle::CollisionField(CommandContext& commandContext, const UploadBuffer& random) {
 	if (!fields_.empty()) {
-		//commandContext.BeginEvent(QueueType::Type::COMPUTE, L"CollisionField");
+		commandContext.BeginEvent(QueueType::Type::COMPUTE, L"CollisionField");
 		commandContext.TransitionResource(QueueType::Type::COMPUTE,fieldOriginalBuffer_, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
 		commandContext.TransitionResource(QueueType::Type::COMPUTE,fieldIndexBuffer_, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
 		commandContext.TransitionResource(QueueType::Type::COMPUTE,particleBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
@@ -120,7 +120,7 @@ void GPUParticle::CollisionField(CommandContext& commandContext, const UploadBuf
 		commandContext.Dispatch(static_cast<UINT>(ceil((GPUParticleShaderStructs::MaxParticleNum / GPUParticleShaderStructs::MaxProcessNum) / GPUParticleShaderStructs::ComputeThreadBlockSize)), uint32_t(fields_.size()), 1);
 		commandContext.UAVBarrier(QueueType::Type::COMPUTE, particleBuffer_);
 		fields_.clear();
-		//commandContext.EndEvent(QueueType::Type::COMPUTE);
+		commandContext.EndEvent(QueueType::Type::COMPUTE);
 	}
 }
 
@@ -132,7 +132,7 @@ void GPUParticle::CheckEmitter(CommandContext& commandContext) {
 		!transformModelEmitterForGPUs_.empty() ||
 		!transformAreaEmitterForGPUs_.empty()) {
 
-		//commandContext.BeginEvent(QueueType::Type::COMPUTE, L"CheckEmitter");
+		commandContext.BeginEvent(QueueType::Type::COMPUTE, L"CheckEmitter");
 
 		size_t sumEmitter = 0;
 		sumEmitter += emitterForGPUDesc_.CheckEmitter(commandContext, emitterForGPUs_.size(), emitterForGPUs_.data());
@@ -171,7 +171,7 @@ void GPUParticle::CheckEmitter(CommandContext& commandContext) {
 		commandContext.UAVBarrier(QueueType::Type::COMPUTE,transformAreaEmitterForGPUDesc_.defaultCopyBuffer);
 		commandContext.UAVBarrier(QueueType::Type::COMPUTE,transformAreaEmitterForGPUDesc_.originalBuffer);
 		//commandContext.SetMarker("Marker");
-		//commandContext.EndEvent(QueueType::Type::COMPUTE);
+		commandContext.EndEvent(QueueType::Type::COMPUTE);
 	}
 }
 
@@ -183,7 +183,7 @@ void GPUParticle::AddEmitter(CommandContext& commandContext) {
 		!transformModelEmitterForGPUs_.empty() ||
 		!transformAreaEmitterForGPUs_.empty()) {
 
-		//commandContext.BeginEvent(QueueType::Type::COMPUTE, L"AddEmitter");
+		commandContext.BeginEvent(QueueType::Type::COMPUTE, L"AddEmitter");
 
 		emitterForGPUDesc_.AddEmitter(commandContext);
 		vertexEmitterForGPUDesc_.AddEmitter(commandContext);
@@ -226,13 +226,13 @@ void GPUParticle::AddEmitter(CommandContext& commandContext) {
 		emitterForGPUs_.clear();
 		transformAreaEmitterForGPUs_.clear();
 
-		//commandContext.EndEvent(QueueType::Type::COMPUTE);
+		commandContext.EndEvent(QueueType::Type::COMPUTE);
 	}
 }
 
 void GPUParticle::UpdateEmitter(CommandContext& commandContext) {
 	// createParticleのリセット
-	//commandContext.BeginEvent(QueueType::Type::COMPUTE, L"UpdateEmitter");
+	commandContext.BeginEvent(QueueType::Type::COMPUTE, L"UpdateEmitter");
 	commandContext.CopyBufferRegion(QueueType::Type::COMPUTE, createParticleCounterCopySrcBuffer_, 0, resetCounterBuffer_, 0, sizeof(UINT));
 
 	commandContext.TransitionResource(QueueType::Type::COMPUTE,createParticleBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
@@ -266,11 +266,11 @@ void GPUParticle::UpdateEmitter(CommandContext& commandContext) {
 	// y
 	// エミッターの数
 	commandContext.CopyBufferRegion(QueueType::Type::COMPUTE, spawnArgumentBuffer_, sizeof(UINT), createParticleBuffer_, createParticleBuffer_.GetCounterOffset(), sizeof(UINT));
-	//commandContext.EndEvent(QueueType::Type::COMPUTE);
+	commandContext.EndEvent(QueueType::Type::COMPUTE);
 }
 
 void GPUParticle::Spawn(CommandContext& commandContext, const UploadBuffer& random) {
-	//commandContext.BeginEvent(QueueType::Type::COMPUTE, L"Spawn");
+	commandContext.BeginEvent(QueueType::Type::COMPUTE, L"Spawn");
 	// あと何個生成できるかコピー
 	commandContext.CopyBufferRegion(QueueType::Type::COMPUTE, originalCounterBuffer_, 0, originalCommandBuffer_, originalCommandBuffer_.GetCounterOffset(), sizeof(UINT));
 
@@ -322,12 +322,12 @@ void GPUParticle::Spawn(CommandContext& commandContext, const UploadBuffer& rand
 
 	//commandContext.CopyBufferRegion(trailsArgumentBuffers_, 0, trailsIndexBuffers_, trailsIndexBuffers_.GetCounterOffset(), sizeof(UINT));
 	commandContext.CopyBufferRegion(QueueType::Type::COMPUTE, createParticleBuffer_, createParticleBuffer_.GetCounterOffset(), resetCounterBuffer_, 0, sizeof(UINT));
-	//commandContext.EndEvent(QueueType::Type::COMPUTE);
+	commandContext.EndEvent(QueueType::Type::COMPUTE);
 }
 
 
 void GPUParticle::ParticleUpdate(const ViewProjection& viewProjection, CommandContext& commandContext) {
-	//commandContext.BeginEvent(QueueType::Type::COMPUTE, L"ParticleUpdate");
+	commandContext.BeginEvent(QueueType::Type::COMPUTE, L"ParticleUpdate");
 	// リセット
 	commandContext.CopyBufferRegion(QueueType::Type::COMPUTE, drawIndexCommandBuffers_, drawIndexCommandBuffers_.GetCounterOffset(), resetCounterBuffer_, 0, sizeof(UINT));
 
@@ -360,11 +360,11 @@ void GPUParticle::ParticleUpdate(const ViewProjection& viewProjection, CommandCo
 	commandContext.UAVBarrier(QueueType::Type::COMPUTE,particleBuffer_);
 	commandContext.UAVBarrier(QueueType::Type::COMPUTE, drawIndexCommandBuffers_);
 
-	//commandContext.EndEvent(QueueType::Type::COMPUTE);
+	commandContext.EndEvent(QueueType::Type::COMPUTE);
 }
 
 void GPUParticle::UpdateTrails(const ViewProjection& viewProjection, CommandContext& commandContext) {
-	//commandContext.BeginEvent(QueueType::Type::COMPUTE, L"UpdateTrails");
+	commandContext.BeginEvent(QueueType::Type::COMPUTE, L"UpdateTrails");
 
 	commandContext.CopyBufferRegion(QueueType::Type::COMPUTE, trailsIndexBuffers_, trailsIndexBuffers_.GetCounterOffset(), resetCounterBuffer_, 0, sizeof(int32_t));
 
@@ -383,11 +383,11 @@ void GPUParticle::UpdateTrails(const ViewProjection& viewProjection, CommandCont
 
 	commandContext.Dispatch(static_cast<UINT>(ceil((GPUParticleShaderStructs::MaxTrailsNum) / GPUParticleShaderStructs::ComputeThreadBlockSize)), 1, 1);
 	commandContext.UAVBarrier(QueueType::Type::COMPUTE, trailsIndexBuffers_);
-	//commandContext.EndEvent(QueueType::Type::COMPUTE);
+	commandContext.EndEvent(QueueType::Type::COMPUTE);
 }
 
 void GPUParticle::AddTrailsVertex(CommandContext& commandContext) {
-	//commandContext.BeginEvent(QueueType::Type::COMPUTE, L"AddTrailsVertex");
+	commandContext.BeginEvent(QueueType::Type::COMPUTE, L"AddTrailsVertex");
 
 	commandContext.CopyBufferRegion(QueueType::Type::COMPUTE, trailsVertexDataBuffers_, trailsVertexDataBuffers_.GetCounterOffset(), resetCounterBuffer_, 0, sizeof(int32_t));
 
@@ -401,12 +401,12 @@ void GPUParticle::AddTrailsVertex(CommandContext& commandContext) {
 
 	commandContext.Dispatch(static_cast<UINT>(ceil((GPUParticleShaderStructs::MaxTrailsNum) / GPUParticleShaderStructs::ComputeThreadBlockSize)), 1, 1);
 	commandContext.UAVBarrier(QueueType::Type::COMPUTE, trailsIndexBuffers_);
-	//commandContext.EndEvent(QueueType::Type::COMPUTE);
+	commandContext.EndEvent(QueueType::Type::COMPUTE);
 }
 
 void GPUParticle::BulletUpdate(CommandContext& commandContext, const UploadBuffer& random) {
 	if (!bullets_.empty()) {
-		//commandContext.BeginEvent(QueueType::Type::COMPUTE, L"UpdateBullet");
+		commandContext.BeginEvent(QueueType::Type::COMPUTE, L"UpdateBullet");
 		size_t size = bullets_.size();
 		bulletCountBuffer_.Copy(&size, sizeof(UINT));
 
@@ -422,12 +422,12 @@ void GPUParticle::BulletUpdate(CommandContext& commandContext, const UploadBuffe
 		commandContext.Dispatch(static_cast<UINT>(ceil((GPUParticleShaderStructs::MaxParticleNum / GPUParticleShaderStructs::MaxProcessNum) / GPUParticleShaderStructs::ComputeThreadBlockSize)), 1, 1);
 		commandContext.UAVBarrier(QueueType::Type::COMPUTE, particleBuffer_);
 		bullets_.clear();
-		//commandContext.EndEvent(QueueType::Type::COMPUTE);
+		commandContext.EndEvent(QueueType::Type::COMPUTE);
 	}
 }
 
 void GPUParticle::Draw(const ViewProjection& viewProjection, CommandContext& commandContext) {
-	//commandContext.BeginEvent(QueueType::Type::DIRECT, L"DrawParticle");
+	commandContext.BeginEvent(QueueType::Type::DIRECT, L"DrawParticle");
 	UINT64 destInstanceCountArgumentOffset = sizeof(GPUParticleShaderStructs::IndirectCommand::SRV) + sizeof(UINT);
 	UINT64 srcInstanceCountArgumentOffset = originalCommandBuffer_.GetCounterOffset();
 
@@ -457,11 +457,11 @@ void GPUParticle::Draw(const ViewProjection& viewProjection, CommandContext& com
 	// ComputeQueueで使用するので戻しておく
 	commandContext.TransitionResource(QueueType::Type::DIRECT,particleBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 	commandContext.TransitionResource(QueueType::Type::DIRECT,drawIndexCommandBuffers_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-	//commandContext.EndEvent(QueueType::Type::DIRECT);
+	commandContext.EndEvent(QueueType::Type::DIRECT);
 }
 
 void GPUParticle::DrawTrails(const ViewProjection& viewProjection, CommandContext& commandContext) {
-	//commandContext.BeginEvent(QueueType::Type::DIRECT,L"DrawTrails");
+	commandContext.BeginEvent(QueueType::Type::DIRECT,L"DrawTrails");
 	size_t instanceCount = sizeof(GPUParticleShaderStructs::TrailsCommand::SRV) + sizeof(UINT);
 	commandContext.CopyBufferRegion(QueueType::Type::DIRECT,trailsArgumentBuffers_, instanceCount, trailsVertexDataBuffers_, trailsVertexDataBuffers_.GetCounterOffset(), sizeof(UINT));
 	commandContext.CopyBufferRegion(QueueType::Type::DIRECT,trailsDrawInstanceCountBuffers_, 0, trailsVertexDataBuffers_, trailsVertexDataBuffers_.GetCounterOffset(), sizeof(UINT));
@@ -491,7 +491,7 @@ void GPUParticle::DrawTrails(const ViewProjection& viewProjection, CommandContex
 	commandContext.TransitionResource(QueueType::Type::DIRECT, trailsPositionBuffers_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 	commandContext.TransitionResource(QueueType::Type::DIRECT, trailsVertexDataBuffers_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 	commandContext.TransitionResource(QueueType::Type::DIRECT, trailsDrawInstanceCountBuffers_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-	//commandContext.EndEvent(QueueType::Type::DIRECT);
+	commandContext.EndEvent(QueueType::Type::DIRECT);
 }
 
 void GPUParticle::DrawImGui() {
@@ -504,7 +504,7 @@ void GPUParticle::DrawImGui() {
 void GPUParticle::CreateMeshParticle(const ModelHandle& modelHandle, Animation::Animation& animation, const Matrix4x4& worldMatrix, const GPUParticleShaderStructs::MeshEmitterForCPU& mesh, const UploadBuffer& random, CommandContext& commandContext) {
 	// あと何個生成できるかコピー
 	if (mesh.numCreate != 0) {
-		//commandContext.BeginEvent(QueueType::Type::COMPUTE, L"MeshParticle");
+		commandContext.BeginEvent(QueueType::Type::COMPUTE, L"MeshParticle");
 		auto& model = ModelManager::GetInstance()->GetModel(modelHandle);
 		commandContext.CopyBufferRegion(QueueType::Type::COMPUTE, originalCounterBuffer_, 0, originalCommandBuffer_, originalCommandBuffer_.GetCounterOffset(), sizeof(UINT));
 
@@ -534,7 +534,7 @@ void GPUParticle::CreateMeshParticle(const ModelHandle& modelHandle, Animation::
 		commandContext.Dispatch(UINT(numThreadGroups), createParticleNum, 1);
 		commandContext.UAVBarrier(QueueType::Type::COMPUTE, originalCommandBuffer_);
 		commandContext.UAVBarrier(QueueType::Type::COMPUTE, particleBuffer_);
-		//commandContext.EndEvent(QueueType::Type::COMPUTE);
+		commandContext.EndEvent(QueueType::Type::COMPUTE);
 	}
 }
 
@@ -542,7 +542,7 @@ void GPUParticle::CreateMeshParticle(const ModelHandle& modelHandle, const Matri
 	// auto model = ModelManager::GetInstance()->GetModel(modelHandle);
 	// あと何個生成できるかコピー
 	if (mesh.numCreate != 0) {
-		//commandContext.BeginEvent(QueueType::Type::COMPUTE, L"MeshParticle");
+		commandContext.BeginEvent(QueueType::Type::COMPUTE, L"MeshParticle");
 		auto& model = ModelManager::GetInstance()->GetModel(modelHandle);
 		commandContext.CopyBufferRegion(QueueType::Type::COMPUTE, originalCounterBuffer_, 0, originalCommandBuffer_, originalCommandBuffer_.GetCounterOffset(), sizeof(UINT));
 
@@ -573,12 +573,12 @@ void GPUParticle::CreateMeshParticle(const ModelHandle& modelHandle, const Matri
 		commandContext.Dispatch(UINT(numThreadGroups), createParticleNum, 1);
 		commandContext.UAVBarrier(QueueType::Type::COMPUTE, originalCommandBuffer_);
 		commandContext.UAVBarrier(QueueType::Type::COMPUTE, particleBuffer_);
-		//commandContext.EndEvent(QueueType::Type::COMPUTE);
+		commandContext.EndEvent(QueueType::Type::COMPUTE);
 	}
 }
 
 void GPUParticle::CreateVertexParticle(const ModelHandle& modelHandle, Animation::Animation& animation, const Matrix4x4& worldTransform, const GPUParticleShaderStructs::VertexEmitterForCPU& mesh, const UploadBuffer& random, CommandContext& commandContext) {
-	//commandContext.BeginEvent(QueueType::Type::COMPUTE, L"VertexParticle");
+	commandContext.BeginEvent(QueueType::Type::COMPUTE, L"VertexParticle");
 	auto& model = ModelManager::GetInstance()->GetModel(modelHandle);
 
 	commandContext.CopyBufferRegion(QueueType::Type::COMPUTE, originalCounterBuffer_, 0, originalCommandBuffer_, originalCommandBuffer_.GetCounterOffset(), sizeof(UINT));
@@ -606,10 +606,10 @@ void GPUParticle::CreateVertexParticle(const ModelHandle& modelHandle, Animation
 	commandContext.Dispatch(UINT(numThreadGroups), 1, 1);
 	commandContext.UAVBarrier(QueueType::Type::COMPUTE, originalCommandBuffer_);
 	commandContext.UAVBarrier(QueueType::Type::COMPUTE, particleBuffer_);
-	//commandContext.EndEvent(QueueType::Type::COMPUTE);
+	commandContext.EndEvent(QueueType::Type::COMPUTE);
 }
 void GPUParticle::CreateVertexParticle(const ModelHandle& modelHandle, const Matrix4x4& worldTransform, const GPUParticleShaderStructs::VertexEmitterForCPU& mesh, const UploadBuffer& random, CommandContext& commandContext) {
-	//commandContext.BeginEvent(QueueType::Type::COMPUTE, L"VertexParticle");
+	commandContext.BeginEvent(QueueType::Type::COMPUTE, L"VertexParticle");
 
 	auto& model = ModelManager::GetInstance()->GetModel(modelHandle);
 	// あと何個生成できるかコピー
@@ -638,13 +638,13 @@ void GPUParticle::CreateVertexParticle(const ModelHandle& modelHandle, const Mat
 	commandContext.Dispatch(UINT(numThreadGroups), 1, 1);
 	commandContext.UAVBarrier(QueueType::Type::COMPUTE, originalCommandBuffer_);
 	commandContext.UAVBarrier(QueueType::Type::COMPUTE, particleBuffer_);
-	//commandContext.EndEvent(QueueType::Type::COMPUTE);
+	commandContext.EndEvent(QueueType::Type::COMPUTE);
 }
 
 void GPUParticle::CreateEdgeParticle(const ModelHandle& modelHandle, Animation::Animation& animation, const Matrix4x4& worldTransform, const GPUParticleShaderStructs::MeshEmitterForCPU& mesh, const UploadBuffer& random, CommandContext& commandContext) {
 	// あと何個生成できるかコピー
 	if (mesh.numCreate != 0) {
-		//commandContext.BeginEvent(QueueType::Type::COMPUTE, L"EdgeParticle");
+		commandContext.BeginEvent(QueueType::Type::COMPUTE, L"EdgeParticle");
 
 		auto& model = ModelManager::GetInstance()->GetModel(modelHandle);
 		commandContext.CopyBufferRegion(QueueType::Type::COMPUTE, originalCounterBuffer_, 0, originalCommandBuffer_, originalCommandBuffer_.GetCounterOffset(), sizeof(UINT));
@@ -675,14 +675,14 @@ void GPUParticle::CreateEdgeParticle(const ModelHandle& modelHandle, Animation::
 		//uint32_t createParticleNum = mesh.numCreate;
 		commandContext.Dispatch(UINT(numThreadGroups), 1, 1);
 		commandContext.UAVBarrier(QueueType::Type::COMPUTE, originalCommandBuffer_);
-		//commandContext.EndEvent(QueueType::Type::COMPUTE);
+		commandContext.EndEvent(QueueType::Type::COMPUTE);
 	}
 }
 
 void GPUParticle::CreateEdgeParticle(const ModelHandle& modelHandle, const Matrix4x4& worldTransform, const GPUParticleShaderStructs::MeshEmitterForCPU& mesh, const UploadBuffer& random, CommandContext& commandContext) {
 	// あと何個生成できるかコピー
 	if (mesh.numCreate != 0) {
-		//commandContext.BeginEvent(QueueType::Type::COMPUTE, L"EdgeParticle");
+		commandContext.BeginEvent(QueueType::Type::COMPUTE, L"EdgeParticle");
 		auto& model = ModelManager::GetInstance()->GetModel(modelHandle);
 
 		commandContext.CopyBufferRegion(QueueType::Type::COMPUTE, originalCounterBuffer_, 0, originalCommandBuffer_, originalCommandBuffer_.GetCounterOffset(), sizeof(UINT));
@@ -714,7 +714,7 @@ void GPUParticle::CreateEdgeParticle(const ModelHandle& modelHandle, const Matri
 		commandContext.Dispatch(UINT(numThreadGroups), 1, 1);
 		commandContext.UAVBarrier(QueueType::Type::COMPUTE, originalCommandBuffer_);
 		commandContext.UAVBarrier(QueueType::Type::COMPUTE, particleBuffer_);
-		//commandContext.EndEvent(QueueType::Type::COMPUTE);
+		commandContext.EndEvent(QueueType::Type::COMPUTE);
 	}
 }
 //
@@ -1374,7 +1374,7 @@ void GPUParticle::EmitterDesc::Create(const std::wstring& name, const GPUParticl
 }
 
 size_t GPUParticle::EmitterDesc::CheckEmitter(CommandContext& commandContext, size_t emitterCount, void* data) {
-	//commandContext.BeginEvent(QueueType::Type::COMPUTE, L"CheckEmitterType");
+	commandContext.BeginEvent(QueueType::Type::COMPUTE, L"CheckEmitterType");
 	if (emitterCount != 0) {
 		size_t copySize = 0;
 		switch (type) {
@@ -1443,18 +1443,18 @@ size_t GPUParticle::EmitterDesc::CheckEmitter(CommandContext& commandContext, si
 	commandContext.TransitionResource(QueueType::Type::COMPUTE, defaultCopyBuffer, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 	commandContext.TransitionResource(QueueType::Type::COMPUTE, originalBuffer, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 	commandContext.TransitionResource(QueueType::Type::COMPUTE, addCountBuffer, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
-	//commandContext.EndEvent(QueueType::Type::COMPUTE);
+	commandContext.EndEvent(QueueType::Type::COMPUTE);
 	return emitterCount;
 }
 
 void GPUParticle::EmitterDesc::AddEmitter(CommandContext& commandContext) {
-	//commandContext.BeginEvent(QueueType::Type::COMPUTE, L"AddEmitterType");
+	commandContext.BeginEvent(QueueType::Type::COMPUTE, L"AddEmitterType");
 	commandContext.CopyBuffer(QueueType::Type::COMPUTE, createEmitterBuffer, addCountBuffer);
 
 	commandContext.TransitionResource(QueueType::Type::COMPUTE, defaultCopyBuffer, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 	commandContext.TransitionResource(QueueType::Type::COMPUTE, originalBuffer, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 	commandContext.TransitionResource(QueueType::Type::COMPUTE, createEmitterBuffer, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-	//commandContext.EndEvent(QueueType::Type::COMPUTE);
+	commandContext.EndEvent(QueueType::Type::COMPUTE);
 }
 
 void GPUParticle::EmitterDesc::UpdateEmitter(CommandContext& commandContext) {

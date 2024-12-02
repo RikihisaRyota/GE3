@@ -198,7 +198,7 @@ ModelHandle ModelManager::Load(const std::filesystem::path path) {
 }
 
 void ModelManager::Draw(const Matrix4x4& worldMatrix, const ViewProjection& viewProjection, const ModelHandle& modelHandle, CommandContext& commandContext) {
-	commandContext.BeginEvent(QueueType::Type::DIRECT, L"DrawModel");
+	//commandContext.BeginEvent(QueueType::Type::DIRECT, L"DrawModel");
 	
 	struct ConstBufferDataWorldTransform {
 		Matrix4x4 matWorld; // ローカル → ワールド変換行列
@@ -233,7 +233,7 @@ void ModelManager::Draw(const Matrix4x4& worldMatrix, const ViewProjection& view
 		commandContext.SetGraphicsDescriptorTable(Parameter::RootParameter::Sampler, SamplerManager::LinearWrap);
 		commandContext.DrawIndexed(modelData->meshes->indexCount, modelData->meshes->indexOffset, modelData->meshes->vertexOffset);
 	}
-	commandContext.EndEvent(QueueType::Type::DIRECT);
+	//commandContext.EndEvent(QueueType::Type::DIRECT);
 }
 
 void ModelManager::Draw(const Matrix4x4& worldMatrix, Animation::Animation& skinning, const ViewProjection& viewProjection, const ModelHandle& modelHandle, CommandContext& commandContext) {

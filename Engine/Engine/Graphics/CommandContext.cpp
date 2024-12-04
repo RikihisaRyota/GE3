@@ -133,34 +133,9 @@ void CommandContext::StartFrame() {
 	pipelineState_ = nullptr;
 }
 
-void CommandContext::Start() {
-	auto graphics = GraphicsCore::GetInstance();
-	for (uint32_t type = 0; type < QueueType::Type::COUNT; type++) {
-		auto& queue = graphics->GetCommandQueue(QueueType::GetType(QueueType::Type::Param(type)));
+void CommandContext::BeginDraw() {
 
-		// 新しいコマンドアロケータを取得し、コマンドリストをリセット
-		//currentCommandAllocator_[type] = queue.allocatorPool_.Allocate(queue.GetLastCompletedFenceValue(FenceType::Type::Frame));
-		currentCommandList_[type]->Reset(currentCommandAllocator_[type].Get(), nullptr);
-
-		// 現在のダイナミックバッファを作成
-		for (uint32_t i = 0; i < LinearAllocatorType::kNumAllocatorTypes; ++i) {
-			currentDynamicBuffers_[type][i].Create(LinearAllocatorType(static_cast<LinearAllocatorType::Type>(i)));
-		}
-
-		if (type != QueueType::Type::COPY) {
-			// ディスクリプタヒープを設定
-			ID3D12DescriptorHeap* ppHeaps[] = {
-				static_cast<ID3D12DescriptorHeap*>(graphics->GetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV)),
-				static_cast<ID3D12DescriptorHeap*>(graphics->GetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER)),
-			};
-			currentCommandList_[type]->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
-		}
-	}
-	computeRootSignature_ = nullptr;
-	graphicsRootSignature_ = nullptr;
-	pipelineState_ = nullptr;
 }
-
 
 void CommandContext::EndFrame() {
 	auto graphics = GraphicsCore::GetInstance();
@@ -192,6 +167,35 @@ void CommandContext::EndFrame() {
 		}
 	}
 }
+
+void CommandContext::Start() {
+	auto graphics = GraphicsCore::GetInstance();
+	for (uint32_t type = 0; type < QueueType::Type::COUNT; type++) {
+		auto& queue = graphics->GetCommandQueue(QueueType::GetType(QueueType::Type::Param(type)));
+
+		// 新しいコマンドアロケータを取得し、コマンドリストをリセット
+		//currentCommandAllocator_[type] = queue.allocatorPool_.Allocate(queue.GetLastCompletedFenceValue(FenceType::Type::Frame));
+		currentCommandList_[type]->Reset(currentCommandAllocator_[type].Get(), nullptr);
+
+		// 現在のダイナミックバッファを作成
+		for (uint32_t i = 0; i < LinearAllocatorType::kNumAllocatorTypes; ++i) {
+			currentDynamicBuffers_[type][i].Create(LinearAllocatorType(static_cast<LinearAllocatorType::Type>(i)));
+		}
+
+		if (type != QueueType::Type::COPY) {
+			// ディスクリプタヒープを設定
+			ID3D12DescriptorHeap* ppHeaps[] = {
+				static_cast<ID3D12DescriptorHeap*>(graphics->GetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV)),
+				static_cast<ID3D12DescriptorHeap*>(graphics->GetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER)),
+			};
+			currentCommandList_[type]->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
+		}
+	}
+	computeRootSignature_ = nullptr;
+	graphicsRootSignature_ = nullptr;
+	pipelineState_ = nullptr;
+}
+
 
 void CommandContext::End() {
 	//// 使ってない整備してない

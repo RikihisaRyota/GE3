@@ -135,6 +135,11 @@ void RenderManager::BeginRender() {
 
 }
 
+void RenderManager::BeginDraw() {
+	auto& commandContext = commandContext_;
+	commandContext.BeginDraw();
+}
+
 void RenderManager::EndRender(const ViewProjection& viewProjection) {
 	auto& commandContext = commandContext_;
 	uint32_t targetSwapChainBufferIndex = (swapChain_.GetBackBufferIndex() + 1) % SwapChain::kNumBuffers;

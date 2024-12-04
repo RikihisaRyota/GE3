@@ -38,8 +38,10 @@ public:
 	void Create();
 
 	void StartFrame();
-	void Start();
+	void BeginDraw();
 	void EndFrame();
+
+	void Start();
 	void End();
 	void Close();
 	void Flush();

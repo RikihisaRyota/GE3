@@ -84,7 +84,7 @@ void BossStateRoot::Update(CommandContext& commandContext) {
 		data_.disguisingField.isAlive = false;
 		data_.transformField.isAlive = false;
 		time_ += 1.0f / data_.allFrame;
-		/*if (time_ >= 1.0f) {
+		if (time_ >= 1.0f) {
 			BossStateManager::State tmp = static_cast<BossStateManager::State>((rnd_.NextUIntLimit() % int(BossStateManager::AttackStateType::kAttackStateTypeCount)) + int(BossStateManager::State::kRushAttack));
 			switch (tmp) {
 			case BossStateManager::State::kRushAttack:
@@ -99,7 +99,7 @@ void BossStateRoot::Update(CommandContext& commandContext) {
 
 			}
 			data_.transformEmitter.isAlive = false;
-		}*/
+		}
 		time_ = std::fmod(time_, 1.0f);
 	}
 

@@ -22,6 +22,7 @@ public:
 	void Initialize();
 	void Reset();
 	void BeginRender();
+	void BeginDraw();
 	void EndRender(const ViewProjection& viewProjection);
 	void Shutdown();
 

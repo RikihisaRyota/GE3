@@ -86,6 +86,8 @@ namespace GameCore {
 
 		viewProjection->UpdateMatrix();
 
+		renderManager->BeginDraw();
+
 		sceneManager->Draw(renderManager->GetCommandContext());
 
 		particleManager->Draw(renderManager->GetCommandContext(),*viewProjection);

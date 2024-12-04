@@ -1,7 +1,7 @@
 {
     "CollisionInfo": {
-        "attribute": 0,
-        "mask": 0
+        "attribute": 12,
+        "mask": 8
     },
     "EmitterArea": {
         "EmitterAABB": {
@@ -86,13 +86,20 @@
         "isLoop": 0,
         "isOnce": 1
     },
-    "EmitterTrails": {},
+    "EmitterTrails": {
+        "interval": 5,
+        "isTrails": 0,
+        "lifeLimit": 1.0,
+        "textureIndex": 0,
+        "width": 0.5
+    },
     "Parent": {
         "isParent": 0
     },
     "ParticleLifeSpan": {
         "Max": 120,
         "Min": 60,
+        "isCountDown": 0,
         "isEmitterLife": 0
     },
     "RotateAnimation": {
@@ -118,6 +125,16 @@
                 0.0
             ]
         },
+        "Max": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Min": [
+            0.0,
+            0.0,
+            0.0
+        ],
         "Start": {
             "Max": [
                 1.0,
@@ -130,6 +147,7 @@
                 0.5
             ]
         },
+        "isMedPoint": 0,
         "isStaticSize": 0,
         "isUniformScale": 1
     },

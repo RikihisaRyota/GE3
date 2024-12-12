@@ -247,31 +247,31 @@ void CommandContext::Close() {
 	for (uint32_t i = 0; i < QueueType::Type::COUNT; i++) {
 		auto hr = currentCommandList_[i]->Close();
 		if (FAILED(hr)) {
-			// システムメモリの使用状況をログに記録
-			MEMORYSTATUSEX statex;
-			statex.dwLength = sizeof(MEMORYSTATUSEX);
-			GlobalMemoryStatusEx(&statex);
+			//// システムメモリの使用状況をログに記録
+			//MEMORYSTATUSEX statex;
+			//statex.dwLength = sizeof(MEMORYSTATUSEX);
+			//GlobalMemoryStatusEx(&statex);
 
-			std::ofstream logFile("log.txt", std::ios::app);
-			logFile << "Close failed for command list " << i << ", HRESULT: " << hr << std::endl;
-			logFile << "システムメモリ使用率: " << statex.dwMemoryLoad << "%" << std::endl;
-			logFile << "使用可能な物理メモリ: " << statex.ullAvailPhys / (1024 * 1024) << " MB" << std::endl;
-			logFile << "総システムメモリ: " << statex.ullTotalPhys / (1024 * 1024) << " MB" << std::endl;
-			logFile.close();
+			//std::ofstream logFile("log.txt", std::ios::app);
+			//logFile << "Close failed for command list " << i << ", HRESULT: " << hr << std::endl;
+			//logFile << "システムメモリ使用率: " << statex.dwMemoryLoad << "%" << std::endl;
+			//logFile << "使用可能な物理メモリ: " << statex.ullAvailPhys / (1024 * 1024) << " MB" << std::endl;
+			//logFile << "総システムメモリ: " << statex.ullTotalPhys / (1024 * 1024) << " MB" << std::endl;
+			//logFile.close();
 
 
-			// エラーメッセージを取得して出力
-			TCHAR errorMsg[256];
-			FormatMessage(
-				FORMAT_MESSAGE_FROM_SYSTEM,
-				NULL,
-				hr,
-				0,
-				errorMsg,
-				sizeof(errorMsg) / sizeof(TCHAR),
-				NULL
-			);
-			OutputDebugString(errorMsg);
+			//// エラーメッセージを取得して出力
+			//TCHAR errorMsg[256];
+			//FormatMessage(
+			//	FORMAT_MESSAGE_FROM_SYSTEM,
+			//	NULL,
+			//	hr,
+			//	0,
+			//	errorMsg,
+			//	sizeof(errorMsg) / sizeof(TCHAR),
+			//	NULL
+			//);
+			//OutputDebugString(errorMsg);
 		}
 		assert(SUCCEEDED(hr));
 	}

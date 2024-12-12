@@ -1,5 +1,5 @@
 [![DebugBuild](https://github.com/RikihisaRyota/GE3/actions/workflows/DebugBiuld.yml/badge.svg)](https://github.com/RikihisaRyota/GE3/actions/workflows/DebugBiuld.yml)
-[![DebugBuild](https://github.com/RikihisaRyota/GE3/actions/workflows/DebugBiuld.yml/badge.svg)](https://github.com/RikihisaRyota/GE3/actions/workflows/DebugBiuld.yml)
+[![ReleaseBuild](https://github.com/RikihisaRyota/GE3/actions/workflows/Release.yml/badge.svg)](https://github.com/RikihisaRyota/GE3/actions/workflows/Release.yml)
 # Engine
 ## 説明
 このエンジンはDirectX12で自作し、制作人数は1人で開発期間は約２年です。\

@@ -16,6 +16,7 @@ Microsoft::WRL::ComPtr<ID3D12CommandAllocator> CommandAllocatorPool::Allocate(UI
 		if (allocatorPair.first <= completedFanceValue) {
 			commandAllocator = allocatorPair.second;
 			auto hr = commandAllocator->Reset();
+			hr;
 			assert(SUCCEEDED(hr));
 			readyAllocators_.pop();
 		}
@@ -24,6 +25,7 @@ Microsoft::WRL::ComPtr<ID3D12CommandAllocator> CommandAllocatorPool::Allocate(UI
 	if (!commandAllocator) {
 		auto device = GraphicsCore::GetInstance()->GetDevice();
 		auto hr = device->CreateCommandAllocator(type_, IID_PPV_ARGS(commandAllocator.GetAddressOf()));
+		hr;
 		assert(SUCCEEDED(hr));
 
 		allocatorPool_.emplace_back(commandAllocator);

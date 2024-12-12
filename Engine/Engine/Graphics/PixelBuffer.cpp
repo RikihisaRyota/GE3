@@ -17,7 +17,7 @@ void PixelBuffer::CreateTextureResource(const std::wstring& name, const D3D12_RE
 		&desc,D3D12_RESOURCE_STATE_COMMON,
 		&clearValue,IID_PPV_ARGS(resource_.GetAddressOf())
 	);
-
+	hr;
 	assert(SUCCEEDED(hr));
 
 	state_ = D3D12_RESOURCE_STATE_COMMON;

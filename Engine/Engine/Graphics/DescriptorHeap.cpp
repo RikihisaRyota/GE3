@@ -22,6 +22,7 @@ void DescriptorHeap::Create(D3D12_DESCRIPTOR_HEAP_TYPE type, uint32_t numDescrip
 		desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 	}
 	auto hr = device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(descriptorHeap_.ReleaseAndGetAddressOf()));
+	hr;
 	assert(SUCCEEDED(hr));
 
 	descriptorSize_ = device->GetDescriptorHandleIncrementSize(desc.Type);

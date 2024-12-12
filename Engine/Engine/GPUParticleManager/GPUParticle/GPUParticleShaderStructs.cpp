@@ -63,6 +63,7 @@ namespace GPUParticleShaderStructs {
 	}
 
 	void DrawMinMax(GPUParticleShaderStructs::UintMinMax& startEnd, float v_speed, int v_min, int v_max) {
+		startEnd, v_speed, v_min, v_max;
 #ifdef _DEBUG
 		int min = static_cast<int>(startEnd.min);
 		int max = static_cast<int>(startEnd.max);
@@ -76,6 +77,7 @@ namespace GPUParticleShaderStructs {
 	}
 
 	void DrawMinMax(GPUParticleShaderStructs::FloatMinMax& startEnd, float v_speed, float v_min, float v_max) {
+		startEnd, v_speed, v_min, v_max;
 #ifdef _DEBUG
 		ImGui::DragFloat("Min", &startEnd.min, v_speed, v_min, v_max);
 		ImGui::DragFloat("Max", &startEnd.max, v_speed, v_min, v_max);
@@ -84,6 +86,7 @@ namespace GPUParticleShaderStructs {
 
 
 	void DrawMinMax(GPUParticleShaderStructs::Vector3MinMax& startEnd, float v_speed, float v_min, float v_max) {
+		startEnd, v_speed, v_min, v_max;
 #ifdef _DEBUG
 		ImGui::DragFloat3("Min", &startEnd.min.x, v_speed, v_min, v_max);
 		ImGui::DragFloat3("Max", &startEnd.max.x, v_speed, v_min, v_max);
@@ -91,6 +94,7 @@ namespace GPUParticleShaderStructs {
 	}
 
 	void DrawMinMax(GPUParticleShaderStructs::Vector4MinMax& startEnd, float v_speed, float v_min, float v_max) {
+		startEnd, v_speed, v_min, v_max;
 #ifdef _DEBUG
 		ImGui::DragFloat4("Min", &startEnd.min.x, v_speed, v_min, v_max);
 		ImGui::DragFloat4("Max", &startEnd.max.x, v_speed, v_min, v_max);
@@ -98,6 +102,7 @@ namespace GPUParticleShaderStructs {
 	}
 
 	void DrawColorMinMax(GPUParticleShaderStructs::Vector4MinMax& startEnd) {
+		startEnd;
 #ifdef _DEBUG
 		ImGui::ColorEdit4("Min", &startEnd.min.x);
 		ImGui::ColorEdit4("Max", &startEnd.max.x);
@@ -142,6 +147,7 @@ namespace GPUParticleShaderStructs {
 
 
 	void DrawStartEnd(GPUParticleShaderStructs::Vector3StartEnd& startEnd, float v_speed, float v_min, float v_max) {
+		startEnd, v_speed, v_min, v_max;
 #ifdef _DEBUG
 		if (ImGui::TreeNode("Start")) {
 			DrawMinMax(startEnd.start, v_speed, v_min, v_max);
@@ -155,6 +161,7 @@ namespace GPUParticleShaderStructs {
 #endif // _DEBUG
 	}
 	void DrawStartEnd(GPUParticleShaderStructs::Vector4StartEnd& startEnd, float v_speed, float v_min, float v_max) {
+		startEnd, v_speed, v_min, v_max;
 #ifdef _DEBUG
 		if (ImGui::TreeNode("Start")) {
 			DrawMinMax(startEnd.start, v_speed, v_min, v_max);
@@ -169,6 +176,7 @@ namespace GPUParticleShaderStructs {
 	}
 
 	void DrawLocalTranslate(GPUParticleShaderStructs::EmitterLocalTransform& localTransform) {
+		localTransform;
 #ifdef _DEBUG
 		if (ImGui::TreeNode("LocalTransform")) {
 			ImGui::DragFloat3("Translate", &localTransform.translate.x, 0.1f);
@@ -178,6 +186,7 @@ namespace GPUParticleShaderStructs {
 	}
 
 	void DrawTranslate(GPUParticleShaderStructs::Translate& translate) {
+		translate;
 #ifdef _DEBUG
 		if (ImGui::TreeNode("Translate")) {
 			ImGui::Checkbox("IsEasing", reinterpret_cast<bool*>(&translate.isEasing));
@@ -192,6 +201,7 @@ namespace GPUParticleShaderStructs {
 
 
 	void DrawColor(GPUParticleShaderStructs::Vector4StartEnd& startEnd) {
+		startEnd;
 #ifdef _DEBUG
 		if (ImGui::TreeNode("Start")) {
 			DrawColorMinMax(startEnd.start);
@@ -206,6 +216,7 @@ namespace GPUParticleShaderStructs {
 	}
 
 	void DrawArea(GPUParticleShaderStructs::EmitterArea& area) {
+		area;
 #ifdef _DEBUG
 		if (ImGui::TreeNode("Area")) {
 			switch (area.type) {
@@ -251,6 +262,7 @@ namespace GPUParticleShaderStructs {
 	}
 
 	void DrawScale(GPUParticleShaderStructs::ScaleAnimation& scale) {
+		scale;
 #ifdef _DEBUG
 		// isUniformScale
 		// 縦横一緒
@@ -348,6 +360,7 @@ namespace GPUParticleShaderStructs {
 	}
 
 	void DrawRotate(GPUParticleShaderStructs::RotateAnimation& rotate) {
+		rotate;
 #ifdef _DEBUG
 		if (ImGui::TreeNode("Rotate")) {
 			if (ImGui::TreeNode("InitializeAngle")) {
@@ -364,6 +377,7 @@ namespace GPUParticleShaderStructs {
 	}
 
 	void DrawVelocity(GPUParticleShaderStructs::Velocity3D& velocity) {
+		velocity;
 #ifdef _DEBUG
 		if (ImGui::TreeNode("Velocity3D")) {
 			DrawMinMax(velocity.range, 0.1f);
@@ -373,6 +387,7 @@ namespace GPUParticleShaderStructs {
 	}
 
 	void DrawAcceleration(GPUParticleShaderStructs::Acceleration3D& acceleration) {
+		acceleration;
 #ifdef _DEBUG
 		if (ImGui::TreeNode("Acceleration3D")) {
 			DrawMinMax(acceleration.range, 0.1f);
@@ -382,6 +397,7 @@ namespace GPUParticleShaderStructs {
 	}
 
 	void DrawColor(GPUParticleShaderStructs::EmitterColor& color) {
+		color;
 #ifdef _DEBUG
 		if (ImGui::TreeNode("Color")) {
 			if (color.isStaticColor) {
@@ -398,6 +414,7 @@ namespace GPUParticleShaderStructs {
 	}
 
 	void DrawFrequency(GPUParticleShaderStructs::EmitterFrequency& frequency) {
+		frequency;
 #ifdef _DEBUG
 		if (ImGui::TreeNode("Frequency")) {
 			if (!frequency.isOnce) {
@@ -415,6 +432,7 @@ namespace GPUParticleShaderStructs {
 	}
 
 	void DrawParticleLife(GPUParticleShaderStructs::ParticleLifeSpan& particleLifeSpan) {
+		particleLifeSpan;
 #ifdef _DEBUG
 		if (ImGui::TreeNode("ParticleLife")) {
 			if (!particleLifeSpan.isEmitterLife) {
@@ -434,6 +452,7 @@ namespace GPUParticleShaderStructs {
 	}
 
 	void DrawTrails(GPUParticleShaderStructs::EmitterTrails& emitterTrails) {
+		emitterTrails;
 #ifdef _DEBUG
 		if (ImGui::TreeNode("Trails")) {
 			ImGui::Checkbox("IsTrails", reinterpret_cast<bool*>(&emitterTrails.isTrails));
@@ -470,6 +489,7 @@ namespace GPUParticleShaderStructs {
 	}
 
 	void DrawTextureHandle(uint32_t& texture) {
+		texture;
 #ifdef _DEBUG
 		if (ImGui::TreeNode("TextureHandle")) {
 			std::list<std::string> stageList;
@@ -495,6 +515,7 @@ namespace GPUParticleShaderStructs {
 	}
 
 	void DrawCreateParticleNum(uint32_t& createParticleNum) {
+		createParticleNum;
 #ifdef _DEBUG
 		if (ImGui::TreeNode("CreateParticle")) {
 			ImGui::DragInt("Num", reinterpret_cast<int*>(&createParticleNum));
@@ -504,6 +525,7 @@ namespace GPUParticleShaderStructs {
 	}
 
 	void DrawParent(uint32_t& parent) {
+		parent;
 #ifdef _DEBUG
 		bool isParent = static_cast<bool>(parent);
 
@@ -514,6 +536,7 @@ namespace GPUParticleShaderStructs {
 	}
 
 	void DrawCollisionInfo(GPUParticleShaderStructs::ParticleAttributes& particleAttributes) {
+		particleAttributes;
 #ifdef _DEBUG
 		if (ImGui::TreeNode("CollisionInfo")) {
 			if (ImGui::TreeNode("Attribute")) {
@@ -540,6 +563,7 @@ namespace GPUParticleShaderStructs {
 	}
 
 	void DrawField(GPUParticleShaderStructs::Field& field) {
+		field;
 #ifdef _DEBUG
 		if (ImGui::TreeNode("FieldInfo")) {
 			switch (field.type) {
@@ -593,6 +617,7 @@ namespace GPUParticleShaderStructs {
 	}
 
 	void DrawFieldFrequency(GPUParticleShaderStructs::FieldFrequency& fieldFrequency) {
+		fieldFrequency;
 #ifdef _DEBUG
 		if (ImGui::TreeNode("Frequency")) {
 			ImGui::Checkbox("IsLoop", reinterpret_cast<bool*>(&fieldFrequency.isLoop));
@@ -1210,6 +1235,7 @@ namespace GPUParticleShaderStructs {
 }
 
 void GPUParticleShaderStructs::EmitterEditor(const std::string name, std::tuple<bool*, GPUParticleShaderStructs::EmitterForCPU*, Matrix4x4>e) {
+	name, e;
 #ifdef _DEBUG
 	ImGui::Begin(("Emitter:" + name).c_str());
 	ImGui::PushID(name.c_str());
@@ -1254,6 +1280,7 @@ void GPUParticleShaderStructs::EmitterEditor(const std::string name, std::tuple<
 }
 
 void GPUParticleShaderStructs::EmitterEditor(const std::string name, std::tuple<bool*, GPUParticleShaderStructs::MeshEmitterForCPU*> d) {
+	name, d;
 #ifdef _DEBUG
 	ImGui::Begin(("MeshEmitter:" + name).c_str());
 	ImGui::PushID(name.c_str());
@@ -1303,6 +1330,7 @@ void GPUParticleShaderStructs::EmitterEditor(const std::string name, std::tuple<
 }
 
 void GPUParticleShaderStructs::EmitterEditor(const std::string name, std::tuple<bool*, GPUParticleShaderStructs::VertexEmitterForCPU*> d) {
+	name, d;
 #ifdef _DEBUG
 	ImGui::Begin(("VertexEmitter:" + name).c_str());
 	ImGui::PushID(name.c_str());
@@ -1347,6 +1375,7 @@ void GPUParticleShaderStructs::EmitterEditor(const std::string name, std::tuple<
 #endif // _DEBUG
 }
 void GPUParticleShaderStructs::EmitterEditor(const std::string name, std::tuple<bool*, TransformModelEmitterForCPU*> e) {
+	name, e;
 
 #ifdef _DEBUG
 	ImGui::Begin(("TransfromModelEmitter:" + name).c_str());
@@ -1389,7 +1418,7 @@ void GPUParticleShaderStructs::EmitterEditor(const std::string name, std::tuple<
 #endif // _DEBUG
 }
 void GPUParticleShaderStructs::EmitterEditor(const std::string name, std::tuple<bool*, TransformAreaEmitterForCPU*> e) {
-
+	name, e;
 #ifdef _DEBUG
 	ImGui::Begin(("TransfromAreaEmitter:" + name).c_str());
 	ImGui::PushID(name.c_str());
@@ -1434,6 +1463,7 @@ void GPUParticleShaderStructs::EmitterEditor(const std::string name, std::tuple<
 }
 
 void GPUParticleShaderStructs::EmitterEditor(const std::string name, std::tuple<bool*, GPUParticleShaderStructs::FieldForCPU*> d) {
+	name, d;
 #ifdef _DEBUG
 	ImGui::Begin(("Field:" + name).c_str());
 	ImGui::PushID(name.c_str());

@@ -73,6 +73,7 @@ void Texture::CreateResource(const DirectX::TexMetadata& metadata, const std::fi
 		D3D12_RESOURCE_STATE_COMMON,
 		nullptr,
 		IID_PPV_ARGS(resource_.GetAddressOf()));
+	hr;
 	assert(SUCCEEDED(hr));
 	resource_->SetName(path.c_str());
 	state_ = D3D12_RESOURCE_STATE_COMMON;

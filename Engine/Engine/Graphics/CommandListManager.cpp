@@ -254,6 +254,7 @@ void CommandListManager::CreateFence() {
 				D3D12_FENCE_FLAG_NONE,
 				IID_PPV_ARGS(&queueFenceDesc_[i].fence)
 			);
+			hr;
 			assert(SUCCEEDED(hr));
 
 			// フェンスイベントを作成
@@ -269,6 +270,7 @@ void CommandListManager::CreateFence() {
 				D3D12_FENCE_FLAG_NONE,
 				IID_PPV_ARGS(&frameFenceDesc_.fence)
 			);
+			hr;
 			assert(SUCCEEDED(hr));
 
 			// フェンスイベントを作成

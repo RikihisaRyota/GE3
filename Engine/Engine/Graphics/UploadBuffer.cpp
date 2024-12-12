@@ -28,7 +28,7 @@ void UploadBuffer::Create(const std::wstring& name, size_t bufferSize) {
 		IID_PPV_ARGS(resource_.GetAddressOf())
 	);
 	assert(SUCCEEDED(result));
-	
+	result;
 	state_ = D3D12_RESOURCE_STATE_COMMON;
 	bufferSize_ = bufferSize;
 

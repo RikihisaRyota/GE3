@@ -9,6 +9,7 @@ void PipelineState::Create(const std::wstring& name, const D3D12_GRAPHICS_PIPELI
 		&desc,
 		IID_PPV_ARGS(pipelineState_.ReleaseAndGetAddressOf())
 	);
+	hr;
 	assert(SUCCEEDED(hr));
 	pipelineState_->SetName(name.c_str());
 }
@@ -18,6 +19,7 @@ void PipelineState::Create(const std::wstring& name, const D3D12_COMPUTE_PIPELIN
 		&desc,
 		IID_PPV_ARGS(pipelineState_.ReleaseAndGetAddressOf())
 	);
+	hr;
 	assert(SUCCEEDED(hr));
 	pipelineState_->SetName(name.c_str());
 }

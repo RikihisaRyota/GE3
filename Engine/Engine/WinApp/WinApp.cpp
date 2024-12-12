@@ -33,6 +33,7 @@ LRESULT WinApp::WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
 void WinApp::CreateGameWindow(const wchar_t* title, UINT windowStyle, int32_t clientWidth, int32_t clientHeight) {
 	// COM初期化(異なるプログラミング言語やプロセス間での相互運用性を可能にできるらしい)
 	auto hr = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
+	hr;
 	assert(SUCCEEDED(hr));
 	//ウィンドウプロシージャ
 	wc_.lpfnWndProc = WindowProc;

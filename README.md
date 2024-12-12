@@ -1,3 +1,4 @@
+[![DebugBuild](https://github.com/RikihisaRyota/GE3/actions/workflows/DebugBiuld.yml/badge.svg)](https://github.com/RikihisaRyota/GE3/actions/workflows/DebugBiuld.yml)
 # Engine
 ## 説明
 このエンジンはDirectX12で自作し、制作人数は1人で開発期間は約２年です。\

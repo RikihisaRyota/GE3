@@ -31,6 +31,7 @@ namespace QueueType {
 	};
 	inline D3D12_COMMAND_LIST_TYPE GetType(const QueueType::Type::Param& type);
 	inline std::string GetTypeString(const QueueType::Type::Param& type);
+	inline std::wstring GetTypeWString(const QueueType::Type::Param& type);
 }
 
 class CommandContext {
@@ -50,6 +51,7 @@ public:
 	void UAVBarrier(const QueueType::Type::Param& type, GpuResource& resource);
 	void FlushResourceBarriers();
 
+	void ResetBuffer(const QueueType::Type::Param& type, GpuResource& dest, size_t bufferSize);
 	void CopyBuffer(const QueueType::Type::Param& type, GpuResource& dest, GpuResource& src);
 	void CopyBuffer(const QueueType::Type::Param& type, GpuResource& dest, size_t bufferSize, const void* bufferData);
 	void CopyBufferRegion(const QueueType::Type::Param& type, GpuResource& dest, UINT64 destOffset, GpuResource& src, UINT64 srcOffset, UINT64 NumBytes = 0);
@@ -63,7 +65,7 @@ public:
 
 	void SetPipelineState(const QueueType::Type::Param& type, const PipelineState& pipelineState);
 	void SetGraphicsRootSignature(const RootSignature& rootSignature);
-	void SetComputeRootSignature(const RootSignature& rootSignature);
+	void SetComputeRootSignature(const QueueType::Type::Param& type,const RootSignature& rootSignature);
 
 	void SetRenderTargets(UINT numRTVs, const D3D12_CPU_DESCRIPTOR_HANDLE RTVs[]);
 	void SetRenderTargets(UINT numRTVs, const D3D12_CPU_DESCRIPTOR_HANDLE RTVs[], D3D12_CPU_DESCRIPTOR_HANDLE DSV);
@@ -74,20 +76,21 @@ public:
 	void SetPrimitiveTopology(D3D12_PRIMITIVE_TOPOLOGY topology);
 
 	void SetGraphicsDynamicConstantBufferView(UINT rootIndex, size_t bufferSize, const void* bufferData);
-	void SetComputeDynamicConstantBufferView(UINT rootIndex, size_t bufferSize, const void* bufferData);
+	void SetComputeDynamicConstantBufferView(const QueueType::Type::Param& type, UINT rootIndex, size_t bufferSize, const void* bufferData);
 	void SetGraphicsDynamicShaderResource(UINT rootIndex, size_t bufferSize, const void* bufferData);
-	void SetComputeDynamicShaderResource(UINT rootIndex, size_t bufferSize, const void* bufferData);
+	void SetComputeDynamicShaderResource(const QueueType::Type::Param& type, UINT rootIndex, size_t bufferSize, const void* bufferData);
 	void SetDynamicVertexBuffer(UINT slot, size_t numVertices, size_t vertexStride, const void* vertexData);
 	void SetDynamicIndexBuffer(size_t numIndices, DXGI_FORMAT indexFormat, const void* indexData);
 	void SetGraphicsConstantBuffer(UINT rootIndex, D3D12_GPU_VIRTUAL_ADDRESS address);
-	void SetComputeConstantBuffer(UINT rootIndex, D3D12_GPU_VIRTUAL_ADDRESS address);
+	void SetComputeConstantBuffer(const QueueType::Type::Param& type, UINT rootIndex, D3D12_GPU_VIRTUAL_ADDRESS address);
 	void SetGraphicsShaderResource(UINT rootIndex, D3D12_GPU_VIRTUAL_ADDRESS address);
-	void SetComputeShaderResource(UINT rootIndex, D3D12_GPU_VIRTUAL_ADDRESS address);
+	void SetComputeShaderResource(const QueueType::Type::Param& type, UINT rootIndex, D3D12_GPU_VIRTUAL_ADDRESS address);
 	void SetGraphicsDescriptorTable(UINT rootIndex, D3D12_GPU_DESCRIPTOR_HANDLE handle);
-	void SetComputeDescriptorTable(UINT rootIndex, D3D12_GPU_DESCRIPTOR_HANDLE handle);
+	void SetComputeDescriptorTable(const QueueType::Type::Param& type,UINT rootIndex, D3D12_GPU_DESCRIPTOR_HANDLE handle);
 	void SetDescriptorHeaps(UINT numDescriptorHeaps, ID3D12DescriptorHeap* descriptorHeaps, const QueueType::Type::Param& type);
 
-	void SetComputeUAV(uint32_t rootParameterIndex, D3D12_GPU_VIRTUAL_ADDRESS bufferLocation);
+	void SetComputeUAV(const QueueType::Type::Param& type, uint32_t rootParameterIndex, D3D12_GPU_VIRTUAL_ADDRESS bufferLocation);
+	void SetGraphicsUAV(uint32_t rootParameterIndex, D3D12_GPU_VIRTUAL_ADDRESS bufferLocation);
 
 	void SetVertexBuffer(UINT slot, const D3D12_VERTEX_BUFFER_VIEW& vbv);
 	void SetVertexBuffer(UINT slot, UINT numViews, const D3D12_VERTEX_BUFFER_VIEW vbvs[]);
@@ -106,7 +109,7 @@ public:
 	void DrawIndexedInstanced(UINT indexCountPerInstance, UINT instanceCount, UINT startIndexLocation = 0, INT baseVertexLocation = 0, UINT startInstanceLocation = 0);
 	void ExecuteIndirect(const CommandSignature& commandSignature, UINT maxCommandCount, ID3D12Resource* argumentBuffer, UINT64 argumentBufferOffset, ID3D12Resource* countBuffer, UINT64 countBufferOffset, const QueueType::Type::Param& type);
 
-	void Dispatch(uint32_t x, uint32_t y, uint32_t z);
+	void Dispatch(const QueueType::Type::Param& type,uint32_t x, uint32_t y, uint32_t z);
 
 	void BeginEvent(const QueueType::Type::Param& type, const std::wstring& name);
 	void EndEvent(const QueueType::Type::Param& type);

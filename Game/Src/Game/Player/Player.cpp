@@ -129,6 +129,7 @@ void Player::Update(CommandContext& commandContext) {
 	velocity_ += acceleration_;
 	worldTransform_.translate += velocity_;
 	Vector3 playerForward = Vector3(velocity_.x, 0.0f, velocity_.z);
+	// 足元のパーティクル
 	if (playerForward.Length() != 0.0f) {
 		PlayerRotate(playerForward.Normalized());
 		footEmitter_.fugitiveDust.isAlive = true;

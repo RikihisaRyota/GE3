@@ -166,7 +166,7 @@ namespace Animation {
 
 		auto& model = ModelManager::GetInstance()->GetModel(modelHandle);
 		commandContext.BeginEvent(QueueType::Type::COMPUTE,L"Skinning");
-		commandContext.SetComputeRootSignature(rootSignature);
+		commandContext.SetComputeRootSignature(QueueType::Type::COMPUTE, rootSignature);
 		commandContext.SetPipelineState(QueueType::Type::COMPUTE,pipelineState);
 
 		commandContext.TransitionResource(QueueType::Type::COMPUTE,paletteResource, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
@@ -175,12 +175,12 @@ namespace Animation {
 		commandContext.TransitionResource(QueueType::Type::COMPUTE,vertexBuffer, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 		commandContext.TransitionResource(QueueType::Type::COMPUTE,skinningInfomation, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
 
-		commandContext.SetComputeShaderResource(kWell, paletteResource.GetGPUVirtualAddress());
-		commandContext.SetComputeShaderResource(kInputVertex, model.GetVertexBuffer().GetGPUVirtualAddress());
-		commandContext.SetComputeShaderResource(kInfluence, influenceResource.GetGPUVirtualAddress());
-		commandContext.SetComputeUAV(kOutputVertex, vertexBuffer.GetGPUVirtualAddress());
-		commandContext.SetComputeConstantBuffer(kSkinningInfomation, skinningInfomation.GetGPUVirtualAddress());
-		commandContext.Dispatch(UINT(model.GetAllVertexCount() + 1023) / 1024, 1, 1);
+		commandContext.SetComputeShaderResource(QueueType::Type::COMPUTE, kWell, paletteResource.GetGPUVirtualAddress());
+		commandContext.SetComputeShaderResource(QueueType::Type::COMPUTE, kInputVertex, model.GetVertexBuffer().GetGPUVirtualAddress());
+		commandContext.SetComputeShaderResource(QueueType::Type::COMPUTE, kInfluence, influenceResource.GetGPUVirtualAddress());
+		commandContext.SetComputeUAV(QueueType::Type::COMPUTE, kOutputVertex, vertexBuffer.GetGPUVirtualAddress());
+		commandContext.SetComputeConstantBuffer(QueueType::Type::COMPUTE, kSkinningInfomation, skinningInfomation.GetGPUVirtualAddress());
+		commandContext.Dispatch(QueueType::Type::COMPUTE, UINT(model.GetAllVertexCount() + 1023) / 1024, 1, 1);
 
 		commandContext.UAVBarrier(QueueType::Type::COMPUTE,vertexBuffer);
 		commandContext.EndEvent(QueueType::Type::COMPUTE);

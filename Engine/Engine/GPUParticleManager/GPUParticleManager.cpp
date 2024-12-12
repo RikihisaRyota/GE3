@@ -51,7 +51,8 @@ namespace ParticleManager {
 	enum BulletForGPUSigunature {
 		kBullets,
 		kBulletNum,
-		kAllParticle,
+		kDirectParticle,
+		kComputeParticle,
 		kRandomBuff,
 		kBulletForGPUSigunatureCount,
 	};
@@ -78,51 +79,52 @@ void GPUParticleManager::Update(const ViewProjection& viewProjection, CommandCon
 	UINT seed = static_cast<UINT>(std::chrono::system_clock::now().time_since_epoch().count());
 	randomBuffer_.Copy(&seed, sizeof(UINT));
 
-	commandContext.SetComputeRootSignature(*checkFieldRootSignature_);
+	commandContext.SetComputeRootSignature(QueueType::Type::COMPUTE, *checkFieldRootSignature_);
 	commandContext.SetPipelineState(QueueType::Type::COMPUTE, *checkFieldPipelineState_);
 	gpuParticle_->CheckField(commandContext);
 
-	commandContext.SetComputeRootSignature(*addFieldRootSignature_);
+	commandContext.SetComputeRootSignature(QueueType::Type::COMPUTE, *addFieldRootSignature_);
 	commandContext.SetPipelineState(QueueType::Type::COMPUTE, *addFieldPipelineState_);
 	gpuParticle_->AddField(commandContext);
 
-	commandContext.SetComputeRootSignature(*checkEmitterComputeRootSignature_);
+	commandContext.SetComputeRootSignature(QueueType::Type::COMPUTE, *checkEmitterComputeRootSignature_);
 	commandContext.SetPipelineState(QueueType::Type::COMPUTE, *checkEmitterComputePipelineState_);
 	gpuParticle_->CheckEmitter(commandContext);
 
-	commandContext.SetComputeRootSignature(*addEmitterComputeRootSignature_);
+	commandContext.SetComputeRootSignature(QueueType::Type::COMPUTE, *addEmitterComputeRootSignature_);
 	commandContext.SetPipelineState(QueueType::Type::COMPUTE, *addEmitterComputePipelineState_);
 	gpuParticle_->AddEmitter(commandContext);
 
-	commandContext.SetComputeRootSignature(*emitterUpdateComputeRootSignature_);
-	commandContext.SetPipelineState(QueueType::Type::COMPUTE, *emitterUpdateComputePipelineState_);
-	gpuParticle_->UpdateEmitter(commandContext);
+	//commandContext.SetComputeRootSignature(QueueType::Type::COMPUTE, *emitterUpdateComputeRootSignature_);
+	//commandContext.SetPipelineState(QueueType::Type::COMPUTE, *emitterUpdateComputePipelineState_);
+	//gpuParticle_->UpdateEmitter(commandContext);
 
-	commandContext.SetComputeRootSignature(*spawnComputeRootSignature_);
-	commandContext.SetPipelineState(QueueType::Type::COMPUTE, *spawnComputePipelineState_);
-	gpuParticle_->Spawn(commandContext, randomBuffer_);
+	//commandContext.SetComputeRootSignature(QueueType::Type::COMPUTE, *spawnComputeRootSignature_);
+	//commandContext.SetPipelineState(QueueType::Type::COMPUTE, *spawnComputePipelineState_);
+	//gpuParticle_->Spawn(commandContext, randomBuffer_);
 
-	commandContext.SetComputeRootSignature(*updateComputeRootSignature_);
-	commandContext.SetPipelineState(QueueType::Type::COMPUTE, *updateComputePipelineState_);
-	gpuParticle_->ParticleUpdate(viewProjection, commandContext);
+	//commandContext.SetComputeRootSignature(QueueType::Type::DIRECT,*updateComputeRootSignature_);
+	////commandContext.SetPipelineState(QueueType::Type::COMPUTE, *updateComputePipelineState_);
+	//commandContext.SetPipelineState(QueueType::Type::DIRECT, *updateComputePipelineState_);
+	//gpuParticle_->ParticleUpdate(viewProjection, commandContext);
 
-	commandContext.SetComputeRootSignature(*updateTrailsRootSignature_);
-	commandContext.SetPipelineState(QueueType::Type::COMPUTE, *updateTrailsPipelineState_);
-	gpuParticle_->UpdateTrails(viewProjection, commandContext);
+	//commandContext.SetComputeRootSignature(QueueType::Type::COMPUTE, *updateTrailsRootSignature_);
+	//commandContext.SetPipelineState(QueueType::Type::COMPUTE, *updateTrailsPipelineState_);
+	//gpuParticle_->UpdateTrails(viewProjection, commandContext);
 
-	commandContext.SetComputeRootSignature(*addVertexTrailsRootSignature_);
-	commandContext.SetPipelineState(QueueType::Type::COMPUTE, *addVertexTrailsPipelineState_);
-	gpuParticle_->AddTrailsVertex(commandContext);
+	//commandContext.SetComputeRootSignature(QueueType::Type::COMPUTE, *addVertexTrailsRootSignature_);
+	//commandContext.SetPipelineState(QueueType::Type::COMPUTE, *addVertexTrailsPipelineState_);
+	//gpuParticle_->AddTrailsVertex(commandContext);
 
-	commandContext.SetComputeRootSignature(*bulletRootSignature_);
+	commandContext.SetComputeRootSignature(QueueType::Type::COMPUTE, *bulletRootSignature_);
 	commandContext.SetPipelineState(QueueType::Type::COMPUTE, *bulletPipelineState_);
 	gpuParticle_->BulletUpdate(commandContext, randomBuffer_);
 
-	commandContext.SetComputeRootSignature(*updateFieldRootSignature_);
+	commandContext.SetComputeRootSignature(QueueType::Type::COMPUTE, *updateFieldRootSignature_);
 	commandContext.SetPipelineState(QueueType::Type::COMPUTE, *updateFieldPipelineState_);
 	gpuParticle_->UpdateField(commandContext);
 
-	commandContext.SetComputeRootSignature(*collisionFieldRootSignature_);
+	commandContext.SetComputeRootSignature(QueueType::Type::COMPUTE, *collisionFieldRootSignature_);
 	commandContext.SetPipelineState(QueueType::Type::COMPUTE, *collisionFieldPipelineState_);
 	gpuParticle_->CollisionField(commandContext, randomBuffer_);
 
@@ -134,37 +136,37 @@ void GPUParticleManager::Draw(const ViewProjection& viewProjection, CommandConte
 
 	//commandContext.SetRenderTarget(RenderManager::GetInstance()->GetMainColorBuffer().GetRTV(), RenderManager::GetInstance()->GetMainDepthBuffer().GetReadOnlyDSV());
 
-	commandContext.SetGraphicsRootSignature(*graphicsRootSignature_);
-	commandContext.SetPipelineState(QueueType::Type::DIRECT, *graphicsPipelineState_);
+	//commandContext.SetGraphicsRootSignature(*graphicsRootSignature_);
+	//commandContext.SetPipelineState(QueueType::Type::DIRECT, *graphicsPipelineState_);
 
-	commandContext.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	struct Vertex {
-		Vector3 position;
-		Vector2 texcoord;
-	};
-	std::vector<Vertex> vertices = {
-		// 前
-		{ { -0.5f, -0.5f, +0.0f },{0.0f,1.0f} }, // 左下
-		{ { -0.5f, +0.5f, +0.0f },{0.0f,0.0f} }, // 左上
-		{ { +0.5f, -0.5f, +0.0f },{1.0f,1.0f} }, // 右下
-		{ { +0.5f, +0.5f, +0.0f },{1.0f,0.0f} }, // 右上
-	};
-	commandContext.SetDynamicVertexBuffer(0, vertices.size(), sizeof(vertices.at(0)), vertices.data());
-	std::vector<uint16_t>indices = {
-		0, 1, 3,
-		2, 0, 3,
-	};
-	commandContext.SetDynamicIndexBuffer(indices.size(), DXGI_FORMAT_R16_UINT, indices.data());
-	gpuParticle_->Draw(viewProjection, commandContext);
+	//commandContext.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	//struct Vertex {
+	//	Vector3 position;
+	//	Vector2 texcoord;
+	//};
+	//std::vector<Vertex> vertices = {
+	//	// 前
+	//	{ { -0.5f, -0.5f, +0.0f },{0.0f,1.0f} }, // 左下
+	//	{ { -0.5f, +0.5f, +0.0f },{0.0f,0.0f} }, // 左上
+	//	{ { +0.5f, -0.5f, +0.0f },{1.0f,1.0f} }, // 右下
+	//	{ { +0.5f, +0.5f, +0.0f },{1.0f,0.0f} }, // 右上
+	//};
+	//commandContext.SetDynamicVertexBuffer(0, vertices.size(), sizeof(vertices.at(0)), vertices.data());
+	//std::vector<uint16_t>indices = {
+	//	0, 1, 3,
+	//	2, 0, 3,
+	//};
+	//commandContext.SetDynamicIndexBuffer(indices.size(), DXGI_FORMAT_R16_UINT, indices.data());
+	//gpuParticle_->Draw(viewProjection, commandContext);
 
-	commandContext.SetGraphicsRootSignature(*tailsGraphicsRootSignature_);
-	commandContext.SetPipelineState(QueueType::Type::DIRECT, *tailsGraphicsPipelineState_);
+	//commandContext.SetGraphicsRootSignature(*tailsGraphicsRootSignature_);
+	//commandContext.SetPipelineState(QueueType::Type::DIRECT, *tailsGraphicsPipelineState_);
 
-	commandContext.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	//commandContext.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	gpuParticle_->DrawTrails(viewProjection, commandContext);
-	commandContext.TransitionResource(QueueType::Type::DIRECT, RenderManager::GetInstance()->GetMainDepthBuffer(), D3D12_RESOURCE_STATE_DEPTH_WRITE);
-	commandContext.FlushResourceBarriers();
+	//gpuParticle_->DrawTrails(viewProjection, commandContext);
+	//commandContext.TransitionResource(QueueType::Type::DIRECT, RenderManager::GetInstance()->GetMainDepthBuffer(), D3D12_RESOURCE_STATE_DEPTH_WRITE);
+	//commandContext.FlushResourceBarriers();
 }
 
 void GPUParticleManager::DrawImGui() {
@@ -914,7 +916,8 @@ void GPUParticleManager::CreateBullet() {
 		CD3DX12_ROOT_PARAMETER rootParameters[ParticleManager::BulletForGPUSigunature::kBulletForGPUSigunatureCount]{};
 		rootParameters[ParticleManager::BulletForGPUSigunature::kBullets].InitAsDescriptorTable(_countof(bulletRange), bulletRange);
 		rootParameters[ParticleManager::BulletForGPUSigunature::kBulletNum].InitAsConstantBufferView(0);
-		rootParameters[ParticleManager::BulletForGPUSigunature::kAllParticle].InitAsUnorderedAccessView(0);
+		rootParameters[ParticleManager::BulletForGPUSigunature::kDirectParticle].InitAsUnorderedAccessView(0);
+		rootParameters[ParticleManager::BulletForGPUSigunature::kComputeParticle].InitAsUnorderedAccessView(1);
 		rootParameters[ParticleManager::BulletForGPUSigunature::kRandomBuff].InitAsConstantBufferView(1);
 		D3D12_ROOT_SIGNATURE_DESC desc{};
 		desc.pParameters = rootParameters;
@@ -1097,14 +1100,12 @@ void GPUParticleManager::CreateField() {
 	{
 		addFieldRootSignature_ = std::make_unique<RootSignature>();
 
-		CD3DX12_DESCRIPTOR_RANGE fieldIndexStockBuffer[1]{};
-		fieldIndexStockBuffer[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 2, 0);
-
-		CD3DX12_ROOT_PARAMETER rootParameters[4]{};
+		CD3DX12_ROOT_PARAMETER rootParameters[5]{};
 		rootParameters[0].InitAsShaderResourceView(0);
 		rootParameters[1].InitAsUnorderedAccessView(0);
 		rootParameters[2].InitAsUnorderedAccessView(1);
-		rootParameters[3].InitAsDescriptorTable(_countof(fieldIndexStockBuffer), fieldIndexStockBuffer);
+		rootParameters[3].InitAsUnorderedAccessView(2);
+		rootParameters[4].InitAsUnorderedAccessView(3);
 
 		D3D12_ROOT_SIGNATURE_DESC desc{};
 		desc.pParameters = rootParameters;
@@ -1124,15 +1125,14 @@ void GPUParticleManager::CreateField() {
 	{
 		updateFieldRootSignature_ = std::make_unique<RootSignature>();
 
-		CD3DX12_DESCRIPTOR_RANGE fieldIndexStockBuffer[1]{};
-		fieldIndexStockBuffer[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 1, 0);
 		CD3DX12_DESCRIPTOR_RANGE fieldIndexBuffer[1]{};
-		fieldIndexBuffer[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 2, 0);
+		fieldIndexBuffer[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 3, 0);
 
-		CD3DX12_ROOT_PARAMETER rootParameters[3]{};
+		CD3DX12_ROOT_PARAMETER rootParameters[4]{};
 		rootParameters[0].InitAsUnorderedAccessView(0);
-		rootParameters[1].InitAsDescriptorTable(_countof(fieldIndexStockBuffer), fieldIndexStockBuffer);
-		rootParameters[2].InitAsDescriptorTable(_countof(fieldIndexBuffer), fieldIndexBuffer);
+		rootParameters[1].InitAsUnorderedAccessView(1);
+		rootParameters[2].InitAsUnorderedAccessView(2);
+		rootParameters[3].InitAsDescriptorTable(_countof(fieldIndexBuffer), fieldIndexBuffer);
 
 		D3D12_ROOT_SIGNATURE_DESC desc{};
 		desc.pParameters = rootParameters;
@@ -1152,11 +1152,12 @@ void GPUParticleManager::CreateField() {
 	{
 		collisionFieldRootSignature_ = std::make_unique<RootSignature>();
 
-		CD3DX12_ROOT_PARAMETER rootParameters[4]{};
+		CD3DX12_ROOT_PARAMETER rootParameters[5]{};
 		rootParameters[0].InitAsShaderResourceView(0);
 		rootParameters[1].InitAsShaderResourceView(1);
 		rootParameters[2].InitAsUnorderedAccessView(0);
-		rootParameters[3].InitAsConstantBufferView(0);
+		rootParameters[3].InitAsUnorderedAccessView(1);
+		rootParameters[4].InitAsConstantBufferView(0);
 
 		D3D12_ROOT_SIGNATURE_DESC desc{};
 		desc.pParameters = rootParameters;

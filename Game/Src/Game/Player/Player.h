@@ -75,6 +75,7 @@ private:
 	void Move();
 
 	void AnimationUpdate(CommandContext& commandContext);
+	// プレイヤーの正面を求める
 	void PlayerRotate(const Vector3& vector);
 
 	void BulletUpdate();

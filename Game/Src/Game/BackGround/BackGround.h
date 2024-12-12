@@ -7,6 +7,7 @@
 #include "Engine/GPUParticleManager/GPUParticleManager.h"
 #include "Engine/GPUParticleManager/GPUParticle/GPUParticleShaderStructs.h"
 
+// 背景
 class BackGround {
 public:
 	void Initialize();

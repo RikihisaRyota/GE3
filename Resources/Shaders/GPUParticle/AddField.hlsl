@@ -4,8 +4,8 @@
 StructuredBuffer<GPUParticleShaderStructs::FieldForGPU> addField : register(t0);
 RWStructuredBuffer<GPUParticleShaderStructs::FieldForGPU> origalField : register(u0);
 RWStructuredBuffer<int32_t> createFieldCounter : register(u1);
-ConsumeStructuredBuffer<uint> fieldIndexStockBuffer : register(u2);
-
+RWStructuredBuffer<int32_t> fieldFreeList : register(u2);
+RWStructuredBuffer<uint32_t> fieldFreeListIndex : register(u3);
 
 [numthreads(GPUParticleShaderStructs::MaxFieldNum, 1, 1)]
 void main( uint3 DTid : SV_DispatchThreadID )
@@ -17,8 +17,16 @@ void main( uint3 DTid : SV_DispatchThreadID )
         // addFieldバッファから対応するインデックスのエミッターを取得
         GPUParticleShaderStructs::FieldForGPU newField = addField[createFieldNum];
         if (newField.isAlive) {
-            uint32_t index = fieldIndexStockBuffer.Consume();
-            origalField[index] = newField;
+            int32_t index = -1;
+            InterlockedAdd(fieldFreeListIndex[0], -1, index);
+            // フリーリストが空っぽじゃないか
+            if(index >= 0){
+                origalField[index] = newField;
+            } 
+            // 空だったら戻しておく
+            else {
+                InterlockedAdd(fieldFreeListIndex[0], 1);
+            }
         }
     }
 }

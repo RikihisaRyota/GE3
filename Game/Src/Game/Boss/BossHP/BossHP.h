@@ -2,6 +2,7 @@
 
 #include <stdint.h>
 
+// ボスHP管理
 class BossHP {
 public:
 	BossHP();
@@ -9,6 +10,7 @@ public:
 	void Update();
 	void DrawImGui();
 
+	// ダメージ時に呼び出す
 	void HitDamage(int32_t damege);
 private:
 	int32_t currentHP_;

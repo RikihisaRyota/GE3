@@ -15,6 +15,7 @@ class Boss;
 class CommandContext;
 class BossStateManager;
 class Player;
+// state基底クラス
 class BossState {
 public:
 	BossState(BossStateManager& manager, bool inTransition) : manager_(manager), inTransition_(inTransition) {}
@@ -229,7 +230,7 @@ private:
 	JsonData data_;
 };
 
-
+// マネージャー
 class BossStateManager {
 public:
 	std::vector<std::string> stateNames_{

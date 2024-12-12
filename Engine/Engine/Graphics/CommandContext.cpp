@@ -34,9 +34,9 @@ void CommandContext::Create() {
 			IID_PPV_ARGS(currentCommandList_[type].ReleaseAndGetAddressOf())
 		);
 		assert(SUCCEEDED(hr));
-		std::wstring s = L"currentCommandAllocator" + std::to_wstring(type);
+		std::wstring s = L"currentCommandAllocator" + QueueType::GetTypeWString(QueueType::Type::Param(type));
 		currentCommandAllocator_[type]->SetName(s.c_str());
-		s = L"currentCommandList" + std::to_wstring(type);
+		s = L"currentCommandList" + QueueType::GetTypeWString(QueueType::Type::Param(type));
 		currentCommandList_[type]->SetName(s.c_str());
 
 		currentCommandList_[type]->Close();
@@ -55,13 +55,18 @@ void CommandContext::Create() {
 			IID_PPV_ARGS(preCommandList_[type].ReleaseAndGetAddressOf())
 		);
 		assert(SUCCEEDED(hr));
-		s = L"preCommandAllocator" + std::to_wstring(type);
+		s = L"preCommandAllocator" + QueueType::GetTypeWString(QueueType::Type::Param(type));
 		preCommandAllocator_[type]->SetName(s.c_str());
-		s = L"preCommandList" + std::to_wstring(type);
+		s = L"preCommandList" + QueueType::GetTypeWString(QueueType::Type::Param(type));
 		preCommandList_[type]->SetName(s.c_str());
 
 		preCommandList_[type]->Close();
 		//preCommandList_[type]->Reset(preCommandAllocator_[type].Get(), nullptr);
+		// ダイナミックバッファを作成
+		for (uint32_t i = 0; i < LinearAllocatorType::kNumAllocatorTypes; ++i) {
+			currentDynamicBuffers_[type][i].Create(LinearAllocatorType(static_cast<LinearAllocatorType::Type>(i)));
+			previousDynamicBuffers_[type][i].Create(LinearAllocatorType(static_cast<LinearAllocatorType::Type>(i)));
+		}
 
 	}
 }
@@ -73,12 +78,63 @@ void CommandContext::StartFrame() {
 	auto& copyQueue = graphics->GetCommandQueue(GetType(QueueType::Type::Param::COPY));
 	auto& computeQueue = graphics->GetCommandQueue(GetType(QueueType::Type::Param::COMPUTE));
 	auto& directQueue = graphics->GetCommandQueue(GetType(QueueType::Type::Param::DIRECT));
+	 
+	// CopyQueue
+	auto queueType = QueueType::Type::Param::COPY;
+	copyQueue.ExecuteCommandList(currentCommandList_[queueType].Get(), QueueType::GetTypeString(queueType));
+
+	// ComputeQueue
+	queueType = QueueType::Type::Param::COMPUTE;
+
+	computeQueue.ExecuteCommandList(currentCommandList_[queueType].Get(), QueueType::GetTypeString(queueType));
+
+	// DirectQueue
+	queueType = QueueType::Type::Param::DIRECT;
+
+	directQueue.ExecuteCommandList(currentCommandList_[queueType].Get(), QueueType::GetTypeString(queueType));
+
+	// 新しいフレームの準備
+	for (int32_t t = 0; t < QueueType::Type::COUNT; t++) {
+		auto commandListType = GetType(QueueType::Type::Param(t));
+		auto queueType = QueueType::Type::Param(t);
+		auto& queue = graphics->GetCommandQueue(commandListType);
+		// pre代入
+		std::swap(currentCommandAllocator_[queueType], preCommandAllocator_[queueType]);
+		std::swap(currentCommandList_[queueType], preCommandList_[queueType]);
+		for (uint32_t i = 0; i < LinearAllocatorType::kNumAllocatorTypes; ++i) {
+			std::swap(currentDynamicBuffers_[t][i], previousDynamicBuffers_[t][i]);
+		}
+
+		currentCommandAllocator_[t] = queue.allocatorPool_.Allocate(queue.GetLastCompletedFenceValue());
+		// コマンドリストをリセット
+		currentCommandList_[queueType]->Reset(currentCommandAllocator_[queueType].Get(), nullptr);
+
+		if (queueType != QueueType::Type::COPY) {
+			// ディスクリプタヒープを設定
+			ID3D12DescriptorHeap* ppHeaps[] = {
+				static_cast<ID3D12DescriptorHeap*>(graphics->GetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV)),
+				static_cast<ID3D12DescriptorHeap*>(graphics->GetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER)),
+			};
+			currentCommandList_[queueType]->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
+		}
+	}
+	computeRootSignature_ = nullptr;
+	graphicsRootSignature_ = nullptr;
+	pipelineState_ = nullptr;
+}
+
+void CommandContext::BeginDraw() {
+	auto graphics = GraphicsCore::GetInstance();
+
+	// Queueを取得
+	auto& copyQueue = graphics->GetCommandQueue(GetType(QueueType::Type::Param::COPY));
+	auto& computeQueue = graphics->GetCommandQueue(GetType(QueueType::Type::Param::COMPUTE));
+	auto& directQueue = graphics->GetCommandQueue(GetType(QueueType::Type::Param::DIRECT));
 
 	// CopyQueue
 	auto queueType = QueueType::Type::Param::COPY;
 	auto& copyQueueFence = graphics->GetCommandListManager().GetCopyQueueFence();
 
-	copyQueue.ExecuteCommandList(currentCommandList_[queueType].Get(), QueueType::GetTypeString(queueType));
 	// Signal発行
 	copyQueue.Signal(copyQueueFence.fence.Get(), copyQueueFence.fenceValue, QueueType::GetTypeString(queueType));
 	// DirectにWaitを発行
@@ -88,82 +144,46 @@ void CommandContext::StartFrame() {
 	queueType = QueueType::Type::Param::COMPUTE;
 	auto& computeQueueFence = graphics->GetCommandListManager().GetComputeQueueFence();
 
-	computeQueue.ExecuteCommandList(currentCommandList_[queueType].Get(), QueueType::GetTypeString(queueType));
 	// Signal発行
 	computeQueue.Signal(computeQueueFence.fence.Get(), computeQueueFence.fenceValue, QueueType::GetTypeString(queueType));
 	// DirectにWaitを発行
 	directQueue.Wait(computeQueueFence.fence.Get(), computeQueueFence.fenceValue, QueueType::GetTypeString(QueueType::Type::Param::DIRECT));
 
 	// DirectQueue
-	// FrameFenceを取得
-	auto& frameFence = graphics->GetCommandListManager().GetFrameFence();
 	queueType = QueueType::Type::Param::DIRECT;
-	directQueue.ExecuteCommandList(currentCommandList_[queueType].Get(), QueueType::GetTypeString(queueType));
+	auto& directQueueFence = graphics->GetCommandListManager().GetDirectQueueFence();
 
-
-	for (int32_t t = 0; t < QueueType::Type::COUNT; t++) {
-		auto commandListType = GetType(QueueType::Type::Param(t));
-		auto queueType = QueueType::Type::Param(t);
-		auto& queue = graphics->GetCommandQueue(commandListType);
-		if (currentCommandList_[commandListType]) {
-			// pre代入
-			std::swap(currentCommandAllocator_[queueType], preCommandAllocator_[queueType]);
-			std::swap(currentCommandList_[queueType], preCommandList_[queueType]);
-			currentCommandAllocator_[t] = queue.allocatorPool_.Allocate(queue.GetLastCompletedFenceValue());
-			// コマンドリストをリセット
-			currentCommandList_[queueType]->Reset(currentCommandAllocator_[queueType].Get(), nullptr);
-
-			// 現在のダイナミックバッファを作成
-			for (uint32_t i = 0; i < LinearAllocatorType::kNumAllocatorTypes; ++i) {
-				currentDynamicBuffers_[queueType][i].Create(LinearAllocatorType(static_cast<LinearAllocatorType::Type>(i)));
-			}
-
-			if (queueType != QueueType::Type::COPY) {
-				// ディスクリプタヒープを設定
-				ID3D12DescriptorHeap* ppHeaps[] = {
-					static_cast<ID3D12DescriptorHeap*>(graphics->GetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV)),
-					static_cast<ID3D12DescriptorHeap*>(graphics->GetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER)),
-				};
-				currentCommandList_[queueType]->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
-			}
-		}
-	}
-	computeRootSignature_ = nullptr;
-	graphicsRootSignature_ = nullptr;
-	pipelineState_ = nullptr;
-}
-
-void CommandContext::BeginDraw() {
-
+	// Signal発行
+	directQueue.Signal(directQueueFence.fence.Get(), directQueueFence.fenceValue, QueueType::GetTypeString(QueueType::Type::Param::DIRECT));
+	// Waitを発行Update処理が終わってることを確認
+	directQueue.Wait(directQueueFence.fence.Get(), directQueueFence.fenceValue, QueueType::GetTypeString(QueueType::Type::Param::DIRECT));
 }
 
 void CommandContext::EndFrame() {
 	auto graphics = GraphicsCore::GetInstance();
 	auto& frameFence = graphics->GetCommandListManager().GetFrameFence();
-	auto& directQueue = graphics->GetCommandQueue(GetType(QueueType::Type::Param::DIRECT));
-	auto& computeQueue = graphics->GetCommandQueue(GetType(QueueType::Type::Param::COMPUTE));
 	auto& copyQueue = graphics->GetCommandQueue(GetType(QueueType::Type::Param::COPY));
+	auto& computeQueue = graphics->GetCommandQueue(GetType(QueueType::Type::Param::COMPUTE));
+	auto& directQueue = graphics->GetCommandQueue(GetType(QueueType::Type::Param::DIRECT));
 
 	directQueue.Signal(frameFence.fence.Get(), frameFence.fenceValue, QueueType::GetTypeString(QueueType::Type::Param::DIRECT));
+	//directQueue.Wait(frameFence.fence.Get(), frameFence.fenceValue, QueueType::GetTypeString(QueueType::Type::Param::DIRECT));
 
 	int64_t preFenceValue = int64_t(frameFence.fenceValue);
 
 	directQueue.WaitForFence(frameFence.fence.Get(), frameFence.fenceEventHandle, preFenceValue);
 	// 既に終了しているvalueをそれぞれに格納
-	computeQueue.WaitForFence(frameFence.fence.Get(), frameFence.fenceEventHandle, preFenceValue);
-	copyQueue.WaitForFence(frameFence.fence.Get(), frameFence.fenceEventHandle, preFenceValue);
+	computeQueue.SetFenceComplete(preFenceValue);
+	copyQueue.SetFenceComplete(preFenceValue);
 
 	for (uint32_t t = 0; t < QueueType::Type::COUNT; t++) {
 		auto commandListType = GetType(QueueType::Type::Param(t));
 		auto queueType = QueueType::Type::Param(t);
 		auto& queue = graphics->GetCommandQueue(commandListType);
-		queue.allocatorPool_.Discard(preFenceValue,preCommandAllocator_[t]);
 		// 前回のフレームのリソースをリセット
+		queue.allocatorPool_.Discard(preFenceValue, preCommandAllocator_[t]);
 		for (uint32_t i = 0; i < LinearAllocatorType::kNumAllocatorTypes; ++i) {
 			previousDynamicBuffers_[t][i].Reset(QueueType::GetType(QueueType::Type::Param(t)), preFenceValue);
-			// 現在のバッファと前回のバッファを入れ替える
-
-			std::swap(currentDynamicBuffers_[t][i], previousDynamicBuffers_[t][i]);
 		}
 	}
 }
@@ -329,6 +349,12 @@ void CommandContext::FlushResourceBarriers() {
 	}
 }
 
+void CommandContext::ResetBuffer(const QueueType::Type::Param& type, GpuResource& dest, size_t bufferSize) {
+	auto allocation = currentDynamicBuffers_[type][LinearAllocatorType::kUpload].Allocate(QueueType::GetType(type), bufferSize, 256);
+	memset(allocation.cpuAddress, 0, bufferSize);
+	CopyBufferRegion(type, dest, 0, allocation.buffer, allocation.offset, bufferSize);
+}
+
 void CommandContext::CopyBuffer(const QueueType::Type::Param& type, GpuResource& dest, GpuResource& src) {
 	TransitionResource(type, dest, D3D12_RESOURCE_STATE_COPY_DEST);
 	TransitionResource(type, src, D3D12_RESOURCE_STATE_COPY_SOURCE);
@@ -400,11 +426,11 @@ void CommandContext::SetGraphicsRootSignature(const RootSignature& rootSignature
 	}
 }
 
-void CommandContext::SetComputeRootSignature(const RootSignature& rootSignature) {
+void CommandContext::SetComputeRootSignature(const QueueType::Type::Param& type, const RootSignature& rootSignature) {
 	ID3D12RootSignature* rs = rootSignature;
 	if (computeRootSignature_ != rs) {
 		computeRootSignature_ = rs;
-		currentCommandList_[QueueType::Type::COMPUTE]->SetComputeRootSignature(computeRootSignature_);
+		currentCommandList_[type]->SetComputeRootSignature(computeRootSignature_);
 	}
 }
 
@@ -429,13 +455,13 @@ void CommandContext::SetGraphicsDynamicConstantBufferView(UINT rootIndex, size_t
 	currentCommandList_[QueueType::Type::DIRECT]->SetGraphicsRootConstantBufferView(rootIndex, allocation.gpuAddress);
 }
 
-void CommandContext::SetComputeDynamicConstantBufferView(UINT rootIndex, size_t bufferSize, const void* bufferData) {
+void CommandContext::SetComputeDynamicConstantBufferView(const QueueType::Type::Param& type, UINT rootIndex, size_t bufferSize, const void* bufferData) {
 	assert(bufferData);
 
-	auto allocation = currentDynamicBuffers_[QueueType::Type::COMPUTE][LinearAllocatorType::kUpload].Allocate(QueueType::GetType(QueueType::Type::COMPUTE), bufferSize, 256);
+	auto allocation = currentDynamicBuffers_[type][LinearAllocatorType::kUpload].Allocate(QueueType::GetType(QueueType::Type::COMPUTE), bufferSize, 256);
 	memcpy(allocation.cpuAddress, bufferData, bufferSize);
-	TransitionResource(QueueType::Type::COMPUTE, allocation.buffer, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
-	currentCommandList_[QueueType::Type::COMPUTE]->SetComputeRootConstantBufferView(rootIndex, allocation.gpuAddress);
+	TransitionResource(type, allocation.buffer, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
+	currentCommandList_[type]->SetComputeRootConstantBufferView(rootIndex, allocation.gpuAddress);
 }
 
 void CommandContext::SetGraphicsDynamicShaderResource(UINT rootIndex, size_t bufferSize, const void* bufferData) {
@@ -447,11 +473,11 @@ void CommandContext::SetGraphicsDynamicShaderResource(UINT rootIndex, size_t buf
 	currentCommandList_[QueueType::Type::DIRECT]->SetGraphicsRootShaderResourceView(rootIndex, allocation.gpuAddress);
 }
 
-void CommandContext::SetComputeDynamicShaderResource(UINT rootIndex, size_t bufferSize, const void* bufferData) {
+void CommandContext::SetComputeDynamicShaderResource(const QueueType::Type::Param& type, UINT rootIndex, size_t bufferSize, const void* bufferData) {
 	assert(bufferData);
-	auto allocation = currentDynamicBuffers_[QueueType::Type::COMPUTE][LinearAllocatorType::kUpload].Allocate(QueueType::GetType(QueueType::Type::COMPUTE), bufferSize, 256);
+	auto allocation = currentDynamicBuffers_[type][LinearAllocatorType::kUpload].Allocate(QueueType::GetType(QueueType::Type::COMPUTE), bufferSize, 256);
 	memcpy(allocation.cpuAddress, bufferData, bufferSize);
-	currentCommandList_[QueueType::Type::COMPUTE]->SetComputeRootShaderResourceView(rootIndex, allocation.gpuAddress);
+	currentCommandList_[type]->SetComputeRootShaderResourceView(rootIndex, allocation.gpuAddress);
 }
 
 void CommandContext::SetDynamicVertexBuffer(UINT slot, size_t numVertices, size_t vertexStride, const void* vertexData) {
@@ -492,32 +518,36 @@ void CommandContext::SetGraphicsConstantBuffer(UINT rootIndex, D3D12_GPU_VIRTUAL
 	currentCommandList_[QueueType::Type::DIRECT]->SetGraphicsRootConstantBufferView(rootIndex, address);
 }
 
-void CommandContext::SetComputeConstantBuffer(UINT rootIndex, D3D12_GPU_VIRTUAL_ADDRESS address) {
-	currentCommandList_[QueueType::Type::COMPUTE]->SetComputeRootConstantBufferView(rootIndex, address);
+void CommandContext::SetComputeConstantBuffer(const QueueType::Type::Param& type, UINT rootIndex, D3D12_GPU_VIRTUAL_ADDRESS address) {
+	currentCommandList_[type]->SetComputeRootConstantBufferView(rootIndex, address);
 }
 
 void CommandContext::SetGraphicsShaderResource(UINT rootIndex, D3D12_GPU_VIRTUAL_ADDRESS address) {
 	currentCommandList_[QueueType::Type::DIRECT]->SetGraphicsRootShaderResourceView(rootIndex, address);
 }
 
-void CommandContext::SetComputeShaderResource(UINT rootIndex, D3D12_GPU_VIRTUAL_ADDRESS address) {
-	currentCommandList_[QueueType::Type::COMPUTE]->SetComputeRootShaderResourceView(rootIndex, address);
+void CommandContext::SetComputeShaderResource(const QueueType::Type::Param& type, UINT rootIndex, D3D12_GPU_VIRTUAL_ADDRESS address) {
+	currentCommandList_[type]->SetComputeRootShaderResourceView(rootIndex, address);
 }
 
 void CommandContext::SetGraphicsDescriptorTable(UINT rootIndex, D3D12_GPU_DESCRIPTOR_HANDLE address) {
 	currentCommandList_[QueueType::Type::DIRECT]->SetGraphicsRootDescriptorTable(rootIndex, address);
 }
 
-void CommandContext::SetComputeDescriptorTable(UINT rootIndex, D3D12_GPU_DESCRIPTOR_HANDLE address) {
-	currentCommandList_[QueueType::Type::COMPUTE]->SetComputeRootDescriptorTable(rootIndex, address);
+void CommandContext::SetComputeDescriptorTable(const QueueType::Type::Param& type, UINT rootIndex, D3D12_GPU_DESCRIPTOR_HANDLE address) {
+	currentCommandList_[type]->SetComputeRootDescriptorTable(rootIndex, address);
 }
 
 void CommandContext::SetDescriptorHeaps(UINT numDescriptorHeaps, ID3D12DescriptorHeap* descriptorHeaps, const QueueType::Type::Param& type) {
 	currentCommandList_[type]->SetDescriptorHeaps(numDescriptorHeaps, &descriptorHeaps);
 }
 
-void CommandContext::SetComputeUAV(uint32_t rootParameterIndex, D3D12_GPU_VIRTUAL_ADDRESS bufferLocation) {
-	currentCommandList_[QueueType::Type::COMPUTE]->SetComputeRootUnorderedAccessView(rootParameterIndex, bufferLocation);
+void CommandContext::SetComputeUAV(const QueueType::Type::Param& type, uint32_t rootParameterIndex, D3D12_GPU_VIRTUAL_ADDRESS bufferLocation) {
+	currentCommandList_[type]->SetComputeRootUnorderedAccessView(rootParameterIndex, bufferLocation);
+}
+
+void CommandContext::SetGraphicsUAV(uint32_t rootParameterIndex, D3D12_GPU_VIRTUAL_ADDRESS bufferLocation) {
+	currentCommandList_[QueueType::Type::DIRECT]->SetGraphicsRootUnorderedAccessView(rootParameterIndex, bufferLocation);
 }
 
 void CommandContext::SetVertexBuffer(UINT slot, const D3D12_VERTEX_BUFFER_VIEW& vbv) {
@@ -594,9 +624,9 @@ void CommandContext::ExecuteIndirect(const CommandSignature& commandSignature, U
 	currentCommandList_[type]->ExecuteIndirect(cs, maxCommandCount, argumentBuffer, argumentBufferOffset, countBuffer, countBufferOffset);
 }
 
-void CommandContext::Dispatch(uint32_t x, uint32_t y, uint32_t z) {
+void CommandContext::Dispatch(const QueueType::Type::Param& type, uint32_t x, uint32_t y, uint32_t z) {
 	FlushResourceBarriers();
-	currentCommandList_[QueueType::Type::COMPUTE]->Dispatch(x, y, z);
+	currentCommandList_[type]->Dispatch(x, y, z);
 }
 
 void CommandContext::BeginEvent(const QueueType::Type::Param& type, const std::wstring& name) {
@@ -633,4 +663,17 @@ std::string QueueType::GetTypeString(const QueueType::Type::Param& type) {
 		break;
 	}
 	return "Direct";
+}
+
+std::wstring QueueType::GetTypeWString(const QueueType::Type::Param& type)
+{
+	switch (type) {
+	case QueueType::Type::COMPUTE:
+		return L"Compute";
+	case QueueType::Type::COPY:
+		return L"Copy";
+	default:
+		break;
+	}
+	return L"Direct";
 }

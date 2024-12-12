@@ -198,7 +198,6 @@ void GameScene::Draw(CommandContext& commandContext) {
 	boss_->Draw(*viewProjection_, commandContext);
 	backGround_->Draw();
 	for (auto& object : gameObject_) {
-
 		if (object->GetObjectName() == "Post" || object->GetObjectName() == "BackGround") {
 			continue;	
 		}
@@ -206,7 +205,7 @@ void GameScene::Draw(CommandContext& commandContext) {
 	}
 
 
-	gpuParticleManager_->Draw(*viewProjection_, commandContext);
+	//gpuParticleManager_->Draw(*viewProjection_, commandContext);
 	//skybox_->Draw(commandContext, *viewProjection_);
 	player_->DrawSprite(commandContext);
 #ifdef _DEBUG

@@ -173,8 +173,6 @@ void RenderManager::EndRender(const ViewProjection& viewProjection) {
 
 	swapChain_.Present();
 
-	auto& commandQueue = GraphicsCore::GetInstance()->GetCommandQueue(D3D12_COMMAND_LIST_TYPE_DIRECT);
-
 	commandContext.Close();
 	commandContext.EndFrame();
 

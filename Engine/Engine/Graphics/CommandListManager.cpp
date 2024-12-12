@@ -44,7 +44,7 @@ uint64_t CommandQueue::IncrementFence(ID3D12Fence* fence) {
 }
 
 void CommandQueue::StallForFence(ID3D12Fence* fence, uint64_t FenceValue) {
-	CommandQueue& Producer = CommandListManager().GetQueue((D3D12_COMMAND_LIST_TYPE)(FenceValue >> 56));
+	auto Producer = CommandListManager().GetQueue((D3D12_COMMAND_LIST_TYPE)(FenceValue >> 56));
 	commandQueue_->Wait(fence, FenceValue);
 }
 

@@ -40,7 +40,7 @@ public:
 	void CheckField(CommandContext& commandContext);
 	void AddField(CommandContext& commandContext);
 	void UpdateField(CommandContext& commandContext);
-	void CollisionField(CommandContext& commandContext,const UploadBuffer& random);
+	void CollisionField(CommandContext& commandContext, const UploadBuffer& random);
 	void Spawn(CommandContext& commandContext, const UploadBuffer& random);
 	void UpdateEmitter(CommandContext& commandContext);
 	void CheckEmitter(CommandContext& commandContext);
@@ -92,26 +92,38 @@ private:
 	std::unique_ptr<RootSignature> initializeBufferRootSignature_;
 	std::unique_ptr<PipelineState> initializeBufferPipelineState_;
 
+	struct FreeList {
+		DefaultBuffer list;
+		DefaultBuffer index;
+	};
+
+	struct FreeListBuffer {
+		DefaultBuffer buffer;
+		FreeList freeList;
+		void Create(size_t size, uint32_t listNum, const std::wstring& name);
+	};
+
+
 	// コマンドシグネイチャ
 	CommandSignature* commandSignature_;
-	// パーティクルの情報
-	DefaultBuffer particleBuffer_;
-	// パーティクルのIndexをAppend,Consumeするよう
-	DefaultBuffer originalCommandBuffer_;
-	// パーティクルが何体生きているかをCPU側に伝えるコピー用
-	//ReadBackBuffer originalCommandCounterBuffer_;
-	// 何番目のパーティクルが生きているか積み込みよう(ExecuteIndirect用)
-	DefaultBuffer drawIndexCommandBuffers_;
-	ReadBackBuffer drawIndexCountBuffer_;
-	// 描画引数用
-	DefaultBuffer drawArgumentBuffer_;
-	
+	// リセット用バッファー
+	UploadBuffer resetCounterBuffer_;
+
+	// パーティクル
+	FreeListBuffer  directParticle_;
+	FreeListBuffer  computeParticle_;
 	// エミッターのIndexと何個生成するか
 	DefaultBuffer createParticleBuffer_;
-	UploadBuffer resetCounterBuffer_;
-	//DescriptorHandle createParticleUAVHandle_;
+	// 現在描画できるパーティクルのインデックスを格納
+	DefaultBuffer drawIndexBuffers_;
+	// 現在出ているパーティクル数を受け取る
+	ReadBackBuffer drawIndexCountBuffer_;
+	DefaultBuffer drawParticleCountBuffer_;
+	// 描画引数用
+	DefaultBuffer drawArgumentBuffer_;
+
 	DefaultBuffer spawnArgumentBuffer_;
-	DefaultBuffer originalCounterBuffer_;
+
 	CommandSignature* spawnCommandSignature_;
 	// 何個生成するか数える用
 	DefaultBuffer createParticleCounterCopySrcBuffer_;
@@ -130,7 +142,7 @@ private:
 	struct EmitterDesc {
 		void Initialize(CommandContext& commandContext);
 		void Create(const std::wstring& name, const GPUParticleShaderStructs::EmitterType& type);
-		size_t CheckEmitter(CommandContext& commandContext, size_t emitterCount,void* data);
+		size_t CheckEmitter(CommandContext& commandContext, size_t emitterCount, void* data);
 		void AddEmitter(CommandContext& commandContext);
 		void UpdateEmitter(CommandContext& commandContext);
 		void Spawn(CommandContext& commandContext);
@@ -146,42 +158,28 @@ private:
 
 	EmitterDesc vertexEmitterForGPUDesc_;
 	std::vector<GPUParticleShaderStructs::VertexEmitterForGPU> vertexEmitterForGPUs_;
-	
+
 	EmitterDesc meshEmitterForGPUDesc_;
 	std::vector<GPUParticleShaderStructs::MeshEmitterForGPU> meshEmitterForGPUs_;
-	
+
 	EmitterDesc transformModelEmitterForGPUDesc_;
 	std::vector<GPUParticleShaderStructs::TransformModelEmitterForGPU> transformModelEmitterForGPUs_;
-	
+
 	EmitterDesc transformAreaEmitterForGPUDesc_;
 	std::vector<GPUParticleShaderStructs::TransformAreaEmitterForGPU> transformAreaEmitterForGPUs_;
-	//// AddParticle用
-	//UploadBuffer emitterCopyUploadBuffer_;
-	//DefaultBuffer emitterCopyDefaultBuffer_;
-	//// 追加するエミッターが何個あるか
-	//UploadBuffer addEmitterCountBuffer_;
-	//std::vector<GPUParticleShaderStructs::EmitterForGPU> emitterForGPUs_;
-	//DefaultBuffer createEmitterBuffer_;
-
-	//UploadBuffer meshEmitterCopyUploadBuffer_;
-	//DefaultBuffer meshEmitterCopyDefaultBuffer_;
-	//UploadBuffer addMeshEmitterCountBuffer_;
-	//std::vector<GPUParticleShaderStructs::MeshEmitterForGPU> meshEmitterForGPUs_;
-	//DefaultBuffer createMeshEmitterBuffer_;
-
 
 	// 弾
 	StructuredBuffer bulletsBuffer_;
 	UploadBuffer bulletCountBuffer_;
 	std::vector<GPUParticleShaderStructs::BulletForGPU> bullets_;
 	// フィールド
-	DefaultBuffer fieldOriginalBuffer_;
+	FreeListBuffer fieldBuffer_;
 	UploadBuffer fieldCPUBuffer_;
 	DefaultBuffer fieldAddBuffer_;
-	UploadBuffer fieldCounterBuffer_;
-	DefaultBuffer fieldIndexStockBuffer_;
-	DefaultBuffer fieldIndexBuffer_;
+	// 作り出すフィールドの個数を格納し引いていくためのバッファ
 	DefaultBuffer createFieldNumBuffer_;
+	// 今生きているフィールドをストックしておくバッファ
+	DefaultBuffer fieldIndexBuffer_;
 	std::vector<GPUParticleShaderStructs::FieldForGPU> fields_;
 
 	TextureHandle texture_;

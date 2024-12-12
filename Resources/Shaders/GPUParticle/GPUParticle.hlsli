@@ -354,6 +354,20 @@ float32_t3 pointOnCapsule(float32_t3 p, float32_t3 a, float32_t3 b, float32_t r,
 
     return pointOnSurface;
 }
+
+//int32_t GetFreeList(inout int32_t freeListIndex) {
+//    int32_t index = -1;
+//    InterlockedAdd(freeListIndex, -1, index);
+//    if(index <= -1){
+//        InterlockedAdd(freeListIndex, 1);
+//    }
+//    return index;
+//}
+//
+//void ReturnFreeList(inout int32_t freeListIndex){
+//    InterlockedAdd(freeListIndex, 1);
+//}
+
 /////////////////////////////////////////////////////////////////////////////////////////
 void ParticleArea(inout GPUParticleShaderStructs::Particle particle,GPUParticleShaderStructs::EmitterArea area ,inout uint32_t seed){
     particle.translate.translate = area.position;

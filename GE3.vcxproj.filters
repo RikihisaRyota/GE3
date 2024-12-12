@@ -181,9 +181,6 @@
     <Filter Include="Game\Scenes\BaseScene">
       <UniqueIdentifier>{f933f337-5f31-4b23-a12c-b9c173e727d7}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Game\Scenes\BaseScene\GameScene">
-      <UniqueIdentifier>{adc05955-4fed-458b-9cf9-eb3407035992}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Game\Scenes\SceneManager">
       <UniqueIdentifier>{8bad419b-b6ca-4705-a4da-9cc73ada41df}</UniqueIdentifier>
     </Filter>
@@ -195,6 +192,9 @@
     </Filter>
     <Filter Include="Game\Scenes\Transition">
       <UniqueIdentifier>{365c8e9b-c677-43cf-89b3-c6bee2e389c0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\Scenes\GameScene">
+      <UniqueIdentifier>{adc05955-4fed-458b-9cf9-eb3407035992}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -320,7 +320,7 @@
       <Filter>Game\Scenes\SceneManager</Filter>
     </ClCompile>
     <ClCompile Include="Game\Src\Scenes\GameScene\GameScene.cpp">
-      <Filter>Game\Scenes\BaseScene\GameScene</Filter>
+      <Filter>Game\Scenes\GameScene</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Engine\Lighting\Lighting.cpp">
       <Filter>Engine\Lighting</Filter>
@@ -625,7 +625,7 @@
       <Filter>Game\Scenes\SceneManager</Filter>
     </ClInclude>
     <ClInclude Include="Game\Src\Scenes\GameScene\GameScene.h">
-      <Filter>Game\Scenes\BaseScene\GameScene</Filter>
+      <Filter>Game\Scenes\GameScene</Filter>
     </ClInclude>
     <ClInclude Include="Game\Src\Scenes\SceneFactory\SceneFactory.h">
       <Filter>Game\Scenes\SceneFactory</Filter>

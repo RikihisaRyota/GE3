@@ -18,6 +18,7 @@
 class Player;
 class GPUParticleManager;
 class CommandContext;
+// ボス
 class Boss {
 public:
 	Boss();
@@ -47,7 +48,9 @@ private:
 	void UpdateCollider();
 	void UpdateGPUParticle(CommandContext& commandContext);
 	void UpdateTransform();
+	// ボスの体との当たり判定
 	void OnCollisionBody(const ColliderDesc& desc);
+	// ボスの攻撃とプレイヤーの当たり判定
 	void OnCollisionAttack(const ColliderDesc& desc);
 
 	Player* player_;
@@ -71,10 +74,6 @@ private:
 	std::unique_ptr<BossHP> bossHP_;
 
 	std::unique_ptr<SphereCollider> collider_;
-
-	// 
-	float tsRotate_;
-
 #pragma region Properties
 	Vector3 offset_;
 	Vector3 collisionWorldTransformOffset_;

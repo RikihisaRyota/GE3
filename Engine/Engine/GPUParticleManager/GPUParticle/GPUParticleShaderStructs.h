@@ -25,11 +25,12 @@ namespace GPUParticleShaderStructs {
 #define Quaternion float32_t4
 #define UINT uint
 #endif
-
 	static const UINT ComputeThreadBlockSize = 1024;
 	static const UINT MeshComputeThreadBlockSize = 1024;
 	static const UINT MaxParticleShouldBeSquare = 20;
 	static const UINT MaxParticleNum = 1U << MaxParticleShouldBeSquare;
+	static const UINT DivisionNum = 2;
+	static const UINT DivisionParticleNum = MaxParticleNum / DivisionNum;
 	static const UINT MaxEmitterNum = 1024;
 	static const UINT MaxFieldNum = 1024;
 	static const UINT MaxBulletNum = 10;
@@ -165,7 +166,7 @@ struct Particle
 		float radius;
 		float attraction;
 		Vector2 pad;
-	};	
+	};
 
 	struct ParticleParent {
 		uint32_t isParent;
@@ -737,11 +738,15 @@ struct Particle
 		}emitter;
 	};
 
-
+	struct DrawIndex {
+		int32_t directIndex;
+		int32_t computeIndex;
+	};
 #ifdef __cplusplus
 	struct IndirectCommand {
 		struct SRV {
-			D3D12_GPU_VIRTUAL_ADDRESS particleSRV;
+			D3D12_GPU_VIRTUAL_ADDRESS directParticleSRV;
+			D3D12_GPU_VIRTUAL_ADDRESS computeParticleSRV;
 			D3D12_GPU_VIRTUAL_ADDRESS drawIndexSRV;
 		};
 		SRV srv;

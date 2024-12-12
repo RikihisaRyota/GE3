@@ -54,6 +54,9 @@ void main(uint3 DTid : SV_DispatchThreadID)
         if(index > GPUParticleShaderStructs::MaxParticleNum){
             return;
         }
+        if(index > GPUParticleShaderStructs::DivisionParticleNum){
+            return;
+        }
         GPUParticleShaderStructs::Particle inputParticle = input[index];
         if(inputParticle.isAlive)
         {

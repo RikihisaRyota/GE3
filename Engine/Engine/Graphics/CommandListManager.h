@@ -32,6 +32,7 @@ public:
 
 	uint64_t IncrementFence(ID3D12Fence* fence);
 	bool IsFenceComplete(ID3D12Fence* fence, uint64_t FenceValue);
+	void SetFenceComplete(uint64_t FenceValue) { lastCompletedFenceValue_ = FenceValue; }
 	void StallForFence(ID3D12Fence* fence, uint64_t FenceValue);
 	void WaitForFence(ID3D12Fence* fence, const HANDLE& handle, uint64_t FenceValue);
 	void WaitForIdle(ID3D12Fence* fence, const HANDLE& handle) { WaitForFence(fence, handle, IncrementFence(fence)); }
@@ -80,11 +81,11 @@ public:
 	CommandQueue& GetComputeQueue() { return computeQueue_; }
 	CommandQueue& GetCopyQueue() { return copyQueue_; }
 
-	CommandQueue& GetQueue(D3D12_COMMAND_LIST_TYPE Type = D3D12_COMMAND_LIST_TYPE_DIRECT) {
+	CommandQueue* GetQueue(D3D12_COMMAND_LIST_TYPE Type = D3D12_COMMAND_LIST_TYPE_DIRECT) {
 		switch (Type) {
-		case D3D12_COMMAND_LIST_TYPE_COMPUTE: return computeQueue_;
-		case D3D12_COMMAND_LIST_TYPE_COPY: return copyQueue_;
-		default: return graphicsQueue_;
+		case D3D12_COMMAND_LIST_TYPE_COMPUTE: return &computeQueue_;
+		case D3D12_COMMAND_LIST_TYPE_COPY: return &copyQueue_;
+		default: return &graphicsQueue_;
 		}
 	}
 
@@ -94,7 +95,7 @@ public:
 		ID3D12CommandAllocator** Allocator);*/
 
 	bool IsFenceComplete(ID3D12Fence* fence, uint64_t FenceValue) {
-		return GetQueue(D3D12_COMMAND_LIST_TYPE(FenceValue >> 56)).IsFenceComplete(fence, FenceValue);
+		return GetQueue(D3D12_COMMAND_LIST_TYPE(FenceValue >> 56))->IsFenceComplete(fence, FenceValue);
 	}
 
 	//void WaitForFence(uint64_t FenceValue);

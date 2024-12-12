@@ -17,7 +17,8 @@ struct BulletEmitter{
 
 StructuredBuffer<GPUParticleShaderStructs::BulletForGPU> bullets : register(t0);
 
-RWStructuredBuffer<GPUParticleShaderStructs::Particle> particle : register(u0);
+RWStructuredBuffer<GPUParticleShaderStructs::Particle> directParticle : register(u0);
+RWStructuredBuffer<GPUParticleShaderStructs::Particle> computeParticle : register(u1);
 
 struct BulletCount{
     uint32_t count;
@@ -57,21 +58,28 @@ bool Collision(Circle circleA,  Circle circleB) {
 void main( uint3 DTid : SV_DispatchThreadID )
 {
     uint32_t index=DTid.x;
-    if(particle[index].isAlive&&!particle[index].isHit){
+    GPUParticleShaderStructs::Particle particle=(GPUParticleShaderStructs::Particle)0;
+    for(int32_t i=0;i<GPUParticleShaderStructs::DivisionNum;i++){
+    if(i==0){
+        particle=directParticle[index];
+    }else if(i==1){
+        particle=computeParticle[index];
+    }
+    if(particle.isAlive&&!particle.isHit){
         uint32_t seed = setSeed(index * gRandom.random);
         Circle a,b;
-        a.position=particle[index].matWorld[3].xyz;
-        a.radius=particle[index].scale.x;
+        a.position=particle.matWorld[3].xyz;
+        a.radius=particle.scale.x;
         for(uint32_t i=0;i<bulletCount.count;++i){
-            if ((particle[index].collisionInfo.mask & bullets[i].collisionInfo.attribute) != 0 &&
-                (bullets[i].collisionInfo.mask & particle[index].collisionInfo.attribute) != 0){
+            if ((particle.collisionInfo.mask & bullets[i].collisionInfo.attribute) != 0 &&
+                (bullets[i].collisionInfo.mask & particle.collisionInfo.attribute) != 0){
                 b.position=bullets[i].bullet.position;
                 b.radius=bullets[i].bullet.radius;
                 if(Collision(a,b)){
-                    float32_t3 v =particle[index].translate.translate - bullets[i].bullet.position;
-                    particle[index].velocity = normalize(v) * bullets[i].bullet.speed;
-                    particle[index].translate.translate += normalize(v) * particle[index].translate.radius;
-                    particle[index].particleLifeTime.time = 0;
+                    float32_t3 v =particle.translate.translate - bullets[i].bullet.position;
+                    particle.velocity = normalize(v) * bullets[i].bullet.speed;
+                    particle.translate.translate += normalize(v) * particle.translate.radius;
+                    particle.particleLifeTime.time = 0;
                     //particle[index].particleLifeTime.maxTime= randomRange(bullets[i].emitter.particleLifeSpan.range.min, bullets[i].emitter.particleLifeSpan.range.max, seed);
                     //particle[index].particleLifeTime.isEmitterLife = false;
                     //particle[index].translate.isEasing=false;
@@ -81,3 +89,4 @@ void main( uint3 DTid : SV_DispatchThreadID )
         }
     }
 }
+    }

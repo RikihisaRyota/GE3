@@ -2,8 +2,9 @@
 #include "GPUParticleShaderStructs.h"
 
 RWStructuredBuffer<GPUParticleShaderStructs::FieldForGPU> origalField : register(u0);
-AppendStructuredBuffer<uint> fieldIndexStockBuffer : register(u1);
-AppendStructuredBuffer<uint> fieldIndexBuffer : register(u2);
+RWStructuredBuffer<int32_t> fieldFreeList : register(u1);
+RWStructuredBuffer<uint32_t> fieldFreeListIndex : register(u2);
+AppendStructuredBuffer<uint> fieldIndexBuffer : register(u3);
 
 [numthreads(GPUParticleShaderStructs::MaxFieldNum, 1, 1)]
 void main( uint3 DTid : SV_DispatchThreadID )
@@ -14,7 +15,10 @@ void main( uint3 DTid : SV_DispatchThreadID )
         if(origalField[index].frequency.lifeCount <= 0){
             origalField[index].isAlive = false;
             origalField[index].fieldCount=-1;
-            fieldIndexStockBuffer.Append(index);
+            // freeListにindexを返却
+            int32_t freeListIndex = -1; 
+            InterlockedAdd(fieldFreeListIndex[0], 1,freeListIndex);
+            fieldFreeList[freeListIndex + 1] = index;
         }  
     }
     if(origalField[index].isAlive){

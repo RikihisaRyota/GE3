@@ -13,6 +13,7 @@
 #include "Engine/Json/JsonUtils.h"
 
 Boss::Boss() {
+	// モデル読み込み
 	ModelManager::GetInstance()->Load("Resources/Models/Boss/baggy.gltf");
 	ModelManager::GetInstance()->Load("Resources/Models/Boss/train.gltf");
 	ModelManager::GetInstance()->Load("Resources/Models/Boss/rail.gltf");
@@ -31,6 +32,7 @@ Boss::Boss() {
 
 	collider_ = std::make_unique<SphereCollider>();
 
+	// Json読み込み
 	float radius = 0.0f;
 	JSON_OPEN("Resources/Data/Boss/bossCollider.json");
 	JSON_OBJECT("Collider");
@@ -60,7 +62,6 @@ void Boss::Initialize() {
 	bossHP_->Initialize();
 	worldTransform_.Reset();
 	worldTransform_.translate = offset_;
-	tsRotate_ = 180.0f;
 	worldTransform_.rotate = MakeRotateYAngleQuaternion(DegToRad(180.0f));
 	collisionTransform_.Reset();
 	collisionTransform_.parent_ = &worldTransform_;

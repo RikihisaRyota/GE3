@@ -17,6 +17,7 @@ GameObject::GameObject(const LevelDataLoader::GameObject& desc, const WorldTrans
 	worldTransform_.rotate = desc.transform.rotate;
 	worldTransform_.scale = desc.transform.scale;
 	worldTransform_.UpdateMatrix();
+	// 当たり判定がある場合のみ
 	if (desc.collider) {
 		collider_ = new OBBCollider();
 		collider_->SetName("GameObject");
@@ -69,6 +70,7 @@ void GameObject::DrawImGui() {
 
 void GameObject::UpdateTransform() {
 	worldTransform_.UpdateMatrix();
+	// 当たり判定がある場合のみ
 	if (collider_) {
 		collider_->SetCenter(Transform(desc_.collider->center, worldTransform_.matWorld));
 		collider_->SetOrientation(worldTransform_.rotate * desc_.collider->rotate);

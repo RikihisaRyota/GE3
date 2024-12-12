@@ -240,6 +240,8 @@ void GPUParticle::AddEmitter(CommandContext& commandContext) {
 		transformAreaEmitterForGPUs_.clear();
 
 		commandContext.EndEvent(QueueType::Type::COMPUTE);
+		int u = 0;
+		u++;
 	}
 }
 

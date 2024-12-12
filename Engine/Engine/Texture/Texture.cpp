@@ -73,13 +73,13 @@ void Texture::CreateResource(const DirectX::TexMetadata& metadata, const std::fi
 		D3D12_RESOURCE_STATE_COMMON,
 		nullptr,
 		IID_PPV_ARGS(resource_.GetAddressOf()));
+	assert(SUCCEEDED(hr));
 	resource_->SetName(path.c_str());
 	state_ = D3D12_RESOURCE_STATE_COMMON;
 }
 
 void Texture::UploadTextureData(const DirectX::ScratchImage& mipImages) {
 	auto device = GraphicsCore::GetInstance()->GetDevice();
-	auto graphicsCore = GraphicsCore::GetInstance();
 	CommandContext commandContext;
 	commandContext.Create();
 	commandContext.Start();

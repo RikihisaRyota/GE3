@@ -74,7 +74,7 @@ void GPUParticleEditor::EmitterUpdate() {
 }
 
 void GPUParticleEditor::Spawn(CommandContext& commandContext) {
-
+	commandContext;
 	//commandContext.SetComputeRootSignature(*spawnComputeRootSignature_);
 	//commandContext.SetPipelineState(*spawnComputePipelineState_);
 
@@ -93,6 +93,7 @@ void GPUParticleEditor::Spawn(CommandContext& commandContext) {
 }
 
 void GPUParticleEditor::ParticleUpdate(CommandContext& commandContext) {
+	commandContext;
 	//commandContext.SetComputeRootSignature(*updateComputeRootSignature_);
 	//commandContext.SetPipelineState(*updateComputePipelineState_);
 	//// リセット
@@ -115,6 +116,8 @@ void GPUParticleEditor::ParticleUpdate(CommandContext& commandContext) {
 }
 
 void GPUParticleEditor::Draw(const ViewProjection& viewProjection, CommandContext& commandContext) {
+	viewProjection;
+	commandContext;
 	/*if (*static_cast<uint32_t*>(originalCommandCounterBuffer_.GetCPUData()) != 0) {
 		commandContext.SetGraphicsRootSignature(*graphicsRootSignature_);
 		commandContext.SetPipelineState(*graphicsPipelineState_);
@@ -143,7 +146,6 @@ void GPUParticleEditor::Draw(const ViewProjection& viewProjection, CommandContex
 
 void GPUParticleEditor::CreateGraphics() {
 	auto graphics = GraphicsCore::GetInstance();
-	auto device = graphics->GetDevice();
 
 	// グラフィックスルートシグネイチャ
 	{
@@ -219,8 +221,6 @@ void GPUParticleEditor::CreateGraphics() {
 }
 
 void GPUParticleEditor::CreateSpawn() {
-	auto graphics = GraphicsCore::GetInstance();
-	auto device = graphics->GetDevice();
 	// アップデートシグネイチャー
 	{
 		spawnComputeRootSignature_ = std::make_unique<RootSignature>();
@@ -334,8 +334,6 @@ void GPUParticleEditor::CreateEmitterBuffer() {
 }
 
 void GPUParticleEditor::CreateParticleBuffer() {
-	auto graphics = GraphicsCore::GetInstance();
-	auto device = graphics->GetDevice();
 	// アップデートシグネイチャー
 	{
 		updateComputeRootSignature_ = std::make_unique<RootSignature>();

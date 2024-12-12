@@ -49,37 +49,39 @@ void ParticleManager::Initialize() {
 
 		rootSignature_.Create(L"Model RootSignature", desc);
 	}
-	// パイプライン生成
-	D3D12_GRAPHICS_PIPELINE_STATE_DESC desc{};
-	desc.pRootSignature = rootSignature_;
+	{
 
-	D3D12_INPUT_ELEMENT_DESC inputElements[] = {
-		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-	};
+		// パイプライン生成
+		D3D12_GRAPHICS_PIPELINE_STATE_DESC desc{};
+		desc.pRootSignature = rootSignature_;
 
-	D3D12_INPUT_LAYOUT_DESC inputLayoutDesc{};
-	inputLayoutDesc.pInputElementDescs = inputElements;
-	inputLayoutDesc.NumElements = _countof(inputElements);
-	desc.InputLayout = inputLayoutDesc;
+		D3D12_INPUT_ELEMENT_DESC inputElements[] = {
+			{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+			{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+		};
 
-	auto vs = ShaderCompiler::Compile(L"Resources/Shaders/Particle/Particle.VS.hlsl", L"vs_6_0");
-	auto ps = ShaderCompiler::Compile(L"Resources/Shaders/Particle/Particle.PS.hlsl", L"ps_6_0");
+		D3D12_INPUT_LAYOUT_DESC inputLayoutDesc{};
+		inputLayoutDesc.pInputElementDescs = inputElements;
+		inputLayoutDesc.NumElements = _countof(inputElements);
+		desc.InputLayout = inputLayoutDesc;
 
-	desc.VS = CD3DX12_SHADER_BYTECODE(vs->GetBufferPointer(), vs->GetBufferSize());
-	desc.PS = CD3DX12_SHADER_BYTECODE(ps->GetBufferPointer(), ps->GetBufferSize());
-	desc.BlendState = Helper::BlendAlpha;
-	desc.DepthStencilState = Helper::DepthStateRead;
-	desc.RasterizerState = Helper::RasterizerDefault;
-	desc.NumRenderTargets = 1;
-	desc.RTVFormats[0] = RenderManager::GetInstance()->GetRenderTargetFormat();
-	desc.DSVFormat = RenderManager::GetInstance()->GetDepthFormat();
-	desc.SampleMask = D3D12_DEFAULT_SAMPLE_MASK;
-	desc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-	desc.SampleDesc.Count = 1;
-	graphicsPipeline_.Create(L"ParticleGraphicsPipeline", desc);
-	HRESULT result = S_FALSE;
+		auto vs = ShaderCompiler::Compile(L"Resources/Shaders/Particle/Particle.VS.hlsl", L"vs_6_0");
+		auto ps = ShaderCompiler::Compile(L"Resources/Shaders/Particle/Particle.PS.hlsl", L"ps_6_0");
 
+		desc.VS = CD3DX12_SHADER_BYTECODE(vs->GetBufferPointer(), vs->GetBufferSize());
+		desc.PS = CD3DX12_SHADER_BYTECODE(ps->GetBufferPointer(), ps->GetBufferSize());
+		desc.BlendState = Helper::BlendAlpha;
+		desc.DepthStencilState = Helper::DepthStateRead;
+		desc.RasterizerState = Helper::RasterizerDefault;
+		desc.NumRenderTargets = 1;
+		desc.RTVFormats[0] = RenderManager::GetInstance()->GetRenderTargetFormat();
+		desc.DSVFormat = RenderManager::GetInstance()->GetDepthFormat();
+		desc.SampleMask = D3D12_DEFAULT_SAMPLE_MASK;
+		desc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+		desc.SampleDesc.Count = 1;
+		graphicsPipeline_.Create(L"ParticleGraphicsPipeline", desc);
+
+	}
 	struct VertexPos {
 		Vector3 pos;
 		Vector2 uv;
@@ -160,7 +162,6 @@ void ParticleManager::Initialize() {
 }
 
 void ParticleManager::Update() {
-	size_t count = 0;
 
 	for (auto it = instancing_.begin(); it != instancing_.end();) {
 		if ((*it)->isAlive) {

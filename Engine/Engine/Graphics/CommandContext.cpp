@@ -20,7 +20,6 @@
 
 void CommandContext::Create() {
 	auto device = GraphicsCore::GetInstance()->GetDevice();
-	auto graphics = GraphicsCore::GetInstance();
 	for (uint32_t type = 0; type < QueueType::Type::COUNT; type++) {
 		auto hr = device->CreateCommandAllocator(
 			GetType(QueueType::Type::Param(type)),
@@ -96,7 +95,7 @@ void CommandContext::StartFrame() {
 	// 新しいフレームの準備
 	for (int32_t t = 0; t < QueueType::Type::COUNT; t++) {
 		auto commandListType = GetType(QueueType::Type::Param(t));
-		auto queueType = QueueType::Type::Param(t);
+		queueType = QueueType::Type::Param(t);
 		auto& queue = graphics->GetCommandQueue(commandListType);
 		// pre代入
 		std::swap(currentCommandAllocator_[queueType], preCommandAllocator_[queueType]);
@@ -178,7 +177,6 @@ void CommandContext::EndFrame() {
 
 	for (uint32_t t = 0; t < QueueType::Type::COUNT; t++) {
 		auto commandListType = GetType(QueueType::Type::Param(t));
-		auto queueType = QueueType::Type::Param(t);
 		auto& queue = graphics->GetCommandQueue(commandListType);
 		// 前回のフレームのリソースをリセット
 		queue.allocatorPool_.Discard(preFenceValue, preCommandAllocator_[t]);
@@ -191,8 +189,6 @@ void CommandContext::EndFrame() {
 void CommandContext::Start() {
 	auto graphics = GraphicsCore::GetInstance();
 	for (uint32_t type = 0; type < QueueType::Type::COUNT; type++) {
-		auto& queue = graphics->GetCommandQueue(QueueType::GetType(QueueType::Type::Param(type)));
-
 		// 新しいコマンドアロケータを取得し、コマンドリストをリセット
 		//currentCommandAllocator_[type] = queue.allocatorPool_.Allocate(queue.GetLastCompletedFenceValue(FenceType::Type::Frame));
 		currentCommandList_[type]->Reset(currentCommandAllocator_[type].Get(), nullptr);
@@ -400,7 +396,10 @@ void CommandContext::ClearDepth(DepthBuffer& target) {
 	currentCommandList_[QueueType::Type::DIRECT]->ClearDepthStencilView(target.GetDSV(), D3D12_CLEAR_FLAG_DEPTH, target.GetClearValue(), 0, 0, nullptr);
 }
 
-void CommandContext::ClearDepth(DepthBuffer& target, float clearValue) {}
+void CommandContext::ClearDepth(DepthBuffer& target, float clearValue) {
+	target;
+	clearValue;
+}
 
 void CommandContext::ClearBuffer(const QueueType::Type::Param& type, GpuResource& dest, size_t bufferSize) {
 	auto allocation = currentDynamicBuffers_[type][LinearAllocatorType::kUpload].Allocate(QueueType::GetType(type), bufferSize, 256);
@@ -630,14 +629,19 @@ void CommandContext::Dispatch(const QueueType::Type::Param& type, uint32_t x, ui
 }
 
 void CommandContext::BeginEvent(const QueueType::Type::Param& type, const std::wstring& name) {
+	type;
+	name;
 	//PIXBeginEvent(currentCommandList_[type].Get(), 0, name.c_str());
 }
 
 void CommandContext::EndEvent(const QueueType::Type::Param& type) {
+	type;
 	//PIXEndEvent(currentCommandList_[type].Get());
 }
 
 void CommandContext::SetMarker(const QueueType::Type::Param& type, const std::wstring& name) {
+	type;
+	name;
 	//PIXSetMarker(currentCommandList_[type].Get(), 0, name.c_str());
 }
 

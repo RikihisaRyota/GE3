@@ -9,8 +9,6 @@
 #include "Engine/ImGui/ImGuiManager.h"
 
 void HSVFilter::Initialize(const ColorBuffer& target) {
-	auto graphics = GraphicsCore::GetInstance();
-	auto device = graphics->GetDevice();
 	{
 		CD3DX12_DESCRIPTOR_RANGE textureRange[1]{};
 		textureRange[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);

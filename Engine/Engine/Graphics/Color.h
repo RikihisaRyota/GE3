@@ -14,7 +14,7 @@ public:
     Color() : rgba_(Vector4(1.0f,1.0f,1.0f,1.0f)) {}
     Color(const Color& color) :rgba_(color.rgba_){}
     Color(float r, float g, float b, float a = 1.0f) : rgba_(Vector4(r, g, b, a)) {}
-    Color(uint8_t r, uint8_t g, uint8_t b, uint8_t a = 255, uint8_t bitDepth = 8) : rgba_(Convert(Merge(r, g, b, a))) {}
+    Color(uint8_t r, uint8_t g, uint8_t b, uint8_t a = 255) : rgba_(Convert(Merge(r, g, b, a))) {}
     explicit Color(uint32_t rgba) : rgba_(Convert(rgba)) {}
     explicit Color(const Vector4& rgba) : rgba_(rgba) {}
 

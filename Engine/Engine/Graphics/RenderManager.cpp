@@ -118,9 +118,6 @@ void RenderManager::Initialize() {
 void RenderManager::Reset() {
 	auto imguiManager = ImGuiManager::GetInstance();
 	imguiManager->NewFrame();
-
-	auto& commandContext = commandContext_;
-	//commandContext.Reset();
 }
 
 void RenderManager::BeginRender() {
@@ -144,7 +141,7 @@ void RenderManager::EndRender(const ViewProjection& viewProjection) {
 	auto& commandContext = commandContext_;
 	uint32_t targetSwapChainBufferIndex = (swapChain_.GetBackBufferIndex() + 1) % SwapChain::kNumBuffers;
 	auto& swapChainColorBuffer = swapChain_.GetColorBuffer(targetSwapChainBufferIndex);
-
+	viewProjection;
 	//outLine_.Render(commandContext, mainColorBuffer_, mainDepthBuffer_, viewProjection);
 	//postEffect_.Render(commandContext,mainColorBuffer_ );
 	//gaussianFilter_.Render(commandContext, mainColorBuffer_);

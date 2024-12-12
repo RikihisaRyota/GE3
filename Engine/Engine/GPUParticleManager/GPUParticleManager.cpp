@@ -76,6 +76,8 @@ void GPUParticleManager::Initialize() {
 }
 
 void GPUParticleManager::Update(const ViewProjection& viewProjection, CommandContext& commandContext) {
+	// 消して
+	viewProjection;
 	UINT seed = static_cast<UINT>(std::chrono::system_clock::now().time_since_epoch().count());
 	randomBuffer_.Copy(&seed, sizeof(UINT));
 
@@ -131,42 +133,43 @@ void GPUParticleManager::Update(const ViewProjection& viewProjection, CommandCon
 }
 
 void GPUParticleManager::Draw(const ViewProjection& viewProjection, CommandContext& commandContext) {
+
 	//commandContext.TransitionResource(RenderManager::GetInstance()->GetMainDepthBuffer(), D3D12_RESOURCE_STATE_DEPTH_READ);
 	//commandContext.FlushResourceBarriers();
 
-	//commandContext.SetRenderTarget(RenderManager::GetInstance()->GetMainColorBuffer().GetRTV(), RenderManager::GetInstance()->GetMainDepthBuffer().GetReadOnlyDSV());
+	commandContext.SetRenderTarget(RenderManager::GetInstance()->GetMainColorBuffer().GetRTV(), RenderManager::GetInstance()->GetMainDepthBuffer().GetReadOnlyDSV());
 
-	//commandContext.SetGraphicsRootSignature(*graphicsRootSignature_);
-	//commandContext.SetPipelineState(QueueType::Type::DIRECT, *graphicsPipelineState_);
+	commandContext.SetGraphicsRootSignature(*graphicsRootSignature_);
+	commandContext.SetPipelineState(QueueType::Type::DIRECT, *graphicsPipelineState_);
 
-	//commandContext.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	//struct Vertex {
-	//	Vector3 position;
-	//	Vector2 texcoord;
-	//};
-	//std::vector<Vertex> vertices = {
-	//	// 前
-	//	{ { -0.5f, -0.5f, +0.0f },{0.0f,1.0f} }, // 左下
-	//	{ { -0.5f, +0.5f, +0.0f },{0.0f,0.0f} }, // 左上
-	//	{ { +0.5f, -0.5f, +0.0f },{1.0f,1.0f} }, // 右下
-	//	{ { +0.5f, +0.5f, +0.0f },{1.0f,0.0f} }, // 右上
-	//};
-	//commandContext.SetDynamicVertexBuffer(0, vertices.size(), sizeof(vertices.at(0)), vertices.data());
-	//std::vector<uint16_t>indices = {
-	//	0, 1, 3,
-	//	2, 0, 3,
-	//};
-	//commandContext.SetDynamicIndexBuffer(indices.size(), DXGI_FORMAT_R16_UINT, indices.data());
-	//gpuParticle_->Draw(viewProjection, commandContext);
+	commandContext.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	struct Vertex {
+		Vector3 position;
+		Vector2 texcoord;
+	};
+	std::vector<Vertex> vertices = {
+		// 前
+		{ { -0.5f, -0.5f, +0.0f },{0.0f,1.0f} }, // 左下
+		{ { -0.5f, +0.5f, +0.0f },{0.0f,0.0f} }, // 左上
+		{ { +0.5f, -0.5f, +0.0f },{1.0f,1.0f} }, // 右下
+		{ { +0.5f, +0.5f, +0.0f },{1.0f,0.0f} }, // 右上
+	};
+	commandContext.SetDynamicVertexBuffer(0, vertices.size(), sizeof(vertices.at(0)), vertices.data());
+	std::vector<uint16_t>indices = {
+		0, 1, 3,
+		2, 0, 3,
+	};
+	commandContext.SetDynamicIndexBuffer(indices.size(), DXGI_FORMAT_R16_UINT, indices.data());
+	gpuParticle_->Draw(viewProjection, commandContext);
 
-	//commandContext.SetGraphicsRootSignature(*tailsGraphicsRootSignature_);
-	//commandContext.SetPipelineState(QueueType::Type::DIRECT, *tailsGraphicsPipelineState_);
+	commandContext.SetGraphicsRootSignature(*tailsGraphicsRootSignature_);
+	commandContext.SetPipelineState(QueueType::Type::DIRECT, *tailsGraphicsPipelineState_);
 
-	//commandContext.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	commandContext.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	//gpuParticle_->DrawTrails(viewProjection, commandContext);
-	//commandContext.TransitionResource(QueueType::Type::DIRECT, RenderManager::GetInstance()->GetMainDepthBuffer(), D3D12_RESOURCE_STATE_DEPTH_WRITE);
-	//commandContext.FlushResourceBarriers();
+	gpuParticle_->DrawTrails(viewProjection, commandContext);
+	commandContext.TransitionResource(QueueType::Type::DIRECT, RenderManager::GetInstance()->GetMainDepthBuffer(), D3D12_RESOURCE_STATE_DEPTH_WRITE);
+	commandContext.FlushResourceBarriers();
 }
 
 void GPUParticleManager::DrawImGui() {
@@ -260,7 +263,6 @@ void GPUParticleManager::CreateParticleBuffer() {
 
 void GPUParticleManager::CreateGraphics() {
 	auto graphics = GraphicsCore::GetInstance();
-	auto device = graphics->GetDevice();
 
 	// グラフィックスルートシグネイチャ
 	{
@@ -337,7 +339,6 @@ void GPUParticleManager::CreateGraphics() {
 
 void GPUParticleManager::CreateEmitter() {
 	auto graphics = GraphicsCore::GetInstance();
-	auto device = graphics->GetDevice();
 	// check
 	{
 		struct CheckEmitterRootParameter {
@@ -602,8 +603,8 @@ void GPUParticleManager::CreateEmitter() {
 }
 
 void GPUParticleManager::CreateUpdate() {
-	auto graphics = GraphicsCore::GetInstance();
-	auto device = graphics->GetDevice();
+	//auto graphics = GraphicsCore::GetInstance();
+	//auto device = graphics->GetDevice();
 	// アップデートシグネイチャー
 	{
 		struct UpdateParticle {
@@ -665,7 +666,7 @@ void GPUParticleManager::CreateUpdate() {
 
 void GPUParticleManager::CreateUpdateTrails() {
 	auto graphics = GraphicsCore::GetInstance();
-	auto device = graphics->GetDevice();
+	//auto device = graphics->GetDevice();
 	// アップデートシグネイチャー
 	{
 		struct UpdateParticle {

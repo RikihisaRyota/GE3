@@ -44,7 +44,7 @@ uint64_t CommandQueue::IncrementFence(ID3D12Fence* fence) {
 }
 
 void CommandQueue::StallForFence(ID3D12Fence* fence, uint64_t FenceValue) {
-	auto Producer = CommandListManager().GetQueue((D3D12_COMMAND_LIST_TYPE)(FenceValue >> 56));
+	//auto Producer = CommandListManager().GetQueue((D3D12_COMMAND_LIST_TYPE)(FenceValue >> 56));
 	commandQueue_->Wait(fence, FenceValue);
 }
 
@@ -205,19 +205,18 @@ CommandListManager::~CommandListManager() {
 }
 
 void CommandListManager::Shutdown() {
-	graphicsQueue_.Shutdown(frameFenceDesc_.fence.Get(), frameFenceDesc_.fenceEventHandle);
-	computeQueue_.Shutdown(frameFenceDesc_.fence.Get(), frameFenceDesc_.fenceEventHandle);
-	copyQueue_.Shutdown(frameFenceDesc_.fence.Get(), frameFenceDesc_.fenceEventHandle);
 	for (uint32_t i = 0; i < QueueType::Type::Param::COUNT; i++) {
 		graphicsQueue_.Shutdown(queueFenceDesc_[i].fence.Get(), queueFenceDesc_[i].fenceEventHandle);
 		computeQueue_.Shutdown(queueFenceDesc_[i].fence.Get(), queueFenceDesc_[i].fenceEventHandle);
 		copyQueue_.Shutdown(queueFenceDesc_[i].fence.Get(), queueFenceDesc_[i].fenceEventHandle);
 
 		CloseHandle(queueFenceDesc_[i].fenceEventHandle);
-		CloseHandle(frameFenceDesc_.fenceEventHandle);
 		queueFenceDesc_[i].fenceEventHandle = nullptr;
-		frameFenceDesc_.fenceEventHandle = nullptr;
 	}
+
+	CloseHandle(frameFenceDesc_.fenceEventHandle);
+	frameFenceDesc_.fenceEventHandle = nullptr;
+
 }
 
 void CommandListManager::Create() {

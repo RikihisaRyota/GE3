@@ -18,7 +18,7 @@ public:
 	Texture& GetTexture(uint32_t textureHandle) { return *textures_[textureHandle]; }
 	
 	// descriptorIndexからtextures_のどこに入ってるか知りたい
-	uint32_t GetTextureLocation(uint32_t descriptorIndex);
+	int32_t GetTextureLocation(uint32_t descriptorIndex);
 
 	size_t GetTextureSize() { return textures_.size(); }
 private:

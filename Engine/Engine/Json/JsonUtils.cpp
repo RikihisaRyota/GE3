@@ -52,7 +52,6 @@ void from_json(const nlohmann::json& json, bool& value) {
 void from_json(const nlohmann::json& json, int32_t& value) {
 	if (!json.is_number_integer()) {
 		throw std::invalid_argument("JSON value is not a 32-bit integer");
-		assert(0);
 	}
 	value = json.get<int32_t>();
 }
@@ -61,7 +60,6 @@ void from_json(const nlohmann::json& json, int32_t& value) {
 void from_json(const nlohmann::json& json, uint32_t& value) {
 	if (!json.is_number_unsigned()) {
 		throw std::invalid_argument("JSON value is not an unsigned 32-bit integer");
-		assert(0);
 	}
 	value = json.get<uint32_t>();
 }

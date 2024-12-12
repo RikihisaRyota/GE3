@@ -10,7 +10,7 @@
 #include "../WinApp/WinApp.h"
 
 // デバイス発見時に実行される
-BOOL CALLBACK DeviceFindCallBack(LPCDIDEVICEINSTANCE ipddi, LPVOID pvRef) {
+BOOL CALLBACK DeviceFindCallBack() {
 	return DIENUM_CONTINUE;
 }
 

@@ -73,14 +73,16 @@ void Boss::Initialize() {
 	UpdateCollider();
 }
 
-void Boss::Update(CommandContext& commandContext) {
-	bossStateManager_->Update(commandContext);
+void Boss::Update() {
+	bossStateManager_->Update();
 	UpdateTransform();
-	UpdateGPUParticle(commandContext);
+	UpdateGPUParticle();
 	UpdateCollider();
 }
 
 void Boss::Draw(const ViewProjection& viewProjection, CommandContext& commandContext) {
+	viewProjection;
+	commandContext;
 	//ModelManager::GetInstance()->Draw(animationTransform_.matWorld, viewProjection, bossModelHandle_, commandContext);
 }
 
@@ -150,7 +152,8 @@ void Boss::UpdateCollider() {
 	collider_->SetCenter(MakeTranslateMatrix(collisionTransform_.matWorld));
 }
 
-void Boss::UpdateGPUParticle(CommandContext& commandContext) {
+void Boss::UpdateGPUParticle() {
+	
 	//gpuParticleManager_->CreateEdgeParticle(bossModelHandle_, animation_, worldTransform_.matWorld, meshEmitterDesc_, commandContext);
 	//gpuParticleManager_->CreateMeshParticle(bossModelHandle_, animation_, worldTransform_.matWorld, meshEmitterDesc_, commandContext);
 	if (bossStateManager_->GetCurrentState() == BossStateManager::State::kRoot&&

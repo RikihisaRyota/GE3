@@ -35,7 +35,7 @@ struct WorldTransform {
 	/// <summary>
 	/// 行列を更新する
 	/// </summary>
-	void UpdateMatrix(const ModelHandle& modelHandle = ModelHandle::kMaxModeHandle, uint32_t children = 0);
+	void UpdateMatrix();
 
 	/// <summary>
 	/// メンバ変数の初期化

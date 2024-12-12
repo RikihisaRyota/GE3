@@ -11,7 +11,7 @@
 #include "Engine/Collision/CollisionAttribute.h"
 #include "../Game/Src/Game/Player/Player.h"
 
-void BossStateRoot::Initialize(CommandContext& commandContext) {
+void BossStateRoot::Initialize() {
 	auto boss = manager_.boss_;
 	SetDesc();
 	//animationHandle_ = manager_.boss_->GetAnimation()->GetAnimationHandle("idle");
@@ -66,7 +66,7 @@ void BossStateRoot::SetDesc() {
 	data_ = manager_.jsonData_.root;
 }
 
-void BossStateRoot::Update(CommandContext& commandContext) {
+void BossStateRoot::Update() {
 	//ModelHandle preModelHandle = manager_.GetModelHandle();
 	if (time_ >= 1.0f && inTransition_) {
 		data_.disguisingEmitter.isAlive = false;
@@ -116,7 +116,7 @@ void BossStateRoot::DebugDraw() {
 	GPUParticleShaderStructs::DebugDraw(data_.transformField);
 }
 
-void BossStateRushAttack::Initialize(CommandContext& commandContext) {
+void BossStateRushAttack::Initialize() {
 	SetDesc();
 	modelHandle_ = ModelManager::GetInstance()->Load("Resources/Models/Boss/train.gltf");
 	railModelHandle_ = ModelManager::GetInstance()->Load("Resources/Models/Boss/rail.gltf");
@@ -177,8 +177,7 @@ void BossStateRushAttack::SetDesc() {
 	data_ = manager_.jsonData_.rushAttack;
 }
 
-void BossStateRushAttack::Update(CommandContext& commandContext) {
-	auto boss = manager_.boss_;
+void BossStateRushAttack::Update() {
 
 	if (inTransition_) {
 		time_ += 1.0f / data_.transitionFrame;
@@ -332,7 +331,7 @@ void BossStateRushAttack::SetLocation() {
 
 }
 
-void BossStateSmashAttack::Initialize(CommandContext& commandContext) {
+void BossStateSmashAttack::Initialize() {
 	SetDesc();
 	modelHandle_ = ModelManager::GetInstance()->Load("Resources/Models/Boss/hand.gltf");
 	worldTransform_.Initialize();
@@ -378,9 +377,7 @@ void BossStateSmashAttack::SetDesc() {
 	data_ = manager_.jsonData_.smashAttack;
 }
 
-void BossStateSmashAttack::Update(CommandContext& commandContext) {
-	auto boss = manager_.boss_;
-
+void BossStateSmashAttack::Update() {
 	if (inTransition_) {
 		time_ += 1.0f / data_.transitionFrame;
 		if (time_ >= 1.0f) {
@@ -449,7 +446,9 @@ void BossStateSmashAttack::DebugDraw() {
 	}
 }
 
-void BossStateSmashAttack::OnCollision(const ColliderDesc& collisionInfo) {}
+void BossStateSmashAttack::OnCollision(const ColliderDesc& collisionInfo) {
+	collisionInfo;
+}
 
 void BossStateSmashAttack::UpdateTransform() {
 	worldTransform_.UpdateMatrix();
@@ -516,7 +515,7 @@ void BossStateSmashAttack::CreateSmash() {
 	smash_.emplace_back(std::move(desc));
 }
 
-void BossStateHomingAttack::Initialize(CommandContext& commandContext) {
+void BossStateHomingAttack::Initialize() {
 	auto boss = manager_.boss_;
 	SetDesc();
 	inTransition_ = true;
@@ -571,7 +570,7 @@ void BossStateHomingAttack::InitializeBullet() {
 	}
 }
 
-void BossStateHomingAttack::Update(CommandContext& commandContext) {
+void BossStateHomingAttack::Update() {
 	if (time_ >= 1.0f && inTransition_) {
 		data_.homingDisguisingEmitter.isAlive = false;
 		data_.homingDisguisingField.isAlive = false;
@@ -631,7 +630,7 @@ void BossStateHomingAttack::UpdateBullet() {
 	if (createBulletTime_ <= 0) {
 		for (auto& [fired, bullet] : bullets_) {
 			if (!fired && !bullet->GetIsAlive()) {
-				auto boss = manager_.boss_;
+				//auto boss = manager_.boss_;
 				auto player = manager_.player_;
 				Vector3 position = MakeTranslateMatrix(worldTransform_.matWorld) + data_.bulletOffset;
 				bullet->Create(position, player->GetWorldTranslate(), data_.bulletHeightOffset, data_.bulletSpeed);
@@ -755,17 +754,17 @@ void BossStateManager::Initialize() {
 	ChangeState<BossStateRoot>();
 }
 
-void BossStateManager::Update(CommandContext& commandContext) {
+void BossStateManager::Update() {
 	if (standbyState_) {
 		preStateEnum_ = activeStateEnum_;
 		activeStateEnum_ = standbyStateEnum_;
 		standbyStateEnum_ = kNone;
 		activeState_ = std::move(standbyState_);
-		activeState_->Initialize(commandContext);
+		activeState_->Initialize();
 	}
 
 	if (activeState_) {
-		activeState_->Update(commandContext);
+		activeState_->Update();
 #ifdef _DEBUG
 		activeState_->DebugDraw();
 #endif // _DEBUG

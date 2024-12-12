@@ -115,7 +115,7 @@ void GameScene::Update(CommandContext& commandContext) {
 		followCamera_->Update();
 	}
 	player_->Update(commandContext);
-	boss_->Update(commandContext);
+	boss_->Update();
 	backGround_->Update();
 	for (auto& object : gameObject_) {
 		object->Update();

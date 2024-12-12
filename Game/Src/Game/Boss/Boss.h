@@ -23,7 +23,7 @@ class Boss {
 public:
 	Boss();
 	void Initialize();
-	void Update(CommandContext& commandContext);
+	void Update();
 	void Draw(const ViewProjection& viewProjection, CommandContext& commandContext);
 
 	void SetGPUParticleManager(GPUParticleManager* GPUParticleManager) {
@@ -46,7 +46,7 @@ public:
 	const GPUParticleShaderStructs::VertexEmitterForCPU& GetVertexEmitter()const { return vertexEmitterDesc_; }
 private:
 	void UpdateCollider();
-	void UpdateGPUParticle(CommandContext& commandContext);
+	void UpdateGPUParticle();
 	void UpdateTransform();
 	// ボスの体との当たり判定
 	void OnCollisionBody(const ColliderDesc& desc);

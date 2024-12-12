@@ -82,7 +82,7 @@ private:
 	void Shot();
 	void OnCollision(const ColliderDesc& desc);
 
-	void GPUParticleSpawn(CommandContext& commandContext);
+	void GPUParticleSpawn();
 
 	Boss* boss_;
 	ViewProjection* viewProjection_;

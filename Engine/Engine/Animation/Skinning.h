@@ -13,9 +13,9 @@
 #include "Engine/Math/Matrix4x4.h"
 #include "Engine/Model/ModelHandle.h"
 #include "Engine/Graphics/DefaultBuffer.h"
+#include "Engine/Graphics/CommandContext.h"
 
-class CommandContext;
-namespace Animation {		
+namespace Animation {
 	extern PipelineState pipelineState;
 	extern RootSignature rootSignature;
 
@@ -33,7 +33,7 @@ namespace Animation {
 	struct SkinCluster {
 		void CreateSkinCluster(const Skeleton& skeleton, const ModelHandle& modelHandle);
 		void Update(const Skeleton& skeleton, CommandContext& commandContext, const ModelHandle& modelHandle);
-		
+
 		std::vector<Matrix4x4> inverseBindPoseMatrices;
 
 		UploadBuffer influenceResource;

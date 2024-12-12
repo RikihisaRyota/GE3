@@ -9,8 +9,6 @@
 #include "Engine/ImGui/ImGuiManager.h"
 
 void Bloom::Initialize(const ColorBuffer& target) {
-	auto graphics = GraphicsCore::GetInstance();
-	auto device = graphics->GetDevice();
 	{
 		CD3DX12_DESCRIPTOR_RANGE ranges[kMaxLevel + 1]{};
 		for (uint32_t i = 0; i < kMaxLevel + 1; ++i) {

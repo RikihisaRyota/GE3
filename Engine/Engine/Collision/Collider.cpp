@@ -124,7 +124,7 @@ namespace {
 		for (int r = 0; r <= rings; ++r) {
 			float ringAngle = r * ringStep;
 			float sinRing = sin(ringAngle);
-			float cosRing = cos(ringAngle);
+			//float cosRing = cos(ringAngle);
 
 			for (int s = 0; s <= sectors; ++s) {
 				float sectorAngle = s * sectorStep;

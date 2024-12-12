@@ -25,7 +25,7 @@ TextureHandle TextureManager::Load(const std::filesystem::path path) {
 	return handle;
 }
 
-uint32_t TextureManager::GetTextureLocation(uint32_t descriptorIndex) {
+int32_t TextureManager::GetTextureLocation(uint32_t descriptorIndex) {
 	// TODO: return ステートメントをここに挿入します
 	for (uint32_t i = 0; auto & texture : textures_) {
 		if (descriptorIndex == texture->GetDescriptorIndex()) {

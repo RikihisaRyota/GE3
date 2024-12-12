@@ -20,9 +20,9 @@ class BossState {
 public:
 	BossState(BossStateManager& manager, bool inTransition) : manager_(manager), inTransition_(inTransition) {}
 	virtual ~BossState() {}
-	virtual void Initialize(CommandContext& commandContext) = 0;
+	virtual void Initialize() = 0;
 	virtual	void SetDesc() = 0;
-	virtual void Update(CommandContext& commandContext) = 0;
+	virtual void Update() = 0;
 	virtual void DebugDraw() = 0;
 	//virtual void OnCollision(const ColliderDesc& colliderDesc) = 0;
 	const Animation::AnimationHandle& GetAnimationHandle() const { return animationHandle_; }
@@ -55,9 +55,9 @@ public:
 		Vector3 headOffset;
 	};
 	using BossState::BossState;
-	void Initialize(CommandContext& commandContext) override;
+	void Initialize() override;
 	void SetDesc() override;
-	void Update(CommandContext& commandContext) override;
+	void Update() override;
 	void DebugDraw()override;
 private:
 	JsonData data_;
@@ -87,9 +87,9 @@ public:
 		float transitionFrame;
 	};
 	using BossState::BossState;
-	void Initialize(CommandContext& commandContext) override;
+	void Initialize() override;
 	void SetDesc() override;
-	void Update(CommandContext& commandContext) override;
+	void Update() override;
 	void DebugDraw()override;
 private:
 	enum AttackLocation {
@@ -126,9 +126,9 @@ public:
 		float transitionFrame;
 	};
 	using BossState::BossState;
-	void Initialize(CommandContext& commandContext) override;
+	void Initialize() override;
 	void SetDesc() override;
-	void Update(CommandContext& commandContext) override;
+	void Update() override;
 	void DebugDraw()override;
 private:
 	struct SmashDesc {
@@ -177,9 +177,9 @@ public:
 		float bulletRadius;
 	};
 	using BossState::BossState;
-	void Initialize(CommandContext& commandContext) override;
+	void Initialize() override;
 	void SetDesc() override;
-	void Update(CommandContext& commandContext) override;
+	void Update() override;
 	void DebugDraw()override;
 private:
 	void InitializeBullet();
@@ -268,7 +268,7 @@ public:
 
 	void Initialize();
 
-	void Update(CommandContext& commandContext);
+	void Update();
 
 	const Animation::AnimationHandle GetAnimationHandle() const {
 		if (preAnimationHandle_.has_value()) {

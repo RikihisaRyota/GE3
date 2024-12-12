@@ -25,7 +25,7 @@ void WorldTransform::Initialize() {
 //}
 
 
-void WorldTransform::UpdateMatrix(const ModelHandle& modelHandle, uint32_t children) {
+void WorldTransform::UpdateMatrix() {
 	Matrix4x4 matScale, matRot, matTrans;
 
 	// スケール、回転、平行移動行列の計算

@@ -7,7 +7,7 @@
 #include "Engine/Model/ModelManager.h"
 #include "Engine/Math/MyMath.h"
 
-#include "Engine/Graphics/CommandContext.h"
+//#include "Engine/Graphics/CommandContext.h"
 #include "Engine/Graphics/PipelineState.h"
 #include "Engine/Graphics/RootSignature.h"
 #include "Engine/ShderCompiler/ShaderCompiler.h"
@@ -66,10 +66,11 @@ namespace Animation {
 		auto jointSize = skeleton.joints.size();
 		paletteResource.Create(L"skinClusterPaletteResource", sizeof(WellForGPU) * jointSize);
 
-		WellForGPU* mappedPalette = new WellForGPU[jointSize];
-		std::memset(mappedPalette, 0, sizeof(WellForGPU) * jointSize);
-		this->mappedPalette = { mappedPalette , jointSize };
+		WellForGPU* tempMappedPalette = new WellForGPU[jointSize];
+		std::memset(tempMappedPalette, 0, sizeof(WellForGPU) * jointSize);
+		this->mappedPalette = { tempMappedPalette, jointSize };
 		paletteHandle = graphics->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+
 
 		D3D12_SHADER_RESOURCE_VIEW_DESC paletteSrvDesc{};
 		paletteSrvDesc.Format = DXGI_FORMAT_UNKNOWN;
@@ -85,9 +86,10 @@ namespace Animation {
 		auto verticesSize = UINT(model.GetAllVertexCount());
 		influenceResource.Create(L"skinClusterInfluenceResource", sizeof(VertexInfluence) * verticesSize);
 
-		VertexInfluence* mappedInfluence = new VertexInfluence[verticesSize];
-		std::memset(mappedInfluence, 0, sizeof(VertexInfluence) * verticesSize);
-		this->mappedInfluence = { mappedInfluence, verticesSize };
+		VertexInfluence* tempMappedInfluence = new VertexInfluence[verticesSize];
+		std::memset(tempMappedInfluence, 0, sizeof(VertexInfluence) * verticesSize);
+		this->mappedInfluence = { tempMappedInfluence, verticesSize };
+
 
 		influenceHandle = graphics->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 

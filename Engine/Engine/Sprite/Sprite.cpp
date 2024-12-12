@@ -186,8 +186,6 @@ bool Sprite::Initialize() {
 }
 
 void Sprite::TransferVertices() {
-	HRESULT result = S_FALSE;
-
 	// 左下、左上、右下、右上
 	enum { LB, LT, RB, RT };
 

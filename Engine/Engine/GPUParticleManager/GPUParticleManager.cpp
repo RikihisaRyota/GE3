@@ -102,9 +102,9 @@ void GPUParticleManager::Update(const ViewProjection& viewProjection, CommandCon
 	commandContext.SetPipelineState(QueueType::Type::COMPUTE, *emitterUpdateComputePipelineState_);
 	gpuParticle_->UpdateEmitter(commandContext);
 
-	//commandContext.SetComputeRootSignature(QueueType::Type::COMPUTE, *spawnComputeRootSignature_);
-	//commandContext.SetPipelineState(QueueType::Type::COMPUTE, *spawnComputePipelineState_);
-	//gpuParticle_->Spawn(commandContext, randomBuffer_);
+	commandContext.SetComputeRootSignature(QueueType::Type::COMPUTE, *spawnComputeRootSignature_);
+	commandContext.SetPipelineState(QueueType::Type::COMPUTE, *spawnComputePipelineState_);
+	gpuParticle_->Spawn(commandContext, randomBuffer_);
 
 	//commandContext.SetComputeRootSignature(QueueType::Type::DIRECT,*updateComputeRootSignature_);
 	////commandContext.SetPipelineState(QueueType::Type::COMPUTE, *updateComputePipelineState_);
@@ -472,10 +472,13 @@ void GPUParticleManager::CreateEmitter() {
 	{
 		struct SpawnRootParameter {
 			enum Param {
-				kParticle,
-				kParticleIndex,
-				kCreateParticleNum,
-				kParticleIndexCounter,
+				kDirectParticle,
+				kDirectParticleFreeList,
+				kDirectParticleFreeListIndex,
+
+				kComputeParticle,
+				kComputeParticleFreeList,
+				kComputeParticleFreeListIndex,
 
 				kTrailsIndex,
 				kTrailsData,
@@ -497,26 +500,26 @@ void GPUParticleManager::CreateEmitter() {
 		};
 
 		spawnComputeRootSignature_ = std::make_unique<RootSignature>();
-		// AppendStructuredBuffer用（カウンター付きUAVの場合このように宣言）
-		CD3DX12_DESCRIPTOR_RANGE consumeRanges[1]{};
-		consumeRanges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 1, 0);
 		CD3DX12_DESCRIPTOR_RANGE trailsConsumeRanges[1]{};
-		trailsConsumeRanges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 4, 0);
+		trailsConsumeRanges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, SpawnRootParameter::kTrailsIndex, 0);
 		// レジスタースペースがびにょ
 		CD3DX12_DESCRIPTOR_RANGE vertexBuffer[1]{};
-		vertexBuffer[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, graphics->kNumSRVs, 5, 0);
+		vertexBuffer[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, graphics->kNumSRVs, SpawnRootParameter::kVertexBuffer, 0);
 		CD3DX12_DESCRIPTOR_RANGE indexBuffer[1]{};
-		indexBuffer[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, graphics->kNumSRVs, 6, 1);
+		indexBuffer[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, graphics->kNumSRVs, SpawnRootParameter::kIndexBufferBuffer, 1);
 
 		CD3DX12_ROOT_PARAMETER rootParameters[SpawnRootParameter::kCount]{};
-		rootParameters[SpawnRootParameter::kParticle].InitAsUnorderedAccessView(0);
-		rootParameters[SpawnRootParameter::kParticleIndex].InitAsDescriptorTable(_countof(consumeRanges), consumeRanges);
-		rootParameters[SpawnRootParameter::kCreateParticleNum].InitAsUnorderedAccessView(2);
-		rootParameters[SpawnRootParameter::kParticleIndexCounter].InitAsUnorderedAccessView(3);
+		rootParameters[SpawnRootParameter::kDirectParticle].InitAsUnorderedAccessView(0);
+		rootParameters[SpawnRootParameter::kDirectParticleFreeList].InitAsUnorderedAccessView(1);
+		rootParameters[SpawnRootParameter::kDirectParticleFreeListIndex].InitAsUnorderedAccessView(2);
+
+		rootParameters[SpawnRootParameter::kComputeParticle].InitAsUnorderedAccessView(3);
+		rootParameters[SpawnRootParameter::kComputeParticleFreeList].InitAsUnorderedAccessView(4);
+		rootParameters[SpawnRootParameter::kComputeParticleFreeListIndex].InitAsUnorderedAccessView(5);
 
 		rootParameters[SpawnRootParameter::kTrailsIndex].InitAsDescriptorTable(_countof(trailsConsumeRanges), trailsConsumeRanges);
-		rootParameters[SpawnRootParameter::kTrailsData].InitAsUnorderedAccessView(5);
-		rootParameters[SpawnRootParameter::kTrailsHead].InitAsUnorderedAccessView(6);
+		rootParameters[SpawnRootParameter::kTrailsData].InitAsUnorderedAccessView(7);
+		rootParameters[SpawnRootParameter::kTrailsHead].InitAsUnorderedAccessView(8);
 
 		rootParameters[SpawnRootParameter::kOriginalEmitter].InitAsShaderResourceView(0);
 		rootParameters[SpawnRootParameter::kOriginalVertexEmitter].InitAsShaderResourceView(1);

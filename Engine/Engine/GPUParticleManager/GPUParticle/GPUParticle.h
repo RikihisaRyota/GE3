@@ -114,6 +114,8 @@ private:
 	FreeListBuffer  computeParticle_;
 	// エミッターのIndexと何個生成するか
 	DefaultBuffer createParticleBuffer_;
+	DefaultBuffer createParticleCountBuffer_;
+
 	// 現在描画できるパーティクルのインデックスを格納
 	DefaultBuffer drawIndexBuffers_;
 	// 現在出ているパーティクル数を受け取る
@@ -125,8 +127,8 @@ private:
 	DefaultBuffer spawnArgumentBuffer_;
 
 	CommandSignature* spawnCommandSignature_;
-	// 何個生成するか数える用,spawnDispach用
-	DefaultBuffer createParticleCounterCopySrcBuffer_;
+	// 合計何個生成するか数える用,spawnDispach用
+	DefaultBuffer sumCreateParticleCounterBuffer_;
 	// 軌跡用
 	CommandSignature* trailsDrawCommandSignature_;
 	DefaultBuffer trailsArgumentBuffers_;
@@ -179,7 +181,7 @@ private:
 	// 作り出すフィールドの個数を格納し引いていくためのバッファ
 	DefaultBuffer createFieldNumBuffer_;
 	// 今生きているフィールドをストックしておくバッファ
-	DefaultBuffer fieldIndexBuffer_;
+	DefaultBuffer appendFieldIndexBuffer_;
 	std::vector<GPUParticleShaderStructs::FieldForGPU> fields_;
 
 	TextureHandle texture_;

@@ -21,7 +21,7 @@ void main( uint3 DTid : SV_DispatchThreadID )
             InterlockedAdd(fieldFreeListIndex[0], -1, index);
             // フリーリストが空っぽじゃないか
             if(index >= 0){
-                origalField[index] = newField;
+                origalField[fieldFreeList[index]] = newField;
             } 
             // 空だったら戻しておく
             else {

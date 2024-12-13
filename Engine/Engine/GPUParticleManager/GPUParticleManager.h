@@ -48,7 +48,6 @@ public:
 	//void CreateTransformModelParticle(const ModelHandle& startModelHandle, const Matrix4x4& startWorldTransform, const ModelHandle& endModelHandle, Animation::Animation& endAnimation, const Matrix4x4& endWorldTransform, const GPUParticleShaderStructs::TransformModelEmitterForCPU& transformEmitter, CommandContext& commandContext);
 	//void CreateTransformAreaParticle(const ModelHandle& modelHandle, const Matrix4x4& worldTransform, const GPUParticleShaderStructs::TransformAreaEmitterForCPU& transformEmitter, CommandContext& commandContext);
 
-
 	void SetEmitter(const GPUParticleShaderStructs::EmitterForCPU& emitter,const Matrix4x4& parent=Matrix4x4());
 	void SetVertexEmitter(const ModelHandle& modelHandle, const GPUParticleShaderStructs::VertexEmitterForCPU& emitter,const Matrix4x4& parent=Matrix4x4());
 	void SetVertexEmitter(const ModelHandle& modelHandle, const Animation::Animation& animation, const GPUParticleShaderStructs::VertexEmitterForCPU& emitter,const Matrix4x4& parent=MakeIdentity4x4());

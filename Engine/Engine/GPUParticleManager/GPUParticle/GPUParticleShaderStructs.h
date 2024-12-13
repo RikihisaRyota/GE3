@@ -1,9 +1,10 @@
 #pragma once
+
+#ifdef __cplusplus
 /**
  * @file GPUParticleShaderStructs
  * @brief GPUParticleに必要な構造体
  */
-#ifdef __cplusplus
 #include <string>
 #include <limits>
 #include <tuple>
@@ -388,6 +389,7 @@ struct Particle
 		kTransformAreaEmitter,
 		kCount,
 	};
+
 	struct EmitterParent {
 		Matrix4x4 worldMatrix;
 		uint32_t isParent;
@@ -745,6 +747,7 @@ struct Particle
 		int32_t directIndex;
 		int32_t computeIndex;
 	};
+
 #ifdef __cplusplus
 	struct IndirectCommand {
 		struct SRV {

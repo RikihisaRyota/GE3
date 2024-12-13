@@ -288,7 +288,7 @@ void GPUParticle::Spawn(CommandContext& commandContext, const UploadBuffer& rand
 		// あと何個生成できるかコピー
 		//commandContext.CopyBufferRegion(QueueType::Type::COMPUTE, originalCounterBuffer_, 0, originalCommandBuffer_, originalCommandBuffer_.GetCounterOffset(), sizeof(UINT));
 	
-		commandContext.TransitionResource(QueueType::Type::COMPUTE, , D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+	/*	commandContext.TransitionResource(QueueType::Type::COMPUTE, , D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 		commandContext.TransitionResource(QueueType::Type::COMPUTE, originalCommandBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 		commandContext.TransitionResource(QueueType::Type::COMPUTE, createParticleBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 		commandContext.TransitionResource(QueueType::Type::COMPUTE, originalCounterBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
@@ -296,7 +296,7 @@ void GPUParticle::Spawn(CommandContext& commandContext, const UploadBuffer& rand
 		commandContext.TransitionResource(QueueType::Type::COMPUTE, trailsDataBuffers_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 		commandContext.TransitionResource(QueueType::Type::COMPUTE, trailsHeadBuffers_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 		commandContext.TransitionResource(QueueType::Type::COMPUTE, spawnArgumentBuffer_, D3D12_RESOURCE_STATE_INDIRECT_ARGUMENT);
-	
+	*/
 		emitterForGPUDesc_.Spawn(commandContext);
 		vertexEmitterForGPUDesc_.Spawn(commandContext);
 		meshEmitterForGPUDesc_.Spawn(commandContext);

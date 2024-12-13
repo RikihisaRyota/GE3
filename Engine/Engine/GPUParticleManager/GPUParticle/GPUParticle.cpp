@@ -286,7 +286,7 @@ void GPUParticle::UpdateEmitter(CommandContext& commandContext) {
 void GPUParticle::Spawn(CommandContext& commandContext, const UploadBuffer& random) {
 		commandContext.BeginEvent(QueueType::Type::COMPUTE, L"Spawn");
 		// あと何個生成できるかコピー
-		commandContext.CopyBufferRegion(QueueType::Type::COMPUTE, originalCounterBuffer_, 0, originalCommandBuffer_, originalCommandBuffer_.GetCounterOffset(), sizeof(UINT));
+		//commandContext.CopyBufferRegion(QueueType::Type::COMPUTE, originalCounterBuffer_, 0, originalCommandBuffer_, originalCommandBuffer_.GetCounterOffset(), sizeof(UINT));
 	
 		commandContext.TransitionResource(QueueType::Type::COMPUTE, , D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 		commandContext.TransitionResource(QueueType::Type::COMPUTE, originalCommandBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
@@ -303,7 +303,7 @@ void GPUParticle::Spawn(CommandContext& commandContext, const UploadBuffer& rand
 		transformModelEmitterForGPUDesc_.Spawn(commandContext);
 		transformAreaEmitterForGPUDesc_.Spawn(commandContext);
 	
-		commandContext.SetComputeUAV(QueueType::Type::COMPUTE, 0, particleBuffer_->GetGPUVirtualAddress());
+	/*	commandContext.SetComputeUAV(QueueType::Type::COMPUTE, 0, particleBuffer_->GetGPUVirtualAddress());
 		commandContext.SetComputeDescriptorTable(QueueType::Type::COMPUTE, 1, originalCommandBuffer_.GetUAVHandle());
 		commandContext.SetComputeUAV(QueueType::Type::COMPUTE, 2, createParticleBuffer_->GetGPUVirtualAddress());
 		commandContext.SetComputeUAV(QueueType::Type::COMPUTE, 3, originalCounterBuffer_->GetGPUVirtualAddress());
@@ -317,7 +317,7 @@ void GPUParticle::Spawn(CommandContext& commandContext, const UploadBuffer& rand
 		commandContext.SetComputeShaderResource(QueueType::Type::COMPUTE, 9, meshEmitterForGPUDesc_.originalBuffer->GetGPUVirtualAddress());
 		commandContext.SetComputeShaderResource(QueueType::Type::COMPUTE, 10, transformModelEmitterForGPUDesc_.originalBuffer->GetGPUVirtualAddress());
 		commandContext.SetComputeShaderResource(QueueType::Type::COMPUTE, 11, transformAreaEmitterForGPUDesc_.originalBuffer->GetGPUVirtualAddress());
-	
+	*/
 		commandContext.SetComputeDescriptorTable(QueueType::Type::COMPUTE, 12, GraphicsCore::GetInstance()->GetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV).GetStartDescriptorHandle());
 		commandContext.SetComputeDescriptorTable(QueueType::Type::COMPUTE, 13, GraphicsCore::GetInstance()->GetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV).GetStartDescriptorHandle());
 	

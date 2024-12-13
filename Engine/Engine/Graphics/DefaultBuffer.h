@@ -1,4 +1,8 @@
 #pragma once
+/**
+ * @file DefaultBuffer.h
+ * @brief DefaultBuffer
+ */
 #include <string>
 
 #include "CommandContext.h"

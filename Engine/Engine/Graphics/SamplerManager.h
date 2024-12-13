@@ -1,5 +1,8 @@
 #pragma once
-
+/**
+ * @file SamplerManager
+ * @brief サンプラーの設定
+ */
 #include "DescriptorHandle.h"
 
 namespace SamplerManager {

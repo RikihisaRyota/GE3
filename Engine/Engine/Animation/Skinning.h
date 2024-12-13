@@ -1,5 +1,8 @@
 #pragma once
-
+/**
+ * @file Skinning.h
+ * @brief Skinningの管理
+ */
 #include <array>
 #include <cstdint>
 #include <span>

@@ -1,5 +1,7 @@
-// ModelHandle.h
-
+/**
+ * @file ModelHandle.h
+ * @brief モデルにアクセスするためのハンドル
+ */
 #pragma once
 
 class ModelHandle {

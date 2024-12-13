@@ -78,6 +78,7 @@ void GPUParticleManager::Initialize() {
 void GPUParticleManager::Update(const ViewProjection& viewProjection, CommandContext& commandContext) {
 	// 消して
 	viewProjection;
+	// ランダム
 	UINT seed = static_cast<UINT>(std::chrono::system_clock::now().time_since_epoch().count());
 	randomBuffer_.Copy(&seed, sizeof(UINT));
 
@@ -97,9 +98,9 @@ void GPUParticleManager::Update(const ViewProjection& viewProjection, CommandCon
 	commandContext.SetPipelineState(QueueType::Type::COMPUTE, *addEmitterComputePipelineState_);
 	gpuParticle_->AddEmitter(commandContext);
 
-	//commandContext.SetComputeRootSignature(QueueType::Type::COMPUTE, *emitterUpdateComputeRootSignature_);
-	//commandContext.SetPipelineState(QueueType::Type::COMPUTE, *emitterUpdateComputePipelineState_);
-	//gpuParticle_->UpdateEmitter(commandContext);
+	commandContext.SetComputeRootSignature(QueueType::Type::COMPUTE, *emitterUpdateComputeRootSignature_);
+	commandContext.SetPipelineState(QueueType::Type::COMPUTE, *emitterUpdateComputePipelineState_);
+	gpuParticle_->UpdateEmitter(commandContext);
 
 	//commandContext.SetComputeRootSignature(QueueType::Type::COMPUTE, *spawnComputeRootSignature_);
 	//commandContext.SetPipelineState(QueueType::Type::COMPUTE, *spawnComputePipelineState_);

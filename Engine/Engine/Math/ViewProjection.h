@@ -1,4 +1,7 @@
 #pragma once
+/**
+ * @file ViewProjection.h
+ */
 
 #include <memory>
 

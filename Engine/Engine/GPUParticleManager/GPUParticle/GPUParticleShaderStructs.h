@@ -1,5 +1,8 @@
 #pragma once
-
+/**
+ * @file GPUParticleShaderStructs
+ * @brief GPUParticleに必要な構造体
+ */
 #ifdef __cplusplus
 #include <string>
 #include <limits>
@@ -1154,6 +1157,7 @@ struct Particle
 	void LoadFieldFrequency(GPUParticleShaderStructs::FieldFrequency& fieldFrequency);
 	void SaveFieldFrequency(GPUParticleShaderStructs::FieldFrequency& fieldFrequency);
 
+	// indexを共有しないコピー
 	void NonSharedCopy(GPUParticleShaderStructs::EmitterForCPU& dst, const GPUParticleShaderStructs::EmitterForCPU& src);
 	void NonSharedCopy(GPUParticleShaderStructs::VertexEmitterForCPU& dst, const GPUParticleShaderStructs::VertexEmitterForCPU& src);
 	void NonSharedCopy(GPUParticleShaderStructs::MeshEmitterForCPU& dst, const GPUParticleShaderStructs::MeshEmitterForCPU& src);

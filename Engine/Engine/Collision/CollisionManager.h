@@ -1,5 +1,8 @@
 #pragma once
-
+/**
+ * @file CollisionManager.h
+ * @brief コリジョンマネージャー
+ */
 #include <memory>
 #include <list>
 
@@ -8,11 +11,14 @@
 class CollisionManager {
 public:
     static CollisionManager* GetInstance();
-
+    // コライダー追加
     void AddCollider(Collider* collider);
+    // コライダー削除
     void DeleteCollider(Collider* collider);
+    // コライダークリア
     void ClearCollider() { colliders_.clear(); }
 
+    // コライダーの当たり判定
     void Collision();
 private:
     CollisionManager() = default;

@@ -1,5 +1,8 @@
 #pragma once
-
+/**
+ * @file Input.h
+ * @brief 入力受付
+ */
 #include <Windows.h>
 #include <array>
 #include <vector>

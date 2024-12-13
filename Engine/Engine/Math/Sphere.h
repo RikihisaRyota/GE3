@@ -1,4 +1,7 @@
 #pragma once
+/**
+ * @file Sphere.h
+ */
 
 #include "Vector3.h"
 

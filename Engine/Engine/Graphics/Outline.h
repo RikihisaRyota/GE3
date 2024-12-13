@@ -1,5 +1,8 @@
 #pragma once
-
+/**
+ * @file Outline.h
+ * @brief ポストエフェクト用
+ */
 #include "RootSignature.h"
 #include "PipelineState.h"
 #include "UploadBuffer.h"

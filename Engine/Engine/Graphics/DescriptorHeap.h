@@ -1,5 +1,8 @@
 #pragma once
-
+/**
+ * @file DescriptorHeap.h
+ * @brief ヒープの管理
+ */
 #include <d3d12.h>
 #include <wrl.h>
 

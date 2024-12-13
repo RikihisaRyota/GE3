@@ -1,5 +1,8 @@
 #pragma once
-
+/**
+ * @file DescriptorHandle.h
+ * @brief Descriptorを管理するハンドル
+ */
 #include <d3d12.h>
 
 #define D3D12_CPU_DESCRIPTOR_HANDLE_NULL (D3D12_CPU_DESCRIPTOR_HANDLE(0))

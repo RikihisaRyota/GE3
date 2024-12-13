@@ -1,5 +1,8 @@
 #pragma once
-
+/**
+ * @file RadialBlur.h
+ * @brief ポストエフェクト用
+ */
 #include "Engine/Math/Vector2.h"
 #include "RootSignature.h"
 #include "PipelineState.h"

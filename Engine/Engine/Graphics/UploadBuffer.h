@@ -1,4 +1,8 @@
 #pragma once
+/**
+ * @file UploadBuffer.h
+ * @brief UploadBuffer用
+ */
 #include <string>
 
 #include "GpuResource.h"

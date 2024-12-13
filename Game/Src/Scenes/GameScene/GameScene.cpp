@@ -16,7 +16,9 @@
 #include "Engine/Json/JsonUtils.h"
 
 GameScene::GameScene() {
+	// 当たり判定クリア
 	CollisionManager::GetInstance()->ClearCollider();
+	// ステージエディター読み込み
 	LevelDataLoader::Load("Resources/object.json");
 
 	debugCamera_ = std::make_unique<DebugCamera>();
@@ -37,7 +39,7 @@ GameScene::GameScene() {
 	skybox_ = std::make_unique<Skybox>();
 	backGround_ = std::make_unique<BackGround>();
 
-
+	// ロード
 	gpuTexture_ = TextureManager::GetInstance()->Load("Resources/Images/GPUParticle.png");
 	TextureManager::GetInstance()->Load("Resources/Images/GPUParticle_1.png");
 	TextureManager::GetInstance()->Load("Resources/Images/smoke.png");

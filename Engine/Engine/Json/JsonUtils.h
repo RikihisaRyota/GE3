@@ -1,5 +1,8 @@
 #pragma once
-
+/**
+ * @file JsonUtils.h
+ * @brief Jsonのオーバーロードやマクロ
+ */
 #include <stdint.h>
 
 #include <stdint.h>

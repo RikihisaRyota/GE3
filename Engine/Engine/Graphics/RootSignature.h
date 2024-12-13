@@ -1,5 +1,8 @@
 #pragma once
-
+/**
+ * @file RootSignature.h
+ * @brief ルートシグネイチャー用
+ */
 #include <d3d12.h>
 #include <wrl.h>
 

@@ -1,5 +1,8 @@
 #pragma once
-
+/**
+ * @file LinerAllocator.h
+ * @brief バッファーのメモリの貸し借りを管理
+ */
 #include "GpuResource.h"
 
 #include <stdint.h>

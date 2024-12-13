@@ -1,5 +1,8 @@
 #pragma once
-
+/**
+ * @file Color.h
+ * @brief 色を扱いやすいように
+ */
 #include "../Math/Vector4.h"
 #include "../Math/Vector3.h"
 

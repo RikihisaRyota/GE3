@@ -1,4 +1,7 @@
 #pragma once
+/**
+ * @file OBB.h
+ */
 #include "Vector3.h"
 struct OBB {
 	Vector3 center;          //!< 中心点

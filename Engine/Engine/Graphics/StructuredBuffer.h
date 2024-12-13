@@ -1,4 +1,8 @@
 #pragma once
+/**
+ * @file StructuredBuffer.h
+ * @brief StructuredBuffer用
+ */
 #include <string>
 
 #include "DescriptorHandle.h"

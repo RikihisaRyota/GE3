@@ -1,5 +1,8 @@
 #pragma once
-
+/**
+ * @file ColorBuffer.h
+ * @brief 主にレンダーターゲットに使用
+ */
 #include "PixelBuffer.h"
 #include "Color.h"
 

@@ -1,5 +1,8 @@
 #pragma once
-
+/**
+ * @file Dissolve.h
+ * @brief ポストエフェクトでDissolveを使用するため
+ */
 #include "RootSignature.h"
 #include "PipelineState.h"
 #include "UploadBuffer.h"

@@ -1,5 +1,8 @@
 #pragma once
-
+/**
+ * @file Skeleton.h
+ * @brief skeletonの管理
+ */
 #include <string>
 #include <map>
 #include <optional>

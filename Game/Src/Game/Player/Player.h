@@ -1,5 +1,8 @@
 #pragma once
-
+/**
+ * @file Player.h
+ * @brief Player
+ */
 #include <string>
 #include <memory>
 #include <vector>
@@ -23,12 +26,14 @@ class GPUParticleManager;
 class CommandContext;
 class Player {
 public:
+	// アニメーションstring
 	std::vector<std::string> name_ = {
 		"idle",
 		"walk",
 		"shootingWalk",
 		"hitDamage"
 	};
+	// アニメーションenum
 	enum State {
 		kRoot,
 		kWalk,
@@ -43,8 +48,9 @@ public:
 	void Initialize();
 
 	void Update(CommandContext& commandContext);
-
+	// Draw3D
 	void Draw(const ViewProjection& viewProjection, CommandContext& commandContext);
+	// DrawUI
 	void DrawSprite(CommandContext& commandContext);
 	void DrawDebug();
 

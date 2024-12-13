@@ -1,5 +1,8 @@
 #pragma once
-
+/**
+ * @file GaussinFilter.h
+ * @brief ポストエフェクトを実装するために
+ */
 #include "RootSignature.h"
 #include "PipelineState.h"
 #include "ColorBuffer.h"

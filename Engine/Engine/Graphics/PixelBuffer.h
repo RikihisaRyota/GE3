@@ -1,5 +1,8 @@
 #pragma once
-
+/**
+ * @file PixelBuffer.h
+ * @brief PixelShaderに送るバッファーの基底クラス
+ */
 #include <cstdint>
 #include <string>
 

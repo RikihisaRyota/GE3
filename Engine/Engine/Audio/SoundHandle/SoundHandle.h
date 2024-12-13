@@ -1,5 +1,8 @@
 #pragma once
-
+/**
+ * @file SoundHandle.h
+ * @brief SoundHandle
+ */
 class SoundHandle {
     friend class Audio;
 public:

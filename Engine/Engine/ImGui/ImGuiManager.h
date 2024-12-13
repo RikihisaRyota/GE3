@@ -1,4 +1,8 @@
 #pragma once
+/**
+ * @file ImGuiManager.h
+ * @brief ImGuiの管理
+ */
 #include <d3d12.h>
 #include <Windows.h>
 

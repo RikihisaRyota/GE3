@@ -1,5 +1,8 @@
 #pragma once
-
+/**
+ * @file Random.h 
+ * @brief ランダムを生成する
+ */
 #include <cstdint>
 #include <random>
 

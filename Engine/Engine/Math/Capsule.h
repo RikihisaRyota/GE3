@@ -1,5 +1,7 @@
 #pragma once
-
+/**
+ * @file Capsule.h
+ */
 #include "Segment.h"
    
 struct Capsule {

@@ -1,5 +1,8 @@
 #pragma once
-
+/**
+ * @file Boss.h
+ * @brief ボス
+ */
 #include <unordered_map>
 #include <memory>
 #include <list>
@@ -18,7 +21,6 @@
 class Player;
 class GPUParticleManager;
 class CommandContext;
-// ボス
 class Boss {
 public:
 	Boss();

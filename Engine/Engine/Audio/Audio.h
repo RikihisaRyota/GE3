@@ -1,5 +1,8 @@
 #pragma once
-
+/**
+ * @file Audio.h
+ * @brief AudioDataの管理
+ */
 #include <mfapi.h>
 #include <mfidl.h>
 #include <mfreadwrite.h>

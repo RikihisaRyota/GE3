@@ -1,5 +1,8 @@
 #pragma once
-
+/**
+ * @file GPUParticleManager.h
+ * @brief GPUParticleManager
+ */
 #include <memory>
 #include <vector>
 
@@ -55,8 +58,8 @@ public:
 	void SetTransformAreaEmitter(const ModelHandle& modelHandle, const GPUParticleShaderStructs::TransformAreaEmitterForCPU& emitter,const Matrix4x4& parent= MakeIdentity4x4());
 	void SetField(const GPUParticleShaderStructs::FieldForCPU& fieldForCPU);
 	void SetBullet(const GPUParticleShaderStructs::BulletForGPU& bullets);
-
 private:
+	// 初期化用関数
 	void CreateParticleBuffer();
 	void CreateGraphics();
 	void CreateEmitter();

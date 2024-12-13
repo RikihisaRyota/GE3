@@ -1,5 +1,8 @@
 #pragma once
-
+/**
+ * @file DepthBuffer.h
+ * @brief DepthBuffer
+ */
 #include "PixelBuffer.h"
 
 #include "DescriptorHandle.h"

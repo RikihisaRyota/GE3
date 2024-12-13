@@ -1,4 +1,8 @@
 #pragma once
+/**
+ * @file AABB.h
+ */
+
 #include "Vector3.h"
 struct AABB {
 	Vector3 center_; //!< 真ん中

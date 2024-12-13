@@ -1,4 +1,8 @@
 #pragma once
+/**
+ * @file CollisionAttribute
+ * @brief 当たり判定のマスク
+ */
 #include <cstdint>
 
 namespace CollisionAttribute {

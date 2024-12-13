@@ -1,5 +1,8 @@
 #pragma once
-
+/**
+ * @file FollowCamera.h
+ * @brief フォローカメラ
+ */
 #include "Engine/Math/WorldTransform.h"
 #include "Engine/Math/ViewProjection.h"
 

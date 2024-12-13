@@ -1,4 +1,8 @@
 #pragma once
+/**
+ * @file WorldTransform.h
+ */
+
 #include <memory>
 
 #include "Matrix4x4.h"

@@ -1,5 +1,8 @@
 #pragma once
-
+/**
+ * @file PostEffect.h
+ * @brief PostEffect用
+ */
 #include "RootSignature.h"
 #include "PipelineState.h"
 #include "ColorBuffer.h"

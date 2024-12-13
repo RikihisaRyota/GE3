@@ -1,4 +1,8 @@
 #pragma once
+/**
+ * @file SwapChain.h
+ * @brief SwapChain用
+ */
 #include <d3d12.h>
 #include <dxgi1_6.h>
 #include <memory>
@@ -7,7 +11,6 @@
 #include <cstdint>
 
 class ColorBuffer;
-
 class SwapChain {
 public:
 	static const uint32_t kNumBuffers = 3;

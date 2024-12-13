@@ -1,5 +1,8 @@
 #pragma once
-
+/**
+ * @file GPUResource.h
+ * @brief GPUReSourceのための
+ */
 #include <d3d12.h>
 #include <wrl.h>
 

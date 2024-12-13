@@ -1,4 +1,7 @@
 #pragma once
+/**
+ * @file Vector2.h
+ */
 
 #include <assert.h>
 #include <cmath>

@@ -1,5 +1,8 @@
 #pragma once
-
+/**
+ * @file CommandSignature.h
+ * @brief CommandSignature
+ */
 #include <d3d12.h>
 #include <wrl.h>
 #include <memory>

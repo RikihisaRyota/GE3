@@ -75,6 +75,7 @@ namespace LevelDataLoader {
 		gameObject.transform.scale.y = float(transform["scaling"][2]);
 		gameObject.transform.scale.z = float(transform["scaling"][1]);
 
+		// 当たり判定を持っていいたら
 		if (object.contains("collider")) {
 			auto& collider = object["collider"];
 			gameObject.collider = LevelDataLoader::Collider{};
@@ -92,11 +93,13 @@ namespace LevelDataLoader {
 			gameObject.collider->size.z = float(collider["size"][1]);
 		}
 
+		// 名前があるか
 		if (object.contains("objectName")) {
 			auto& objectName= object["objectName"];
 			gameObject.objectName = objectName;
 		}
 
+		// 親子づけをしていたら
 		if (object.contains("children")) {
 			for (auto& child : object["children"]) {
 				SetGameObject(child, gameObject.transform.index);

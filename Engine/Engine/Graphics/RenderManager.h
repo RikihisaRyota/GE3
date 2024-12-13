@@ -1,5 +1,8 @@
 #pragma once
-
+/**
+ * @file RenderManager.h
+ * @brief 描画に関する物をまとめている
+ */
 #include "CommandContext.h"
 #include "ColorBuffer.h"
 #include "DepthBuffer.h"

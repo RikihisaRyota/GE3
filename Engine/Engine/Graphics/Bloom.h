@@ -1,4 +1,8 @@
 #pragma once
+/**
+ * @file Bloom.h
+ * @brief ポストエフェクトでブルームをかける際に仕様
+ */
 #include "Engine/Math/Vector2.h"
 #include "RootSignature.h"
 #include "PipelineState.h"

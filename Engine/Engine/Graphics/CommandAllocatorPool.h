@@ -1,5 +1,8 @@
 #pragma once
-
+/**
+ * @file CommandAllocatorPool.h
+ * @brief CommandAllocatorのPoolここでCommandAllocatorを管理
+ */
 #include <d3d12.h>
 #include <wrl/client.h>
 

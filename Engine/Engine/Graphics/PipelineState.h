@@ -1,5 +1,8 @@
 #pragma once
-
+/**
+ * @file PipelineState.h
+ * @brief Pipeline用のクラス
+ */
 #include <d3d12.h>
 #include <wrl.h>
 

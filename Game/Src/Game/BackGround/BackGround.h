@@ -1,5 +1,8 @@
 #pragma once
-
+/**
+ * @file BackGround.h
+ * @brief 背景オブジェクト
+ */
 #include "Engine/Math/WorldTransform.h"
 #include "Engine/Math/ViewProjection.h"
 #include "Engine/Model/ModelHandle.h"
@@ -7,7 +10,6 @@
 #include "Engine/GPUParticleManager/GPUParticleManager.h"
 #include "Engine/GPUParticleManager/GPUParticle/GPUParticleShaderStructs.h"
 
-// 背景
 class BackGround {
 public:
 	void Initialize();

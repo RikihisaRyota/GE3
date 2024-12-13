@@ -1,5 +1,8 @@
 #pragma once
-
+/**
+ * @file TextureManager.h
+ * @brief Textureの管理
+ */
 #include <filesystem>
 #include <string>
 #include <memory>
@@ -11,7 +14,7 @@
 class TextureManager {
 public:
 	static TextureManager* GetInstance();
-
+	// texture読み込み
 	TextureHandle Load(const std::filesystem::path path);
 
 	Texture& GetTexture(const TextureHandle& textureHandle) { return *textures_[textureHandle.index_]; }

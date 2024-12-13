@@ -1,5 +1,8 @@
 #pragma once
-
+/**
+ * @file GraphicsCore.h
+ * @brief CommandListやCommandQueueの管理
+ */
 #include <d3d12.h>
 #include <wrl/client.h>
 

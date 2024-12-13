@@ -1,4 +1,10 @@
 #pragma once
+
+/**
+ * @file MyMath.h
+ * @brief 計算用関数をまとめたもの
+ */
+
 #include <algorithm> // std::min, std::max
 #include <string>
 #include <vector>

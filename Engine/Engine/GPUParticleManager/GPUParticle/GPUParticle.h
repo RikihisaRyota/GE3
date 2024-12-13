@@ -125,7 +125,7 @@ private:
 	DefaultBuffer spawnArgumentBuffer_;
 
 	CommandSignature* spawnCommandSignature_;
-	// 何個生成するか数える用
+	// 何個生成するか数える用,spawnDispach用
 	DefaultBuffer createParticleCounterCopySrcBuffer_;
 	// 軌跡用
 	CommandSignature* trailsDrawCommandSignature_;

@@ -286,9 +286,9 @@ void GPUParticle::UpdateEmitter(CommandContext& commandContext) {
 void GPUParticle::Spawn(CommandContext& commandContext, const UploadBuffer& random) {
 		commandContext.BeginEvent(QueueType::Type::COMPUTE, L"Spawn");
 		// あと何個生成できるかコピー
-		/*commandContext.CopyBufferRegion(QueueType::Type::COMPUTE, originalCounterBuffer_, 0, originalCommandBuffer_, originalCommandBuffer_.GetCounterOffset(), sizeof(UINT));
+		commandContext.CopyBufferRegion(QueueType::Type::COMPUTE, originalCounterBuffer_, 0, originalCommandBuffer_, originalCommandBuffer_.GetCounterOffset(), sizeof(UINT));
 	
-		commandContext.TransitionResource(QueueType::Type::COMPUTE, particleBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+		commandContext.TransitionResource(QueueType::Type::COMPUTE, , D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 		commandContext.TransitionResource(QueueType::Type::COMPUTE, originalCommandBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 		commandContext.TransitionResource(QueueType::Type::COMPUTE, createParticleBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 		commandContext.TransitionResource(QueueType::Type::COMPUTE, originalCounterBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
@@ -320,7 +320,7 @@ void GPUParticle::Spawn(CommandContext& commandContext, const UploadBuffer& rand
 	
 		commandContext.SetComputeDescriptorTable(QueueType::Type::COMPUTE, 12, GraphicsCore::GetInstance()->GetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV).GetStartDescriptorHandle());
 		commandContext.SetComputeDescriptorTable(QueueType::Type::COMPUTE, 13, GraphicsCore::GetInstance()->GetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV).GetStartDescriptorHandle());
-	*/
+	
 		commandContext.SetComputeConstantBuffer(QueueType::Type::COMPUTE, 14, random.GetGPUVirtualAddress());
 	
 		commandContext.ExecuteIndirect(
@@ -961,6 +961,8 @@ void GPUParticle::InitializeEmitter() {
 	uavDesc.Buffer.CounterOffsetInBytes = createParticleBuffer_.GetCounterOffset();
 	uavDesc.Buffer.Flags = D3D12_BUFFER_UAV_FLAG_NONE;
 	createParticleBuffer_.CreateUAV(uavDesc);
+
+	createParticleCounterCopySrcBuffer_.Create(L"createParticleCounterCopySrcBuffer",sizeof(uint32_t));
 }
 
 void GPUParticle::InitializeAddEmitter() {

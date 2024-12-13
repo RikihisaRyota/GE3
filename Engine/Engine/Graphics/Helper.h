@@ -1,5 +1,8 @@
 #pragma once
-
+/**
+ * @file Helper
+ * @brief Rasterizer,Blend,Depthの設定
+ */
 #include <d3d12.h>
 
 namespace Helper {

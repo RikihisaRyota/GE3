@@ -1,5 +1,8 @@
 #pragma once
-
+/**
+ * @file Animation.h
+ * @brief AnimationDataを管理
+ */
 #include <filesystem>
 #include <map>
 #include <string>

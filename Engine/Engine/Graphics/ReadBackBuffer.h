@@ -1,4 +1,8 @@
 #pragma once
+/**
+ * @file ReadbackBuffer.h
+ * @brief ReadBackBuffer用
+ */
 #include <string>
 
 #include "GpuResource.h"

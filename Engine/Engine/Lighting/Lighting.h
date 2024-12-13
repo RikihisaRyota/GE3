@@ -1,5 +1,8 @@
 #pragma once
-
+/**
+ * @file Lighting.h
+ * @brief ライティングに必要な物をまとめている
+ */
 #include "Engine/Graphics/UploadBuffer.h"
 #include "Engine/Math/Vector4.h"
 #include "Engine/Math/Vector3.h"

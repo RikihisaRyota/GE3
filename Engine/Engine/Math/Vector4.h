@@ -1,4 +1,7 @@
 #pragma once
+/**
+ * @file Vector4.h
+ */
 
 #include <cmath>
 

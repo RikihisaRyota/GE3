@@ -18,6 +18,7 @@
 #include "Engine/Math/Vector4.h"
 #include "Engine/Math/Matrix4x4.h"
 #include "Engine/Math/Quaternion.h"
+
 #endif 
 
 namespace GPUParticleShaderStructs {
@@ -1174,5 +1175,5 @@ struct Particle
 	void Copy(GPUParticleShaderStructs::TransformAreaEmitterForGPU& dst, const GPUParticleShaderStructs::TransformAreaEmitterForCPU& src, const Matrix4x4& parent);
 	void Copy(GPUParticleShaderStructs::TransformModelEmitterForGPU& dst, const GPUParticleShaderStructs::TransformModelEmitterForCPU& src, const Matrix4x4& parent);
 	void Copy(GPUParticleShaderStructs::FieldForGPU& dst, const GPUParticleShaderStructs::FieldForCPU& src);
-#endif // !__HLSL__
+#endif  // __cpluspulus
 }

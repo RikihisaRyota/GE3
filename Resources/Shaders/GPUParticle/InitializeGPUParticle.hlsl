@@ -1,5 +1,4 @@
 #include "GPUParticleShaderStructs.h"
-
 #include "GPUParticle.hlsli"
 RWStructuredBuffer<uint32_t> directParticleFreeList : register(u0);
 RWStructuredBuffer<int32_t> directParticleFreeListIndex : register(u1);

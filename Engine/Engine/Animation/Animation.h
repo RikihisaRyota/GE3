@@ -67,15 +67,22 @@ namespace Animation {
 		std::vector<AnimationDesc> animations;
 		Skeleton skeleton;
 		SkinCluster skinCluster;
+		// ゲッター
 		AnimationHandle GetAnimationHandle(const std::string& name);
 
+		// modelHandleからの初期化
 		void Initialize(const ModelHandle& modelHandle);
+		// pathからの初期化
 		void Initialize(const std::filesystem::path& path, const ModelHandle& modelHandle);
+		// アップデート
 		void Update(const AnimationHandle& handle, float time, CommandContext& commandContext, const ModelHandle& modelHandle);
+		// アニメーション遷移アップデート
 		void Update(const AnimationHandle& pre, float fromTime, const AnimationHandle& current, float toTime, float time, CommandContext& commandContext, const ModelHandle& modelHandle);
+		// ボーン表示
 		void DrawLine(const WorldTransform& worldTransform);
 	};
 
+	// キーフレーム取得
 	Vector3 CalculateValue(const AnimationCurve<Vector3>& keyframes, float time);
 	Quaternion CalculateValue(const AnimationCurve<Quaternion>& keyframes, float time);
 	void ApplyAnimation(Skeleton& skeleton, const AnimationDesc& animation, float animationTime);

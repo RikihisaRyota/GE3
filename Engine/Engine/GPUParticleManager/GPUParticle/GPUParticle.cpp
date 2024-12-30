@@ -8,8 +8,9 @@
 
 #include "Engine/Collision/CollisionAttribute.h"
 #include "Engine/Graphics/CommandContext.h"
-#include "Engine/Graphics/Helper.h"
+#include "Engine/Graphics/CommandListManager.h"
 #include "Engine/Graphics/GraphicsCore.h"
+#include "Engine/Graphics/Helper.h"
 #include "Engine/Graphics/SamplerManager.h"
 #include "Engine/ShderCompiler/ShaderCompiler.h"
 #include "Engine/Graphics/RenderManager.h"
@@ -71,11 +72,9 @@ void GPUParticle::AddField(CommandContext& commandContext) {
 	if (!fields_.empty()) {
 		commandContext.BeginEvent(QueueType::Type::COMPUTE, L"AddField");
 
+		fieldBuffer_.TransitionResource(QueueType::Type::COMPUTE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, commandContext);
 		commandContext.TransitionResource(QueueType::Type::COMPUTE, fieldAddBuffer_, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
-		commandContext.TransitionResource(QueueType::Type::COMPUTE, fieldBuffer_.buffer, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 		commandContext.TransitionResource(QueueType::Type::COMPUTE, createFieldNumBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-		commandContext.TransitionResource(QueueType::Type::COMPUTE, fieldBuffer_.freeList.list, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-		commandContext.TransitionResource(QueueType::Type::COMPUTE, fieldBuffer_.freeList.index, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 
 		commandContext.SetComputeShaderResource(QueueType::Type::COMPUTE, 0, fieldAddBuffer_->GetGPUVirtualAddress());
 		commandContext.SetComputeUAV(QueueType::Type::COMPUTE, 1, fieldBuffer_.buffer->GetGPUVirtualAddress());
@@ -83,10 +82,10 @@ void GPUParticle::AddField(CommandContext& commandContext) {
 		commandContext.SetComputeUAV(QueueType::Type::COMPUTE, 3, fieldBuffer_.freeList.list->GetGPUVirtualAddress());
 		commandContext.SetComputeUAV(QueueType::Type::COMPUTE, 4, fieldBuffer_.freeList.index->GetGPUVirtualAddress());
 		commandContext.Dispatch(QueueType::Type::COMPUTE, 1, 1, 1);
-		commandContext.UAVBarrier(QueueType::Type::COMPUTE, fieldBuffer_.buffer);
+
+		fieldBuffer_.UavBarrier(QueueType::Type::COMPUTE, commandContext);
 		commandContext.UAVBarrier(QueueType::Type::COMPUTE, createFieldNumBuffer_);
-		commandContext.UAVBarrier(QueueType::Type::COMPUTE, fieldBuffer_.freeList.list);
-		commandContext.UAVBarrier(QueueType::Type::COMPUTE, fieldBuffer_.freeList.index);
+
 		commandContext.EndEvent(QueueType::Type::COMPUTE);
 	}
 }
@@ -97,9 +96,7 @@ void GPUParticle::UpdateField(CommandContext& commandContext) {
 		// カウンターリセット
 		commandContext.CopyBufferRegion(QueueType::Type::COMPUTE, appendFieldIndexBuffer_, appendFieldIndexBuffer_.GetCounterOffset(), resetCounterBuffer_, 0, sizeof(UINT));
 
-		commandContext.TransitionResource(QueueType::Type::COMPUTE, fieldBuffer_.buffer, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-		commandContext.TransitionResource(QueueType::Type::COMPUTE, fieldBuffer_.freeList.list, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-		commandContext.TransitionResource(QueueType::Type::COMPUTE, fieldBuffer_.freeList.index, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+		fieldBuffer_.TransitionResource(QueueType::Type::COMPUTE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, commandContext);
 		commandContext.TransitionResource(QueueType::Type::COMPUTE, appendFieldIndexBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 
 		commandContext.SetComputeUAV(QueueType::Type::COMPUTE, 0, fieldBuffer_.buffer->GetGPUVirtualAddress());
@@ -107,9 +104,8 @@ void GPUParticle::UpdateField(CommandContext& commandContext) {
 		commandContext.SetComputeUAV(QueueType::Type::COMPUTE, 2, fieldBuffer_.freeList.index->GetGPUVirtualAddress());
 		commandContext.SetComputeDescriptorTable(QueueType::Type::COMPUTE, 3, appendFieldIndexBuffer_.GetUAVHandle());
 		commandContext.Dispatch(QueueType::Type::COMPUTE, 1, 1, 1);
-		commandContext.UAVBarrier(QueueType::Type::COMPUTE, fieldBuffer_.buffer);
-		commandContext.UAVBarrier(QueueType::Type::COMPUTE, fieldBuffer_.freeList.list);
-		commandContext.UAVBarrier(QueueType::Type::COMPUTE, fieldBuffer_.freeList.index);
+
+		fieldBuffer_.UavBarrier(QueueType::Type::COMPUTE, commandContext);
 		commandContext.UAVBarrier(QueueType::Type::COMPUTE, appendFieldIndexBuffer_);
 		commandContext.EndEvent(QueueType::Type::COMPUTE);
 	}
@@ -119,10 +115,8 @@ void GPUParticle::CollisionField(CommandContext& commandContext, const UploadBuf
 	if (!fields_.empty()) {
 		// 現在particleは二種類将来的には分ける
 		commandContext.BeginEvent(QueueType::Type::COMPUTE, L"CollisionField");
-		commandContext.TransitionResource(QueueType::Type::COMPUTE, fieldBuffer_.buffer, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
+		fieldBuffer_.TransitionResource(QueueType::Type::COMPUTE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, commandContext);
 		commandContext.TransitionResource(QueueType::Type::COMPUTE, appendFieldIndexBuffer_, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
-		commandContext.TransitionResource(QueueType::Type::COMPUTE, directParticle_.buffer, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-		commandContext.TransitionResource(QueueType::Type::COMPUTE, computeParticle_.buffer, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 
 		commandContext.SetComputeShaderResource(QueueType::Type::COMPUTE, 0, fieldBuffer_.buffer->GetGPUVirtualAddress());
 		commandContext.SetComputeShaderResource(QueueType::Type::COMPUTE, 1, appendFieldIndexBuffer_->GetGPUVirtualAddress());
@@ -130,6 +124,7 @@ void GPUParticle::CollisionField(CommandContext& commandContext, const UploadBuf
 		commandContext.SetComputeUAV(QueueType::Type::COMPUTE, 3, computeParticle_.buffer->GetGPUVirtualAddress());
 		commandContext.SetComputeConstantBuffer(QueueType::Type::COMPUTE, 4, random.GetGPUVirtualAddress());
 		commandContext.Dispatch(QueueType::Type::COMPUTE, static_cast<UINT>(ceil((GPUParticleShaderStructs::MaxParticleNum / GPUParticleShaderStructs::MaxProcessNum) / GPUParticleShaderStructs::ComputeThreadBlockSize)), uint32_t(fields_.size()), 1);
+
 		commandContext.UAVBarrier(QueueType::Type::COMPUTE, directParticle_.buffer);
 		commandContext.UAVBarrier(QueueType::Type::COMPUTE, computeParticle_.buffer);
 		fields_.clear();
@@ -281,158 +276,137 @@ void GPUParticle::UpdateEmitter(CommandContext& commandContext) {
 	// エミッターの数
 	commandContext.CopyBufferRegion(QueueType::Type::COMPUTE, spawnArgumentBuffer_, sizeof(UINT), createParticleBuffer_, createParticleBuffer_.GetCounterOffset(), sizeof(UINT));
 	commandContext.EndEvent(QueueType::Type::COMPUTE);
+
+	// emitter系の書き込み終了を伝える
+	auto graphics = GraphicsCore::GetInstance();
+	auto& directQueue = graphics->GetCommandQueue(GetType(QueueType::Type::Param::DIRECT));
+	auto& computeQueue = graphics->GetCommandQueue(GetType(QueueType::Type::Param::COMPUTE));
+	auto& directQueueFence = graphics->GetCommandListManager().GetDirectQueueFence();
+	auto& computeQueueFence = graphics->GetCommandListManager().GetComputeQueueFence();
+	
+	auto queueType = QueueType::Type::Param::COMPUTE;
+	computeQueue.Signal(computeQueueFence.fence.Get(), computeQueueFence.fenceValue, QueueType::GetTypeString(queueType));
+	queueType = QueueType::Type::Param::DIRECT;
+	directQueue.Wait(computeQueueFence.fence.Get(), computeQueueFence.fenceValue, QueueType::GetTypeString(queueType));
 }
 
 void GPUParticle::Spawn(CommandContext& commandContext, const UploadBuffer& random) {
-		commandContext.BeginEvent(QueueType::Type::COMPUTE, L"Spawn");
-		// あと何個生成できるかコピー
-		commandContext.TransitionResource(QueueType::Type::COMPUTE, directParticle_.buffer, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-		commandContext.TransitionResource(QueueType::Type::COMPUTE, directParticle_.freeList.list, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-		commandContext.TransitionResource(QueueType::Type::COMPUTE, directParticle_.freeList.index, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-		commandContext.TransitionResource(QueueType::Type::COMPUTE, computeParticle_.buffer, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-		commandContext.TransitionResource(QueueType::Type::COMPUTE, computeParticle_.freeList.list, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-		commandContext.TransitionResource(QueueType::Type::COMPUTE, computeParticle_.freeList.index, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-		commandContext.TransitionResource(QueueType::Type::COMPUTE, createParticleBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-		commandContext.TransitionResource(QueueType::Type::COMPUTE, trailsStockBuffers_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-		commandContext.TransitionResource(QueueType::Type::COMPUTE, trailsDataBuffers_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-		commandContext.TransitionResource(QueueType::Type::COMPUTE, trailsHeadBuffers_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-		commandContext.TransitionResource(QueueType::Type::COMPUTE, spawnArgumentBuffer_, D3D12_RESOURCE_STATE_INDIRECT_ARGUMENT);
-	
-		emitterForGPUDesc_.Spawn(commandContext);
-		vertexEmitterForGPUDesc_.Spawn(commandContext);
-		meshEmitterForGPUDesc_.Spawn(commandContext);
-		transformModelEmitterForGPUDesc_.Spawn(commandContext);
-		transformAreaEmitterForGPUDesc_.Spawn(commandContext);
-	
-		commandContext.SetComputeUAV(QueueType::Type::COMPUTE, 0, directParticle_.buffer->GetGPUVirtualAddress());
-		commandContext.SetComputeUAV(QueueType::Type::COMPUTE, 1, directParticle_.freeList.list->GetGPUVirtualAddress());
-		commandContext.SetComputeUAV(QueueType::Type::COMPUTE, 2, directParticle_.freeList.index->GetGPUVirtualAddress());
-		commandContext.SetComputeUAV(QueueType::Type::COMPUTE, 3, computeParticle_.buffer->GetGPUVirtualAddress());
-		commandContext.SetComputeUAV(QueueType::Type::COMPUTE, 4, computeParticle_.freeList.list->GetGPUVirtualAddress());
-		commandContext.SetComputeUAV(QueueType::Type::COMPUTE, 5, computeParticle_.freeList.index->GetGPUVirtualAddress());
-		commandContext.SetComputeUAV(QueueType::Type::COMPUTE, 6, sumCreateParticleCounterBuffer_->GetGPUVirtualAddress());
-		commandContext.SetComputeUAV(QueueType::Type::COMPUTE, 7, createParticleBuffer_->GetGPUVirtualAddress());
-	
-		commandContext.SetComputeDescriptorTable(QueueType::Type::COMPUTE, 8, trailsStockBuffers_.GetUAVHandle());
-		commandContext.SetComputeUAV(QueueType::Type::COMPUTE, 9, trailsDataBuffers_->GetGPUVirtualAddress());
-		commandContext.SetComputeUAV(QueueType::Type::COMPUTE, 10, trailsHeadBuffers_->GetGPUVirtualAddress());
-	
-		commandContext.SetComputeShaderResource(QueueType::Type::COMPUTE, 11, emitterForGPUDesc_.originalBuffer->GetGPUVirtualAddress());
-		commandContext.SetComputeShaderResource(QueueType::Type::COMPUTE, 12, vertexEmitterForGPUDesc_.originalBuffer->GetGPUVirtualAddress());
-		commandContext.SetComputeShaderResource(QueueType::Type::COMPUTE, 13, meshEmitterForGPUDesc_.originalBuffer->GetGPUVirtualAddress());
-		commandContext.SetComputeShaderResource(QueueType::Type::COMPUTE, 14, transformModelEmitterForGPUDesc_.originalBuffer->GetGPUVirtualAddress());
-		commandContext.SetComputeShaderResource(QueueType::Type::COMPUTE, 15, transformAreaEmitterForGPUDesc_.originalBuffer->GetGPUVirtualAddress());
-	
-		commandContext.SetComputeDescriptorTable(QueueType::Type::COMPUTE, 16, GraphicsCore::GetInstance()->GetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV).GetStartDescriptorHandle());
-		commandContext.SetComputeDescriptorTable(QueueType::Type::COMPUTE, 17, GraphicsCore::GetInstance()->GetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV).GetStartDescriptorHandle());
-	
-		commandContext.SetComputeConstantBuffer(QueueType::Type::COMPUTE, 18, random.GetGPUVirtualAddress());
-	
-		commandContext.ExecuteIndirect(
-			*spawnCommandSignature_,
-			1,
-			spawnArgumentBuffer_,
-			0,
-			nullptr,
-			0,
-			QueueType::Type::COMPUTE
-		);
-		commandContext.UAVBarrier(QueueType::Type::COMPUTE, directParticle_.buffer);
-		commandContext.UAVBarrier(QueueType::Type::COMPUTE, directParticle_.freeList.list);
-		commandContext.UAVBarrier(QueueType::Type::COMPUTE, directParticle_.freeList.index);
-		commandContext.UAVBarrier(QueueType::Type::COMPUTE, computeParticle_.buffer);
-		commandContext.UAVBarrier(QueueType::Type::COMPUTE, computeParticle_.freeList.list);
-		commandContext.UAVBarrier(QueueType::Type::COMPUTE, computeParticle_.freeList.index);
-		commandContext.UAVBarrier(QueueType::Type::COMPUTE, sumCreateParticleCounterBuffer_);
-		commandContext.UAVBarrier(QueueType::Type::COMPUTE, createParticleBuffer_);
+	commandContext.BeginEvent(QueueType::Type::COMPUTE, L"Spawn");
+	// あと何個生成できるかコピー
+	directParticle_.TransitionResource(QueueType::Type::COMPUTE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, commandContext);
+	computeParticle_.TransitionResource(QueueType::Type::COMPUTE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, commandContext);
+	commandContext.TransitionResource(QueueType::Type::COMPUTE, createParticleBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+	commandContext.TransitionResource(QueueType::Type::COMPUTE, trailsStockBuffers_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+	commandContext.TransitionResource(QueueType::Type::COMPUTE, trailsDataBuffers_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+	commandContext.TransitionResource(QueueType::Type::COMPUTE, trailsHeadBuffers_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+	commandContext.TransitionResource(QueueType::Type::COMPUTE, spawnArgumentBuffer_, D3D12_RESOURCE_STATE_INDIRECT_ARGUMENT);
 
-		commandContext.UAVBarrier(QueueType::Type::COMPUTE, trailsStockBuffers_);
-		commandContext.UAVBarrier(QueueType::Type::COMPUTE, trailsDataBuffers_);
-		commandContext.UAVBarrier(QueueType::Type::COMPUTE, trailsHeadBuffers_);
-	
-		commandContext.CopyBufferRegion(QueueType::Type::COMPUTE, createParticleBuffer_, createParticleBuffer_.GetCounterOffset(), resetCounterBuffer_, 0, sizeof(UINT));
-		commandContext.EndEvent(QueueType::Type::COMPUTE);
+	emitterForGPUDesc_.Spawn(commandContext);
+	vertexEmitterForGPUDesc_.Spawn(commandContext);
+	meshEmitterForGPUDesc_.Spawn(commandContext);
+	transformModelEmitterForGPUDesc_.Spawn(commandContext);
+	transformAreaEmitterForGPUDesc_.Spawn(commandContext);
+
+	commandContext.SetComputeUAV(QueueType::Type::COMPUTE, 0, directParticle_.buffer->GetGPUVirtualAddress());
+	commandContext.SetComputeUAV(QueueType::Type::COMPUTE, 1, directParticle_.freeList.list->GetGPUVirtualAddress());
+	commandContext.SetComputeUAV(QueueType::Type::COMPUTE, 2, directParticle_.freeList.index->GetGPUVirtualAddress());
+
+	commandContext.SetComputeUAV(QueueType::Type::COMPUTE, 3, computeParticle_.buffer->GetGPUVirtualAddress());
+	commandContext.SetComputeUAV(QueueType::Type::COMPUTE, 4, computeParticle_.freeList.list->GetGPUVirtualAddress());
+	commandContext.SetComputeUAV(QueueType::Type::COMPUTE, 5, computeParticle_.freeList.index->GetGPUVirtualAddress());
+
+	commandContext.SetComputeUAV(QueueType::Type::COMPUTE, 6, createParticleBuffer_->GetGPUVirtualAddress());
+
+	commandContext.SetComputeDescriptorTable(QueueType::Type::COMPUTE, 7, trailsStockBuffers_.GetUAVHandle());
+	commandContext.SetComputeUAV(QueueType::Type::COMPUTE, 8, trailsDataBuffers_->GetGPUVirtualAddress());
+	commandContext.SetComputeUAV(QueueType::Type::COMPUTE, 9, trailsHeadBuffers_->GetGPUVirtualAddress());
+
+	commandContext.SetComputeShaderResource(QueueType::Type::COMPUTE, 10, emitterForGPUDesc_.originalBuffer->GetGPUVirtualAddress());
+	commandContext.SetComputeShaderResource(QueueType::Type::COMPUTE, 11, vertexEmitterForGPUDesc_.originalBuffer->GetGPUVirtualAddress());
+	commandContext.SetComputeShaderResource(QueueType::Type::COMPUTE, 12, meshEmitterForGPUDesc_.originalBuffer->GetGPUVirtualAddress());
+	commandContext.SetComputeShaderResource(QueueType::Type::COMPUTE, 13, transformModelEmitterForGPUDesc_.originalBuffer->GetGPUVirtualAddress());
+	commandContext.SetComputeShaderResource(QueueType::Type::COMPUTE, 14, transformAreaEmitterForGPUDesc_.originalBuffer->GetGPUVirtualAddress());
+
+	commandContext.SetComputeDescriptorTable(QueueType::Type::COMPUTE, 15, GraphicsCore::GetInstance()->GetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV).GetStartDescriptorHandle());
+	commandContext.SetComputeDescriptorTable(QueueType::Type::COMPUTE, 16, GraphicsCore::GetInstance()->GetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV).GetStartDescriptorHandle());
+
+	commandContext.SetComputeConstantBuffer(QueueType::Type::COMPUTE, 17, random.GetGPUVirtualAddress());
+
+	commandContext.ExecuteIndirect(
+		*spawnCommandSignature_,
+		1,
+		spawnArgumentBuffer_,
+		0,
+		nullptr,
+		0,
+		QueueType::Type::COMPUTE
+	);
+	directParticle_.UavBarrier(QueueType::Type::COMPUTE, commandContext);
+	computeParticle_.UavBarrier(QueueType::Type::COMPUTE, commandContext);
+	commandContext.UAVBarrier(QueueType::Type::COMPUTE, createParticleBuffer_);
+
+	commandContext.UAVBarrier(QueueType::Type::COMPUTE, trailsStockBuffers_);
+	commandContext.UAVBarrier(QueueType::Type::COMPUTE, trailsDataBuffers_);
+	commandContext.UAVBarrier(QueueType::Type::COMPUTE, trailsHeadBuffers_);
+
+	commandContext.CopyBufferRegion(QueueType::Type::COMPUTE, createParticleBuffer_, createParticleBuffer_.GetCounterOffset(), resetCounterBuffer_, 0, sizeof(UINT));
+	commandContext.EndEvent(QueueType::Type::COMPUTE);
 }
 
+// 描画に必要なパーティクル数をリセット
+//commandContext.CopyBufferRegion(QueueType::Type::DIRECT, appendDrawIndexBuffers_, appendDrawIndexBuffers_.GetCounterOffset(), resetCounterBuffer_, 0, sizeof(UINT));
 
 void GPUParticle::ParticleUpdate(const ViewProjection& viewProjection, CommandContext& commandContext) {
-		commandContext.BeginEvent(QueueType::Type::DIRECT, L"ParticleUpdate");
-		//// リセット
-		//commandContext.CopyBufferRegion(QueueType::Type::DIRECT, drawIndexCommandBuffers_, drawIndexCommandBuffers_.GetCounterOffset(), resetCounterBuffer_, 0, sizeof(UINT));
-	
-		//commandContext.TransitionResource(QueueType::Type::DIRECT, particleBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-		//commandContext.TransitionResource(QueueType::Type::DIRECT, originalCommandBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-		//commandContext.TransitionResource(QueueType::Type::DIRECT, drawIndexCommandBuffers_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-		//emitterForGPUDesc_.UpdateParticle(commandContext);
-		//vertexEmitterForGPUDesc_.UpdateParticle(commandContext);
-		//meshEmitterForGPUDesc_.UpdateParticle(commandContext);
-		//transformModelEmitterForGPUDesc_.UpdateParticle(commandContext);
-		//transformAreaEmitterForGPUDesc_.UpdateParticle(commandContext);
-	/*
-	
-		commandContext.SetComputeUAV(QueueType::Type::DIRECT, 0, particleBuffer_->GetGPUVirtualAddress());
-	
-		commandContext.SetComputeDescriptorTable(QueueType::Type::DIRECT, 1, originalCommandBuffer_.GetUAVHandle());
-		commandContext.SetComputeDescriptorTable(QueueType::Type::DIRECT, 2, drawIndexCommandBuffers_.GetUAVHandle());
-	*/
-		commandContext.SetComputeShaderResource(QueueType::Type::DIRECT, 3, emitterForGPUDesc_.originalBuffer->GetGPUVirtualAddress());
-		commandContext.SetComputeShaderResource(QueueType::Type::DIRECT, 4, vertexEmitterForGPUDesc_.originalBuffer->GetGPUVirtualAddress());
-		commandContext.SetComputeShaderResource(QueueType::Type::DIRECT, 5, meshEmitterForGPUDesc_.originalBuffer->GetGPUVirtualAddress());
-		commandContext.SetComputeShaderResource(QueueType::Type::DIRECT, 6, transformModelEmitterForGPUDesc_.originalBuffer->GetGPUVirtualAddress());
-		commandContext.SetComputeShaderResource(QueueType::Type::DIRECT, 7, transformAreaEmitterForGPUDesc_.originalBuffer->GetGPUVirtualAddress());
-	
-	
-		commandContext.SetComputeDynamicConstantBufferView(QueueType::Type::DIRECT, 8, sizeof(ConstBufferDataViewProjection), viewProjection.constMap_);
-	
-		commandContext.Dispatch(QueueType::Type::DIRECT, static_cast<UINT>(ceil((GPUParticleShaderStructs::MaxParticleNum / GPUParticleShaderStructs::MaxProcessNum) / GPUParticleShaderStructs::ComputeThreadBlockSize)), 1, 1);
-	/*	commandContext.UAVBarrier(QueueType::Type::DIRECT, particleBuffer_);
-		commandContext.UAVBarrier(QueueType::Type::DIRECT, drawIndexCommandBuffers_);*/
-	
-		commandContext.EndEvent(QueueType::Type::DIRECT);
+	commandContext.BeginEvent(QueueType::Type::DIRECT, L"ParticleUpdate");
+
+	UpdateDirectParticle(viewProjection, commandContext);
+	UpdateComputeParticle(viewProjection, commandContext);
+
+	commandContext.EndEvent(QueueType::Type::DIRECT);
 }
 
 void GPUParticle::UpdateTrails(const ViewProjection& viewProjection, CommandContext& commandContext) {
-		commandContext.BeginEvent(QueueType::Type::COMPUTE, L"UpdateTrails");
-	
-		commandContext.CopyBufferRegion(QueueType::Type::COMPUTE, trailsIndexBuffers_, trailsIndexBuffers_.GetCounterOffset(), resetCounterBuffer_, 0, sizeof(int32_t));
-	
-		commandContext.TransitionResource(QueueType::Type::COMPUTE, trailsStockBuffers_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-		commandContext.TransitionResource(QueueType::Type::COMPUTE, trailsIndexBuffers_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-		commandContext.TransitionResource(QueueType::Type::COMPUTE, trailsDataBuffers_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-		commandContext.TransitionResource(QueueType::Type::COMPUTE, trailsPositionBuffers_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-		//commandContext.TransitionResource(QueueType::Type::COMPUTE, particleBuffer_, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
-	
-		commandContext.SetComputeDescriptorTable(QueueType::Type::COMPUTE, 0, trailsStockBuffers_.GetUAVHandle());
-		commandContext.SetComputeDescriptorTable(QueueType::Type::COMPUTE, 1, trailsIndexBuffers_.GetUAVHandle());
-		commandContext.SetComputeUAV(QueueType::Type::COMPUTE, 2, trailsDataBuffers_.GetGPUVirtualAddress());
-		commandContext.SetComputeUAV(QueueType::Type::COMPUTE, 3, trailsPositionBuffers_.GetGPUVirtualAddress());
-		//commandContext.SetComputeShaderResource(QueueType::Type::COMPUTE, 4, particleBuffer_.GetGPUVirtualAddress());
-		commandContext.SetComputeDynamicConstantBufferView(QueueType::Type::COMPUTE, 5, sizeof(ConstBufferDataViewProjection), viewProjection.constMap_);
-	
-		commandContext.Dispatch(QueueType::Type::COMPUTE, static_cast<UINT>(ceil((GPUParticleShaderStructs::MaxTrailsNum) / GPUParticleShaderStructs::ComputeThreadBlockSize)), 1, 1);
-		commandContext.UAVBarrier(QueueType::Type::COMPUTE, trailsStockBuffers_);
-		commandContext.UAVBarrier(QueueType::Type::COMPUTE, trailsIndexBuffers_);
-		commandContext.UAVBarrier(QueueType::Type::COMPUTE, trailsDataBuffers_);
-		commandContext.UAVBarrier(QueueType::Type::COMPUTE, trailsPositionBuffers_);
-		commandContext.EndEvent(QueueType::Type::COMPUTE);
+	commandContext.BeginEvent(QueueType::Type::COMPUTE, L"UpdateTrails");
+
+	commandContext.CopyBufferRegion(QueueType::Type::COMPUTE, trailsIndexBuffers_, trailsIndexBuffers_.GetCounterOffset(), resetCounterBuffer_, 0, sizeof(int32_t));
+
+	commandContext.TransitionResource(QueueType::Type::COMPUTE, trailsStockBuffers_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+	commandContext.TransitionResource(QueueType::Type::COMPUTE, trailsIndexBuffers_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+	commandContext.TransitionResource(QueueType::Type::COMPUTE, trailsDataBuffers_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+	commandContext.TransitionResource(QueueType::Type::COMPUTE, trailsPositionBuffers_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+	//commandContext.TransitionResource(QueueType::Type::COMPUTE, particleBuffer_, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
+
+	commandContext.SetComputeDescriptorTable(QueueType::Type::COMPUTE, 0, trailsStockBuffers_.GetUAVHandle());
+	commandContext.SetComputeDescriptorTable(QueueType::Type::COMPUTE, 1, trailsIndexBuffers_.GetUAVHandle());
+	commandContext.SetComputeUAV(QueueType::Type::COMPUTE, 2, trailsDataBuffers_.GetGPUVirtualAddress());
+	commandContext.SetComputeUAV(QueueType::Type::COMPUTE, 3, trailsPositionBuffers_.GetGPUVirtualAddress());
+	//commandContext.SetComputeShaderResource(QueueType::Type::COMPUTE, 4, particleBuffer_.GetGPUVirtualAddress());
+	commandContext.SetComputeDynamicConstantBufferView(QueueType::Type::COMPUTE, 5, sizeof(ConstBufferDataViewProjection), viewProjection.constMap_);
+
+	commandContext.Dispatch(QueueType::Type::COMPUTE, static_cast<UINT>(ceil((GPUParticleShaderStructs::MaxTrailsNum) / GPUParticleShaderStructs::ComputeThreadBlockSize)), 1, 1);
+	commandContext.UAVBarrier(QueueType::Type::COMPUTE, trailsStockBuffers_);
+	commandContext.UAVBarrier(QueueType::Type::COMPUTE, trailsIndexBuffers_);
+	commandContext.UAVBarrier(QueueType::Type::COMPUTE, trailsDataBuffers_);
+	commandContext.UAVBarrier(QueueType::Type::COMPUTE, trailsPositionBuffers_);
+	commandContext.EndEvent(QueueType::Type::COMPUTE);
 }
 
 void GPUParticle::AddTrailsVertex(CommandContext& commandContext) {
-		commandContext.BeginEvent(QueueType::Type::COMPUTE, L"AddTrailsVertex");
-	
-		commandContext.CopyBufferRegion(QueueType::Type::COMPUTE, trailsVertexDataBuffers_, trailsVertexDataBuffers_.GetCounterOffset(), resetCounterBuffer_, 0, sizeof(int32_t));
-	
-		commandContext.TransitionResource(QueueType::Type::COMPUTE, trailsVertexDataBuffers_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-		commandContext.TransitionResource(QueueType::Type::COMPUTE, trailsDataBuffers_, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
-		commandContext.TransitionResource(QueueType::Type::COMPUTE, trailsPositionBuffers_, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
-	
-		commandContext.SetComputeDescriptorTable(QueueType::Type::COMPUTE, 0, trailsVertexDataBuffers_.GetUAVHandle());
-		commandContext.SetComputeShaderResource(QueueType::Type::COMPUTE, 1, trailsDataBuffers_.GetGPUVirtualAddress());
-		commandContext.SetComputeShaderResource(QueueType::Type::COMPUTE, 2, trailsPositionBuffers_.GetGPUVirtualAddress());
-	
-		commandContext.Dispatch(QueueType::Type::COMPUTE, static_cast<UINT>(ceil((GPUParticleShaderStructs::MaxTrailsNum) / GPUParticleShaderStructs::ComputeThreadBlockSize)), 1, 1);
-		commandContext.UAVBarrier(QueueType::Type::COMPUTE, trailsVertexDataBuffers_);
-		commandContext.EndEvent(QueueType::Type::COMPUTE);
+	commandContext.BeginEvent(QueueType::Type::COMPUTE, L"AddTrailsVertex");
+
+	commandContext.CopyBufferRegion(QueueType::Type::COMPUTE, trailsVertexDataBuffers_, trailsVertexDataBuffers_.GetCounterOffset(), resetCounterBuffer_, 0, sizeof(int32_t));
+
+	commandContext.TransitionResource(QueueType::Type::COMPUTE, trailsVertexDataBuffers_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+	commandContext.TransitionResource(QueueType::Type::COMPUTE, trailsDataBuffers_, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
+	commandContext.TransitionResource(QueueType::Type::COMPUTE, trailsPositionBuffers_, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
+
+	commandContext.SetComputeDescriptorTable(QueueType::Type::COMPUTE, 0, trailsVertexDataBuffers_.GetUAVHandle());
+	commandContext.SetComputeShaderResource(QueueType::Type::COMPUTE, 1, trailsDataBuffers_.GetGPUVirtualAddress());
+	commandContext.SetComputeShaderResource(QueueType::Type::COMPUTE, 2, trailsPositionBuffers_.GetGPUVirtualAddress());
+
+	commandContext.Dispatch(QueueType::Type::COMPUTE, static_cast<UINT>(ceil((GPUParticleShaderStructs::MaxTrailsNum) / GPUParticleShaderStructs::ComputeThreadBlockSize)), 1, 1);
+	commandContext.UAVBarrier(QueueType::Type::COMPUTE, trailsVertexDataBuffers_);
+	commandContext.EndEvent(QueueType::Type::COMPUTE);
 }
 
 void GPUParticle::BulletUpdate(CommandContext& commandContext, const UploadBuffer& random) {
@@ -476,7 +450,7 @@ void GPUParticle::Draw(const ViewProjection& viewProjection, CommandContext& com
 	//	commandContext.TransitionResource(QueueType::Type::DIRECT, drawArgumentBuffer_, D3D12_RESOURCE_STATE_INDIRECT_ARGUMENT);
 	//
 	//	commandContext.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-		commandContext.SetGraphicsConstantBuffer(2, viewProjection.constBuff_.GetGPUVirtualAddress());
+	commandContext.SetGraphicsConstantBuffer(2, viewProjection.constBuff_.GetGPUVirtualAddress());
 	//	commandContext.SetGraphicsDescriptorTable(3, GraphicsCore::GetInstance()->GetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV).GetStartDescriptorHandle());
 	//	commandContext.SetGraphicsDescriptorTable(4, SamplerManager::LinearWrap);
 	//	commandContext.ExecuteIndirect(
@@ -508,7 +482,7 @@ void GPUParticle::DrawTrails(const ViewProjection& viewProjection, CommandContex
 	//	commandContext.TransitionResource(QueueType::Type::DIRECT, trailsArgumentBuffers_, D3D12_RESOURCE_STATE_INDIRECT_ARGUMENT);
 	//
 	//	commandContext.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-		commandContext.SetGraphicsConstantBuffer(5, viewProjection.constBuff_.GetGPUVirtualAddress());
+	commandContext.SetGraphicsConstantBuffer(5, viewProjection.constBuff_.GetGPUVirtualAddress());
 	//	commandContext.SetGraphicsDescriptorTable(6, GraphicsCore::GetInstance()->GetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV).GetStartDescriptorHandle());
 	//	commandContext.SetGraphicsDescriptorTable(7, SamplerManager::LinearWrap);
 	//	commandContext.ExecuteIndirect(
@@ -537,220 +511,220 @@ void GPUParticle::DrawImGui() {
 }
 
 void GPUParticle::CreateMeshParticle(const ModelHandle& modelHandle, Animation::Animation& animation, const Matrix4x4& worldMatrix, const GPUParticleShaderStructs::MeshEmitterForCPU& mesh, const UploadBuffer& random, CommandContext& commandContext) {
-		// あと何個生成できるかコピー
-		if (mesh.numCreate != 0) {
-			commandContext.BeginEvent(QueueType::Type::COMPUTE, L"MeshParticle");
-			auto& model = ModelManager::GetInstance()->GetModel(modelHandle);
-			/*commandContext.CopyBufferRegion(QueueType::Type::COMPUTE, originalCounterBuffer_, 0, originalCommandBuffer_, originalCommandBuffer_.GetCounterOffset(), sizeof(UINT));
-	
-			commandContext.TransitionResource(QueueType::Type::COMPUTE, particleBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-			commandContext.TransitionResource(QueueType::Type::COMPUTE, originalCommandBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-			commandContext.TransitionResource(QueueType::Type::COMPUTE, originalCounterBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-			*/commandContext.TransitionResource(QueueType::Type::COMPUTE, animation.skinCluster.vertexBuffer, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
-			commandContext.TransitionResource(QueueType::Type::COMPUTE, model.GetIndexBuffer(), D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
-	
-			/*commandContext.SetComputeUAV(QueueType::Type::COMPUTE, 0, particleBuffer_.GetGPUVirtualAddress());
-			commandContext.SetComputeDescriptorTable(QueueType::Type::COMPUTE, 1, originalCommandBuffer_.GetUAVHandle());
-			commandContext.SetComputeUAV(QueueType::Type::COMPUTE, 2, originalCounterBuffer_.GetGPUVirtualAddress());
-			*/commandContext.SetComputeShaderResource(QueueType::Type::COMPUTE, 3, animation.skinCluster.vertexBuffer.GetGPUVirtualAddress());
-			commandContext.SetComputeShaderResource(QueueType::Type::COMPUTE, 4, model.GetIndexBuffer().GetGPUVirtualAddress());
-			commandContext.SetComputeConstantBuffer(QueueType::Type::COMPUTE, 5, random.GetGPUVirtualAddress());
-			ConstBufferDataWorldTransform constBufferDataWorldTransform{};
-			constBufferDataWorldTransform.matWorld = worldMatrix;
-			constBufferDataWorldTransform.inverseMatWorld = Transpose(Inverse(worldMatrix));
-			commandContext.SetComputeDynamicConstantBufferView(QueueType::Type::COMPUTE, 6, sizeof(ConstBufferDataWorldTransform), &constBufferDataWorldTransform);
-			size_t indexCount = model.GetAllIndexCount();
-			commandContext.SetComputeDynamicConstantBufferView(QueueType::Type::COMPUTE, 7, sizeof(indexCount), &indexCount);
-			commandContext.SetComputeDynamicConstantBufferView(QueueType::Type::COMPUTE, 8, sizeof(mesh), &mesh);
-	
-			size_t numTriangles = indexCount / 3;
-			size_t numThreadGroups = (numTriangles + GPUParticleShaderStructs::ComputeThreadBlockSize - 1) / GPUParticleShaderStructs::ComputeThreadBlockSize;
-			uint32_t createParticleNum = mesh.numCreate;
-			commandContext.Dispatch(QueueType::Type::COMPUTE, UINT(numThreadGroups), createParticleNum, 1);
-			/*commandContext.UAVBarrier(QueueType::Type::COMPUTE, originalCommandBuffer_);
-			commandContext.UAVBarrier(QueueType::Type::COMPUTE, particleBuffer_);
-			*/commandContext.EndEvent(QueueType::Type::COMPUTE);
-		}
+	// あと何個生成できるかコピー
+	if (mesh.numCreate != 0) {
+		commandContext.BeginEvent(QueueType::Type::COMPUTE, L"MeshParticle");
+		auto& model = ModelManager::GetInstance()->GetModel(modelHandle);
+		/*commandContext.CopyBufferRegion(QueueType::Type::COMPUTE, originalCounterBuffer_, 0, originalCommandBuffer_, originalCommandBuffer_.GetCounterOffset(), sizeof(UINT));
+
+		commandContext.TransitionResource(QueueType::Type::COMPUTE, particleBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+		commandContext.TransitionResource(QueueType::Type::COMPUTE, originalCommandBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+		commandContext.TransitionResource(QueueType::Type::COMPUTE, originalCounterBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+		*/commandContext.TransitionResource(QueueType::Type::COMPUTE, animation.skinCluster.vertexBuffer, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
+		commandContext.TransitionResource(QueueType::Type::COMPUTE, model.GetIndexBuffer(), D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
+
+		/*commandContext.SetComputeUAV(QueueType::Type::COMPUTE, 0, particleBuffer_.GetGPUVirtualAddress());
+		commandContext.SetComputeDescriptorTable(QueueType::Type::COMPUTE, 1, originalCommandBuffer_.GetUAVHandle());
+		commandContext.SetComputeUAV(QueueType::Type::COMPUTE, 2, originalCounterBuffer_.GetGPUVirtualAddress());
+		*/commandContext.SetComputeShaderResource(QueueType::Type::COMPUTE, 3, animation.skinCluster.vertexBuffer.GetGPUVirtualAddress());
+		commandContext.SetComputeShaderResource(QueueType::Type::COMPUTE, 4, model.GetIndexBuffer().GetGPUVirtualAddress());
+		commandContext.SetComputeConstantBuffer(QueueType::Type::COMPUTE, 5, random.GetGPUVirtualAddress());
+		ConstBufferDataWorldTransform constBufferDataWorldTransform{};
+		constBufferDataWorldTransform.matWorld = worldMatrix;
+		constBufferDataWorldTransform.inverseMatWorld = Transpose(Inverse(worldMatrix));
+		commandContext.SetComputeDynamicConstantBufferView(QueueType::Type::COMPUTE, 6, sizeof(ConstBufferDataWorldTransform), &constBufferDataWorldTransform);
+		size_t indexCount = model.GetAllIndexCount();
+		commandContext.SetComputeDynamicConstantBufferView(QueueType::Type::COMPUTE, 7, sizeof(indexCount), &indexCount);
+		commandContext.SetComputeDynamicConstantBufferView(QueueType::Type::COMPUTE, 8, sizeof(mesh), &mesh);
+
+		size_t numTriangles = indexCount / 3;
+		size_t numThreadGroups = (numTriangles + GPUParticleShaderStructs::ComputeThreadBlockSize - 1) / GPUParticleShaderStructs::ComputeThreadBlockSize;
+		uint32_t createParticleNum = mesh.numCreate;
+		commandContext.Dispatch(QueueType::Type::COMPUTE, UINT(numThreadGroups), createParticleNum, 1);
+		/*commandContext.UAVBarrier(QueueType::Type::COMPUTE, originalCommandBuffer_);
+		commandContext.UAVBarrier(QueueType::Type::COMPUTE, particleBuffer_);
+		*/commandContext.EndEvent(QueueType::Type::COMPUTE);
+	}
 }
 
 void GPUParticle::CreateMeshParticle(const ModelHandle& modelHandle, const Matrix4x4& worldTransform, const GPUParticleShaderStructs::MeshEmitterForCPU& mesh, const UploadBuffer& random, CommandContext& commandContext) {
-		// あと何個生成できるかコピー
-		if (mesh.numCreate != 0) {
-			commandContext.BeginEvent(QueueType::Type::COMPUTE, L"MeshParticle");
-			auto& model = ModelManager::GetInstance()->GetModel(modelHandle);
-			/*commandContext.CopyBufferRegion(QueueType::Type::COMPUTE, originalCounterBuffer_, 0, originalCommandBuffer_, originalCommandBuffer_.GetCounterOffset(), sizeof(UINT));
-	
-			commandContext.TransitionResource(QueueType::Type::COMPUTE, particleBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-			commandContext.TransitionResource(QueueType::Type::COMPUTE, originalCommandBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-			commandContext.TransitionResource(QueueType::Type::COMPUTE, originalCounterBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-			*/commandContext.TransitionResource(QueueType::Type::COMPUTE, model.GetVertexBuffer(), D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
-			commandContext.TransitionResource(QueueType::Type::COMPUTE, model.GetIndexBuffer(), D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
-	
-			/*commandContext.SetComputeUAV(QueueType::Type::COMPUTE, 0, particleBuffer_.GetGPUVirtualAddress());
-			commandContext.SetComputeDescriptorTable(QueueType::Type::COMPUTE, 1, originalCommandBuffer_.GetUAVHandle());
-			commandContext.SetComputeUAV(QueueType::Type::COMPUTE, 2, originalCounterBuffer_.GetGPUVirtualAddress());
-			*/commandContext.SetComputeShaderResource(QueueType::Type::COMPUTE, 3, model.GetVertexBuffer().GetGPUVirtualAddress());
-			commandContext.SetComputeShaderResource(QueueType::Type::COMPUTE, 4, model.GetIndexBuffer().GetGPUVirtualAddress());
-			commandContext.SetComputeConstantBuffer(QueueType::Type::COMPUTE, 5, random.GetGPUVirtualAddress());
-			ConstBufferDataWorldTransform constBufferDataWorldTransform{};
-			constBufferDataWorldTransform.matWorld = worldTransform;
-			constBufferDataWorldTransform.inverseMatWorld = Transpose(Inverse(worldTransform));
-			commandContext.SetComputeDynamicConstantBufferView(QueueType::Type::COMPUTE, 6, sizeof(ConstBufferDataWorldTransform), &constBufferDataWorldTransform);
-	
-			size_t indexCount = model.GetAllIndexCount();
-			commandContext.SetComputeDynamicConstantBufferView(QueueType::Type::COMPUTE, 7, sizeof(indexCount), &indexCount);
-			commandContext.SetComputeDynamicConstantBufferView(QueueType::Type::COMPUTE, 8, sizeof(mesh), &mesh);
-	
-			size_t numTriangles = indexCount / 3;
-			size_t numThreadGroups = (numTriangles + GPUParticleShaderStructs::ComputeThreadBlockSize - 1) / GPUParticleShaderStructs::ComputeThreadBlockSize;
-			uint32_t createParticleNum = mesh.numCreate;
-			commandContext.Dispatch(QueueType::Type::COMPUTE, UINT(numThreadGroups), createParticleNum, 1);
-			/*commandContext.UAVBarrier(QueueType::Type::COMPUTE, originalCommandBuffer_);
-			commandContext.UAVBarrier(QueueType::Type::COMPUTE, particleBuffer_);
-			*/commandContext.EndEvent(QueueType::Type::COMPUTE);
-		}
+	// あと何個生成できるかコピー
+	if (mesh.numCreate != 0) {
+		commandContext.BeginEvent(QueueType::Type::COMPUTE, L"MeshParticle");
+		auto& model = ModelManager::GetInstance()->GetModel(modelHandle);
+		/*commandContext.CopyBufferRegion(QueueType::Type::COMPUTE, originalCounterBuffer_, 0, originalCommandBuffer_, originalCommandBuffer_.GetCounterOffset(), sizeof(UINT));
+
+		commandContext.TransitionResource(QueueType::Type::COMPUTE, particleBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+		commandContext.TransitionResource(QueueType::Type::COMPUTE, originalCommandBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+		commandContext.TransitionResource(QueueType::Type::COMPUTE, originalCounterBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+		*/commandContext.TransitionResource(QueueType::Type::COMPUTE, model.GetVertexBuffer(), D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
+		commandContext.TransitionResource(QueueType::Type::COMPUTE, model.GetIndexBuffer(), D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
+
+		/*commandContext.SetComputeUAV(QueueType::Type::COMPUTE, 0, particleBuffer_.GetGPUVirtualAddress());
+		commandContext.SetComputeDescriptorTable(QueueType::Type::COMPUTE, 1, originalCommandBuffer_.GetUAVHandle());
+		commandContext.SetComputeUAV(QueueType::Type::COMPUTE, 2, originalCounterBuffer_.GetGPUVirtualAddress());
+		*/commandContext.SetComputeShaderResource(QueueType::Type::COMPUTE, 3, model.GetVertexBuffer().GetGPUVirtualAddress());
+		commandContext.SetComputeShaderResource(QueueType::Type::COMPUTE, 4, model.GetIndexBuffer().GetGPUVirtualAddress());
+		commandContext.SetComputeConstantBuffer(QueueType::Type::COMPUTE, 5, random.GetGPUVirtualAddress());
+		ConstBufferDataWorldTransform constBufferDataWorldTransform{};
+		constBufferDataWorldTransform.matWorld = worldTransform;
+		constBufferDataWorldTransform.inverseMatWorld = Transpose(Inverse(worldTransform));
+		commandContext.SetComputeDynamicConstantBufferView(QueueType::Type::COMPUTE, 6, sizeof(ConstBufferDataWorldTransform), &constBufferDataWorldTransform);
+
+		size_t indexCount = model.GetAllIndexCount();
+		commandContext.SetComputeDynamicConstantBufferView(QueueType::Type::COMPUTE, 7, sizeof(indexCount), &indexCount);
+		commandContext.SetComputeDynamicConstantBufferView(QueueType::Type::COMPUTE, 8, sizeof(mesh), &mesh);
+
+		size_t numTriangles = indexCount / 3;
+		size_t numThreadGroups = (numTriangles + GPUParticleShaderStructs::ComputeThreadBlockSize - 1) / GPUParticleShaderStructs::ComputeThreadBlockSize;
+		uint32_t createParticleNum = mesh.numCreate;
+		commandContext.Dispatch(QueueType::Type::COMPUTE, UINT(numThreadGroups), createParticleNum, 1);
+		/*commandContext.UAVBarrier(QueueType::Type::COMPUTE, originalCommandBuffer_);
+		commandContext.UAVBarrier(QueueType::Type::COMPUTE, particleBuffer_);
+		*/commandContext.EndEvent(QueueType::Type::COMPUTE);
+	}
 }
 
 void GPUParticle::CreateVertexParticle(const ModelHandle& modelHandle, Animation::Animation& animation, const Matrix4x4& worldTransform, const GPUParticleShaderStructs::VertexEmitterForCPU& mesh, const UploadBuffer& random, CommandContext& commandContext) {
-		commandContext.BeginEvent(QueueType::Type::COMPUTE, L"VertexParticle");
-		auto& model = ModelManager::GetInstance()->GetModel(modelHandle);
-	
+	commandContext.BeginEvent(QueueType::Type::COMPUTE, L"VertexParticle");
+	auto& model = ModelManager::GetInstance()->GetModel(modelHandle);
+
 	/*	commandContext.CopyBufferRegion(QueueType::Type::COMPUTE, originalCounterBuffer_, 0, originalCommandBuffer_, originalCommandBuffer_.GetCounterOffset(), sizeof(UINT));
-	
+
 		commandContext.TransitionResource(QueueType::Type::COMPUTE, particleBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 		commandContext.TransitionResource(QueueType::Type::COMPUTE, originalCommandBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 		commandContext.TransitionResource(QueueType::Type::COMPUTE, originalCounterBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 		commandContext.TransitionResource(QueueType::Type::COMPUTE, animation.skinCluster.vertexBuffer, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
-	
+
 		commandContext.SetComputeUAV(QueueType::Type::COMPUTE, 0, particleBuffer_.GetGPUVirtualAddress());
 		commandContext.SetComputeDescriptorTable(QueueType::Type::COMPUTE, 1, originalCommandBuffer_.GetUAVHandle());
 		commandContext.SetComputeUAV(QueueType::Type::COMPUTE, 2, originalCounterBuffer_.GetGPUVirtualAddress());*/
-		commandContext.SetComputeShaderResource(QueueType::Type::COMPUTE, 3, animation.skinCluster.vertexBuffer.GetGPUVirtualAddress());
-		commandContext.SetComputeConstantBuffer(QueueType::Type::COMPUTE, 4, random.GetGPUVirtualAddress());
-		ConstBufferDataWorldTransform constBufferDataWorldTransform{};
-		constBufferDataWorldTransform.matWorld = worldTransform;
-		constBufferDataWorldTransform.inverseMatWorld = Transpose(Inverse(worldTransform));
-		commandContext.SetComputeDynamicConstantBufferView(QueueType::Type::COMPUTE, 5, sizeof(ConstBufferDataWorldTransform), &constBufferDataWorldTransform);
-		size_t vertexCount = model.GetAllVertexCount();
-		commandContext.SetComputeDynamicConstantBufferView(QueueType::Type::COMPUTE, 6, sizeof(vertexCount), &vertexCount);
-		commandContext.SetComputeDynamicConstantBufferView(QueueType::Type::COMPUTE, 7, sizeof(mesh), &mesh);
-	
-		size_t numThreadGroups = (vertexCount + GPUParticleShaderStructs::ComputeThreadBlockSize - 1) / GPUParticleShaderStructs::ComputeThreadBlockSize;
-	
-		commandContext.Dispatch(QueueType::Type::COMPUTE, UINT(numThreadGroups), 1, 1);
+	commandContext.SetComputeShaderResource(QueueType::Type::COMPUTE, 3, animation.skinCluster.vertexBuffer.GetGPUVirtualAddress());
+	commandContext.SetComputeConstantBuffer(QueueType::Type::COMPUTE, 4, random.GetGPUVirtualAddress());
+	ConstBufferDataWorldTransform constBufferDataWorldTransform{};
+	constBufferDataWorldTransform.matWorld = worldTransform;
+	constBufferDataWorldTransform.inverseMatWorld = Transpose(Inverse(worldTransform));
+	commandContext.SetComputeDynamicConstantBufferView(QueueType::Type::COMPUTE, 5, sizeof(ConstBufferDataWorldTransform), &constBufferDataWorldTransform);
+	size_t vertexCount = model.GetAllVertexCount();
+	commandContext.SetComputeDynamicConstantBufferView(QueueType::Type::COMPUTE, 6, sizeof(vertexCount), &vertexCount);
+	commandContext.SetComputeDynamicConstantBufferView(QueueType::Type::COMPUTE, 7, sizeof(mesh), &mesh);
+
+	size_t numThreadGroups = (vertexCount + GPUParticleShaderStructs::ComputeThreadBlockSize - 1) / GPUParticleShaderStructs::ComputeThreadBlockSize;
+
+	commandContext.Dispatch(QueueType::Type::COMPUTE, UINT(numThreadGroups), 1, 1);
 	/*	commandContext.UAVBarrier(QueueType::Type::COMPUTE, originalCommandBuffer_);
 		commandContext.UAVBarrier(QueueType::Type::COMPUTE, particleBuffer_);*/
-		commandContext.EndEvent(QueueType::Type::COMPUTE);
+	commandContext.EndEvent(QueueType::Type::COMPUTE);
 }
 
 void GPUParticle::CreateVertexParticle(const ModelHandle& modelHandle, const Matrix4x4& worldTransform, const GPUParticleShaderStructs::VertexEmitterForCPU& mesh, const UploadBuffer& random, CommandContext& commandContext) {
-		commandContext.BeginEvent(QueueType::Type::COMPUTE, L"VertexParticle");
-	
-		auto& model = ModelManager::GetInstance()->GetModel(modelHandle);
-		// あと何個生成できるかコピー
-		/*commandContext.CopyBufferRegion(QueueType::Type::COMPUTE, originalCounterBuffer_, 0, originalCommandBuffer_, originalCommandBuffer_.GetCounterOffset(), sizeof(UINT));
-	
-		commandContext.TransitionResource(QueueType::Type::COMPUTE, particleBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-		commandContext.TransitionResource(QueueType::Type::COMPUTE, originalCommandBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-		commandContext.TransitionResource(QueueType::Type::COMPUTE, originalCounterBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-	
-		commandContext.SetComputeUAV(QueueType::Type::COMPUTE, 0, particleBuffer_.GetGPUVirtualAddress());
-		commandContext.SetComputeDescriptorTable(QueueType::Type::COMPUTE, 1, originalCommandBuffer_.GetUAVHandle());
-		commandContext.SetComputeUAV(QueueType::Type::COMPUTE, 2, originalCounterBuffer_.GetGPUVirtualAddress());*/
-		commandContext.SetComputeShaderResource(QueueType::Type::COMPUTE, 3, model.GetVertexBuffer().GetGPUVirtualAddress());
-		commandContext.SetComputeConstantBuffer(QueueType::Type::COMPUTE, 4, random.GetGPUVirtualAddress());
-		ConstBufferDataWorldTransform constBufferDataWorldTransform{};
-		constBufferDataWorldTransform.matWorld = worldTransform;
-		constBufferDataWorldTransform.inverseMatWorld = Transpose(Inverse(worldTransform));
-	
-		size_t vertexCount = model.GetAllVertexCount();
-		commandContext.SetComputeDynamicConstantBufferView(QueueType::Type::COMPUTE, 5, sizeof(ConstBufferDataWorldTransform), &constBufferDataWorldTransform);
-		commandContext.SetComputeDynamicConstantBufferView(QueueType::Type::COMPUTE, 6, sizeof(vertexCount), &vertexCount);
-		commandContext.SetComputeDynamicConstantBufferView(QueueType::Type::COMPUTE, 7, sizeof(mesh), &mesh);
-	
-		size_t numThreadGroups = (vertexCount + GPUParticleShaderStructs::ComputeThreadBlockSize - 1) / GPUParticleShaderStructs::ComputeThreadBlockSize;
-	
-		commandContext.Dispatch(QueueType::Type::COMPUTE, UINT(numThreadGroups), 1, 1);
+	commandContext.BeginEvent(QueueType::Type::COMPUTE, L"VertexParticle");
+
+	auto& model = ModelManager::GetInstance()->GetModel(modelHandle);
+	// あと何個生成できるかコピー
+	/*commandContext.CopyBufferRegion(QueueType::Type::COMPUTE, originalCounterBuffer_, 0, originalCommandBuffer_, originalCommandBuffer_.GetCounterOffset(), sizeof(UINT));
+
+	commandContext.TransitionResource(QueueType::Type::COMPUTE, particleBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+	commandContext.TransitionResource(QueueType::Type::COMPUTE, originalCommandBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+	commandContext.TransitionResource(QueueType::Type::COMPUTE, originalCounterBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+
+	commandContext.SetComputeUAV(QueueType::Type::COMPUTE, 0, particleBuffer_.GetGPUVirtualAddress());
+	commandContext.SetComputeDescriptorTable(QueueType::Type::COMPUTE, 1, originalCommandBuffer_.GetUAVHandle());
+	commandContext.SetComputeUAV(QueueType::Type::COMPUTE, 2, originalCounterBuffer_.GetGPUVirtualAddress());*/
+	commandContext.SetComputeShaderResource(QueueType::Type::COMPUTE, 3, model.GetVertexBuffer().GetGPUVirtualAddress());
+	commandContext.SetComputeConstantBuffer(QueueType::Type::COMPUTE, 4, random.GetGPUVirtualAddress());
+	ConstBufferDataWorldTransform constBufferDataWorldTransform{};
+	constBufferDataWorldTransform.matWorld = worldTransform;
+	constBufferDataWorldTransform.inverseMatWorld = Transpose(Inverse(worldTransform));
+
+	size_t vertexCount = model.GetAllVertexCount();
+	commandContext.SetComputeDynamicConstantBufferView(QueueType::Type::COMPUTE, 5, sizeof(ConstBufferDataWorldTransform), &constBufferDataWorldTransform);
+	commandContext.SetComputeDynamicConstantBufferView(QueueType::Type::COMPUTE, 6, sizeof(vertexCount), &vertexCount);
+	commandContext.SetComputeDynamicConstantBufferView(QueueType::Type::COMPUTE, 7, sizeof(mesh), &mesh);
+
+	size_t numThreadGroups = (vertexCount + GPUParticleShaderStructs::ComputeThreadBlockSize - 1) / GPUParticleShaderStructs::ComputeThreadBlockSize;
+
+	commandContext.Dispatch(QueueType::Type::COMPUTE, UINT(numThreadGroups), 1, 1);
 	/*	commandContext.UAVBarrier(QueueType::Type::COMPUTE, originalCommandBuffer_);
 		commandContext.UAVBarrier(QueueType::Type::COMPUTE, particleBuffer_);*/
-		commandContext.EndEvent(QueueType::Type::COMPUTE);
+	commandContext.EndEvent(QueueType::Type::COMPUTE);
 }
 
 void GPUParticle::CreateEdgeParticle(const ModelHandle& modelHandle, Animation::Animation& animation, const Matrix4x4& worldTransform, const GPUParticleShaderStructs::MeshEmitterForCPU& mesh, const UploadBuffer& random, CommandContext& commandContext) {
-		// あと何個生成できるかコピー
-		if (mesh.numCreate != 0) {
-			commandContext.BeginEvent(QueueType::Type::COMPUTE, L"EdgeParticle");
-	
-			auto& model = ModelManager::GetInstance()->GetModel(modelHandle);
+	// あと何個生成できるかコピー
+	if (mesh.numCreate != 0) {
+		commandContext.BeginEvent(QueueType::Type::COMPUTE, L"EdgeParticle");
+
+		auto& model = ModelManager::GetInstance()->GetModel(modelHandle);
 		/*	commandContext.CopyBufferRegion(QueueType::Type::COMPUTE, originalCounterBuffer_, 0, originalCommandBuffer_, originalCommandBuffer_.GetCounterOffset(), sizeof(UINT));
-	
+
 			commandContext.TransitionResource(QueueType::Type::COMPUTE, particleBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 			commandContext.TransitionResource(QueueType::Type::COMPUTE, originalCommandBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 			commandContext.TransitionResource(QueueType::Type::COMPUTE, originalCounterBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);*/
-			commandContext.TransitionResource(QueueType::Type::COMPUTE, animation.skinCluster.vertexBuffer, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
-			commandContext.TransitionResource(QueueType::Type::COMPUTE, model.GetIndexBuffer(), D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
-	
-			//commandContext.SetComputeUAV(QueueType::Type::COMPUTE, 0, particleBuffer_.GetGPUVirtualAddress());
-			//commandContext.SetComputeDescriptorTable(QueueType::Type::COMPUTE, 1, originalCommandBuffer_.GetUAVHandle());
-			//commandContext.SetComputeUAV(QueueType::Type::COMPUTE, 2, originalCounterBuffer_.GetGPUVirtualAddress());
-			commandContext.SetComputeShaderResource(QueueType::Type::COMPUTE, 3, animation.skinCluster.vertexBuffer.GetGPUVirtualAddress());
-			commandContext.SetComputeShaderResource(QueueType::Type::COMPUTE, 4, model.GetIndexBuffer().GetGPUVirtualAddress());
-			commandContext.SetComputeConstantBuffer(QueueType::Type::COMPUTE, 5, random.GetGPUVirtualAddress());
-			ConstBufferDataWorldTransform constBufferDataWorldTransform{};
-			constBufferDataWorldTransform.matWorld = worldTransform;
-			constBufferDataWorldTransform.inverseMatWorld = Transpose(Inverse(worldTransform));
-			commandContext.SetComputeDynamicConstantBufferView(QueueType::Type::COMPUTE, 6, sizeof(ConstBufferDataWorldTransform), &constBufferDataWorldTransform);
-	
-			size_t indexCount = model.GetAllIndexCount();
-			commandContext.SetComputeDynamicConstantBufferView(QueueType::Type::COMPUTE, 7, sizeof(indexCount), &indexCount);
-			commandContext.SetComputeDynamicConstantBufferView(QueueType::Type::COMPUTE, 8, sizeof(mesh), &mesh);
-	
-			size_t numTriangles = indexCount / 3;
-			size_t numThreadGroups = (numTriangles + GPUParticleShaderStructs::ComputeThreadBlockSize - 1) / GPUParticleShaderStructs::ComputeThreadBlockSize;
-			//uint32_t createParticleNum = mesh.numCreate;
-			commandContext.Dispatch(QueueType::Type::COMPUTE, UINT(numThreadGroups), 1, 1);
-			/*commandContext.UAVBarrier(QueueType::Type::COMPUTE, originalCommandBuffer_);*/
-			commandContext.EndEvent(QueueType::Type::COMPUTE);
-		}
+		commandContext.TransitionResource(QueueType::Type::COMPUTE, animation.skinCluster.vertexBuffer, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
+		commandContext.TransitionResource(QueueType::Type::COMPUTE, model.GetIndexBuffer(), D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
+
+		//commandContext.SetComputeUAV(QueueType::Type::COMPUTE, 0, particleBuffer_.GetGPUVirtualAddress());
+		//commandContext.SetComputeDescriptorTable(QueueType::Type::COMPUTE, 1, originalCommandBuffer_.GetUAVHandle());
+		//commandContext.SetComputeUAV(QueueType::Type::COMPUTE, 2, originalCounterBuffer_.GetGPUVirtualAddress());
+		commandContext.SetComputeShaderResource(QueueType::Type::COMPUTE, 3, animation.skinCluster.vertexBuffer.GetGPUVirtualAddress());
+		commandContext.SetComputeShaderResource(QueueType::Type::COMPUTE, 4, model.GetIndexBuffer().GetGPUVirtualAddress());
+		commandContext.SetComputeConstantBuffer(QueueType::Type::COMPUTE, 5, random.GetGPUVirtualAddress());
+		ConstBufferDataWorldTransform constBufferDataWorldTransform{};
+		constBufferDataWorldTransform.matWorld = worldTransform;
+		constBufferDataWorldTransform.inverseMatWorld = Transpose(Inverse(worldTransform));
+		commandContext.SetComputeDynamicConstantBufferView(QueueType::Type::COMPUTE, 6, sizeof(ConstBufferDataWorldTransform), &constBufferDataWorldTransform);
+
+		size_t indexCount = model.GetAllIndexCount();
+		commandContext.SetComputeDynamicConstantBufferView(QueueType::Type::COMPUTE, 7, sizeof(indexCount), &indexCount);
+		commandContext.SetComputeDynamicConstantBufferView(QueueType::Type::COMPUTE, 8, sizeof(mesh), &mesh);
+
+		size_t numTriangles = indexCount / 3;
+		size_t numThreadGroups = (numTriangles + GPUParticleShaderStructs::ComputeThreadBlockSize - 1) / GPUParticleShaderStructs::ComputeThreadBlockSize;
+		//uint32_t createParticleNum = mesh.numCreate;
+		commandContext.Dispatch(QueueType::Type::COMPUTE, UINT(numThreadGroups), 1, 1);
+		/*commandContext.UAVBarrier(QueueType::Type::COMPUTE, originalCommandBuffer_);*/
+		commandContext.EndEvent(QueueType::Type::COMPUTE);
+	}
 }
 
 void GPUParticle::CreateEdgeParticle(const ModelHandle& modelHandle, const Matrix4x4& worldTransform, const GPUParticleShaderStructs::MeshEmitterForCPU& mesh, const UploadBuffer& random, CommandContext& commandContext) {
-		// あと何個生成できるかコピー
-		if (mesh.numCreate != 0) {
-			commandContext.BeginEvent(QueueType::Type::COMPUTE, L"EdgeParticle");
-			auto& model = ModelManager::GetInstance()->GetModel(modelHandle);
-	
-			/*commandContext.CopyBufferRegion(QueueType::Type::COMPUTE, originalCounterBuffer_, 0, originalCommandBuffer_, originalCommandBuffer_.GetCounterOffset(), sizeof(UINT));
-	
-			commandContext.TransitionResource(QueueType::Type::COMPUTE, particleBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-			commandContext.TransitionResource(QueueType::Type::COMPUTE, originalCommandBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-			commandContext.TransitionResource(QueueType::Type::COMPUTE, originalCounterBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-			*/commandContext.TransitionResource(QueueType::Type::COMPUTE, model.GetVertexBuffer(), D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
-			commandContext.TransitionResource(QueueType::Type::COMPUTE, model.GetIndexBuffer(), D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
-	
-			/*commandContext.SetComputeUAV(QueueType::Type::COMPUTE, 0, particleBuffer_.GetGPUVirtualAddress());
-			commandContext.SetComputeDescriptorTable(QueueType::Type::COMPUTE, 1, originalCommandBuffer_.GetUAVHandle());
-			commandContext.SetComputeUAV(QueueType::Type::COMPUTE, 2, originalCounterBuffer_.GetGPUVirtualAddress());
-			*/commandContext.SetComputeShaderResource(QueueType::Type::COMPUTE, 3, model.GetVertexBuffer().GetGPUVirtualAddress());
-			commandContext.SetComputeShaderResource(QueueType::Type::COMPUTE, 4, model.GetIndexBuffer().GetGPUVirtualAddress());
-			commandContext.SetComputeConstantBuffer(QueueType::Type::COMPUTE, 5, random.GetGPUVirtualAddress());
-			ConstBufferDataWorldTransform constBufferDataWorldTransform{};
-			constBufferDataWorldTransform.matWorld = worldTransform;
-			constBufferDataWorldTransform.inverseMatWorld = Transpose(Inverse(worldTransform));
-			commandContext.SetComputeDynamicConstantBufferView(QueueType::Type::COMPUTE, 6, sizeof(ConstBufferDataWorldTransform), &constBufferDataWorldTransform);
-	
-			uint32_t indexCount = model.GetAllIndexCount();
-			commandContext.SetComputeDynamicConstantBufferView(QueueType::Type::COMPUTE, 7, sizeof(indexCount), &indexCount);
-			commandContext.SetComputeDynamicConstantBufferView(QueueType::Type::COMPUTE, 8, sizeof(mesh), &mesh);
-	
-			size_t numTriangles = indexCount / 3;
-			size_t numThreadGroups = (numTriangles + GPUParticleShaderStructs::ComputeThreadBlockSize - 1) / GPUParticleShaderStructs::ComputeThreadBlockSize;
-			//uint32_t createParticleNum = mesh.numCreate;
-			commandContext.Dispatch(QueueType::Type::COMPUTE, UINT(numThreadGroups), 1, 1);
-			/*commandContext.UAVBarrier(QueueType::Type::COMPUTE, originalCommandBuffer_);
-			commandContext.UAVBarrier(QueueType::Type::COMPUTE, particleBuffer_);
-			*/commandContext.EndEvent(QueueType::Type::COMPUTE);
-		}
+	// あと何個生成できるかコピー
+	if (mesh.numCreate != 0) {
+		commandContext.BeginEvent(QueueType::Type::COMPUTE, L"EdgeParticle");
+		auto& model = ModelManager::GetInstance()->GetModel(modelHandle);
+
+		/*commandContext.CopyBufferRegion(QueueType::Type::COMPUTE, originalCounterBuffer_, 0, originalCommandBuffer_, originalCommandBuffer_.GetCounterOffset(), sizeof(UINT));
+
+		commandContext.TransitionResource(QueueType::Type::COMPUTE, particleBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+		commandContext.TransitionResource(QueueType::Type::COMPUTE, originalCommandBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+		commandContext.TransitionResource(QueueType::Type::COMPUTE, originalCounterBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+		*/commandContext.TransitionResource(QueueType::Type::COMPUTE, model.GetVertexBuffer(), D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
+		commandContext.TransitionResource(QueueType::Type::COMPUTE, model.GetIndexBuffer(), D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
+
+		/*commandContext.SetComputeUAV(QueueType::Type::COMPUTE, 0, particleBuffer_.GetGPUVirtualAddress());
+		commandContext.SetComputeDescriptorTable(QueueType::Type::COMPUTE, 1, originalCommandBuffer_.GetUAVHandle());
+		commandContext.SetComputeUAV(QueueType::Type::COMPUTE, 2, originalCounterBuffer_.GetGPUVirtualAddress());
+		*/commandContext.SetComputeShaderResource(QueueType::Type::COMPUTE, 3, model.GetVertexBuffer().GetGPUVirtualAddress());
+		commandContext.SetComputeShaderResource(QueueType::Type::COMPUTE, 4, model.GetIndexBuffer().GetGPUVirtualAddress());
+		commandContext.SetComputeConstantBuffer(QueueType::Type::COMPUTE, 5, random.GetGPUVirtualAddress());
+		ConstBufferDataWorldTransform constBufferDataWorldTransform{};
+		constBufferDataWorldTransform.matWorld = worldTransform;
+		constBufferDataWorldTransform.inverseMatWorld = Transpose(Inverse(worldTransform));
+		commandContext.SetComputeDynamicConstantBufferView(QueueType::Type::COMPUTE, 6, sizeof(ConstBufferDataWorldTransform), &constBufferDataWorldTransform);
+
+		uint32_t indexCount = model.GetAllIndexCount();
+		commandContext.SetComputeDynamicConstantBufferView(QueueType::Type::COMPUTE, 7, sizeof(indexCount), &indexCount);
+		commandContext.SetComputeDynamicConstantBufferView(QueueType::Type::COMPUTE, 8, sizeof(mesh), &mesh);
+
+		size_t numTriangles = indexCount / 3;
+		size_t numThreadGroups = (numTriangles + GPUParticleShaderStructs::ComputeThreadBlockSize - 1) / GPUParticleShaderStructs::ComputeThreadBlockSize;
+		//uint32_t createParticleNum = mesh.numCreate;
+		commandContext.Dispatch(QueueType::Type::COMPUTE, UINT(numThreadGroups), 1, 1);
+		/*commandContext.UAVBarrier(QueueType::Type::COMPUTE, originalCommandBuffer_);
+		commandContext.UAVBarrier(QueueType::Type::COMPUTE, particleBuffer_);
+		*/commandContext.EndEvent(QueueType::Type::COMPUTE);
+	}
 }
 
 void GPUParticle::SetField(const GPUParticleShaderStructs::FieldForCPU& fieldForCPU) {
@@ -796,19 +770,32 @@ void GPUParticle::SetBullet(const GPUParticleShaderStructs::BulletForGPU& bullet
 void GPUParticle::InitializeParticleBuffer() {
 	size_t size = sizeof(GPUParticleShaderStructs::Particle) * GPUParticleShaderStructs::DivisionParticleNum;
 	directParticle_.Create(size, GPUParticleShaderStructs::DivisionParticleNum, L"directParticle");
-	computeParticle_.Create(size, GPUParticleShaderStructs::DivisionParticleNum, L"computeParticle");
-	size = sizeof(GPUParticleShaderStructs::DrawIndex) * GPUParticleShaderStructs::MaxParticleNum;
-	drawIndexBuffers_.Create(L"drawIndexBuffers", size, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
+	appendAliveDirectParticleBuffer_.Create(L"appendAliveDirectParticleBuffer", size, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
 	// UAVView生成
 	D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = {};
 	uavDesc.Format = DXGI_FORMAT_UNKNOWN;
 	uavDesc.ViewDimension = D3D12_UAV_DIMENSION_BUFFER;
 	uavDesc.Buffer.FirstElement = 0;
+	uavDesc.Buffer.NumElements = GPUParticleShaderStructs::DivisionParticleNum;
+	uavDesc.Buffer.StructureByteStride = sizeof(uint32_t);
+	uavDesc.Buffer.CounterOffsetInBytes = appendAliveDirectParticleBuffer_.GetCounterOffset();
+	uavDesc.Buffer.Flags = D3D12_BUFFER_UAV_FLAG_NONE;
+	appendAliveDirectParticleBuffer_.CreateUAV(uavDesc);
+	
+	computeParticle_.Create(size, GPUParticleShaderStructs::DivisionParticleNum, L"computeParticle");
+	appendAliveComputeParticleBuffer_.Create(L"appendAliveComputeParticleBuffer", size, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
+	uavDesc.Buffer.NumElements = GPUParticleShaderStructs::DivisionParticleNum;
+	uavDesc.Buffer.CounterOffsetInBytes = appendAliveComputeParticleBuffer_.GetCounterOffset();
+	appendAliveComputeParticleBuffer_.CreateUAV(uavDesc);
+
+
+	size = sizeof(GPUParticleShaderStructs::DrawIndex) * GPUParticleShaderStructs::MaxParticleNum;
+	appendDrawIndexBuffers_.Create(L"appendDrawIndexBuffers", size, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
+	// UAVView生成
 	uavDesc.Buffer.NumElements = GPUParticleShaderStructs::MaxParticleNum;
 	uavDesc.Buffer.StructureByteStride = sizeof(GPUParticleShaderStructs::DrawIndex);
-	uavDesc.Buffer.CounterOffsetInBytes = drawIndexBuffers_.GetCounterOffset();
-	uavDesc.Buffer.Flags = D3D12_BUFFER_UAV_FLAG_NONE;
-	drawIndexBuffers_.CreateUAV(uavDesc);
+	uavDesc.Buffer.CounterOffsetInBytes = appendDrawIndexBuffers_.GetCounterOffset();
+	appendDrawIndexBuffers_.CreateUAV(uavDesc);
 }
 
 void GPUParticle::InitializeUpdateParticle() {
@@ -898,7 +885,7 @@ void GPUParticle::InitializeBuffer() {
 	commandContext.SetComputeUAV(QueueType::Type::COMPUTE, 3, computeParticle_.freeList.index->GetGPUVirtualAddress());
 	commandContext.SetComputeUAV(QueueType::Type::COMPUTE, 4, fieldBuffer_.freeList.list->GetGPUVirtualAddress());
 	commandContext.SetComputeUAV(QueueType::Type::COMPUTE, 5, fieldBuffer_.freeList.index->GetGPUVirtualAddress());
-	commandContext.SetComputeUAV(QueueType::Type::COMPUTE, 6, drawIndexBuffers_->GetGPUVirtualAddress());
+	commandContext.SetComputeUAV(QueueType::Type::COMPUTE, 6, appendDrawIndexBuffers_->GetGPUVirtualAddress());
 	commandContext.SetComputeDescriptorTable(QueueType::Type::COMPUTE, kTrailsIndexBuffer, trailsStockBuffers_.GetUAVHandle());
 	commandContext.Dispatch(QueueType::Type::COMPUTE, static_cast<UINT>(ceil(GPUParticleShaderStructs::MaxParticleNum / float(GPUParticleShaderStructs::ComputeThreadBlockSize))), 1, 1);
 
@@ -921,7 +908,7 @@ void GPUParticle::InitializeBuffer() {
 		GPUParticleShaderStructs::IndirectCommand tmp{};
 		tmp.srv.directParticleSRV = directParticle_.buffer.GetGPUVirtualAddress();
 		tmp.srv.computeParticleSRV = computeParticle_.buffer.GetGPUVirtualAddress();
-		tmp.srv.drawIndexSRV = drawIndexBuffers_->GetGPUVirtualAddress();
+		tmp.srv.drawIndexSRV = appendDrawIndexBuffers_->GetGPUVirtualAddress();
 		tmp.drawIndex.IndexCountPerInstance = UINT(6);
 		tmp.drawIndex.InstanceCount = 1;
 		tmp.drawIndex.BaseVertexLocation = 0;
@@ -972,7 +959,7 @@ void GPUParticle::InitializeEmitter() {
 	uavDesc.Buffer.Flags = D3D12_BUFFER_UAV_FLAG_NONE;
 	createParticleBuffer_.CreateUAV(uavDesc);
 
-	sumCreateParticleCounterBuffer_.Create(L"createParticleCounterCopySrcBuffer",sizeof(uint32_t));
+	sumCreateParticleCounterBuffer_.Create(L"createParticleCounterCopySrcBuffer", sizeof(uint32_t));
 }
 
 void GPUParticle::InitializeAddEmitter() {
@@ -1047,6 +1034,68 @@ void GPUParticle::InitializeTrails() {
 		//trailsIndiesBuffers_.CreateIndexView(DXGI_FORMAT_R32_UINT);
 		trailsDrawInstanceCountBuffers_.Create(L"trailsDrawInstanceCountBuffers", sizeof(UINT));
 	}
+}
+
+void GPUParticle::UpdateDirectParticle(const ViewProjection& viewProjection, CommandContext& commandContext) {
+	directParticle_.TransitionResource(QueueType::Type::DIRECT, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, commandContext);
+
+	emitterForGPUDesc_.UpdateParticle(QueueType::Type::DIRECT, commandContext);
+	vertexEmitterForGPUDesc_.UpdateParticle(QueueType::Type::DIRECT, commandContext);
+	meshEmitterForGPUDesc_.UpdateParticle(QueueType::Type::DIRECT, commandContext);
+	transformModelEmitterForGPUDesc_.UpdateParticle(QueueType::Type::DIRECT, commandContext);
+	transformAreaEmitterForGPUDesc_.UpdateParticle(QueueType::Type::DIRECT, commandContext);
+
+
+	commandContext.SetComputeUAV(QueueType::Type::DIRECT, 0, directParticle_.buffer->GetGPUVirtualAddress());
+	commandContext.SetComputeUAV(QueueType::Type::DIRECT, 1, directParticle_.freeList.list->GetGPUVirtualAddress());
+	commandContext.SetComputeUAV(QueueType::Type::DIRECT, 2, directParticle_.freeList.index->GetGPUVirtualAddress());
+	commandContext.SetComputeDescriptorTable(QueueType::Type::DIRECT, 3, appendAliveDirectParticleBuffer_.GetUAVHandle());
+
+
+	commandContext.SetComputeShaderResource(QueueType::Type::DIRECT, 4, emitterForGPUDesc_.originalBuffer->GetGPUVirtualAddress());
+	commandContext.SetComputeShaderResource(QueueType::Type::DIRECT, 5, vertexEmitterForGPUDesc_.originalBuffer->GetGPUVirtualAddress());
+	commandContext.SetComputeShaderResource(QueueType::Type::DIRECT, 6, meshEmitterForGPUDesc_.originalBuffer->GetGPUVirtualAddress());
+	commandContext.SetComputeShaderResource(QueueType::Type::DIRECT, 7, transformModelEmitterForGPUDesc_.originalBuffer->GetGPUVirtualAddress());
+	commandContext.SetComputeShaderResource(QueueType::Type::DIRECT, 8, transformAreaEmitterForGPUDesc_.originalBuffer->GetGPUVirtualAddress());
+
+
+	commandContext.SetComputeDynamicConstantBufferView(QueueType::Type::DIRECT, 9, sizeof(ConstBufferDataViewProjection), viewProjection.constMap_);
+
+	commandContext.Dispatch(QueueType::Type::DIRECT, static_cast<UINT>(ceil((GPUParticleShaderStructs::DivisionParticleNum / GPUParticleShaderStructs::MaxProcessNum) / GPUParticleShaderStructs::ComputeThreadBlockSize)), 1, 1);
+
+	directParticle_.UavBarrier(QueueType::Type::DIRECT, commandContext);
+	commandContext.UAVBarrier(QueueType::Type::DIRECT, appendAliveDirectParticleBuffer_);
+}
+
+void GPUParticle::UpdateComputeParticle(const ViewProjection& viewProjection, CommandContext& commandContext) {
+	computeParticle_.TransitionResource(QueueType::Type::COMPUTE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, commandContext);
+
+	emitterForGPUDesc_.UpdateParticle(QueueType::Type::COMPUTE, commandContext);
+	vertexEmitterForGPUDesc_.UpdateParticle(QueueType::Type::COMPUTE, commandContext);
+	meshEmitterForGPUDesc_.UpdateParticle(QueueType::Type::COMPUTE, commandContext);
+	transformModelEmitterForGPUDesc_.UpdateParticle(QueueType::Type::COMPUTE, commandContext);
+	transformAreaEmitterForGPUDesc_.UpdateParticle(QueueType::Type::COMPUTE, commandContext);
+
+
+	commandContext.SetComputeUAV(QueueType::Type::COMPUTE, 0, computeParticle_.buffer->GetGPUVirtualAddress());
+	commandContext.SetComputeUAV(QueueType::Type::COMPUTE, 1, computeParticle_.freeList.list->GetGPUVirtualAddress());
+	commandContext.SetComputeUAV(QueueType::Type::COMPUTE, 2, computeParticle_.freeList.index->GetGPUVirtualAddress());
+	commandContext.SetComputeDescriptorTable(QueueType::Type::COMPUTE, 3, appendAliveComputeParticleBuffer_.GetUAVHandle());
+
+
+	commandContext.SetComputeShaderResource(QueueType::Type::COMPUTE, 4, emitterForGPUDesc_.originalBuffer->GetGPUVirtualAddress());
+	commandContext.SetComputeShaderResource(QueueType::Type::COMPUTE, 5, vertexEmitterForGPUDesc_.originalBuffer->GetGPUVirtualAddress());
+	commandContext.SetComputeShaderResource(QueueType::Type::COMPUTE, 6, meshEmitterForGPUDesc_.originalBuffer->GetGPUVirtualAddress());
+	commandContext.SetComputeShaderResource(QueueType::Type::COMPUTE, 7, transformModelEmitterForGPUDesc_.originalBuffer->GetGPUVirtualAddress());
+	commandContext.SetComputeShaderResource(QueueType::Type::COMPUTE, 8, transformAreaEmitterForGPUDesc_.originalBuffer->GetGPUVirtualAddress());
+
+
+	commandContext.SetComputeDynamicConstantBufferView(QueueType::Type::COMPUTE, 9, sizeof(ConstBufferDataViewProjection), viewProjection.constMap_);
+
+	commandContext.Dispatch(QueueType::Type::COMPUTE, static_cast<UINT>(ceil((GPUParticleShaderStructs::DivisionParticleNum / GPUParticleShaderStructs::MaxProcessNum) / GPUParticleShaderStructs::ComputeThreadBlockSize)), 1, 1);
+
+	computeParticle_.UavBarrier(QueueType::Type::COMPUTE, commandContext);
+	commandContext.UAVBarrier(QueueType::Type::COMPUTE, appendAliveComputeParticleBuffer_);
 }
 
 void GPUParticle::EmitterDesc::Initialize(CommandContext& commandContext) {
@@ -1240,8 +1289,8 @@ void GPUParticle::EmitterDesc::UpdateEmitter(CommandContext& commandContext) {
 	commandContext.TransitionResource(QueueType::Type::COMPUTE, originalBuffer, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 }
 
-void GPUParticle::EmitterDesc::UpdateParticle(CommandContext& commandContext) {
-	commandContext.TransitionResource(QueueType::Type::DIRECT, originalBuffer, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
+void GPUParticle::EmitterDesc::UpdateParticle(const QueueType::Type::Param& type, CommandContext& commandContext) {
+	commandContext.TransitionResource(type, originalBuffer, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
 }
 
 void GPUParticle::EmitterDesc::Spawn(CommandContext& commandContext) {
@@ -1264,4 +1313,16 @@ void GPUParticle::FreeListBuffer::Create(size_t size, uint32_t listNum, const st
 		sizeof(int32_t),
 		D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS
 	);
+}
+
+void GPUParticle::FreeListBuffer::UavBarrier(const QueueType::Type::Param& type, CommandContext& commandContext) {
+	commandContext.UAVBarrier(type, buffer);
+	commandContext.UAVBarrier(type, freeList.list);
+	commandContext.UAVBarrier(type, freeList.index);
+}
+
+void GPUParticle::FreeListBuffer::TransitionResource(const QueueType::Type::Param& type, const D3D12_RESOURCE_STATES& newState, CommandContext& commandContext) {
+	commandContext.TransitionResource(type, buffer, newState);
+	commandContext.TransitionResource(type, freeList.list, newState);
+	commandContext.TransitionResource(type, freeList.index, newState);
 }

@@ -42,10 +42,10 @@ public:
 	void UpdateFixFPS();
 	operator ID3D12CommandQueue* () const { return commandQueue_.Get(); }
 	const uint64_t GetLastCompletedFenceValue()const { return lastCompletedFenceValue_; }
-private:
 	void ExecuteCommandList(ID3D12CommandList* List,const std::string& fenceType);
 	void Wait(ID3D12Fence* fence, uint64_t& value, const std::string& fenceType);
 	void Signal(ID3D12Fence* fence, uint64_t& value, const std::string& fenceType);
+private:
 
 	Microsoft::WRL::ComPtr<ID3D12CommandAllocator> RequestAllocator(ID3D12Fence* fence);
 	void DiscardAllocator(uint64_t FenceValueForReset, ID3D12CommandAllocator* Allocator);

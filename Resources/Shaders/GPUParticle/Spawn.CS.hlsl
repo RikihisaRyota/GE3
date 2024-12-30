@@ -3,10 +3,12 @@
 
 RWStructuredBuffer<GPUParticleShaderStructs::Particle> directParticle : register(u0);
 RWStructuredBuffer<uint32_t> directFreeList : register(u1);
-RWStructuredBuffer<int32_t> directFreeLsitIndex : register(u2);
+RWStructuredBuffer<int32_t> directFreeListIndex : register(u2);
+
 RWStructuredBuffer<GPUParticleShaderStructs::Particle> computeParticle : register(u3);
 RWStructuredBuffer<uint32_t> computeFreeList : register(u4);
-RWStructuredBuffer<int32_t> computeFreeLsitIndex : register(u5);
+RWStructuredBuffer<int32_t> computeFreeListIndex : register(u5);
+
 // エミッター一つの生成情報
 RWStructuredBuffer<GPUParticleShaderStructs::CreateParticle> createParticle : register(u6);
 
@@ -14,11 +16,11 @@ ConsumeStructuredBuffer<int> trailsStock : register(u8);
 RWStructuredBuffer<GPUParticleShaderStructs::TrailsData> trailsData : register(u9);
 RWStructuredBuffer<GPUParticleShaderStructs::TrailsHead> trailsHead : register(u10);
 
-StructuredBuffer<GPUParticleShaderStructs::EmitterForGPU> gEmitter : register(t11);
-StructuredBuffer<GPUParticleShaderStructs::VertexEmitterForGPU> gVertexEmitter : register(t12);
-StructuredBuffer<GPUParticleShaderStructs::MeshEmitterForGPU> gMeshEmitter : register(t13);
-StructuredBuffer<GPUParticleShaderStructs::TransformModelEmitterForGPU> gTransformModelEmitter : register(t14);
-StructuredBuffer<GPUParticleShaderStructs::TransformAreaEmitterForGPU> gTransformAreaEmitter : register(t15);
+StructuredBuffer<GPUParticleShaderStructs::EmitterForGPU> gEmitter : register(t0);
+StructuredBuffer<GPUParticleShaderStructs::VertexEmitterForGPU> gVertexEmitter : register(t1);
+StructuredBuffer<GPUParticleShaderStructs::MeshEmitterForGPU> gMeshEmitter : register(t2);
+StructuredBuffer<GPUParticleShaderStructs::TransformModelEmitterForGPU> gTransformModelEmitter : register(t3);
+StructuredBuffer<GPUParticleShaderStructs::TransformAreaEmitterForGPU> gTransformAreaEmitter : register(t4);
 
 struct Vertex
 {

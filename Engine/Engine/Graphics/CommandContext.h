@@ -131,7 +131,8 @@ private:
 
 	ID3D12RootSignature* graphicsRootSignature_;
 	ID3D12RootSignature* computeRootSignature_;
-	ID3D12PipelineState* pipelineState_;
+	ID3D12PipelineState* directPipelineState_;
+	ID3D12PipelineState* computePipelineState_;
 
 	struct ResourceBarrier {
 		uint32_t numResourceBarriers;

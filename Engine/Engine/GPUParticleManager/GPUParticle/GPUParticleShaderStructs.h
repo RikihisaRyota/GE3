@@ -2,9 +2,10 @@
 
 #ifdef __cplusplus
 /**
- * @file GPUParticleShaderStructs
- * @brief GPUParticleに必要な構造体
+ * @file GPUParticleShaderStructs.h
+ * @brief GPUParticleShaderStructs
  */
+// Japanese is prohibited as it is included in hlsl
 #include <string>
 #include <limits>
 #include <tuple>
@@ -1161,7 +1162,7 @@ struct Particle
 	void LoadFieldFrequency(GPUParticleShaderStructs::FieldFrequency& fieldFrequency);
 	void SaveFieldFrequency(GPUParticleShaderStructs::FieldFrequency& fieldFrequency);
 
-	// indexを共有しないコピー
+	// copy not sharing index
 	void NonSharedCopy(GPUParticleShaderStructs::EmitterForCPU& dst, const GPUParticleShaderStructs::EmitterForCPU& src);
 	void NonSharedCopy(GPUParticleShaderStructs::VertexEmitterForCPU& dst, const GPUParticleShaderStructs::VertexEmitterForCPU& src);
 	void NonSharedCopy(GPUParticleShaderStructs::MeshEmitterForCPU& dst, const GPUParticleShaderStructs::MeshEmitterForCPU& src);

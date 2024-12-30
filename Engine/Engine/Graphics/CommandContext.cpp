@@ -77,7 +77,7 @@ void CommandContext::StartFrame() {
 	auto& copyQueue = graphics->GetCommandQueue(GetType(QueueType::Type::Param::COPY));
 	auto& computeQueue = graphics->GetCommandQueue(GetType(QueueType::Type::Param::COMPUTE));
 	auto& directQueue = graphics->GetCommandQueue(GetType(QueueType::Type::Param::DIRECT));
-	 
+
 	// CopyQueue
 	auto queueType = QueueType::Type::Param::COPY;
 	copyQueue.ExecuteCommandList(currentCommandList_[queueType].Get(), QueueType::GetTypeString(queueType));
@@ -119,7 +119,8 @@ void CommandContext::StartFrame() {
 	}
 	computeRootSignature_ = nullptr;
 	graphicsRootSignature_ = nullptr;
-	pipelineState_ = nullptr;
+	directPipelineState_ = nullptr;
+	computePipelineState_ = nullptr;
 }
 
 void CommandContext::BeginDraw() {
@@ -166,7 +167,6 @@ void CommandContext::EndFrame() {
 	auto& directQueue = graphics->GetCommandQueue(GetType(QueueType::Type::Param::DIRECT));
 
 	directQueue.Signal(frameFence.fence.Get(), frameFence.fenceValue, QueueType::GetTypeString(QueueType::Type::Param::DIRECT));
-	//directQueue.Wait(frameFence.fence.Get(), frameFence.fenceValue, QueueType::GetTypeString(QueueType::Type::Param::DIRECT));
 
 	int64_t preFenceValue = int64_t(frameFence.fenceValue);
 
@@ -209,7 +209,8 @@ void CommandContext::Start() {
 	}
 	computeRootSignature_ = nullptr;
 	graphicsRootSignature_ = nullptr;
-	pipelineState_ = nullptr;
+	directPipelineState_ = nullptr;
+	computePipelineState_ = nullptr;
 }
 
 
@@ -408,12 +409,23 @@ void CommandContext::ClearBuffer(const QueueType::Type::Param& type, GpuResource
 }
 
 void CommandContext::SetPipelineState(const QueueType::Type::Param& type, const PipelineState& pipelineState) {
-
-
 	ID3D12PipelineState* ps = pipelineState;
-	if (pipelineState_ != ps) {
-		pipelineState_ = ps;
-		currentCommandList_[type]->SetPipelineState(pipelineState_);
+	switch (type)
+	{
+	case QueueType::Type::DIRECT:
+		if (directPipelineState_ != ps) {
+			directPipelineState_ = ps;
+			currentCommandList_[type]->SetPipelineState(directPipelineState_);
+		}
+		break;
+	case QueueType::Type::COMPUTE:
+		if (computePipelineState_ != ps) {
+			computePipelineState_ = ps;
+			currentCommandList_[type]->SetPipelineState(computePipelineState_);
+		}
+		break;
+	default:
+		break;
 	}
 }
 
@@ -427,9 +439,22 @@ void CommandContext::SetGraphicsRootSignature(const RootSignature& rootSignature
 
 void CommandContext::SetComputeRootSignature(const QueueType::Type::Param& type, const RootSignature& rootSignature) {
 	ID3D12RootSignature* rs = rootSignature;
-	if (computeRootSignature_ != rs) {
-		computeRootSignature_ = rs;
-		currentCommandList_[type]->SetComputeRootSignature(computeRootSignature_);
+	switch (type)
+	{
+	case QueueType::Type::DIRECT:
+		if (graphicsRootSignature_ != rs) {
+			graphicsRootSignature_ = rs;
+			currentCommandList_[type]->SetComputeRootSignature(graphicsRootSignature_);
+		}
+		break;
+	case QueueType::Type::COMPUTE:
+		if (computeRootSignature_ != rs) {
+			computeRootSignature_ = rs;
+			currentCommandList_[type]->SetComputeRootSignature(computeRootSignature_);
+		}
+		break;
+	default:
+		break;
 	}
 }
 

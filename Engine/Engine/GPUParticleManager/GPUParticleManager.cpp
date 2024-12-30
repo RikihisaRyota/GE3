@@ -104,12 +104,13 @@ void GPUParticleManager::Update(const ViewProjection& viewProjection, CommandCon
 
 	commandContext.SetComputeRootSignature(QueueType::Type::COMPUTE, *spawnComputeRootSignature_);
 	commandContext.SetPipelineState(QueueType::Type::COMPUTE, *spawnComputePipelineState_);
-	gpuParticle_->Spawn(commandContext, randomBuffer_);
+	//gpuParticle_->Spawn(commandContext, randomBuffer_);
 
-	//commandContext.SetComputeRootSignature(QueueType::Type::DIRECT,*updateComputeRootSignature_);
-	////commandContext.SetPipelineState(QueueType::Type::COMPUTE, *updateComputePipelineState_);
-	//commandContext.SetPipelineState(QueueType::Type::DIRECT, *updateComputePipelineState_);
-	//gpuParticle_->ParticleUpdate(viewProjection, commandContext);
+	commandContext.SetComputeRootSignature(QueueType::Type::DIRECT,*updateComputeRootSignature_);
+	commandContext.SetComputeRootSignature(QueueType::Type::COMPUTE,*updateComputeRootSignature_);
+	commandContext.SetPipelineState(QueueType::Type::DIRECT, *updateComputePipelineState_);
+	commandContext.SetPipelineState(QueueType::Type::COMPUTE, *updateComputePipelineState_);
+	gpuParticle_->ParticleUpdate(viewProjection, commandContext);
 
 	//commandContext.SetComputeRootSignature(QueueType::Type::COMPUTE, *updateTrailsRootSignature_);
 	//commandContext.SetPipelineState(QueueType::Type::COMPUTE, *updateTrailsPipelineState_);
@@ -480,6 +481,8 @@ void GPUParticleManager::CreateEmitter() {
 				kComputeParticleFreeList,
 				kComputeParticleFreeListIndex,
 
+				kCreateParticle,
+
 				kTrailsIndex,
 				kTrailsData,
 				kTrailsHead,
@@ -517,9 +520,11 @@ void GPUParticleManager::CreateEmitter() {
 		rootParameters[SpawnRootParameter::kComputeParticleFreeList].InitAsUnorderedAccessView(4);
 		rootParameters[SpawnRootParameter::kComputeParticleFreeListIndex].InitAsUnorderedAccessView(5);
 
+		rootParameters[SpawnRootParameter::kCreateParticle].InitAsUnorderedAccessView(6);
+
 		rootParameters[SpawnRootParameter::kTrailsIndex].InitAsDescriptorTable(_countof(trailsConsumeRanges), trailsConsumeRanges);
-		rootParameters[SpawnRootParameter::kTrailsData].InitAsUnorderedAccessView(7);
-		rootParameters[SpawnRootParameter::kTrailsHead].InitAsUnorderedAccessView(8);
+		rootParameters[SpawnRootParameter::kTrailsData].InitAsUnorderedAccessView(8);
+		rootParameters[SpawnRootParameter::kTrailsHead].InitAsUnorderedAccessView(9);
 
 		rootParameters[SpawnRootParameter::kOriginalEmitter].InitAsShaderResourceView(0);
 		rootParameters[SpawnRootParameter::kOriginalVertexEmitter].InitAsShaderResourceView(1);
@@ -614,8 +619,10 @@ void GPUParticleManager::CreateUpdate() {
 		struct UpdateParticle {
 			enum Param {
 				kParticle,
-				kParticleIndex,
-				kCreateParticleNum,
+				kParticleFreeList,
+				kParticleFreeListindex,
+
+				kAppendAliveParticle,
 
 				kEmitter,
 				kVertexEmitter,
@@ -632,15 +639,14 @@ void GPUParticleManager::CreateUpdate() {
 		updateComputeRootSignature_ = std::make_unique<RootSignature>();
 
 		//	ParticleIndexCommand用（カウンター付きUAVの場合このように宣言）
-		CD3DX12_DESCRIPTOR_RANGE particleIndexRange[1]{};
-		particleIndexRange[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 1, 0);
-		CD3DX12_DESCRIPTOR_RANGE outputDrawRange[1]{};
-		outputDrawRange[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 2, 0);
+		CD3DX12_DESCRIPTOR_RANGE appendAliveParticle[1]{};
+		appendAliveParticle[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 3, 0);
 
 		CD3DX12_ROOT_PARAMETER rootParameters[UpdateParticle::kCount]{};
 		rootParameters[UpdateParticle::kParticle].InitAsUnorderedAccessView(0);
-		rootParameters[UpdateParticle::kParticleIndex].InitAsDescriptorTable(_countof(particleIndexRange), particleIndexRange);
-		rootParameters[UpdateParticle::kCreateParticleNum].InitAsDescriptorTable(_countof(outputDrawRange), outputDrawRange);
+		rootParameters[UpdateParticle::kParticleFreeList].InitAsUnorderedAccessView(1);
+		rootParameters[UpdateParticle::kParticleFreeListindex].InitAsUnorderedAccessView(2);
+		rootParameters[UpdateParticle::kAppendAliveParticle].InitAsDescriptorTable(_countof(appendAliveParticle), appendAliveParticle);
 
 		rootParameters[UpdateParticle::kEmitter].InitAsShaderResourceView(0);
 		rootParameters[UpdateParticle::kVertexEmitter].InitAsShaderResourceView(1);

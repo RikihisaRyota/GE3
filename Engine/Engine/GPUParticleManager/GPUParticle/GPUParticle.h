@@ -89,6 +89,9 @@ private:
 	void InitializeField();
 	void InitializeTrails();
 
+	void UpdateDirectParticle(const ViewProjection& viewProjection, CommandContext& commandContext);
+	void UpdateComputeParticle(const ViewProjection& viewProjection, CommandContext& commandContext);
+
 	std::unique_ptr<RootSignature> initializeBufferRootSignature_;
 	std::unique_ptr<PipelineState> initializeBufferPipelineState_;
 
@@ -101,32 +104,37 @@ private:
 		DefaultBuffer buffer;
 		FreeList freeList;
 		void Create(size_t size, uint32_t listNum, const std::wstring& name);
+		void UavBarrier(const QueueType::Type::Param& type, CommandContext& commandContext);
+		void TransitionResource(const QueueType::Type::Param& type, const D3D12_RESOURCE_STATES& newState, CommandContext& commandContext);
 	};
 
 
 	// コマンドシグネイチャ
 	CommandSignature* commandSignature_;
+	CommandSignature* spawnCommandSignature_;
 	// リセット用バッファー
 	UploadBuffer resetCounterBuffer_;
 
 	// パーティクル
 	FreeListBuffer  directParticle_;
 	FreeListBuffer  computeParticle_;
+	// 生きているパーティクルのindexを格納
+	DefaultBuffer appendAliveDirectParticleBuffer_;
+	DefaultBuffer appendAliveComputeParticleBuffer_;
+	
 	// エミッターのIndexと何個生成するか
 	DefaultBuffer createParticleBuffer_;
 	DefaultBuffer createParticleCountBuffer_;
 
 	// 現在描画できるパーティクルのインデックスを格納
-	DefaultBuffer drawIndexBuffers_;
+	DefaultBuffer appendDrawIndexBuffers_;
 	// 現在出ているパーティクル数を受け取る
 	ReadBackBuffer drawIndexCountBuffer_;
-	DefaultBuffer drawParticleCountBuffer_;
 	// 描画引数用
 	DefaultBuffer drawArgumentBuffer_;
 
 	DefaultBuffer spawnArgumentBuffer_;
 
-	CommandSignature* spawnCommandSignature_;
 	// 合計何個生成するか数える用,spawnDispach用
 	DefaultBuffer sumCreateParticleCounterBuffer_;
 	// 軌跡用
@@ -148,7 +156,7 @@ private:
 		void AddEmitter(CommandContext& commandContext);
 		void UpdateEmitter(CommandContext& commandContext);
 		void Spawn(CommandContext& commandContext);
-		void UpdateParticle(CommandContext& commandContext);
+		void UpdateParticle(const QueueType::Type::Param& type, CommandContext& commandContext);
 		DefaultBuffer originalBuffer;
 		DefaultBuffer defaultCopyBuffer;
 		DefaultBuffer  addCountBuffer;

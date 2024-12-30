@@ -2,10 +2,10 @@
 #include "GPUParticleShaderStructs.h"
 
 RWStructuredBuffer<GPUParticleShaderStructs::Particle> input : register(u0);
+RWStructuredBuffer<uint32_t> freeListBuffer : register(u1);
+RWStructuredBuffer<int32_t> freeListIndexBuffer : register(u2);
 
-AppendStructuredBuffer<uint> particleIndexCommands : register(u1);
-AppendStructuredBuffer<uint> outputDrawIndexCommands : register(u2);
-
+AppendStructuredBuffer<uint> appendAliveParticle : register(u3);
 
 StructuredBuffer<GPUParticleShaderStructs::EmitterForGPU> emitter : register(t0);
 StructuredBuffer<GPUParticleShaderStructs::VertexEmitterForGPU> vertexEmitter : register(t1);
@@ -193,18 +193,21 @@ void main(uint3 DTid : SV_DispatchThreadID)
             if((t >= 1.0f))
             {
                 inputParticle.isAlive = false;
-                particleIndexCommands.Append(index);
+                // freeListにindexを返却
+                int32_t freeListIndex = -1; 
+                InterlockedAdd(freeListIndexBuffer[0], 1,freeListIndex);
+                freeListBuffer[freeListIndex + 1] = index;
             }
             else
             {
                 if(inputParticle.parent.isParent){
                     
-                    inputParticle.matWorld = mul( MakeAffine(inputParticle.scale ,rotateMatrix ,inputParticle.translate.translate), parentWorldMatrix);
+                    inputParticle.matWorld = mul(MakeAffine(inputParticle.scale ,rotateMatrix ,inputParticle.translate.translate), parentWorldMatrix);
                 }
                 else{
                     inputParticle.matWorld =  MakeAffine(inputParticle.scale ,rotateMatrix,inputParticle.translate.translate);
                 }
-                outputDrawIndexCommands.Append(index);
+                appendAliveParticle.Append(index);
             }
             if(!inputParticle.particleLifeTime.isEmitterLife){
                 inputParticle.particleLifeTime.time++;

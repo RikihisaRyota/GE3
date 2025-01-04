@@ -25,6 +25,7 @@ public:
 	virtual void Update() = 0;
 	virtual void DebugDraw() = 0;
 	//virtual void OnCollision(const ColliderDesc& colliderDesc) = 0;
+	// Getter
 	const Animation::AnimationHandle& GetAnimationHandle() const { return animationHandle_; }
 	const ModelHandle& GetModelHandle() const { return modelHandle_; }
 	const float GetAnimationTime() const { return time_; }
@@ -99,8 +100,11 @@ private:
 		kFront = 1 << 3,  // 1000
 	};
 	uint32_t attackLocation_;
+	// 当たり判定
 	void OnCollision(const ColliderDesc& collisionInfo);
+	
 	void UpdateTransform();
+	// 初期位置を決める
 	void SetLocation();
 
 	ModelHandle railModelHandle_;
@@ -143,9 +147,12 @@ private:
 
 		void Update(float startPosY, float allFrame);
 	};
+	// 当たり判定
 	void OnCollision(const ColliderDesc& collisionInfo);
 	void UpdateTransform();
+	// 初期位置を決める
 	void SetLocation();
+	// 生成
 	void CreateSmash();
 	std::vector<SmashDesc> smash_;
 	JsonData data_;
@@ -182,7 +189,9 @@ public:
 	void Update() override;
 	void DebugDraw()override;
 private:
+	// 弾初期化
 	void InitializeBullet();
+	// 玉更新
 	void UpdateBullet();
 	class Bullet {
 	public:
@@ -261,7 +270,7 @@ public:
 		BossStateSmashAttack::JsonData smashAttack;
 		BossStateHomingAttack::JsonData homingAttack;
 	};
-
+	// Setter
 	void SetBoss(Boss* boss) { boss_ = boss; }
 	void SetPlayer(Player* player) { player_ = player; }
 	void SetGPUParticleManager(GPUParticleManager* gpuParticleManager) { gpuParticleManager_ = gpuParticleManager; }

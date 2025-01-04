@@ -24,11 +24,14 @@ public:
 		float blurWidth;
 		float pad;
 	};
-
+	// 初期化
 	void Initialize(const ColorBuffer& target);
+	// 描画
 	void Render(CommandContext& commandContext, ColorBuffer& texture);
+	// Debug
 	void DrawImGui();
 
+	// Setter/Getter
 	Desc& GetDesc() { return desc_; }
 	void SetFlag(bool flag) { isUsed_ = flag; }
 	bool GetFlag() { return isUsed_; }

@@ -25,9 +25,13 @@ class GameScene : public BaseScene {
 public:
 	GameScene();
 	~GameScene();
+	// 初期化
 	void Initialize() override;
+	// 更新
 	void Update(CommandContext& commandContext) override;
+	// 描画
 	void Draw(CommandContext& commandContext) override;
+	// Finalize
 	void Finalize() override;
 
 private:

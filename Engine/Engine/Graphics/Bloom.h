@@ -17,9 +17,11 @@ public:
 	struct Desc {
 		float intensity = 0.5f;
 	};
-
+	// 初期化
 	void Initialize(const ColorBuffer& target);
+	// 描画
 	void Render(CommandContext& commandContext, ColorBuffer& texture);
+	// デバック
 	void Debug();
 private:
 	static const uint32_t kMaxLevel = 4;

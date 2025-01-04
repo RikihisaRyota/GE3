@@ -11,6 +11,7 @@
 class RootSignature;
 class CommandSignature {
 public:
+    // 生成
     void Create(const std::wstring& name, const D3D12_COMMAND_SIGNATURE_DESC& desc, const RootSignature* rootSignature);
 
     operator ID3D12CommandSignature* () const { return commandSignature_.Get(); }

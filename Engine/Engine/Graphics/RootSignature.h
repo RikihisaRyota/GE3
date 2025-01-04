@@ -11,8 +11,9 @@
 
 class RootSignature {
 public:
+    // 生成
     void Create(const std::wstring& name, const D3D12_ROOT_SIGNATURE_DESC& desc);
-
+    // Release
     void Release();
 
     operator ID3D12RootSignature* () const { return rootSignature_.Get(); }

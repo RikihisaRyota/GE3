@@ -33,11 +33,17 @@ public:
 		float rotateOffset;
 		BulletEmitter emitter;
 	};
+	// 生成
 	void Create(GPUParticleManager* GPUParticleManager, const BulletDesc& desc);
+	// 更新
 	void Update();
+	// 描画
 	void Draw(const ViewProjection& viewProjection, CommandContext& commandContext);
+	// デバック
 	void DrawDebug();
+	// Particle更新
 	void GPUParticleUpdate();
+	// Setter/Getter
 	bool GetIsAlive() { return isAlive_; }
 
 	const Vector3 GetPosition()const { return worldTransform_.translate; }

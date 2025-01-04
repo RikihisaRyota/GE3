@@ -17,10 +17,13 @@ struct ViewProjection;
 class Skybox {
 public:
 	Skybox();
+	// 初期化
 	void Initialize();
+	// 更新
 	void Update();
+	// 描画
 	void Draw(CommandContext& commandContext, const ViewProjection& viewProjection);
-
+	// デバック
 	void DrawImGui();
 private:
 	std::unique_ptr<PipelineState> pipelineState_;

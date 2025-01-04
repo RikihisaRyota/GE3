@@ -15,10 +15,13 @@ class CommandContext;
 class ImGuiManager {
 public:
     static ImGuiManager* GetInstance();
-
+    // 初期化
     void Initialize(HWND hWnd, DXGI_FORMAT rtvFormat);
+    // NewFrame
     void NewFrame();
+    // 描画
     void Render(CommandContext& commandContext);
+    // Shutdown
     void Shutdown();
 
 private:

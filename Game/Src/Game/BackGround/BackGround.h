@@ -12,14 +12,15 @@
 
 class BackGround {
 public:
+	// 初期化
 	void Initialize();
-
+	// 更新
 	void Update();
-
+	// 描画
 	void Draw();
-
+	// デバック
 	void DrawImGui();
-
+	// Setter
 	void SetGPUParticleManager(GPUParticleManager* GPUParticleManager) { gpuParticleManager_ = GPUParticleManager; }
 
 private:

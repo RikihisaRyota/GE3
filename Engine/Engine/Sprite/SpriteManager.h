@@ -14,16 +14,20 @@
 class CommandContext;
 class SpriteManager {
 public:
+	// インスタンス
 	static SpriteManager* GetInstance();
+	// パイプライン生成
 	static void CreatePipeline(DXGI_FORMAT rtvFormat, DXGI_FORMAT dsvFormat);
+	// パイプライン破棄
 	static void DestroyPipeline();
 
+	// 生成
 	SpriteHandle Create(
 		TextureHandle textureHandle, Vector2 position, Vector2 anchorpoint = { 0.0f, 0.0f },Vector4 color = { 1, 1, 1, 1 }, bool isFlipX = false, bool isFlipY = false);
-
-	Sprite* GetSprite(const SpriteHandle& spriteHandle) { return sprites_[spriteHandle].get(); }
-
+	// 描画
 	void Draw(const SpriteHandle& spriteHandle, CommandContext& commandContext);
+	// Getter
+	Sprite* GetSprite(const SpriteHandle& spriteHandle) { return sprites_[spriteHandle].get(); }
 private:
 	static std::unique_ptr<PipelineState> pipelineState_;
 	static std::unique_ptr<RootSignature> rootSignature_;

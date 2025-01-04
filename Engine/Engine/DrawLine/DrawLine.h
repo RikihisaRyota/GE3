@@ -27,14 +27,17 @@ public:
 	void Draw(CommandContext& commandContext, const ViewProjection& viewProjection);
 	void Reset();
 	
+	// セッター
 	void SetLine(const Vector3& start,const Vector3& end,const Vector4& color);
 	void SetLine(const Vector3& line,const Vector4& color);
 private:
 	static const UINT kMaxLineCount = 1 << 15;
 	
+	// RootSignatureの設定
 	void CreateRootSignature();
+	// PipelineStateの設定
 	void CreatePipelineState();
-	
+	// 頂点バッファの設定
 	void CreateVertexBuffer();
 
 	std::unique_ptr<PipelineState> pipelineState_;

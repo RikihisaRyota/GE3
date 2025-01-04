@@ -14,7 +14,9 @@ class CommandAllocatorPool {
 public:
     CommandAllocatorPool(D3D12_COMMAND_LIST_TYPE typ);
 
+    // Allocate
     Microsoft::WRL::ComPtr<ID3D12CommandAllocator> Allocate(UINT64 completedFanceValue);
+    // Discard
     void Discard(UINT64 fenceValue, const Microsoft::WRL::ComPtr<ID3D12CommandAllocator>& commandAllocator);
 
     size_t GetSize() const { return allocatorPool_.size(); }

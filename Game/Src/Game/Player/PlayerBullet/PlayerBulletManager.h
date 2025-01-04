@@ -13,13 +13,17 @@ struct WorldTransform;
 class PlayerBulletManager {
 public:
 	PlayerBulletManager();
+	// 初期化
 	void Initialize();
+	//更新
 	void Update();
-	void DrawImGui();
+	// 描画
 	void Draw(const ViewProjection& viewProjection, CommandContext& commandContext);
+	// デバック
+	void DrawImGui();
 	void DrawDebug();
 	void Create(const WorldTransform& worldTransform);
-
+	// Setter
 	void SetPlayerUI(PlayerUI* playerUI) { playerUI_ = playerUI; }
 	void SetGPUParticleManager(GPUParticleManager* GPUParticleManager) { gpuParticleManager_ = GPUParticleManager; }
 	void SetViewProjection(ViewProjection* viewProjection) { viewProjection_ = viewProjection; }

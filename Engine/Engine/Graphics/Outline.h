@@ -19,9 +19,11 @@ public:
 		kDepthTexture,
 		kCount
 	};
-
+	// 初期化
 	void Initialize(const ColorBuffer& target);
+	//　描画
 	void Render(CommandContext& commandContext,ColorBuffer& texture,DepthBuffer& depth ,const ViewProjection& viewProjection);
+	// Setter/Getter
 	void SetFlag(bool flag) { isUsed_ = flag; }
 	bool GetFlag() { return isUsed_; }
 private:

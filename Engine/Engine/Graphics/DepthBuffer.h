@@ -9,11 +9,12 @@
 
 class DepthBuffer :public PixelBuffer {
 public:
+	// 生成
 	void Create(const std::wstring& name, uint32_t width, uint32_t height, DXGI_FORMAT format);
 
+	// Getter/Setter
 	float GetClearValue()const { return clearValue_; }
 	void SetClearValue(float clearValue) { clearValue_ = clearValue; }
-
 	const DescriptorHandle& GetSRV(void) const { return srvHandle_; }
 	const DescriptorHandle& GetDSV(void) const { return dsvHandle_; }
 	const DescriptorHandle& GetReadOnlyDSV(void) const { return readOnlyDSVHandle_; }
@@ -24,4 +25,4 @@ private:
 	DescriptorHandle dsvHandle_;
 	DescriptorHandle readOnlyDSVHandle_;
 	DescriptorHandle srvHandle_;
-};
+};			

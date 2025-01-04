@@ -32,17 +32,21 @@ public:
 	inline bool IsReady() {
 		return commandQueue_ != nullptr;
 	}
-
+	// Fenceが終わっているかどうか
 	uint64_t IncrementFence(ID3D12Fence* fence);
 	bool IsFenceComplete(ID3D12Fence* fence, uint64_t FenceValue);
 	void SetFenceComplete(uint64_t FenceValue) { lastCompletedFenceValue_ = FenceValue; }
 	void StallForFence(ID3D12Fence* fence, uint64_t FenceValue);
+	// Wait
 	void WaitForFence(ID3D12Fence* fence, const HANDLE& handle, uint64_t FenceValue);
 	void WaitForIdle(ID3D12Fence* fence, const HANDLE& handle) { WaitForFence(fence, handle, IncrementFence(fence)); }
+	// FPS固定
 	void UpdateFixFPS();
 	operator ID3D12CommandQueue* () const { return commandQueue_.Get(); }
 	const uint64_t GetLastCompletedFenceValue()const { return lastCompletedFenceValue_; }
+	// Execute
 	void ExecuteCommandList(ID3D12CommandList* List,const std::string& fenceType);
+	// Wait/Signal
 	void Wait(ID3D12Fence* fence, uint64_t& value, const std::string& fenceType);
 	void Signal(ID3D12Fence* fence, uint64_t& value, const std::string& fenceType);
 private:

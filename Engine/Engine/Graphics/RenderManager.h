@@ -21,14 +21,20 @@ class RenderManager {
 
 public:
 	static RenderManager* GetInstance();
-
+	// 初期化
 	void Initialize();
+	// Reset
 	void Reset();
+	// フレーム始まる前
 	void BeginRender();
+	// 描画前
 	void BeginDraw();
+	//　描画終わり
 	void EndRender(const ViewProjection& viewProjection);
+	// Shutdown
 	void Shutdown();
 
+	// Getter
 	PostEffect& GetPostEffect() { return postEffect_; }
 	Outline& GetOutline() { return  outLine_; }
 	GaussianFilter& GetGaussianFilter() { return gaussianFilter_; }

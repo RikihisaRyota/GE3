@@ -265,7 +265,7 @@ void Audio::SetPitch(int32_t playHandle, float pitch) {
     sourceVoices_[playHandle]->SetFrequencyRatio(pitch);
 }
 
-void Audio::SetValume(int32_t playHandle, float volume) {
+void Audio::SetVolume(int32_t playHandle, float volume) {
     assert(playHandle < kMaxNumPlayHandles);
     sourceVoices_[playHandle]->SetVolume(volume);
 }

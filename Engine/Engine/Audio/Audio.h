@@ -75,9 +75,23 @@ public:
     int32_t SoundLoadWave(const std::string& fileName);
     int32_t SoundLoad(const std::filesystem::path& fileName);
 
+    /// <summary>
+    /// 音声を止める
+    /// </summary>
+    /// <param name="playHandle"></param>
     void StopSound(int32_t playHandle);
+    /// <summary>
+    /// ピッチの調整
+    /// </summary>
+    /// <param name="playHandle"></param>
+    /// <param name="pitch"></param>
     void SetPitch(int32_t playHandle, float pitch);
-    void SetValume(int32_t playHandle, float volume);
+    /// <summary>
+    /// ボリュームを調整
+    /// </summary>
+    /// <param name="playHandle"></param>
+    /// <param name="volume"></param>
+    void SetVolume(int32_t playHandle, float volume);
     bool IsValidPlayHandle(int32_t playHandle);
 
 private:

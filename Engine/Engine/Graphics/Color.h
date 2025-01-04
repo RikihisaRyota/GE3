@@ -8,9 +8,13 @@
 
 class Color {
 public:
+    // HSVA
     static Color HSVA(float h, float s, float v, float a = 1.0f);
+    // RGBA
     static Color RGBA(float r, float g, float b, float a = 1.0f);
+    
     static uint32_t Merge(uint8_t r, uint8_t g, uint8_t b, uint8_t a);
+    // 変換
     static uint32_t Convert(const Vector4& rgba);
     static Vector4 Convert(uint32_t rgba);
 
@@ -27,6 +31,7 @@ public:
     bool operator==(const Color& other) { return rgba_ == other.rgba_; };
     bool operator!=(const Color& other) { return rgba_ != other.rgba_; };
 
+    // setter
     void SetR(float r) { rgba_.x = r; }
     void SetG(float g) { rgba_.y = g; }
     void SetB(float b) { rgba_.z = b; }

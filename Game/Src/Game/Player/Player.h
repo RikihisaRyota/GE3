@@ -44,16 +44,16 @@ public:
 		kNone,
 	};
 	Player();
-
+	// 初期化
 	void Initialize();
-
+	// 更新
 	void Update(CommandContext& commandContext);
 	// Draw3D
 	void Draw(const ViewProjection& viewProjection, CommandContext& commandContext);
 	// DrawUI
 	void DrawSprite(CommandContext& commandContext);
 	void DrawDebug();
-
+	// Setter/Getter
 	void SetGPUParticleManager(GPUParticleManager* GPUParticleManager) {
 		gpuParticleManager_ = GPUParticleManager;
 		playerBulletManager_->SetGPUParticleManager(GPUParticleManager);
@@ -75,19 +75,21 @@ private:
 		Animation::AnimationHandle handle;
 		float animationCycle;
 	};
-
+	// UpdateTransform
 	void UpdateTransform();
-
+	// 移動
 	void Move();
-
+	// AnimationUpdate
 	void AnimationUpdate(CommandContext& commandContext);
 	// プレイヤーの正面を求める
 	void PlayerRotate(const Vector3& vector);
-
+	// 玉更新
 	void BulletUpdate();
+	// 弾発射
 	void Shot();
+	// 当たり判定
 	void OnCollision(const ColliderDesc& desc);
-
+	// GPUParticleSpawn
 	void GPUParticleSpawn();
 
 	Boss* boss_;

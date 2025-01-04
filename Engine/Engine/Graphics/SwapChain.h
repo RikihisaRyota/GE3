@@ -14,10 +14,12 @@ class ColorBuffer;
 class SwapChain {
 public:
 	static const uint32_t kNumBuffers = 3;
-
+	// 生成
 	void Create(HWND hWnd);
+	// Present
 	void Present();
 
+	// Getter
 	ColorBuffer& GetColorBuffer(uint32_t index) { return *buffers_[index]; }
 	uint32_t GetBackBufferIndex() { return swapChain_->GetCurrentBackBufferIndex(); }
 

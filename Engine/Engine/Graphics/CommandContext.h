@@ -39,8 +39,9 @@ namespace QueueType {
 
 class CommandContext {
 public:
+	// 生成
 	void Create();
-
+	// フレーム関連
 	void StartFrame();
 	void BeginDraw();
 	void EndFrame();
@@ -48,28 +49,34 @@ public:
 	void Start();
 	void End();
 	void Close();
+	// Flush
 	void Flush();
 
+	// Barrier
 	void TransitionResource(const QueueType::Type::Param& type,GpuResource& resource, const D3D12_RESOURCE_STATES& newState);
 	void UAVBarrier(const QueueType::Type::Param& type, GpuResource& resource);
 	void FlushResourceBarriers();
 
+	// Bufferコピー関連
 	void ResetBuffer(const QueueType::Type::Param& type, GpuResource& dest, size_t bufferSize);
 	void CopyBuffer(const QueueType::Type::Param& type, GpuResource& dest, GpuResource& src);
 	void CopyBuffer(const QueueType::Type::Param& type, GpuResource& dest, size_t bufferSize, const void* bufferData);
 	void CopyBufferRegion(const QueueType::Type::Param& type, GpuResource& dest, UINT64 destOffset, GpuResource& src, UINT64 srcOffset, UINT64 NumBytes = 0);
 	void ReadBackCopyBufferRegion(const QueueType::Type::Param& type, GpuResource& dest, UINT64 destOffset, GpuResource& src, UINT64 srcOffset, UINT64 NumBytes = 0);
 
+	// Color/DepthBuffer
 	void ClearColor(ColorBuffer& target);
 	void ClearColor(ColorBuffer& target, float Colour[4]);
 	void ClearDepth(DepthBuffer& target);
 	void ClearDepth(DepthBuffer& target, float clearValue);
 	void ClearBuffer(const QueueType::Type::Param& type, GpuResource& dest, size_t bufferSize);
 
+	// Pipeline/RootSignature
 	void SetPipelineState(const QueueType::Type::Param& type, const PipelineState& pipelineState);
 	void SetGraphicsRootSignature(const RootSignature& rootSignature);
 	void SetComputeRootSignature(const QueueType::Type::Param& type,const RootSignature& rootSignature);
 
+	// RenderTarget/Depth
 	void SetRenderTargets(UINT numRTVs, const D3D12_CPU_DESCRIPTOR_HANDLE RTVs[]);
 	void SetRenderTargets(UINT numRTVs, const D3D12_CPU_DESCRIPTOR_HANDLE RTVs[], D3D12_CPU_DESCRIPTOR_HANDLE DSV);
 	void SetRenderTarget(D3D12_CPU_DESCRIPTOR_HANDLE RTV) { SetRenderTargets(1, &RTV); }
@@ -77,7 +84,7 @@ public:
 	void SetDepthStencilTarget(D3D12_CPU_DESCRIPTOR_HANDLE DSV) { SetRenderTargets(0, nullptr, DSV); }
 
 	void SetPrimitiveTopology(D3D12_PRIMITIVE_TOPOLOGY topology);
-
+	// ConstBuffer関連
 	void SetGraphicsDynamicConstantBufferView(UINT rootIndex, size_t bufferSize, const void* bufferData);
 	void SetComputeDynamicConstantBufferView(const QueueType::Type::Param& type, UINT rootIndex, size_t bufferSize, const void* bufferData);
 	void SetGraphicsDynamicShaderResource(UINT rootIndex, size_t bufferSize, const void* bufferData);
@@ -92,13 +99,16 @@ public:
 	void SetComputeDescriptorTable(const QueueType::Type::Param& type,UINT rootIndex, D3D12_GPU_DESCRIPTOR_HANDLE handle);
 	void SetDescriptorHeaps(UINT numDescriptorHeaps, ID3D12DescriptorHeap* descriptorHeaps, const QueueType::Type::Param& type);
 
+	// UAV
 	void SetComputeUAV(const QueueType::Type::Param& type, uint32_t rootParameterIndex, D3D12_GPU_VIRTUAL_ADDRESS bufferLocation);
 	void SetGraphicsUAV(uint32_t rootParameterIndex, D3D12_GPU_VIRTUAL_ADDRESS bufferLocation);
 
+	// Vertex/Index
 	void SetVertexBuffer(UINT slot, const D3D12_VERTEX_BUFFER_VIEW& vbv);
 	void SetVertexBuffer(UINT slot, UINT numViews, const D3D12_VERTEX_BUFFER_VIEW vbvs[]);
 	void SetIndexBuffer(const D3D12_INDEX_BUFFER_VIEW& ibv);
 
+	// ViewPort
 	void SetViewport(const D3D12_VIEWPORT& viewport);
 	void SetViewport(FLOAT x, FLOAT y, FLOAT w, FLOAT h, FLOAT minDepth = 0.0f, FLOAT maxDepth = 1.0f);
 	void SetScissorRect(const D3D12_RECT& rect);
@@ -106,14 +116,15 @@ public:
 	void SetViewportAndScissorRect(const D3D12_VIEWPORT& viewport, const D3D12_RECT& rect);
 	void SetViewportAndScissorRect(UINT x, UINT y, UINT w, UINT h);
 
+	// 描画/dispath
 	void Draw(UINT vertexCount, UINT vertexStartOffset = 0);
 	void DrawIndexed(UINT indexCount, UINT startIndexLocation = 0, INT baseVertexLocation = 0);
 	void DrawInstanced(UINT vertexCountPerInstance, UINT instanceCount, UINT startVertexLocation = 0, UINT startInstanceLocation = 0);
 	void DrawIndexedInstanced(UINT indexCountPerInstance, UINT instanceCount, UINT startIndexLocation = 0, INT baseVertexLocation = 0, UINT startInstanceLocation = 0);
 	void ExecuteIndirect(const CommandSignature& commandSignature, UINT maxCommandCount, ID3D12Resource* argumentBuffer, UINT64 argumentBufferOffset, ID3D12Resource* countBuffer, UINT64 countBufferOffset, const QueueType::Type::Param& type);
-
 	void Dispatch(const QueueType::Type::Param& type,uint32_t x, uint32_t y, uint32_t z);
 
+	// PixEvent
 	void BeginEvent(const QueueType::Type::Param& type, const std::wstring& name);
 	void EndEvent(const QueueType::Type::Param& type);
 

@@ -53,27 +53,40 @@ public:
 	};
 
 	static Input* GetInstance();
-
+	// 初期化
 	void Initialize();
+	// 更新
 	void Update();
+	// Finalize
 	void Finalize();
 
+	// 押しつづ付ける
 	bool PushKey(BYTE keyNumber) const;
+	// 押した瞬間
 	bool TriggerKey(BYTE keyNumber) const;
+	// 離したとき
 	bool ExitKey(BYTE keyNumber) const;
-
+	// マウス押しつづ付ける
 	bool PushMouse(int32_t buttonNumber) const;
+	// マウス押した瞬間
 	bool TriggerMouse(int32_t buttonNumber) const;
+	// マウス離したとき
 	bool ExitMouse(int32_t buttonNumber) const;
 
+	// ゲームパット押しつづ付ける
 	bool PushGamepadButton(Button button, int32_t stickNo = 0) const;
+	// ゲームパット押した瞬間
 	float GetTriggerPushGamepadButton(Button button, int32_t stickNo = 0) const;
 	bool TriggerGamepadButton(Button button, int32_t stickNo = 0) const;
+	// ゲームパット離したとき
 	bool ExitGamepadButton(Button button, int32_t stickNo = 0) const;
 
+	// マウスホイール
 	int32_t GetWheel() const;
+	// カーソル移動
 	Vector2 GetMouseMove() const;
 
+	// スティック	
 	bool GetJoystickState(DIJOYSTATE2& out, int32_t stickNo = 0) const;
 	bool GetJoystickStatePrevious(DIJOYSTATE2& out, int32_t stickNo = 0) const;
 	bool GetJoystickState(XINPUT_STATE& out, int32_t stickNo = 0) const;

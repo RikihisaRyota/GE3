@@ -15,13 +15,17 @@ public:
 
 	void Update();
 
+	// Setter
 	void SetViewProjection(ViewProjection* viewProjection) { viewProjection_ = viewProjection; }
 	void SetTarget(const WorldTransform* target) { target_ = target; }
-
+	// Debug
 	void DrawImGui();
 private:
+	// GamePad入力
 	void GamePad();
+	// Keyboard入力
 	void Keyboard();
+	// 回転処理
 	void RotateUpdate();
 
 	// 回転速度

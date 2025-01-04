@@ -23,11 +23,16 @@ class GPUParticleManager;
 class CommandContext;
 class Boss {
 public:
+	// コンストラクタ
 	Boss();
+	// 初期化
 	void Initialize();
+	// 更新
 	void Update();
+	// 描画
 	void Draw(const ViewProjection& viewProjection, CommandContext& commandContext);
 
+	// Setter/Getter
 	void SetGPUParticleManager(GPUParticleManager* GPUParticleManager) {
 		gpuParticleManager_ = GPUParticleManager;
 		bossStateManager_->SetGPUParticleManager(gpuParticleManager_);
@@ -39,6 +44,7 @@ public:
 
 	Animation::Animation* GetAnimation() { return &animation_; }
 	const ModelHandle& GetModelHandle() { return bossModelHandle_; }
+	// デバック
 	void DrawImGui();
 	void DrawDebug();
 	std::unique_ptr<SphereCollider>& GetCollider() { return collider_; }
@@ -47,8 +53,11 @@ public:
 	const Matrix4x4& GetWorldMatrix()const { return worldTransform_.matWorld; }
 	const GPUParticleShaderStructs::VertexEmitterForCPU& GetVertexEmitter()const { return vertexEmitterDesc_; }
 private:
+	// 当たり判定更新
 	void UpdateCollider();
+	// GPUParticle更新
 	void UpdateGPUParticle();
+	// Transform更新
 	void UpdateTransform();
 	// ボスの体との当たり判定
 	void OnCollisionBody(const ColliderDesc& desc);

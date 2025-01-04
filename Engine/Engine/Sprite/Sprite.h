@@ -32,11 +32,11 @@ public:
 	Sprite();
 	Sprite(TextureHandle textureHandle, Vector2 position, Vector2 size, Vector4 color, Vector2 anchorpoint,
 		bool isFlipX, bool isFlipY);
-
+	// 生成
 	static Sprite* Create(
 		TextureHandle  textureHandle, Vector2 position, Vector4 color = { 1, 1, 1, 1 },
 		Vector2 anchorpoint = { 0.0f, 0.0f }, bool isFlipX = false, bool isFlipY = false);
-
+	// 描画
 	void Draw(CommandContext& commandContext);
 
 	const std::filesystem::path& GetName() const { return name_; }

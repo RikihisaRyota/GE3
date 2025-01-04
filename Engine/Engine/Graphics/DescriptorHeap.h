@@ -12,8 +12,11 @@
 
 class DescriptorHeap {
 public:
+	// 生成
 	void Create(D3D12_DESCRIPTOR_HEAP_TYPE type,uint32_t numDescriptors);
+	// Allocate
 	DescriptorHandle Allocate();
+	// Getter
 	DescriptorHandle GetStartDescriptorHandle() { return firstDescriptors_; }
 	operator ID3D12DescriptorHeap* () const { return descriptorHeap_.Get(); }
 	uint32_t GetFreeDescriptors() { return numFreeDescriptors_ - 1; }

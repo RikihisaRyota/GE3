@@ -15,9 +15,11 @@ public:
 		kTexture,
 		kCount
 	};
-
+	// 初期化
 	void Initialize(const ColorBuffer& target);
+	// 描画
 	void Render(CommandContext& commandContext, ColorBuffer& target);
+	// Getter
 	ColorBuffer& GetColorBuffer() { return verticalBuffer_; }
 private:
 	RootSignature rootSignature_;

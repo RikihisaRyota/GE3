@@ -64,8 +64,9 @@ struct LinearAllocatorType {
 
 class LinearAllocationPage : public GpuResource {
 public:
+	// 生成
 	void Create(const std::wstring& name, LinearAllocatorType type);
-
+	// Getter
 	void* GetCPUAddressStart() const { return cpuAddressStart_; }
 	const D3D12_GPU_VIRTUAL_ADDRESS GetGPUAddressStart() const { return gpuAddressStart_; }
 	size_t GetSize() const { return size_; }
@@ -78,10 +79,15 @@ private:
 
 class LinearAllocatorPagePool {
 public:
+	// 初期化
 	void Initialize(const LinearAllocatorType& linearAllocatorType);
+	// Finalize
 	void Finalize();
+	// Clear
 	void Clear();
+	// Discard
 	void Discard(const D3D12_COMMAND_LIST_TYPE& commandType, UINT64 fenceValue, const std::vector<LinearAllocationPage*>& pages);
+	// Allocate
 	LinearAllocationPage* Allocate(const D3D12_COMMAND_LIST_TYPE& commandType);
 private:
 	bool CheckAllocate(const D3D12_COMMAND_LIST_TYPE& commandType, LinearAllocationPage** page);
@@ -98,11 +104,11 @@ private:
 
 class LinearAllocator {
 public:
-
+	// 生成
 	void Create(LinearAllocatorType Type);
-
+	// Allocate
 	DynAlloc Allocate(const D3D12_COMMAND_LIST_TYPE& commandType, size_t size, size_t alignment = DEFAULT_ALIGN);
-
+	// Reset
 	void Reset(D3D12_COMMAND_LIST_TYPE commandType, UINT64 fenceValue);
 	
 	template <typename T> __forceinline T AlignUpWithMask(T value, size_t mask) {

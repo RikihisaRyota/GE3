@@ -17,6 +17,7 @@ public:
 	// texture読み込み
 	TextureHandle Load(const std::filesystem::path path);
 
+	// Getter
 	Texture& GetTexture(const TextureHandle& textureHandle) { return *textures_[textureHandle.index_]; }
 	Texture& GetTexture(uint32_t textureHandle) { return *textures_[textureHandle]; }
 	

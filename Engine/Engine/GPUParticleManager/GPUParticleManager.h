@@ -34,8 +34,10 @@ public:
 
 	void Draw(const ViewProjection& viewProjection, CommandContext& commandContext);
 
+	// デバック用
 	void DrawImGui();
 
+	// セッター
 	void SetEmitter(const GPUParticleShaderStructs::EmitterForCPU& emitter,const Matrix4x4& parent=Matrix4x4());
 	void SetVertexEmitter(const ModelHandle& modelHandle, const GPUParticleShaderStructs::VertexEmitterForCPU& emitter,const Matrix4x4& parent=Matrix4x4());
 	void SetVertexEmitter(const ModelHandle& modelHandle, const Animation::Animation& animation, const GPUParticleShaderStructs::VertexEmitterForCPU& emitter,const Matrix4x4& parent=MakeIdentity4x4());

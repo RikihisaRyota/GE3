@@ -26,12 +26,14 @@ public:
 	};
 
 public:
+	// インスタンス
 	static Lighting* GetInstance();
-
+	// 初期化
 	void Initialize();
-
+	// 更新
 	void Update();
 
+	// Getter
 	const UploadBuffer& GetDirectionLightBuffer() const { return directionLightBuffer_; }
 	DirectionLight* GetDirectionLight() const { return directionLightData_; }
 	const UploadBuffer& GetPointLightBuffer() const { return pointLightBuffer_; }

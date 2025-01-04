@@ -15,8 +15,10 @@
 
 namespace Animation {
 
+	// 初期化
 	void Initialize();
 
+	// リリース
 	void Release();
 
 	struct Joint {
@@ -32,10 +34,12 @@ namespace Animation {
 		int32_t root;
 		std::map<std::string, int32_t> jointMap;
 		std::vector<Joint> joints;
-
+		// スケルトン生成
 		void CreateSkeleton(const Model::Node& rootNode);
+		// アップデート
 		void Update();
 	};
 
+	// ジョイン生成
 	int32_t CreateJoint(const Model::Node& node, const std::optional<int32_t>& parent, std::vector<Joint>& joints);
 }

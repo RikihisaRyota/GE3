@@ -34,7 +34,9 @@ namespace Animation {
 		Matrix4x4 skeletonSpaceInverseTransposeMatrix;
 	};
 	struct SkinCluster {
+		// スキンクラスター生成
 		void CreateSkinCluster(const Skeleton& skeleton, const ModelHandle& modelHandle);
+		// アップデート
 		void Update(const Skeleton& skeleton, CommandContext& commandContext, const ModelHandle& modelHandle);
 
 		std::vector<Matrix4x4> inverseBindPoseMatrices;

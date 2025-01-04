@@ -85,23 +85,40 @@ public:
 	};
 
 public:
-
+	// 生成
 	void Create(const std::filesystem::path& modelPath);
+	// 名前
 	const std::filesystem::path& GetName() const { return name_; }
+	// メッシュデータ
 	const std::vector<std::unique_ptr<MeshData>>& GetMeshData() const { return meshData_; }
+	// テクスチャハンドル
 	const TextureHandle GetTextureHandle()const { return textureHandle_; }
+	// マテリアルバッファ
 	const UploadBuffer& GetMaterialBuffer()const { return materialBuffer_; }
+	// マテリアル情報
 	Material& GetMaterialData() { return *material_; }
+	// パス
 	const std::filesystem::path& GetPath()const { return path_; }
+	// 色
 	void SetMaterialColor(const Vector4& color);
+	// 色
 	Vector4& GetMaterialColor() { return material_->color; }
+	// IndexView
 	const D3D12_INDEX_BUFFER_VIEW& GetIndexView() const { return ibView; }
+	// VertexView
 	const D3D12_VERTEX_BUFFER_VIEW& GetVertexView() const { return vbView; }
+	// IndexBuffer
 	UploadBuffer& GetIndexBuffer() { return indexBuffer; }
+	// VertexBuffer
 	UploadBuffer& GetVertexBuffer() { return vertexBuffer; }
+	
+	// IndexSRView
 	const DescriptorHandle& GetVertexSRV() const { return vertexSRV; }
+	// VertexSRView
 	const DescriptorHandle& GetIndexSRV() const { return indexSRV; }
+	// 頂点数
 	const uint32_t GetAllVertexCount()const;
+	// インデックス数
 	const uint32_t GetAllIndexCount()const;
 	const uint32_t GetIndexBufferDescriptorIndex()const { return indexBufferDescriptorIndex_; }
 	const uint32_t GetVertexBufferDescriptorIndex()const { return vertexBufferDescriptorIndex_; }

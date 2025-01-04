@@ -21,10 +21,13 @@ public:
 		kHSV,
 		kCount
 	};
-
+	// 初期化
 	void Initialize(const ColorBuffer& target);
+	// 描画
 	void Render(CommandContext& commandContext, ColorBuffer& texture);
+	// Getter
 	Desc& GetDesc() { return desc_; }
+	// Debug
 	void Debug();
 private:
 	RootSignature rootSignature_;

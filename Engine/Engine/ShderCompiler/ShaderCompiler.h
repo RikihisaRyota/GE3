@@ -13,7 +13,7 @@
 class ShaderCompiler {
 public:
 	static void Initialize();
-
+	// コンパイル
 	static IDxcBlob* Compile(const std::wstring& filePath, const wchar_t* profile);
 private:
 	static Microsoft::WRL::ComPtr<IDxcUtils> dxcUtils_;

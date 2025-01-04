@@ -37,6 +37,8 @@ public:
 	GPUParticle();
 	~GPUParticle();
 	void Initialize();
+
+	// Update関連
 	void CheckField(CommandContext& commandContext);
 	void AddField(CommandContext& commandContext);
 	void UpdateField(CommandContext& commandContext);
@@ -52,6 +54,8 @@ public:
 	void Draw(const ViewProjection& viewProjection, CommandContext& commandContext);
 	void DrawTrails(const ViewProjection& viewProjection, CommandContext& commandContext);
 	void DrawImGui();
+
+
 	void CreateMeshParticle(const ModelHandle& modelHandle, Animation::Animation& animation, const Matrix4x4& worldTransform, const GPUParticleShaderStructs::MeshEmitterForCPU& mesh, const UploadBuffer& random, CommandContext& commandContext);
 	void CreateMeshParticle(const ModelHandle& modelHandle, const Matrix4x4& worldTransform, const GPUParticleShaderStructs::MeshEmitterForCPU& mesh, const UploadBuffer& random, CommandContext& commandContext);
 	void CreateVertexParticle(const ModelHandle& modelHandle, Animation::Animation& animation, const Matrix4x4& worldTransform, const GPUParticleShaderStructs::VertexEmitterForCPU& mesh, const UploadBuffer& random, CommandContext& commandContext);
@@ -66,7 +70,7 @@ public:
 	//
 	//void CreateTransformModelAreaParticle(const ModelHandle& modelHandle, const Matrix4x4& worldTransform,  const GPUParticleShaderStructs::TransformAreaEmitterForGPU& transformEmitter, const UploadBuffer& random, CommandContext& commandContext);
 
-
+	// セッター
 	void SetDrawCommandSignature(CommandSignature* commandSignature) { commandSignature_ = commandSignature; }
 	void SetSpawnCommandSignature(CommandSignature* commandSignature) { spawnCommandSignature_ = commandSignature; }
 	void SetTrailsDrawCommandSignature(CommandSignature* commandSignature) { trailsDrawCommandSignature_ = commandSignature; }
@@ -79,6 +83,7 @@ public:
 	void SetEmitter(const GPUParticleShaderStructs::TransformAreaEmitterForCPU& emitterForCPU, const Matrix4x4& parent);
 	void SetBullet(const GPUParticleShaderStructs::BulletForGPU& bullet);
 private:
+	// 初期化用
 	void InitializeParticleBuffer();
 	void InitializeUpdateParticle();
 	void InitializeSpawnBuffer();

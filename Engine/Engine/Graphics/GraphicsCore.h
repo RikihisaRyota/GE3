@@ -20,12 +20,13 @@ public:
 	static const uint32_t kNumDSVs = 2;
 	static const uint32_t kNumSRVs = 256;
 	static const uint32_t kNumSamplers = 16;
-
+	// 初期化
 	void Initialize();
+	// Shutdown
 	void Shutdown();
-
+	// Allocate
 	DescriptorHandle AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE type);
-
+	// Getter
 	CommandQueue& GetCommandQueue(D3D12_COMMAND_LIST_TYPE type);
 	CommandListManager& GetCommandListManager() { return commandListManager_; }
 	ID3D12Device* GetDevice() const { return device_.Get(); }

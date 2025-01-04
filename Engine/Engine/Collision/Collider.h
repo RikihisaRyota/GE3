@@ -35,21 +35,27 @@ public:
 	virtual bool IsCollision(OBBCollider* collider, ColliderDesc& desc) = 0;
 	virtual bool IsCollision(SphereCollider* collider, ColliderDesc& desc) = 0;
 	virtual bool IsCollision(CapsuleCollider* collider, ColliderDesc& desc) = 0;
+	// デバック用
 	virtual void DrawCollision(const Vector4& color) = 0;
 	
 	virtual const Vector3& GetPosition() = 0;
 
+	// 当った時に呼び出す関数
 	void SetCallback(Callback callback) { callback_ = callback; }
+	// 属性
 	void SetCollisionAttribute(uint32_t attribute) { collisionAttribute_ = attribute; }
 	void SetCollisionMask(uint32_t mask) { collisionMask_ = mask; }
+	// Active
 	void SetIsActive(bool isActive) { isActive_ = isActive; }
+	const bool GetIsActive()const { return isActive_; }
+	// 名前
 	void SetName(const std::string& name) { name_ = name; }
 	const std::string& GetName()const { return name_; }
 
+	// 当たっているか
 	void OnCollision(const ColliderDesc& colliderDesc);
-
-	const bool GetIsActive()const { return isActive_; }
 protected:
+	// 属性で当っているか
 	bool CanCollision(Collider* other) const;
 	bool CanCollision(uint32_t mask) const;
 

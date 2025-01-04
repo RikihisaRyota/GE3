@@ -11,6 +11,7 @@
 class GpuResource {
 	friend class CommandContext;
 public:
+	// Getter
 	operator ID3D12Resource* () const { return resource_.Get(); }
 
 	ID3D12Resource* operator->() { return resource_.Get(); }
@@ -25,6 +26,7 @@ public:
 
 	void SetState(const D3D12_RESOURCE_STATES& state) { state_ = state; }
 
+	// 生成
 	void CreateResource(
 		const std::wstring& name,
 		const D3D12_HEAP_PROPERTIES& heapProperties,

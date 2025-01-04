@@ -36,13 +36,16 @@ void from_json(const nlohmann::json& json, Quaternion& value);
 void from_json(const nlohmann::json& json, std::string& value);
 
 namespace JsonHelper {
-
+    // ファイルを開く
     bool Open(const std::filesystem::path& path);
+    // オブジェクト名
     bool Object(const std::string& name = "");
+    // 階層戻る
     bool Parent();
+    // ファイルを閉じる
     bool Close();
 
-
+    // Save
     void Save(const bool& value, const std::string& name);
     void Save(const int32_t& value, const std::string& name);
     void Save(const uint32_t& value, const std::string& name);
@@ -53,6 +56,7 @@ namespace JsonHelper {
     void Save(const Quaternion& value, const std::string& name);
     void Save(const std::string& value, const std::string& name);
 
+    // Load
     bool Load(bool& value, const std::string& name);
     bool Load(int32_t& value, const std::string& name);
     bool Load(uint32_t& value, const std::string& name);

@@ -181,7 +181,7 @@ void GameScene::Update(CommandContext& commandContext) {
 	GPUParticleShaderStructs::Debug("test2", test2Emitter_);
 	GPUParticleShaderStructs::Update();
 
-	if (Input::GetInstance()->PushKey(DIK_R)) {
+	if (Engine::Input::GetInstance()->PushKey(DIK_R)) {
 		skybox_->Initialize();
 		followCamera_->Initialize();
 		player_->Initialize();
@@ -207,7 +207,7 @@ void GameScene::Draw(CommandContext& commandContext) {
 	}
 
 
-	//gpuParticleManager_->Draw(*viewProjection_, commandContext);
+	gpuParticleManager_->Draw(*viewProjection_, commandContext);
 	//skybox_->Draw(commandContext, *viewProjection_);
 	player_->DrawSprite(commandContext);
 #ifdef _DEBUG

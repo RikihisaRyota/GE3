@@ -236,7 +236,7 @@ void ModelManager::Draw(const Matrix4x4& worldMatrix, const ViewProjection& view
 	commandContext.EndEvent(QueueType::Type::DIRECT);
 }
 
-void ModelManager::Draw(const Matrix4x4& worldMatrix, Animation::Animation& skinning, const ViewProjection& viewProjection, const ModelHandle& modelHandle, CommandContext& commandContext) {
+void ModelManager::Draw(const Matrix4x4& worldMatrix, Engine::Animation::Animation& skinning, const ViewProjection& viewProjection, const ModelHandle& modelHandle, CommandContext& commandContext) {
 	//struct ConstBufferDataWorldTransform {
 	//	Matrix4x4 matWorld; // ローカル → ワールド変換行列
 	//	Matrix4x4 inverseMatWorld;

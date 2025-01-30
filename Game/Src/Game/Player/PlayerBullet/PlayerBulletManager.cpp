@@ -131,7 +131,7 @@ void PlayerBulletManager::Create(const WorldTransform& worldTransform) {
 		// プレイヤーの位置
 		Vector3 playerPosition = MakeTranslateMatrix(worldTransform.matWorld) + RotateVector(offset_, worldTransform.rotate);
 		Vector3 bulletVelocity{};
-		if (Input::GetInstance()->PushKey(DIK_LSHIFT) || Input::GetInstance()->PushGamepadButton(Button::LT)) {
+		if (Engine::Input::GetInstance()->PushKey(DIK_LSHIFT) || Engine::Input::GetInstance()->PushGamepadButton(Button::LT)) {
 			// VPV合成行列
 			Matrix4x4 matVPV = viewProjection_->matView_ * viewProjection_->matProjection_ * MakeViewportMatrix(0.0f, 0.0f, float(WinApp::kWindowWidth), float(WinApp::kWindowHeight), viewProjection_->nearZ_, viewProjection_->farZ_);
 			// 逆行列に

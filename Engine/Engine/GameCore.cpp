@@ -17,8 +17,8 @@
 #include "Animation/Skinning.h"
 
 namespace GameCore {
-	Audio* audio = nullptr;
-	Input* input = nullptr;
+	Engine::Audio* audio = nullptr;
+	Engine::Input* input = nullptr;
 	RenderManager* renderManager = nullptr;
 	WinApp* winApp = nullptr;
 	ShaderCompiler* shaderCompiler = nullptr;
@@ -34,10 +34,10 @@ namespace GameCore {
 
 		shaderCompiler->Initialize();
 
-		audio = Audio::GetInstance();
+		audio = Engine::Audio::GetInstance();
 		audio->Initialize();
 
-		input = Input::GetInstance();
+		input = Engine::Input::GetInstance();
 		input->Initialize();
 
 		renderManager = RenderManager::GetInstance();
@@ -65,7 +65,7 @@ namespace GameCore {
 		particleManager = ParticleManager::GetInstance();
 		particleManager->Initialize();
 
-		Animation::Initialize();
+		Engine::Animation::Initialize();
 	}
 
 	bool BeginFrame() {
@@ -102,7 +102,7 @@ namespace GameCore {
 	}
 
 	void Shutdown() {
-		Animation::Release();
+		Engine::Animation::Release();
 		particleManager->Shutdown();
 		sceneManager->Finalize();
 		delete viewProjection;

@@ -15,7 +15,7 @@ void DebugCamera::Update(ViewProjection* viewProjection) {
 	ImGui::Text("DebugCameraPos\nX:%f,Y:%f,Z:%f", viewProjection->translation_.x, viewProjection->translation_.y, viewProjection->translation_.z);
 #endif // ENABLE_IMGUI
 		if (isDebugCamera_) {
-			auto input = Input::GetInstance();
+			auto input = Engine::Input::GetInstance();
 			int32_t wheel = input->GetWheel();
 			Vector2 mouseMove = input->GetMouseMove();
 			if (input->PushMouse(1)) {

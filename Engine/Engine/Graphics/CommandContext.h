@@ -27,6 +27,7 @@ namespace QueueType {
 	struct Type {
 		enum Param {
 			COPY,
+			SPAWN,
 			COMPUTE,
 			DIRECT,
 			COUNT
@@ -49,8 +50,14 @@ public:
 	void Start();
 	void End();
 	void Close();
+	void Close(const QueueType::Type::Param& type);
 	// Flush
 	void Flush();
+
+	// コマンドリスト実行
+	void ExecuteCommandList(const QueueType::Type::Param& type);
+	// コマンドリスト関連ををリセット
+	void ResetCommandList(const QueueType::Type::Param& type);
 
 	// Barrier
 	void TransitionResource(const QueueType::Type::Param& type,GpuResource& resource, const D3D12_RESOURCE_STATES& newState);
@@ -62,6 +69,7 @@ public:
 	void CopyBuffer(const QueueType::Type::Param& type, GpuResource& dest, GpuResource& src);
 	void CopyBuffer(const QueueType::Type::Param& type, GpuResource& dest, size_t bufferSize, const void* bufferData);
 	void CopyBufferRegion(const QueueType::Type::Param& type, GpuResource& dest, UINT64 destOffset, GpuResource& src, UINT64 srcOffset, UINT64 NumBytes = 0);
+	void CopyBufferRegion(const QueueType::Type::Param& type, GpuResource& dest, UINT64 destOffset, size_t bufferSize, const void* bufferData ,UINT64 NumBytes = 0);
 	void ReadBackCopyBufferRegion(const QueueType::Type::Param& type, GpuResource& dest, UINT64 destOffset, GpuResource& src, UINT64 srcOffset, UINT64 NumBytes = 0);
 
 	// Color/DepthBuffer

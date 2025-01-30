@@ -42,8 +42,8 @@ void FollowCamera::DrawImGui() {
 
 void FollowCamera::GamePad() {
 	XINPUT_STATE joyState{};
-	if (Input::GetInstance()->IsControllerConnected()) {
-		Input::GetInstance()->GetJoystickState(joyState);
+	if (Engine::Input::GetInstance()->IsControllerConnected()) {
+		Engine::Input::GetInstance()->GetJoystickState(joyState);
 		// カメラの角度から回転行列を計算する
 		// X軸
 		viewProjection_->rotation_.x -=
@@ -60,18 +60,18 @@ void FollowCamera::GamePad() {
 }
 
 void FollowCamera::Keyboard() {
-	if (Input::GetInstance()->PushKey(DIK_RIGHTARROW)) {
+	if (Engine::Input::GetInstance()->PushKey(DIK_RIGHTARROW)) {
 		// Y軸を軸に回転
 		viewProjection_->rotation_.y += kRotateSpeedY * kKeyboardCameraSpeed_X;
 		destinationAngle_.y += kRotateSpeedY * kKeyboardCameraSpeed_X;
 	}
-	if (Input::GetInstance()->PushKey(DIK_LEFTARROW)) {
+	if (Engine::Input::GetInstance()->PushKey(DIK_LEFTARROW)) {
 		// Y軸を軸に回転
 		viewProjection_->rotation_.y -= kRotateSpeedY * kKeyboardCameraSpeed_X;
 		destinationAngle_.y -= kRotateSpeedY * kKeyboardCameraSpeed_X;
 	}
 
-	if (Input::GetInstance()->PushKey(DIK_UPARROW)) {
+	if (Engine::Input::GetInstance()->PushKey(DIK_UPARROW)) {
 		// X軸を軸に回転
 		viewProjection_->rotation_.x += kRotateSpeedX * kKeyboardCameraSpeed_Y;
 		viewProjection_->rotation_.x = Clamp(
@@ -79,7 +79,7 @@ void FollowCamera::Keyboard() {
 			DegToRad(kDeadZoneRotateMax));
 		destinationAngle_.x += kRotateSpeedY * kKeyboardCameraSpeed_X;
 	}
-	if (Input::GetInstance()->PushKey(DIK_DOWNARROW)) {
+	if (Engine::Input::GetInstance()->PushKey(DIK_DOWNARROW)) {
 		// X軸を軸に回転
 		viewProjection_->rotation_.x -= kRotateSpeedX * kKeyboardCameraSpeed_Y;
 		viewProjection_->rotation_.x = Clamp(

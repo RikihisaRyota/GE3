@@ -72,7 +72,7 @@ public:
 	}
 private:
 	struct AnimationInfo {
-		Animation::AnimationHandle handle;
+		Engine::Animation::AnimationHandle handle;
 		float animationCycle;
 	};
 	// UpdateTransform
@@ -106,10 +106,10 @@ private:
 
 	ModelHandle playerModelHandle_;
 	WorldTransform animationTransform_;
-	Animation::Animation animation_;
+	Engine::Animation::Animation animation_;
 	std::unordered_map<std::string, AnimationInfo> animationInfo_;
-	Animation::AnimationHandle currentAnimationHandle_;
-	Animation::AnimationHandle preAnimationHandle_;
+	Engine::Animation::AnimationHandle currentAnimationHandle_;
+	Engine::Animation::AnimationHandle preAnimationHandle_;
 	struct FootEmitter {
 		GPUParticleShaderStructs::EmitterForCPU fugitiveDust;
 	};

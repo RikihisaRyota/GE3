@@ -34,7 +34,7 @@ public:
 
 	// 描画
 	void Draw(const Matrix4x4& worldMatrix, const ViewProjection& viewProjection, const ModelHandle& modelHandle, CommandContext& commandContext);
-	void Draw(const Matrix4x4& worldMatrix, Animation::Animation& skinning,const ViewProjection& viewProjection, const ModelHandle& modelHandle, CommandContext& commandContext);
+	void Draw(const Matrix4x4& worldMatrix, Engine::Animation::Animation& skinning,const ViewProjection& viewProjection, const ModelHandle& modelHandle, CommandContext& commandContext);
 private:
 	static std::unique_ptr<PipelineState> pipelineState_;
 	static std::unique_ptr<RootSignature> rootSignature_;

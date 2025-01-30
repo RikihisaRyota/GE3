@@ -42,7 +42,7 @@ public:
 		bossStateManager_->SetPlayer(player_);
 	}
 
-	Animation::Animation* GetAnimation() { return &animation_; }
+	Engine::Animation::Animation* GetAnimation() { return &animation_; }
 	const ModelHandle& GetModelHandle() { return bossModelHandle_; }
 	// デバック
 	void DrawImGui();
@@ -70,7 +70,7 @@ private:
 
 
 	ModelHandle bossModelHandle_;
-	Animation::Animation animation_;
+	Engine::Animation::Animation animation_;
 
 	WorldTransform collisionTransform_;
 	WorldTransform animationTransform_;

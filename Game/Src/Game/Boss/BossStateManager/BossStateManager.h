@@ -26,7 +26,7 @@ public:
 	virtual void DebugDraw() = 0;
 	//virtual void OnCollision(const ColliderDesc& colliderDesc) = 0;
 	// Getter
-	const Animation::AnimationHandle& GetAnimationHandle() const { return animationHandle_; }
+	const Engine::Animation::AnimationHandle& GetAnimationHandle() const { return animationHandle_; }
 	const ModelHandle& GetModelHandle() const { return modelHandle_; }
 	const float GetAnimationTime() const { return time_; }
 	const WorldTransform& GetWorldTransform()const { return worldTransform_; }
@@ -37,7 +37,7 @@ protected:
 	Random::RandomNumberGenerator rnd_;
 	bool inTransition_;
 
-	Animation::AnimationHandle animationHandle_;
+	Engine::Animation::AnimationHandle animationHandle_;
 	ModelHandle modelHandle_;
 	WorldTransform worldTransform_;
 	float time_;
@@ -279,11 +279,11 @@ public:
 
 	void Update();
 
-	const Animation::AnimationHandle GetAnimationHandle() const {
+	const Engine::Animation::AnimationHandle GetAnimationHandle() const {
 		if (preAnimationHandle_.has_value()) {
 			return preAnimationHandle_.value();
 		}
-		return Animation::AnimationHandle();
+		return Engine::Animation::AnimationHandle();
 	}
 
 	const ModelHandle GetModelHandle() const {
@@ -346,7 +346,7 @@ private:
 	std::unique_ptr<BossState> activeState_;
 	std::unique_ptr<BossState> standbyState_;
 	std::optional<float>preAnimationTime_;
-	std::optional<Animation::AnimationHandle> preAnimationHandle_;
+	std::optional<Engine::Animation::AnimationHandle> preAnimationHandle_;
 	std::optional<ModelHandle> preModelHandle_;
 	std::optional<WorldTransform> preWorldTransform_;
 };

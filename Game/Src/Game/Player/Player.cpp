@@ -66,6 +66,7 @@ Player::Player() {
 }
 
 void Player::Initialize() {
+	auto tmp = MakeLookAtLH({ 0.0f,0.0f,0.0f } ,{ 0.0f,1.0f,1.0f },  {0.0f,1.0f,0.0f});
 	auto& material = ModelManager::GetInstance()->GetModel(playerModelHandle_).GetMaterialData();
 	material.environmentCoefficient = 0.5f;
 	state_ = kRoot;
@@ -171,7 +172,7 @@ void Player::BulletUpdate() {
 }
 
 void Player::Shot() {
-	auto input = Input::GetInstance();
+	auto input = Engine::Input::GetInstance();
 	if (input->PushKey(DIK_SPACE) || input->PushGamepadButton(Button::RT) || input->PushGamepadButton(Button::B)) {
 		playerBulletManager_->Create(worldTransform_);
 	}
@@ -248,7 +249,7 @@ void Player::UpdateTransform() {
 }
 
 void Player::Move() {
-	auto input = Input::GetInstance();
+	auto input = Engine::Input::GetInstance();
 #pragma region ゲームパット
 	// ゲームパットの状態を得る変数
 	XINPUT_STATE joyState{};

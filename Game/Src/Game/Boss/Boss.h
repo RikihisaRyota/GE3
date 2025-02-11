@@ -43,6 +43,11 @@ public:
 	Vector3 GetWorldTranslate()const;
 	const Matrix4x4& GetWorldMatrix()const { return worldTransform_.matWorld; }
 	const GPUParticleShaderStructs::VertexEmitterForCPU& GetVertexEmitter()const { return vertexEmitterDesc_; }
+
+	void SetPosition(const Vector3& pos) {
+		worldTransform_.translate = pos;
+		worldTransform_.UpdateMatrix();
+	}
 private:
 	void UpdateCollider();
 	void UpdateGPUParticle(CommandContext& commandContext);

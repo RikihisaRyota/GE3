@@ -23,7 +23,7 @@ public:
 	const WorldTransform& GetWorldTransform() const { return worldTransform_; }
 	// 外部から消すことあり
 	OBBCollider* GetCollider() { return collider_; }
-	const std::string& GetObjectName() const { return desc_.objectName.value(); }
+	const std::optional<std::string>& GetObjectName() const { return desc_.objectName; }
 private:
 	void UpdateTransform();
 	void OnCollision(const ColliderDesc& collisionInfo);

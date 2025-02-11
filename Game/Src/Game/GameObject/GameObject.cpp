@@ -9,8 +9,9 @@
 GameObject::GameObject(const LevelDataLoader::GameObject& desc, const WorldTransform* worldTransform) {
 
 	desc_ = desc;
-
-	modelHandle_ = ModelManager::GetInstance()->Load(desc.fileName);
+	if (desc.fileName) {
+		modelHandle_ = ModelManager::GetInstance()->Load(desc.fileName.value());
+	}
 	worldTransform_.Initialize();
 	worldTransform_.parent_ = worldTransform;
 	worldTransform_.translate = desc_.transform.translate;
@@ -45,7 +46,9 @@ void GameObject::Update() {
 }
 
 void GameObject::Draw(const ViewProjection& viewProjection, CommandContext& commandContext) {
-	ModelManager::GetInstance()->Draw(worldTransform_.matWorld, viewProjection, modelHandle_, commandContext);
+	if (modelHandle_.IsValid()) {
+		ModelManager::GetInstance()->Draw(worldTransform_.matWorld, viewProjection, modelHandle_, commandContext);
+	}
 }
 
 void GameObject::DrawDebug() {

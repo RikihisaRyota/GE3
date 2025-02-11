@@ -64,6 +64,11 @@ public:
 		boss_ = boss;
 		playerBulletManager_->SetBoss(boss_);
 	}
+
+	void SetPosition(const Vector3& pos) {
+		worldTransform_.translate = pos;
+		worldTransform_.UpdateMatrix();
+	}
 private:
 	struct AnimationInfo {
 		Animation::AnimationHandle handle;

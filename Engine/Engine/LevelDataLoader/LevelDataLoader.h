@@ -30,7 +30,7 @@ namespace LevelDataLoader {
 	struct GameObject {
 		Transform transform;
 		std::optional<LevelDataLoader::Collider> collider;
-		std::string fileName;
+		std::optional<std::string> fileName;
 		std::optional<std::string> objectName;
 	};
 

@@ -54,6 +54,16 @@ GameScene::GameScene() {
 
 	player_->SetBoss(boss_.get());
 	boss_->SetPlayer(player_.get());
+
+	for (const auto& object : gameObject_) {
+		if (object.get()->GetObjectName() == "Player") {
+			player_->SetPosition(object.get()->GetWorldTransform().translate);
+		}
+		if (object.get()->GetObjectName() == "Enemy") {
+			boss_->SetPosition(object.get()->GetWorldTransform().translate);
+		}
+
+	}
 	player_->SetGPUParticleManager(gpuParticleManager_.get());
 	boss_->SetGPUParticleManager(gpuParticleManager_.get());
 	backGround_->SetGPUParticleManager(gpuParticleManager_.get());
@@ -200,7 +210,7 @@ void GameScene::Draw(CommandContext& commandContext) {
 	for (auto& object : gameObject_) {
 
 		if (object->GetObjectName() == "Post" || object->GetObjectName() == "BackGround") {
-			continue;	
+			continue;
 		}
 		object->Draw(*viewProjection_, commandContext);
 	}
